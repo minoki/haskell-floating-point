@@ -1,7 +1,7 @@
 resolver: lts-16.1
 
 packages:
-- .
+- rounded-hw/
 
 extra-deps:
 - long-double-0.1.1
