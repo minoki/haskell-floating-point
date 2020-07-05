@@ -1,0 +1,218 @@
+name:                fp-ieee
+version:             0.1.0.0
+github:              "minoki/haskell-floating-point"
+license:             BSD3
+author:              "ARATA Mizuki"
+maintainer:          "minorinoki@gmail.com"
+copyright:           "2020 ARATA Mizuki"
+category:            Numeric, Math
+# synopsis:            Short description of your package
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/minoki/haskell-floating-point/fp-ieee#readme>
+
+dependencies:
+- base >= 4.12 && < 5
+# We use some post-GHC-8.6 language extensions: HexFloatLiterals, NumericUnderscores
+# cast{Word32,Word64}To{Float,Double}, cast{Float,Double}To{Word32,Word64} are since base-4.10.0.0
+
+flags:
+  pure-hs:
+    description: "Disable FFI"
+    manual: True
+    default: false
+
+  c99:
+    description: "Restrict use of platform-dependent features and only use C99 features"
+    manual: true
+    default: false
+
+  sse4_1:
+    description: "Use SSE4.1 instructions on x86"
+    manual: true
+    default: false
+
+  fma3:
+    description: "Use FMA3 instructions on x86"
+    manual: true
+    default: false
+
+  f16c:
+    description: "Use F16C instructions on x86"
+    manual: true
+    default: false
+
+  x87-long-double:
+    description: "Support x87 \"long double\" via long-double package"
+    manual: true
+    default: true
+
+  float128:
+    description: "Support Float128 via float128 package"
+    manual: true
+    default: false
+
+  half:
+    description: "Support Half (float16) via half package"
+    manual: true
+    default: false
+
+  integer-gmp:
+    description: "Use integer-gmp package"
+    manual: false
+    default: true
+
+when:
+# Always enable SSE2 on i386
+- condition: arch(i386)
+  ghc-options:
+  - -msse2
+  cc-options:
+  - -msse2 -mfpmath=sse
+
+- condition: "!flag(pure-hs)"
+  cpp-options:
+  - -DUSE_FFI
+
+# flag(c99): Disable platform-dependent techniques and only use C99 features
+- condition: flag(c99)
+  cc-options:
+  - -DUSE_C99
+
+# Fast roundeven: needs SSE4.1 on x86
+- condition: "!flag(pure-hs) && !flag(c99) && (arch(i386) || arch(x86_64)) && flag(sse4_1)"
+  cpp-options:
+  - -DHAS_FAST_ROUNDEVEN
+  cc-options:
+  - -msse4.1
+  c-sources:
+  - cbits/roundeven.c
+
+# Fast roundeven: available on AArch64
+- condition: "!flag(pure-hs) && !flag(c99) && arch(aarch64)"
+  cpp-options:
+  - -DHAS_FAST_ROUNDEVEN
+  c-sources:
+  - cbits/roundeven.c
+
+# Fast FMA: needs FMA3 (or FMA4) on x86
+- condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3)"
+  cpp-options:
+  - -DHAS_FAST_FMA
+  cc-options:
+  - -mfma
+  c-sources:
+  - cbits/fma.c
+
+# Fast FMA: available on AArch64
+- condition: "!flag(pure-hs) && arch(aarch64)"
+  cpp-options:
+  - -DHAS_FAST_FMA
+  c-sources:
+  - cbits/fma.c
+
+# Enable use of libm's fma unless "pure-hs" is set; but not on Windows
+# (mingw-w64's fma is not reliable)
+- condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && !os(windows)"
+  cpp-options:
+  - -DUSE_C99_FMA
+
+# flag(x87-long-double): Support LongDouble on x86
+- condition: "flag(x87-long-double) && (arch(i386) || arch(x86_64))"
+  dependencies: long-double
+  cpp-options:
+  - -DUSE_X87_LONG_DOUBLE
+
+# flag(float128): Support Float128
+- condition: flag(float128)
+  dependencies: float128
+  cpp-options:
+  - -DUSE_FLOAT128
+
+# flag(half): Support Half
+# Note that half-0.3's isInfinite is buggy (https://github.com/ekmett/half/issues/23)
+- condition: flag(half)
+  dependencies: half
+  cpp-options:
+  - -DUSE_HALF
+
+- condition: "!flag(pure-hs) && !flag(c99) && flag(half) && arch(x86_64) && flag(f16c)"
+  cpp-options:
+  - -DHAS_FAST_HALF_CONVERSION
+  cc-options:
+  - -mf16c
+  c-sources:
+  - cbits/half.c
+
+- condition: "!flag(pure-hs) && !flag(c99) && flag(half) && arch(aarch64)"
+  cpp-options:
+  - -DHAS_FAST_HALF_CONVERSION
+  c-sources:
+  - cbits/half.c
+
+library:
+  source-dirs: src
+  other-modules:
+  - GHC.Float.Compat
+  - MyPrelude
+  - Numeric.Floating.IEEE.Internal.Augmented
+  - Numeric.Floating.IEEE.Internal.Base
+  - Numeric.Floating.IEEE.Internal.Classify
+  - Numeric.Floating.IEEE.Internal.Conversion
+  - Numeric.Floating.IEEE.Internal.FMA
+  - Numeric.Floating.IEEE.Internal.GenericArith
+  - Numeric.Floating.IEEE.Internal.MinMax
+  - Numeric.Floating.IEEE.Internal.NaN
+  - Numeric.Floating.IEEE.Internal.NextFloat
+  - Numeric.Floating.IEEE.Internal.RoundToIntegral
+  - Numeric.Floating.IEEE.Internal.Rounding
+  dependencies:
+  - integer-logarithms
+  ghc-options:
+  - -Wall
+  when:
+  - condition: flag(half)
+    other-modules:
+    - Numeric.Floating.IEEE.Internal.Half
+  - condition: flag(integer-gmp)
+    dependencies:
+    - integer-gmp
+
+tests:
+  fp-ieee-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -fno-ignore-asserts
+    dependencies:
+    - fp-ieee
+    - QuickCheck
+    - hspec
+    - hspec-core
+    - random
+    when:
+    - condition: flag(half)
+      other-modules:
+      - HalfSpec
+
+  fp-ieee-doctests:
+    main: doctests.hs
+    dependencies:
+    - doctest >= 0.8
+
+benchmarks:
+  fp-ieee-benchmark:
+    main: Benchmark.hs
+    source-dirs: benchmark
+    dependencies:
+    - fp-ieee
+    - gauge
