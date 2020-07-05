@@ -1,6 +1,7 @@
 resolver: lts-16.1
 
 packages:
+- floating-extra/
 - rounded-hw/
 
 extra-deps:

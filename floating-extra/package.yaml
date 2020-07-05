@@ -1,0 +1,46 @@
+name:                floating-extra
+version:             0.1.0.0
+github:              "minoki/fp-suite"
+license:             BSD3
+author:              "ARATA Mizuki"
+maintainer:          "minorinoki@gmail.com"
+copyright:           "2020 ARATA Mizuki"
+category:            Numeric, Math
+# synopsis:            Short description of your package
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/minoki/fp-suite/floating-extra#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+
+library:
+  source-dirs: src
+
+tests:
+  floating-extra-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - floating-extra
+    - QuickCheck
+    - hspec
+    - random
+
+benchmarks:
+  floating-extra-benchmark:
+    main: Benchmark.hs
+    source-dirs: benchmark
+    dependencies:
+    - floating-extra
+    - gauge
