@@ -51,10 +51,12 @@ module Numeric.Floating.Extra.IEEE
   , (/) -- division
   , sqrt -- squareRoot
   , fusedMultiplyAdd
+  , fusedMultiplyAdd_viaRational
+  , fusedMultiplyAdd_viaInteger
   , fusedMultiplyAdd_twoProduct
   , fusedMultiplyAddFloat_viaDouble
-  , c_fusedMultiplyAddFloat
-  , c_fusedMultiplyAddDouble
+  -- , c_fusedMultiplyAddFloat
+  -- , c_fusedMultiplyAddDouble
   -- |
   -- @convertFromInt@: not implemented yet
   , round    -- convertToIntegerTiesToEven: round
@@ -140,12 +142,13 @@ module Numeric.Floating.Extra.IEEE
   , twoSum
   , twoProduct
   , split
+  , isMantissaEven
   ) where
 import           Data.Bits
 import           Data.Ratio
-import           GHC.Float (castDoubleToWord64, castFloatToWord32,
+import           GHC.Float.Compat (castDoubleToWord64, castFloatToWord32,
                             castWord32ToFloat, castWord64ToDouble,
-                            double2Float, float2Double)
+                            double2Float, float2Double, isDoubleFinite, isFloatFinite)
 import           Numeric.Floating.Extra.Conversion
 import Debug.Trace
 import MyPrelude
@@ -246,6 +249,7 @@ nextUp x | not (isIEEE x) = error "non-IEEE numbers are not supported"
 -- prop> nextDown 0 == (-0x1p-1074 :: Double)
 -- prop> nextDown (-0) == (-0x1p-1074 :: Double)
 -- prop> nextDown 0x1p-1074 == (0 :: Double)
+-- prop> nextDown 0x1p-1022 == (0x0.ffff_ffff_ffff_fp-1022 ::Double)
 nextDown :: RealFloat a => a -> a
 nextDown x | not (isIEEE x) = error "non-IEEE numbers are not supported"
            | floatRadix x /= 2 = error "non-binary types are not supported" -- TODO
@@ -309,7 +313,7 @@ nextDown_positive x
                 in if expMin - d <= e
                    then -- normal
                      let m1 = m - 1
-                     in if m .&. m1 == 0
+                     in if m .&. m1 == 0 && expMin - d /= e
                         then encodeFloat (2 * m - 1) (e - 1)
                         else encodeFloat m1 e
                    else -- subnormal
@@ -340,18 +344,16 @@ nextDown_positive x
 nextUpFloat :: Float -> Float
 nextUpFloat x
   | not isFloatBinary32 = error "Numeric.Floating.Extra assumes Float is IEEE binary32"
-  | isNaN x = x -- NaN -> itself
-  | isNegativeZero x = encodeFloat 1 (expMin - d) -- -0 -> min positive
-  | x < 0 = castWord32ToFloat (castFloatToWord32 x - 1) -- negative
   | otherwise = case castFloatToWord32 x of
-                  0x7f80_0000 -> x -- positive infinity -> itself
-                  w           -> castWord32ToFloat (w + 1) -- positive
+                  w | w .&. 0x7f80_0000 == 0x7f80_0000
+                    , w /= 0xff80_0000 -> x -- NaN or positive infinity -> itself
+                  0x8000_0000 -> encodeFloat 1 (expMin - d) -- -0 -> min positive
+                  w | testBit w 31 -> castWord32ToFloat (w - 1) -- negative
+                    | otherwise -> castWord32ToFloat (w + 1) -- positive
   where
     d, expMin :: Int
-    d = floatDigits x -- 53 for Double
-    (expMin,expMax) = floatRange x -- (-1021,1024) for Double
-    -- Note: castFloatToWord32 is buggy on GHC <= 8.8 on x86_64, so we can't use it to test for NaN or negative number
-    --   https://gitlab.haskell.org/ghc/ghc/issues/16617
+    d = floatDigits x -- 24 for Float
+    (expMin,_expMax) = floatRange x -- (-125,128) for Float
 
 -- |
 -- prop> nextUpDouble 1 == 0x1.0000_0000_0000_1p0
@@ -372,7 +374,7 @@ nextUpDouble x
   where
     d, expMin :: Int
     d = floatDigits x -- 53 for Double
-    (expMin,expMax) = floatRange x -- (-1021,1024) for Double
+    (expMin,_expMax) = floatRange x -- (-1021,1024) for Double
 
 -- |
 -- prop> nextDownFloat 1 == 0x1.fffffep-1
@@ -384,16 +386,16 @@ nextUpDouble x
 nextDownFloat :: Float -> Float
 nextDownFloat x
   | not isFloatBinary32 = error "Numeric.Floating.Extra assumes Float is IEEE binary32"
-  | isNaN x || (isInfinite x && x < 0) = x -- NaN or negative infinity -> itself
-  | isNegativeZero x || x < 0 = castWord32ToFloat (castFloatToWord32 x + 1) -- negative
-  | x == 0 = encodeFloat (-1) (expMin - d) -- +0 -> max negative
-  | otherwise = castWord32ToFloat (castFloatToWord32 x - 1) -- positive
+  | otherwise = case castFloatToWord32 x of
+                  w | w .&. 0x7f80_0000 == 0x7f80_0000
+                    , w /= 0x7f80_0000 -> x -- NaN or negative infinity -> itself
+                  0x0000_0000 -> encodeFloat (-1) (expMin - d) -- +0 -> max negative
+                  w | testBit w 31 -> castWord32ToFloat (w + 1) -- negative
+                    | otherwise -> castWord32ToFloat (w - 1) -- positive
   where
     d, expMin :: Int
-    d = floatDigits x -- 53 for Double
-    (expMin,expMax) = floatRange x -- (-1021,1024) for Double
-    -- Note: castFloatToWord32 is buggy on GHC <= 8.8 on x86_64, so we can't use it to test for NaN or negative number
-    --   https://gitlab.haskell.org/ghc/ghc/issues/16617
+    d = floatDigits x -- 24 for Float
+    (expMin,_expMax) = floatRange x -- (-125,128) for Float
 
 -- |
 -- prop> nextDownDouble 1 == 0x1.ffff_ffff_ffff_fp-1
@@ -414,7 +416,7 @@ nextDownDouble x
   where
     d, expMin :: Int
     d = floatDigits x -- 53 for Double
-    (expMin,expMax) = floatRange x -- (-1021,1024) for Double
+    (expMin,_expMax) = floatRange x -- (-1021,1024) for Double
 
 -- |
 -- prop> nextTowardZeroFloat 1 == 0x1.fffffep-1
@@ -427,14 +429,16 @@ nextDownDouble x
 nextTowardZeroFloat :: Float -> Float
 nextTowardZeroFloat x
   | not isFloatBinary32 = error "Numeric.Floating.Extra assumes Float is IEEE binary32"
-  | isNaN x || x == 0 = x -- NaN or zero -> itself
-  | otherwise = castWord32ToFloat (castFloatToWord32 x - 1) -- positive / negative
+  | otherwise = case castFloatToWord32 x of
+                  w | w .&. 0x7f80_0000 == 0x7f80_0000
+                    , w .&. 0x007f_ffff /= 0 -> x -- NaN -> itself
+                  0x8000_0000 -> x -- -0 -> itself
+                  0x0000_0000 -> x -- +0 -> itself
+                  w -> castWord32ToFloat (w - 1) -- positive / negative
   where
     d, expMin :: Int
-    d = floatDigits x -- 53 for Double
-    (expMin,expMax) = floatRange x -- (-1021,1024) for Double
-    -- Note: castFloatToWord32 is buggy on GHC <= 8.8 on x86_64, so we can't use it to test for NaN or negative number
-    --   https://gitlab.haskell.org/ghc/ghc/issues/16617
+    d = floatDigits x -- 24 for Float
+    (expMin,_expMax) = floatRange x -- (-125,128) for Float
 
 -- |
 -- prop> nextTowardZeroDouble 1 == 0x1.ffff_ffff_ffff_fp-1
@@ -456,7 +460,29 @@ nextTowardZeroDouble x
   where
     d, expMin :: Int
     d = floatDigits x -- 53 for Double
-    (expMin,expMax) = floatRange x -- (-1021,1024) for Double
+    (expMin,_expMax) = floatRange x -- (-1021,1024) for Double
+
+-- Assumption: input is finite
+isMantissaEven :: RealFloat a => a -> Bool
+isMantissaEven 0 = True
+isMantissaEven x = let !_ = assert (isFinite x) ()
+                       (m,n) = decodeFloat x
+                       d = floatDigits x
+                       !_ = assert (floatRadix x ^ (d - 1) <= abs m && abs m < floatRadix x ^ d) ()
+                       (expMin, _expMax) = floatRange x
+                       s = (expMin - (n + d))
+                       !_ = assert (isDenormalized x == (n + d < expMin)) ()
+                   in if n + d < expMin then
+                        traceShow (s,m `shiftR` s) $ even (m `shiftR` s)
+                      else
+                        even m
+{-# NOINLINE [1] isMantissaEven #-}
+{-# RULES
+"isMantissaEven/Double" forall (x :: Double).
+  isMantissaEven x = even (castDoubleToWord64 x)
+"isMantissaEven/Float" forall (x :: Float).
+  isMantissaEven x = even (castFloatToWord32 x)
+  #-}
 
 -- |
 -- prop> \a b -> case twoSum a b of (x, y) -> a + b == x && toRational a + toRational b == toRational x + toRational y
@@ -468,8 +494,18 @@ twoSum a b =
   in (x, y)
 {-# SPECIALIZE twoSum :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
 
+-- Addition, with round to nearest odd floating-point number
+add_roundToOdd :: RealFloat a => a -> a -> a
+add_roundToOdd x y = let (u, v) = twoSum x y
+                         result | v < 0 && isMantissaEven u = nextDown u
+                                | v > 0 && isMantissaEven u = nextUp u
+                                | otherwise = u
+                         !_ = assert (toRational u == toRational x + toRational y || not (isMantissaEven result)) ()
+                     in result
+{-# SPECIALIZE add_roundToOdd :: Float -> Float -> Float, Double -> Double -> Double #-}
+
 -- |
--- prop> \a b -> case twoProd a b of (x, y) -> a * b == x && fromRational (toRational a * toRational b - toRational x) == y
+-- prop> \a b -> case twoProduct a b of (x, y) -> a * b == x && fromRational (toRational a * toRational b - toRational x) == y
 twoProduct :: RealFloat a => a -> a -> (a, a)
 twoProduct a b =
   let eab = exponent a + exponent b
@@ -482,6 +518,7 @@ twoProduct a b =
   in (x, scaleFloat eab y')
 {-# SPECIALIZE twoProduct :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
 
+{-
 twoProduct_Float :: Float -> Float -> (Float, Float)
 twoProduct_Float a b =
   let x, y :: Float
@@ -492,6 +529,7 @@ twoProduct_Float a b =
       x = double2Float x'
       y = double2Float (x' - float2Double x)
   in (x, y)
+-}
 
 twoProduct_nonscaling :: RealFloat a => a -> a -> (a, a)
 twoProduct_nonscaling a b =
@@ -517,90 +555,130 @@ split a =
 -- prop> \a b c -> toRational (fma_twoProd a b c) == toRational a * toRational b + toRational c
 fusedMultiplyAdd_twoProduct :: RealFloat a => a -> a -> a -> a
 fusedMultiplyAdd_twoProduct a b c
-  | isInfinite c && isFinite a && isFinite b = c -- Returns infinity even if a * b overflows
-  | isNaN a || isNaN b || isNaN c || isInfinite a || isInfinite b || isInfinite c = a * b + c
-  | otherwise = let eab | a == 0 || b == 0 = fst (floatRange a) - floatDigits a -- reasonably small
-                        | otherwise = exponent a + exponent b
-                    ec | c == 0 = fst (floatRange c) - floatDigits c
-                       | otherwise = exponent c
-                    a' = significand a -- a' == a * radix^^(-exponent a)
-                    b' = significand b -- b' == b * radix^^(-exponent b)
-                    c' = significand c -- c' == c * radix^^(-ec)
-                    (x', y') = twoProduct_nonscaling a' b'
-                    e = max eab ec
-                    x = scaleFloat (eab - e) x'
-                    y = scaleFloat (eab - e) y'
-                    d' = scaleFloat (ec - e) c'
-                    d | y == scaleFloat (- floatDigits y') 0.5 = scaleFloat (max (2 - 2 * floatDigits c) (ec - e)) c'
-                      | otherwise = scaleFloat (ec - e) c'
-                    t = x + d
-                    result0 | abs x > abs d = t + (y + ((x - t) + d))
-                            | otherwise     = t + (y + ((d - t) + x))
-                    -- result1 = t - result0
-                    result = scaleFloat e result0
-                in assert (toRational a' * toRational b' == toRational x' + toRational y') $
-                   -- trace (showString "result0: " . showHFloat result0 . showString " expected: " . showHFloat (fromRational (toRational x + toRational y + toRational d') `asTypeOf` result0) . showString " x: " . showHFloat x . showString " y: " . showHFloat y . showString " d: " . showHFloat d . showString " d': " . showHFloat d' . showString " t: " . showHFloat t . showString " ec: " . shows ec . showString " e: " . shows e $ "") $
-                   -- assert (toRational result0 + toRational result1 == (toRational x'' + toRational y'' + toRational c'')) $
-                   assert (result0 == fromRational (toRational x + toRational y + toRational d')) $
-                   if result0 == 0 then
-                     -- We need to handle the sign of zero
-                     if c == 0 && a /= 0 && b /= 0 then
-                       a * b -- let the product underflow
-                     else
-                       a * b + c -- -0 if both a * b and c are -0
-                   else
-                     if isDenormalized result then
-                       -- The rounding in 'scaleFloat e result0' might have yielded an incorrect result.
-                       -- Take the slow path.
-                       case toRational a * toRational b + toRational c of
-                         0 -> a * b + c
-                         r -> fromRational r
-                     else
-                       result
--- {-# SPECIALIZE fusedMultiplyAdd_twoProduct :: Float -> Float -> Float -> Float, Double -> Double -> Double -> Double #-}
-{-# NOINLINE fusedMultiplyAdd_twoProduct #-}
+  | isFinite a && isFinite b && isFinite c =
+    let eab | a == 0 || b == 0 = fst (floatRange a) - floatDigits a -- reasonably small
+            | otherwise = exponent a + exponent b
+        ec | c == 0 = fst (floatRange c) - floatDigits c
+           | otherwise = exponent c
+
+        -- Avoid overflow in twoProduct
+        a' = significand a
+        b' = significand b
+        (x', y') = twoProduct_nonscaling a' b'
+        !_ = assert (toRational a' * toRational b' == toRational x' + toRational y') ()
+
+        -- Avoid overflow in twoSum
+        e = max eab ec
+        x = scaleFloat (eab - e) x'
+        y = scaleFloat (eab - e) y'
+        c'' = scaleFloat (max (fst (floatRange c) - floatDigits c + 1) (ec - e) - ec) c -- may be inexact
+
+        (u1,u2) = twoSum y c''
+        (v1,v2) = twoSum u1 x
+        (w1,w2) = twoSum u2 v2
+        (s1,s2) = twoSum v1 w1
+        w = add_roundToOdd s2 w2
+        result0 = s1 + w
+        !_ = assert (result0 == fromRational (toRational x + toRational y + toRational c'')) ()
+        result = scaleFloat e result0
+        !_ = assert (result == fromRational (toRational a * toRational b + toRational c) || isDenormalized result) ()
+    in if result0 == 0 then
+         -- We need to handle the sign of zero
+         if c == 0 && a /= 0 && b /= 0 then
+           a * b -- let a * b underflow
+         else
+           a * b + c -- -0 if both a * b and c are -0
+       else
+         if isDenormalized result then
+           -- The rounding in 'scaleFloat e result0' may yield an incorrect result.
+           -- Take the slow path.
+           case toRational a * toRational b + toRational c of
+             0 -> a * b + c -- This should be exact
+             r -> fromRational r
+         else
+           result
+  | isFinite a && isFinite b = c -- c is +-Infinity or NaN
+  | otherwise = a * b + c -- Infinity or NaN
+{-# SPECIALIZE fusedMultiplyAdd_twoProduct :: Float -> Float -> Float -> Float, Double -> Double -> Double -> Double #-}
 
 -- TODO: Check if this works correctly
 fusedMultiplyAddFloat_viaDouble :: Float -> Float -> Float -> Float
 fusedMultiplyAddFloat_viaDouble a b c
-  | isFloatBinary32 && isDoubleBinary64 = realFloatToFrac (realFloatToFrac a * realFloatToFrac b + realFloatToFrac c :: Double)
-  | otherwise = error "fusedMultiplyAdd/Float: unexpected configuration"
+  | isFinite a && isFinite b && isFinite c =
+    let a', b', c' :: Double
+        a' = float2Double a
+        b' = float2Double b
+        c' = float2Double c
+        ab = a' * b' -- exact
+        !_ = assert (toRational ab == toRational a' * toRational b') ()
+        result = double2Float (add_roundToOdd ab c')
+        !_ = assert (result == fromRational (toRational a * toRational b + toRational c)) ()
+    in result
+  | isFinite a && isFinite b && isInfinite c = c
+  | otherwise = a * b + c
+  where
+    !True = isFloatBinary32 || error "fusedMultiplyAdd/Float: Float must be IEEE binary32"
+    !True = isDoubleBinary64 || error "fusedMultiplyAdd/Float: Double must be IEEE binary64"
 
 -- |
 -- IEEE 754 @fusedMultiplyAdd@ operation.
-fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a
-fusedMultiplyAdd x y z
+fusedMultiplyAdd_viaInteger :: RealFloat a => a -> a -> a -> a
+fusedMultiplyAdd_viaInteger x y z
   | isFinite x && isFinite y = if isFinite z then
-                                 case toRational x * toRational y + toRational z of
-                                   0 -> x * y + z
-                                   r -> fromRational r
+                                 let (mx,ex) = decodeFloat x -- x == mx * b^ex, mx==0 || b^(d-1) <= abs mx < b^d
+                                     (my,ey) = decodeFloat y -- y == my * b^ey, my==0 || b^(d-1) <= abs my < b^d
+                                     (mz,ez) = decodeFloat z -- z == mz * b^ez, mz==0 || b^(d-1) <= abs mz < b^d
+                                     exy = ex + ey
+                                     ee = min ez exy
+                                     !2 = floatRadix x
+                                 in case mx * my `shiftL` (exy - ee) + mz `shiftL` (ez - ee) of
+                                      0 -> x * y + z
+                                      m -> encodeFloat m ee -- TODO: correct rounding
                                else
                                  if isInfinite z then
                                    z -- x * y is finite
                                  else
                                    x * y + z -- z is NaN
   | otherwise = x * y + z -- either x or y is Infinity or NaN
+{-# NOINLINE [1] fusedMultiplyAdd_viaInteger #-}
+
+-- |
+-- IEEE 754 @fusedMultiplyAdd@ operation.
+fusedMultiplyAdd_viaRational :: RealFloat a => a -> a -> a -> a
+fusedMultiplyAdd_viaRational x y z
+  | isFinite x && isFinite y = if isFinite z then
+                                 case toRational x * toRational y + toRational z of
+                                   0 -> x * y + z
+                                   r -> fromRational r
+                               else
+                                 -- x * is finite, but z is NaN
+                                 z
+  | otherwise = x * y + z -- either x or y is Infinity or NaN
+
+fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a
+fusedMultiplyAdd = fusedMultiplyAdd_viaRational
 {-# NOINLINE [1] fusedMultiplyAdd #-}
 
--- #ifdef USE_FFI
+#ifdef USE_FFI
 
 foreign import ccall unsafe "fmaf"
   c_fusedMultiplyAddFloat :: Float -> Float -> Float -> Float
 foreign import ccall unsafe "fma"
   c_fusedMultiplyAddDouble :: Double -> Double -> Double -> Double
 
-{-
 {-# RULES
 "fusedMultiplyAdd/Float" fusedMultiplyAdd = c_fusedMultiplyAddFloat
 "fusedMultiplyAdd/Double" fusedMultiplyAdd = c_fusedMultiplyAddDouble
   #-}
--}
 
--- #else
+#else
 
--- TODO: implement Float version of FMA with Double
+{-# RULES
+"fusedMultiplyAdd/Float" fusedMultiplyAdd = fusedMultiplyAddFloat_viaDouble
+"fusedMultiplyAdd/Double" fusedMultiplyAdd = fusedMultiplyAdd_twoProduct :: Double -> Double -> Double -> Double
+  #-}
 
--- #endif
+#endif
 
 -- generic, heterogeneous?
 -- to narrower type
@@ -775,8 +853,13 @@ isNormal x = x /= 0 && not (isNaN x) && not (isInfinite x) && not (isDenormalize
 -- TODO: Specialize for Float, Double
 {-# NOINLINE [1] isNormal #-}
 {-# RULES
+"isNormal/Float" isNormal = isFloatNormal
 "isNormal/Double" isNormal = isDoubleNormal
   #-}
+
+isFloatNormal :: Float -> Bool
+isFloatNormal x = let w = castFloatToWord32 x .&. 0x7f80_0000
+                  in w /= 0 && w /= 0x7f80_0000
 
 isDoubleNormal :: Double -> Bool
 isDoubleNormal x = let w = castDoubleToWord64 x .&. 0x7ff0_0000_0000_0000
@@ -786,9 +869,13 @@ isDoubleNormal x = let w = castDoubleToWord64 x .&. 0x7ff0_0000_0000_0000
 -- IEEE 754 @isFinite@ operation.
 isFinite :: RealFloat a => a -> Bool
 isFinite x = not (isNaN x) && not (isInfinite x)
--- TODO: Specialize for Float, Double
-
--- There's isDoubleFinite in GHC.Float
+{-# NOINLINE [1] isFinite #-}
+{-# RULES
+"isFinite/Float" forall (x :: Float).
+  isFinite x = isFloatFinite x /= 0
+"isFinite/Double" forall (x :: Double).
+  isFinite x = isDoubleFinite x /= 0
+  #-}
 
 -- |
 -- IEEE 754 @isZero@ operation.
@@ -877,7 +964,7 @@ classifyDouble x = let w = castDoubleToWord64 x
                         (False, 0x7ff, 0) -> PositiveInfinity
                         (_, 0x7ff, _) -> QuietNaN -- ignore signaling NaN
                         (True, _, _) -> NegativeNormal
-                        (False, _, _) -> NegativeNormal
+                        (False, _, _) -> PositiveNormal
 
 -- TODO (recommended):
 -- exp
