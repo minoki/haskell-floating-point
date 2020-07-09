@@ -18,7 +18,9 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/minoki/fp-suite/floating-extra#readme>
 
 dependencies:
-- base >= 4.7 && < 5
+- base >= 4.12 && < 5
+# We use some post-GHC-8.6 language extensions: HexFloatLiterals, NumericUnderscores
+# cast{Word32,Word64}To{Float,Double}, cast{Float,Double}To{Word32,Word64} are since base-4.10.0.0
 
 library:
   source-dirs: src

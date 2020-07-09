@@ -11,6 +11,8 @@ If you want better treatment for NaNs, use the module "Numeric.Floating.Extra.IE
 
 Since floating-point exceptions cannot be accessed from Haskell in normal way, the operations provided by this module ignore exceptional behavior.
 Don't let fp exceptions trap.
+
+On i386 target, you may need to set @-msse2@ option to get good floating-point behavior.
 -}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE CPP #-}
@@ -22,7 +24,7 @@ module Numeric.Floating.Extra.IEEE
   --
   -- ** 5.3.1 General operations
     roundToIntegralTiesToEven
-  -- | @roundToIntegralTiesToAway@: not implemented yet
+  , roundToIntegralTiesToAway
   , roundToIntegralTowardZero
   , roundToIntegralTowardPositive
   , roundToIntegralTowardNegative
@@ -37,9 +39,11 @@ module Numeric.Floating.Extra.IEEE
   --
   -- | Not supported.
 
-  -- ** 5.3.3 logBFormat operations (not supported)
+  -- ** 5.3.3 logBFormat operations
   --
   -- | Not supported.
+  , scaleFloat -- scaleB
+  -- logB x = exponent x - 1
 
   -- * 5.4 formatOf general-computational operations
   --
@@ -63,8 +67,7 @@ module Numeric.Floating.Extra.IEEE
   , truncate -- convertToIntegerTowardZero: truncate
   , ceiling  -- convertToIntegerTowardPositive: ceiling
   , floor    -- convertToIntegerTowardNegative: floor
-  -- |
-  -- @convertToIntegerTiesToAway@: not implemented yet
+  , roundTiesToAway
 
   -- ** 5.4.2 Conversion operations for floating-point formats and decimal character sequences
   --
@@ -135,6 +138,23 @@ module Numeric.Floating.Extra.IEEE
   -- |
   -- Not supported.
 
+  -- * 9. Recommended operations
+
+  -- * 9.5 Augmented arithmetic operations
+  , augmentedAddition
+  , augmentedSubtraction
+  , augmentedMultiplication
+
+  -- * 9.6 Minimum and maximum operations
+  , minimum'
+  , minimumNumber
+  , maximum'
+  , maximumNumber
+  , minimumMagnitude
+  , minimumMagnitudeNumber
+  , maximumMagnitude
+  , maximumMagnitudeNumber
+
   -- * Uncategorized
   , minPositive
   , maxFinite
@@ -144,16 +164,14 @@ module Numeric.Floating.Extra.IEEE
   , split
   , isMantissaEven
   ) where
+import           Control.Exception (assert)
 import           Data.Bits
 import           Data.Ratio
 import           GHC.Float.Compat (castDoubleToWord64, castFloatToWord32,
                             castWord32ToFloat, castWord64ToDouble,
                             double2Float, float2Double, isDoubleFinite, isFloatFinite)
+import           MyPrelude
 import           Numeric.Floating.Extra.Conversion
-import Debug.Trace
-import MyPrelude
-import Control.Exception
-import Numeric
 
 default ()
 
@@ -342,18 +360,15 @@ nextDown_positive x
 -- prop> nextUpFloat (-0) == 0x1p-149
 -- prop> isNegativeZero (nextUpFloat (-0x1p-149))
 nextUpFloat :: Float -> Float
-nextUpFloat x
-  | not isFloatBinary32 = error "Numeric.Floating.Extra assumes Float is IEEE binary32"
-  | otherwise = case castFloatToWord32 x of
-                  w | w .&. 0x7f80_0000 == 0x7f80_0000
-                    , w /= 0xff80_0000 -> x -- NaN or positive infinity -> itself
-                  0x8000_0000 -> encodeFloat 1 (expMin - d) -- -0 -> min positive
-                  w | testBit w 31 -> castWord32ToFloat (w - 1) -- negative
-                    | otherwise -> castWord32ToFloat (w + 1) -- positive
+nextUpFloat x =
+  case castFloatToWord32 x of
+    w | w .&. 0x7f80_0000 == 0x7f80_0000
+      , w /= 0xff80_0000 -> x -- NaN or positive infinity -> itself
+    0x8000_0000 -> minPositive -- -0 -> min positive
+    w | testBit w 31 -> castWord32ToFloat (w - 1) -- negative
+      | otherwise -> castWord32ToFloat (w + 1) -- positive
   where
-    d, expMin :: Int
-    d = floatDigits x -- 24 for Float
-    (expMin,_expMax) = floatRange x -- (-125,128) for Float
+    !True = isFloatBinary32 || error "Numeric.Floating.Extra assumes Float is IEEE binary32"
 
 -- |
 -- prop> nextUpDouble 1 == 0x1.0000_0000_0000_1p0
@@ -363,18 +378,15 @@ nextUpFloat x
 -- prop> nextUpDouble (-0) == 0x1p-1074
 -- prop> isNegativeZero (nextUpDouble (-0x1p-1074))
 nextUpDouble :: Double -> Double
-nextUpDouble x
-  | not isDoubleBinary64 = error "Numeric.Floating.Extra assumes Double is IEEE binary64"
-  | otherwise = case castDoubleToWord64 x of
-                  w | w .&. 0x7ff0_0000_0000_0000 == 0x7ff0_0000_0000_0000
-                    , w /= 0xfff0_0000_0000_0000 -> x -- NaN or positive infinity -> itself
-                  0x8000_0000_0000_0000 -> encodeFloat 1 (expMin - d) -- -0 -> min positive
-                  w | testBit w 63 -> castWord64ToDouble (w - 1) -- negative
-                    | otherwise -> castWord64ToDouble (w + 1) -- positive
+nextUpDouble x =
+  case castDoubleToWord64 x of
+    w | w .&. 0x7ff0_0000_0000_0000 == 0x7ff0_0000_0000_0000
+      , w /= 0xfff0_0000_0000_0000 -> x -- NaN or positive infinity -> itself
+    0x8000_0000_0000_0000 -> minPositive -- -0 -> min positive
+    w | testBit w 63 -> castWord64ToDouble (w - 1) -- negative
+      | otherwise -> castWord64ToDouble (w + 1) -- positive
   where
-    d, expMin :: Int
-    d = floatDigits x -- 53 for Double
-    (expMin,_expMax) = floatRange x -- (-1021,1024) for Double
+     !True = isDoubleBinary64 || error "Numeric.Floating.Extra assumes Double is IEEE binary64"
 
 -- |
 -- prop> nextDownFloat 1 == 0x1.fffffep-1
@@ -384,18 +396,15 @@ nextUpDouble x
 -- prop> nextDownFloat (-0) == -0x1p-149
 -- prop> nextDownFloat 0x1p-149 == 0
 nextDownFloat :: Float -> Float
-nextDownFloat x
-  | not isFloatBinary32 = error "Numeric.Floating.Extra assumes Float is IEEE binary32"
-  | otherwise = case castFloatToWord32 x of
-                  w | w .&. 0x7f80_0000 == 0x7f80_0000
-                    , w /= 0x7f80_0000 -> x -- NaN or negative infinity -> itself
-                  0x0000_0000 -> encodeFloat (-1) (expMin - d) -- +0 -> max negative
-                  w | testBit w 31 -> castWord32ToFloat (w + 1) -- negative
-                    | otherwise -> castWord32ToFloat (w - 1) -- positive
+nextDownFloat x =
+  case castFloatToWord32 x of
+    w | w .&. 0x7f80_0000 == 0x7f80_0000
+      , w /= 0x7f80_0000 -> x -- NaN or negative infinity -> itself
+    0x0000_0000 -> - minPositive -- +0 -> max negative
+    w | testBit w 31 -> castWord32ToFloat (w + 1) -- negative
+      | otherwise -> castWord32ToFloat (w - 1) -- positive
   where
-    d, expMin :: Int
-    d = floatDigits x -- 24 for Float
-    (expMin,_expMax) = floatRange x -- (-125,128) for Float
+    !True = isFloatBinary32 || error "Numeric.Floating.Extra assumes Float is IEEE binary32"
 
 -- |
 -- prop> nextDownDouble 1 == 0x1.ffff_ffff_ffff_fp-1
@@ -405,18 +414,15 @@ nextDownFloat x
 -- prop> nextDownDouble (-0) == -0x1p-1074
 -- prop> nextDownDouble 0x1p-1074 == 0
 nextDownDouble :: Double -> Double
-nextDownDouble x
-  | not isDoubleBinary64  = error "Numeric.Floating.Extra assumes Double is IEEE binary64"
-  | otherwise = case castDoubleToWord64 x of
-                  w | w .&. 0x7ff0_0000_0000_0000 == 0x7ff0_0000_0000_0000
-                    , w /= 0x7ff0_0000_0000_0000 -> x -- NaN or negative infinity -> itself
-                  0x0000_0000_0000_0000 -> encodeFloat (-1) (expMin - d) -- +0 -> max negative
-                  w | testBit w 63 -> castWord64ToDouble (w + 1) -- negative
-                    | otherwise -> castWord64ToDouble (w - 1) -- positive
+nextDownDouble x =
+  case castDoubleToWord64 x of
+    w | w .&. 0x7ff0_0000_0000_0000 == 0x7ff0_0000_0000_0000
+      , w /= 0x7ff0_0000_0000_0000 -> x -- NaN or negative infinity -> itself
+    0x0000_0000_0000_0000 -> - minPositive -- +0 -> max negative
+    w | testBit w 63 -> castWord64ToDouble (w + 1) -- negative
+      | otherwise -> castWord64ToDouble (w - 1) -- positive
   where
-    d, expMin :: Int
-    d = floatDigits x -- 53 for Double
-    (expMin,_expMax) = floatRange x -- (-1021,1024) for Double
+     !True = isDoubleBinary64 || error "Numeric.Floating.Extra assumes Double is IEEE binary64"
 
 -- |
 -- prop> nextTowardZeroFloat 1 == 0x1.fffffep-1
@@ -427,18 +433,15 @@ nextDownDouble x
 -- prop> isNegativeZero (nextTowardZeroFloat (-0))
 -- prop> nextTowardZeroFloat 0x1p-149 == 0
 nextTowardZeroFloat :: Float -> Float
-nextTowardZeroFloat x
-  | not isFloatBinary32 = error "Numeric.Floating.Extra assumes Float is IEEE binary32"
-  | otherwise = case castFloatToWord32 x of
-                  w | w .&. 0x7f80_0000 == 0x7f80_0000
-                    , w .&. 0x007f_ffff /= 0 -> x -- NaN -> itself
-                  0x8000_0000 -> x -- -0 -> itself
-                  0x0000_0000 -> x -- +0 -> itself
-                  w -> castWord32ToFloat (w - 1) -- positive / negative
+nextTowardZeroFloat x =
+  case castFloatToWord32 x of
+    w | w .&. 0x7f80_0000 == 0x7f80_0000
+      , w .&. 0x007f_ffff /= 0 -> x -- NaN -> itself
+    0x8000_0000 -> x -- -0 -> itself
+    0x0000_0000 -> x -- +0 -> itself
+    w -> castWord32ToFloat (w - 1) -- positive / negative
   where
-    d, expMin :: Int
-    d = floatDigits x -- 24 for Float
-    (expMin,_expMax) = floatRange x -- (-125,128) for Float
+    !True = isFloatBinary32 || error "Numeric.Floating.Extra assumes Float is IEEE binary32"
 
 -- |
 -- prop> nextTowardZeroDouble 1 == 0x1.ffff_ffff_ffff_fp-1
@@ -449,18 +452,15 @@ nextTowardZeroFloat x
 -- prop> isNegativeZero (nextTowardZeroDouble (-0))
 -- prop> nextTowardZeroDouble 0x1p-1074 == 0
 nextTowardZeroDouble :: Double -> Double
-nextTowardZeroDouble x
-  | not isDoubleBinary64 = error "Numeric.Floating.Extra assumes Double is IEEE binary64"
-  | otherwise = case castDoubleToWord64 x of
-                  w | w .&. 0x7ff0_0000_0000_0000 == 0x7ff0_0000_0000_0000
-                    , w .&. 0x000f_ffff_ffff_ffff /= 0 -> x -- NaN -> itself
-                  0x8000_0000_0000_0000 -> x -- -0 -> itself
-                  0x0000_0000_0000_0000 -> x -- +0 -> itself
-                  w -> castWord64ToDouble (w - 1) -- positive / negative
+nextTowardZeroDouble x =
+  case castDoubleToWord64 x of
+    w | w .&. 0x7ff0_0000_0000_0000 == 0x7ff0_0000_0000_0000
+      , w .&. 0x000f_ffff_ffff_ffff /= 0 -> x -- NaN -> itself
+    0x8000_0000_0000_0000 -> x -- -0 -> itself
+    0x0000_0000_0000_0000 -> x -- +0 -> itself
+    w -> castWord64ToDouble (w - 1) -- positive / negative
   where
-    d, expMin :: Int
-    d = floatDigits x -- 53 for Double
-    (expMin,_expMax) = floatRange x -- (-1021,1024) for Double
+    !True = isDoubleBinary64 || error "Numeric.Floating.Extra assumes Double is IEEE binary64"
 
 -- Assumption: input is finite
 isMantissaEven :: RealFloat a => a -> Bool
@@ -470,10 +470,10 @@ isMantissaEven x = let !_ = assert (isFinite x) ()
                        d = floatDigits x
                        !_ = assert (floatRadix x ^ (d - 1) <= abs m && abs m < floatRadix x ^ d) ()
                        (expMin, _expMax) = floatRange x
-                       s = (expMin - (n + d))
-                       !_ = assert (isDenormalized x == (n + d < expMin)) ()
-                   in if n + d < expMin then
-                        traceShow (s,m `shiftR` s) $ even (m `shiftR` s)
+                       s = expMin - (n + d)
+                       !_ = assert (isDenormalized x == (s > 0)) ()
+                   in if s > 0 then
+                        even (m `shiftR` s)
                       else
                         even m
 {-# NOINLINE [1] isMantissaEven #-}
@@ -575,10 +575,8 @@ fusedMultiplyAdd_twoProduct a b c
 
         (u1,u2) = twoSum y c''
         (v1,v2) = twoSum u1 x
-        (w1,w2) = twoSum u2 v2
-        (s1,s2) = twoSum v1 w1
-        w = add_roundToOdd s2 w2
-        result0 = s1 + w
+        w = add_roundToOdd u2 v2
+        result0 = v1 + w
         !_ = assert (result0 == fromRational (toRational x + toRational y + toRational c'')) ()
         result = scaleFloat e result0
         !_ = assert (result == fromRational (toRational a * toRational b + toRational c) || isDenormalized result) ()
@@ -614,7 +612,7 @@ fusedMultiplyAddFloat_viaDouble a b c
         result = double2Float (add_roundToOdd ab c')
         !_ = assert (result == fromRational (toRational a * toRational b + toRational c)) ()
     in result
-  | isFinite a && isFinite b && isInfinite c = c
+  | isFinite a && isFinite b = c -- a * b is finite, but c is Infinity or NaN
   | otherwise = a * b + c
   where
     !True = isFloatBinary32 || error "fusedMultiplyAdd/Float: Float must be IEEE binary32"
@@ -624,21 +622,17 @@ fusedMultiplyAddFloat_viaDouble a b c
 -- IEEE 754 @fusedMultiplyAdd@ operation.
 fusedMultiplyAdd_viaInteger :: RealFloat a => a -> a -> a -> a
 fusedMultiplyAdd_viaInteger x y z
-  | isFinite x && isFinite y = if isFinite z then
-                                 let (mx,ex) = decodeFloat x -- x == mx * b^ex, mx==0 || b^(d-1) <= abs mx < b^d
-                                     (my,ey) = decodeFloat y -- y == my * b^ey, my==0 || b^(d-1) <= abs my < b^d
-                                     (mz,ez) = decodeFloat z -- z == mz * b^ez, mz==0 || b^(d-1) <= abs mz < b^d
-                                     exy = ex + ey
-                                     ee = min ez exy
-                                     !2 = floatRadix x
-                                 in case mx * my `shiftL` (exy - ee) + mz `shiftL` (ez - ee) of
-                                      0 -> x * y + z
-                                      m -> encodeFloat m ee -- TODO: correct rounding
-                               else
-                                 if isInfinite z then
-                                   z -- x * y is finite
-                                 else
-                                   x * y + z -- z is NaN
+  | isFinite x && isFinite y && isFinite z =
+      let (mx,ex) = decodeFloat x -- x == mx * b^ex, mx==0 || b^(d-1) <= abs mx < b^d
+          (my,ey) = decodeFloat y -- y == my * b^ey, my==0 || b^(d-1) <= abs my < b^d
+          (mz,ez) = decodeFloat z -- z == mz * b^ez, mz==0 || b^(d-1) <= abs mz < b^d
+          exy = ex + ey
+          ee = min ez exy
+          !2 = floatRadix x
+      in case mx * my `shiftL` (exy - ee) + mz `shiftL` (ez - ee) of
+           0 -> x * y + z
+           m -> encodeFloat m ee -- TODO: correct rounding
+  | isFinite x && isFinite y = z -- x * y is finite, but z is Infinity or NaN
   | otherwise = x * y + z -- either x or y is Infinity or NaN
 {-# NOINLINE [1] fusedMultiplyAdd_viaInteger #-}
 
@@ -646,21 +640,20 @@ fusedMultiplyAdd_viaInteger x y z
 -- IEEE 754 @fusedMultiplyAdd@ operation.
 fusedMultiplyAdd_viaRational :: RealFloat a => a -> a -> a -> a
 fusedMultiplyAdd_viaRational x y z
-  | isFinite x && isFinite y = if isFinite z then
-                                 case toRational x * toRational y + toRational z of
-                                   0 -> x * y + z
-                                   r -> fromRational r
-                               else
-                                 -- x * is finite, but z is NaN
-                                 z
+  | isFinite x && isFinite y && isFinite z =
+      case toRational x * toRational y + toRational z of
+        0 -> x * y + z
+        r -> fromRational r
+  | isFinite x && isFinite y = z -- x * is finite, but z is Infinity or NaN
   | otherwise = x * y + z -- either x or y is Infinity or NaN
 
 fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a
-fusedMultiplyAdd = fusedMultiplyAdd_viaRational
+fusedMultiplyAdd = fusedMultiplyAdd_twoProduct
 {-# NOINLINE [1] fusedMultiplyAdd #-}
 
 #ifdef USE_FFI
 
+-- libm's fma might be implemented with hardware
 foreign import ccall unsafe "fmaf"
   c_fusedMultiplyAddFloat :: Float -> Float -> Float -> Float
 foreign import ccall unsafe "fma"
@@ -754,6 +747,7 @@ remainder x y = let n = round (toRational x / toRational y)
 -- IEEE 754 @roundToIntegralTiesToEven@ operation.
 --
 -- prop> \x -> roundToIntegralTiesToEven x == fromInteger (round x)
+-- prop> isNegativeZero (roundToIntegralTiesToEven (-0.5))
 roundToIntegralTiesToEven :: RealFloat a => a -> a
 roundToIntegralTiesToEven x | isInfinite x || isNaN x || isNegativeZero x = x
 roundToIntegralTiesToEven x = case round x of
@@ -762,9 +756,32 @@ roundToIntegralTiesToEven x = case round x of
                                 n -> fromInteger n
 
 -- |
+-- IEEE 754 @roundToIntegralTiesToAway@ operation.
+--
+-- prop> \x -> roundToIntegralTiesToAway x == fromInteger (round x)
+-- prop> isNegativeZero (roundToIntegralTiesToAway (-0.4))
+roundToIntegralTiesToAway :: (Real a, Integral b) => a -> b
+roundToIntegralTiesToAway x | isInfinite x || isNaN x || isNegativeZero x = x
+roundToIntegralTiesToAway x = case properFraction x of
+                                -- x == n + f, signum x == signum f, 0 <= abs f < 1
+                                (n,r) -> if abs r < 0.5 then
+                                           -- round toward zero
+                                           if n == 0 then
+                                             0.0 * r -- signed zero
+                                           else
+                                             fromInteger n
+                                         else
+                                           -- round away from zero
+                                           if r < 0 then
+                                             fromInteger (n - 1)
+                                           else
+                                             fromInteger (n + 1)
+
+-- |
 -- IEEE 754 @roundToIntegralTowardZero@ operation.
 --
 -- prop> \x -> roundToIntegralTowardZero x == fromInteger (truncate x)
+-- prop> isNegativeZero (roundToIntegralTowardZero (-0.5))
 roundToIntegralTowardZero :: RealFloat a => a -> a
 roundToIntegralTowardZero x | isInfinite x || isNaN x || isNegativeZero x = x
 roundToIntegralTowardZero x = case truncate x of
@@ -776,6 +793,7 @@ roundToIntegralTowardZero x = case truncate x of
 -- IEEE 754 @roundToIntegralTowardPositive@ operation.
 --
 -- prop> \x -> roundToIntegralTowardPositive x == fromInteger (ceiling x)
+-- prop> isNegativeZero (roundToIntegralTowardPositive (-0.5))
 roundToIntegralTowardPositive :: RealFloat a => a -> a
 roundToIntegralTowardPositive x | isInfinite x || isNaN x || isNegativeZero x = x
 roundToIntegralTowardPositive x = case ceiling x of
@@ -787,9 +805,24 @@ roundToIntegralTowardPositive x = case ceiling x of
 -- IEEE 754 @roundToIntegralTowardNegative@ operation.
 --
 -- prop> \x -> roundToIntegralTowardNegative x == fromInteger (floor x)
+-- prop> isNegativeZero (roundToIntegralTowardNegative (-0))
 roundToIntegralTowardNegative :: RealFloat a => a -> a
 roundToIntegralTowardNegative x | isInfinite x || isNaN x || isNegativeZero x = x
                                 | otherwise = fromInteger (floor x)
+
+-- |
+-- IEEE 754 @convertToIntegerTiesToAway@ operation.
+roundTiesToAway :: (Real a, Integral b) => a -> b
+roundTiesToAway x = case properFraction x of
+                      -- x == n + f, signum x == signum f, 0 <= abs f < 1
+                      (n,r) -> if abs r < 0.5 then
+                                 n
+                               else
+                                 if r < 0 then
+                                   n - 1
+                                 else
+                                   n + 1
+{-# INLINE roundTiesToAway #-}
 
 -- roundToIntegral{TiesToEven,TiesToAway,TowardZero,TowardPositive,TowardNegative} -> round',_,truncate',ceiling',floor' :: a -> a
 -- roundToIntegralExact -> not supported (maybe fp-exceptions)
@@ -850,7 +883,6 @@ roundToIntegralTowardNegative x | isInfinite x || isNaN x || isNegativeZero x = 
 -- IEEE 754 @isNormal@ operation.
 isNormal :: RealFloat a => a -> Bool
 isNormal x = x /= 0 && not (isNaN x) && not (isInfinite x) && not (isDenormalized x)
--- TODO: Specialize for Float, Double
 {-# NOINLINE [1] isNormal #-}
 {-# RULES
 "isNormal/Float" isNormal = isFloatNormal
@@ -906,11 +938,8 @@ compareByTotalOrder x y
   | x == y = if x == 0 then
                compare (isNegativeZero y) (isNegativeZero x)
              else
-               EQ -- TODO
-  | otherwise = case (isNaN x, isNaN y) of
-                  (True, False) -> GT -- TODO: sign bit of NaN
-                  (False, True) -> LT -- TODO: sign bit of NaN
-                  _ -> EQ -- must be (True, True). TODO: sign bit of NaN, payload of NaN
+               EQ
+  | otherwise = compare (isNaN x) (isNaN y) -- The sign bit and payload of NaNs are ignored
 -- TODO: Specialize for Float, Double
 
 -- |
@@ -920,7 +949,7 @@ compareByTotalOrderMag x y = compareByTotalOrder (abs x) (abs y)
 
 -- isCanonical :: a -> Bool
 
--- data Ordering4 = LT | EQ | GT | UNORD
+-- data PartialOrdering = LT | EQ | GT | UNORD
 
 data Class = SignalingNaN
            | QuietNaN
@@ -956,15 +985,15 @@ classifyDouble x = let w = castDoubleToWord64 x
                        e = (w `unsafeShiftR` 52) .&. 0x7ff -- exponent
                        m = w .&. 0x000f_ffff_ffff_ffff -- mantissa
                    in case (s, e, m) of
-                        (True, 0, 0) -> NegativeZero
-                        (False, 0, 0) -> PositiveZero
-                        (True, 0, _) -> NegativeSubnormal
-                        (False, 0, _) -> PositiveSubnormal
-                        (True, 0x7ff, 0) -> NegativeInfinity
+                        (True,  0,     0) -> NegativeZero
+                        (False, 0,     0) -> PositiveZero
+                        (True,  0,     _) -> NegativeSubnormal
+                        (False, 0,     _) -> PositiveSubnormal
+                        (True,  0x7ff, 0) -> NegativeInfinity
                         (False, 0x7ff, 0) -> PositiveInfinity
-                        (_, 0x7ff, _) -> QuietNaN -- ignore signaling NaN
-                        (True, _, _) -> NegativeNormal
-                        (False, _, _) -> PositiveNormal
+                        (_,     0x7ff, _) -> QuietNaN -- treat signaling NaNs as quiet
+                        (True,  _,     _) -> NegativeNormal
+                        (False, _,     _) -> PositiveNormal
 
 -- TODO (recommended):
 -- exp
@@ -1034,3 +1063,120 @@ classifyDouble x = let w = castDoubleToWord64 x
 -- getPayload
 -- setPayload
 -- setPayloadSignaling
+
+-- |
+-- IEEE 754 @augmentedAddition@ operation.
+augmentedAddition :: RealFloat a => a -> a -> (a, a)
+augmentedAddition !x !y
+  | isNaN x || isInfinite x || isNaN y || isInfinite y = let !result = x + y in (result, result)
+  | otherwise = let (u1, u2) = twoSum x y
+                    ulpTowardZero = u1 - nextTowardZero u1
+                in if isInfinite u1 then
+                     -- Handle undue overflow: e.g. 0x1.ffff_ffff_ffff_f8p1023
+                     handleUndueOverflow
+                   else
+                     if 2 * u2 == ulpTowardZero then
+                       (u1 - ulpTowardZero, ulpTowardZero + u2)
+                     else
+                       if u2 == 0 then
+                         (u1, 0 * u1) -- signed zero
+                       else
+                         (u1, u2)
+  where
+    handleUndueOverflow =
+      let e = max (exponent x) (exponent y)
+          x' = scaleFloat (- e) x
+          y' = scaleFloat (- e) y
+          (u1, u2) = twoSum x' y'
+          ulpTowardZero = u1 - nextTowardZero u1
+          (v1, v2) | 2 * u2 == ulpTowardZero = (u1 - ulpTowardZero, ulpTowardZero + u2)
+                   | otherwise = (u1, u2)
+          r1 = scaleFloat e v1
+          r2 = scaleFloat e v2
+      in if isInfinite r1 then
+           (r1, r1) -- unavoidable overflow
+         else
+           assert (r2 /= 0) (r1, r2)
+
+-- |
+-- IEEE 754 @augmentedSubtraction@ operation.
+augmentedSubtraction :: RealFloat a => a -> a -> (a, a)
+augmentedSubtraction x y = augmentedAddition x (negate y)
+
+-- |
+-- IEEE 754 @augmentedMultiplication@ operation.
+augmentedMultiplication :: RealFloat a => a -> a -> (a, a)
+augmentedMultiplication !x !y
+  | isNaN x || isInfinite x || isNaN y || isInfinite y = let !result = x * y in (result, result)
+  | otherwise = let exy = exponent x + exponent y
+                    x' = significand x
+                    y' = significand y
+                    (u1, u2) = twoProduct x' y'
+                    !_ = assert (toRational x' * toRational y' == toRational u1 + toRational u2) ()
+                    ulpTowardZero = u1 - nextTowardZero u1 -- TODO: subnormals
+                    (v1, v2) | 2 * u2 == ulpTowardZero = (u1 - ulpTowardZero, ulpTowardZero + u2)
+                             | otherwise = (u1, u2)
+                    r1 = scaleFloat exy v1
+                    r2 = scaleFloat exy v2 -- TODO: underflow (roundTiesTowardZero)
+                in if isInfinite r1 then
+                     (r1, r1)
+                   else
+                     if r2 == 0 then
+                       (r1, 0 * r1) -- signed zero
+                     else
+                       (r1, r2)
+  where
+    d = floatDigits x
+    (expMin,_expMax) = floatRange x
+
+-- |
+-- IEEE 754 @minimum@ operation.
+minimum' :: RealFloat a => a -> a -> a
+minimum' x y | x < y || isNaN x || (x == y && isNegativeZero x) = x
+             | otherwise = y
+
+-- |
+-- IEEE 754 @minimumNumber@ operation.
+minimumNumber :: RealFloat a => a -> a -> a
+minimumNumber x y | x < y || isNaN y || (x == y && isNegativeZero x) = x
+                  | otherwise = y
+
+-- |
+-- IEEE 754 @maximum@ operation.
+maximum' :: RealFloat a => a -> a -> a
+maximum' x y | x < y || isNaN y || (x == y && isNegativeZero x) = y
+             | otherwise = x
+
+-- |
+-- IEEE 754 @maximumNumber@ operation.
+maximumNumber :: RealFloat a => a -> a -> a
+maximumNumber x y | x < y || isNaN x || (x == y && isNegativeZero x) = y
+                  | otherwise = x
+
+-- |
+-- IEEE 754 @minimumMagnitude@ operation.
+minimumMagnitude :: RealFloat a => a -> a -> a
+minimumMagnitude x y | abs x < abs y = x
+                     | abs y < abs x = y
+                     | otherwise = minimum' x y
+
+-- |
+-- IEEE 754 @minimumMagnitudeNumber@ operation.
+minimumMagnitudeNumber :: RealFloat a => a -> a -> a
+minimumMagnitudeNumber x y | abs x < abs y = x
+                           | abs y < abs x = y
+                           | otherwise = minimumNumber x y
+
+-- |
+-- IEEE 754 @maximumMagnitude@ operation.
+maximumMagnitude :: RealFloat a => a -> a -> a
+maximumMagnitude x y | abs x > abs y = x
+                     | abs y > abs x = y
+                     | otherwise = maximum' x y
+
+-- |
+-- IEEE 754 @maximumMagnitudeNumber@ operation.
+maximumMagnitudeNumber :: RealFloat a => a -> a -> a
+maximumMagnitudeNumber x y | abs x > abs y = x
+                           | abs y > abs x = y
+                           | otherwise = maximumNumber x y
