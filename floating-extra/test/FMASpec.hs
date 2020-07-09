@@ -7,6 +7,8 @@ import           Test.QuickCheck
 import           Util (sameFloat, sameFloatP, forAllFloats3)
 import Numeric
 import Control.Monad
+import Data.Coerce
+import Data.Functor.Identity
 
 foreign import ccall unsafe "fma"
   c_fma_double :: Double -> Double -> Double -> Double
