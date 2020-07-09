@@ -1,9 +1,11 @@
 {-# LANGUAGE CPP #-}
 
--- castFloatToWord32 is buggy on GHC <= 8.8 on x86_64.
+-- castFloatToWord32 is buggy on GHC <= 8.8 && 64-bit systems.
 -- See https://gitlab.haskell.org/ghc/ghc/issues/16617
 
-#if MIN_VERSION_base(4,14,0) || !defined(x86_64_HOST_ARCH)
+#include "MachDeps.h"
+
+#if MIN_VERSION_base(4,14,0) || WORD_SIZE_IN_BITS == 32
 
 module GHC.Float.Compat (module GHC.Float) where
 import GHC.Float
