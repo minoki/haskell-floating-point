@@ -26,6 +26,8 @@ library:
   source-dirs: src
   other-modules:
   - GHC.Float.Compat
+  dependencies:
+  - integer-logarithms
 
 tests:
   floating-extra-test:

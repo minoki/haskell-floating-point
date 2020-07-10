@@ -12,12 +12,13 @@ If you want better treatment for NaNs, use the module "Numeric.Floating.Extra.IE
 Since floating-point exceptions cannot be accessed from Haskell in normal way, the operations provided by this module ignore exceptional behavior.
 Don't let fp exceptions trap.
 
-On i386 target, you may need to set @-msse2@ option to get good floating-point behavior.
+On i386 target, you may need to set @-msse2@ option to get correct floating-point behavior.
 -}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Numeric.Floating.Extra.IEEE
   (
   -- * 5.3 Homogeneous general-computational operations
@@ -28,12 +29,14 @@ module Numeric.Floating.Extra.IEEE
   , roundToIntegralTowardZero
   , roundToIntegralTowardPositive
   , roundToIntegralTowardNegative
-  -- | @roundToIntegralExact@: not implemented yet
+  -- | @roundToIntegralExact{...}@: not implemented yet
   , nextUp
   , nextDown
   -- | 'nextTowardZero' is not in IEEE, but may be useful to some.
   , nextTowardZero -- not in IEEE
   , remainder
+  -- , c_remainderFloat
+  -- , c_remainderDouble
 
   -- ** 5.3.2 Decimal operations (not supported)
   --
@@ -64,10 +67,10 @@ module Numeric.Floating.Extra.IEEE
   -- |
   -- @convertFromInt@: not implemented yet
   , round    -- convertToIntegerTiesToEven: round
+  , roundTiesToAway
   , truncate -- convertToIntegerTowardZero: truncate
   , ceiling  -- convertToIntegerTowardPositive: ceiling
   , floor    -- convertToIntegerTowardNegative: floor
-  , roundTiesToAway
 
   -- ** 5.4.2 Conversion operations for floating-point formats and decimal character sequences
   --
@@ -163,6 +166,7 @@ module Numeric.Floating.Extra.IEEE
   , twoProduct
   , split
   , isMantissaEven
+  , roundTiesTowardZero
   ) where
 import           Control.Exception (assert)
 import           Data.Bits
@@ -170,6 +174,7 @@ import           Data.Ratio
 import           GHC.Float.Compat (castDoubleToWord64, castFloatToWord32,
                             castWord32ToFloat, castWord64ToDouble,
                             double2Float, float2Double, isDoubleFinite, isFloatFinite)
+import           Math.NumberTheory.Logarithms (integerLog2')
 import           MyPrelude
 import           Numeric.Floating.Extra.Conversion
 
@@ -618,8 +623,6 @@ fusedMultiplyAddFloat_viaDouble a b c
     !True = isFloatBinary32 || error "fusedMultiplyAdd/Float: Float must be IEEE binary32"
     !True = isDoubleBinary64 || error "fusedMultiplyAdd/Float: Double must be IEEE binary64"
 
--- |
--- IEEE 754 @fusedMultiplyAdd@ operation.
 fusedMultiplyAdd_viaInteger :: RealFloat a => a -> a -> a -> a
 fusedMultiplyAdd_viaInteger x y z
   | isFinite x && isFinite y && isFinite z =
@@ -636,8 +639,6 @@ fusedMultiplyAdd_viaInteger x y z
   | otherwise = x * y + z -- either x or y is Infinity or NaN
 {-# NOINLINE [1] fusedMultiplyAdd_viaInteger #-}
 
--- |
--- IEEE 754 @fusedMultiplyAdd@ operation.
 fusedMultiplyAdd_viaRational :: RealFloat a => a -> a -> a -> a
 fusedMultiplyAdd_viaRational x y z
   | isFinite x && isFinite y && isFinite z =
@@ -647,6 +648,8 @@ fusedMultiplyAdd_viaRational x y z
   | isFinite x && isFinite y = z -- x * is finite, but z is Infinity or NaN
   | otherwise = x * y + z -- either x or y is Infinity or NaN
 
+-- |
+-- IEEE 754 @fusedMultiplyAdd@ operation.
 fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a
 fusedMultiplyAdd = fusedMultiplyAdd_twoProduct
 {-# NOINLINE [1] fusedMultiplyAdd #-}
@@ -740,8 +743,23 @@ distanceUlp x y
 -- |
 -- IEEE 754 @remainder@ operation.
 remainder :: RealFloat a => a -> a -> a
-remainder x y = let n = round (toRational x / toRational y)
-                in x - y * fromInteger n
+remainder x y | isFinite x && isInfinite y = x
+              | y == 0 || isInfinite y || isNaN y || not (isFinite x) = (x - x) / y * y -- return a NaN
+              | otherwise = let n = round (toRational x / toRational y) -- TODO: Is round (x / y) okay?
+                                r = x - y * fromInteger n
+                            in r -- if r == 0, the sign of r is the same as x
+
+#ifdef USE_FFI
+foreign import ccall unsafe "remainderf"
+  c_remainderFloat :: Float -> Float -> Float
+foreign import ccall unsafe "remainder"
+  c_remainderDouble :: Double -> Double -> Double
+
+{-# RULES
+"remainder/Float" remainder = c_remainderFloat
+"remainder/Double" remainder = c_remainderDouble
+  #-}
+#endif
 
 -- |
 -- IEEE 754 @roundToIntegralTiesToEven@ operation.
@@ -758,9 +776,9 @@ roundToIntegralTiesToEven x = case round x of
 -- |
 -- IEEE 754 @roundToIntegralTiesToAway@ operation.
 --
--- prop> \x -> roundToIntegralTiesToAway x == fromInteger (round x)
+-- prop> \x -> roundToIntegralTiesToAway x == fromInteger (roundTiesToAway x)
 -- prop> isNegativeZero (roundToIntegralTiesToAway (-0.4))
-roundToIntegralTiesToAway :: (Real a, Integral b) => a -> b
+roundToIntegralTiesToAway :: RealFloat a => a -> a
 roundToIntegralTiesToAway x | isInfinite x || isNaN x || isNegativeZero x = x
 roundToIntegralTiesToAway x = case properFraction x of
                                 -- x == n + f, signum x == signum f, 0 <= abs f < 1
@@ -812,7 +830,7 @@ roundToIntegralTowardNegative x | isInfinite x || isNaN x || isNegativeZero x = 
 
 -- |
 -- IEEE 754 @convertToIntegerTiesToAway@ operation.
-roundTiesToAway :: (Real a, Integral b) => a -> b
+roundTiesToAway :: (RealFrac a, Integral b) => a -> b
 roundTiesToAway x = case properFraction x of
                       -- x == n + f, signum x == signum f, 0 <= abs f < 1
                       (n,r) -> if abs r < 0.5 then
@@ -823,6 +841,55 @@ roundTiesToAway x = case properFraction x of
                                  else
                                    n + 1
 {-# INLINE roundTiesToAway #-}
+
+#ifdef USE_FFI
+
+foreign import ccall unsafe "ceilf"
+  c_ceilFloat :: Float -> Float
+foreign import ccall unsafe "ceil"
+  c_ceilDouble :: Double -> Double
+foreign import ccall unsafe "floorf"
+  c_floorFloat :: Float -> Float
+foreign import ccall unsafe "floor"
+  c_floorDouble :: Double -> Double
+foreign import ccall unsafe "roundf"
+  c_roundFloat :: Float -> Float -- ties to away
+foreign import ccall unsafe "round"
+  c_roundDouble :: Double -> Double -- ties to away
+foreign import ccall unsafe "truncf"
+  c_truncFloat :: Float -> Float
+foreign import ccall unsafe "floor"
+  c_truncDouble :: Double -> Double
+
+-- TODO: Rules for roundToIntegralTiesToEven
+-- nearbyint or roundeven (C2x)
+{- from base
+foreign import ccall unsafe "rintFloat"
+  c_rintFloat :: Float -> Float
+foreign import ccall unsafe "rintDouble"
+  c_rintDouble :: Double -> Double
+-}
+
+{-# RULES
+"roundToIntegralTiesToAway/Float"
+  roundToIntegralTiesToAway = c_roundFloat
+"roundToIntegralTiesToAway/Double"
+  roundToIntegralTiesToAway = c_roundDouble
+"roundToIntegralTowardZero/Float"
+  roundToIntegralTowardZero = c_truncFloat
+"roundToIntegralTowardZero/Double"
+  roundToIntegralTowardZero = c_truncDouble
+"roundToIntegralTowardPositive/Float"
+  roundToIntegralTowardPositive = c_ceilFloat
+"roundToIntegralTowardPositive/Double"
+  roundToIntegralTowardPositive = c_ceilDouble
+"roundToIntegralTowardNegative/Float"
+  roundToIntegralTowardNegative = c_floorFloat
+"roundToIntegralTowardNegative/Double"
+  roundToIntegralTowardNegative = c_floorDouble
+  #-}
+
+#endif
 
 -- roundToIntegral{TiesToEven,TiesToAway,TowardZero,TowardPositive,TowardNegative} -> round',_,truncate',ceiling',floor' :: a -> a
 -- roundToIntegralExact -> not supported (maybe fp-exceptions)
@@ -921,7 +988,6 @@ isZero x = x == 0
 -- this function treats all NaNs as positive.
 isSignMinus :: RealFloat a => a -> Bool
 isSignMinus x = x < 0 || isNegativeZero x
--- TODO: Specialize for Float, Double
 
 -- |
 -- Comparison with IEEE 754 @totalOrder@ predicate.
@@ -1107,48 +1173,164 @@ augmentedSubtraction x y = augmentedAddition x (negate y)
 -- IEEE 754 @augmentedMultiplication@ operation.
 augmentedMultiplication :: RealFloat a => a -> a -> (a, a)
 augmentedMultiplication !x !y
-  | isNaN x || isInfinite x || isNaN y || isInfinite y = let !result = x * y in (result, result)
+  | isNaN x || isInfinite x || isNaN y || isInfinite y || x * y == 0 = let !result = x * y in (result, result)
   | otherwise = let exy = exponent x + exponent y
                     x' = significand x
                     y' = significand y
-                    (u1, u2) = twoProduct x' y'
+                    (u1, u2) = twoProduct_nonscaling x' y'
                     !_ = assert (toRational x' * toRational y' == toRational u1 + toRational u2) ()
-                    ulpTowardZero = u1 - nextTowardZero u1 -- TODO: subnormals
-                    (v1, v2) | 2 * u2 == ulpTowardZero = (u1 - ulpTowardZero, ulpTowardZero + u2)
-                             | otherwise = (u1, u2)
-                    r1 = scaleFloat exy v1
-                    r2 = scaleFloat exy v2 -- TODO: underflow (roundTiesTowardZero)
-                in if isInfinite r1 then
-                     (r1, r1)
+                    -- The product is subnormal <=> exy < expMin
+                    -- The product is inexact => exy < expMin + d
+                in if exy >= expMin then
+                     -- The result is exact
+                     let ulpTowardZero = u1 - nextTowardZero u1
+                         (v1, v2) = if 2 * u2 == ulpTowardZero then
+                                      (u1 - ulpTowardZero, ulpTowardZero + u2)
+                                    else
+                                      (u1, u2)
+                         r1 = scaleFloat exy v1
+                     in if isInfinite r1 then
+                          (r1, r1)
+                        else
+                          if v2 == 0 then
+                            (r1, 0 * r1) -- signed zero
+                          else
+                            if exy >= expMin + d then
+                              -- The result is exact
+                              let r2 = scaleFloat exy v2
+                              in (r1, r2)
+                            else
+                              -- The upper part is normal, the lower is subnormal (and inexact)
+                              -- Compute 'scaleFloat exy v2' with roundTiesTowardZero
+                              let r2 = scaleFloat exy (nextTowardZero v2) -- Is this okay?
+                              in (r1, r2)
                    else
-                     if r2 == 0 then
-                       (r1, 0 * r1) -- signed zero
+                     -- The upper part is subnormal (possibly inexact), and the lower is signed zero (possibly inexact)
+                     if u2 == 0 then
+                       let r1 = scaleFloat exy (nextTowardZero u1) -- Is this okay?
+                       in (r1, 0 * r1)
                      else
-                       (r1, r2)
+                       let u1' = scaleFloat exy u1
+                           v1' = scaleFloat exy (nextTowardZero u1)
+                       in if u1' == v1' then
+                            -- u1 is not on a midpoint
+                            let u1'' = scaleFloat (-exy) u1' -- rounded value
+                            in (u1', 0 * (u1' - u1'')) -- signed zero
+                          else
+                            -- u1 is on a midpoint
+                            let w1 = if u2 > 0 then
+                                       nextUp u1
+                                     else
+                                       nextDown u1
+                                w1' = scaleFloat exy w1
+                            in (w1', (-0) * u2) -- ???
   where
     d = floatDigits x
     (expMin,_expMax) = floatRange x
 
+roundTiesTowardZero :: forall a. RealFloat a => Rational -> a
+roundTiesTowardZero x | x < 0 = - fromPositiveRatio (- numerator x) (denominator x)
+                      | otherwise = fromPositiveRatio (numerator x) (denominator x)
+  where
+    fromPositiveRatio :: Integer -> Integer -> a
+    fromPositiveRatio !n !d
+      = let ln, ld, e :: Int
+            ln = integerLog2' n
+            ld = integerLog2' d
+            e = ln - ld - fDigits
+            q, r, d_ :: Integer
+            d_ | e >= 0 = d `unsafeShiftL` e
+               | otherwise = d
+            (!q, !r) | e >= 0 = n `quotRem` d_
+                     | otherwise = (n `unsafeShiftL` (-e)) `quotRem` d
+            !_ = assert (n % d * 2^^(-e) == fromInteger q + r % d_) ()
+            -- e >= 0: n = q * (d * 2^e) + r, 0 <= r < d * 2^e
+            -- e <= 0: n * 2^(-e) = q * d + r, 0 <= r < d
+            -- n / d * 2^^(-e) = q + r / d_
+            -- 52 <= log2 q < 54
+
+            q', r', d' :: Integer
+            e' :: Int
+            (!q', !r', !d', !e') | q < (1 `unsafeShiftL` fDigits) = (q, r, d_, e)
+                                 | otherwise = let (q'', r'') = q `quotRem` 2
+                                               in (q'', r'' * d_ + r, 2 * d_, e + 1)
+            !_ = assert (n % d * 2^^(-e') == fromInteger q' + r' % d') ()
+            -- n / d * 2^^(-e') = q' + r' / d', 2^52 <= q' < 2^53, 0 <= r' < d'
+            -- q' * 2^^e' <= n/d < (q'+1) * 2^^e', 2^52 <= q' < 2^53
+            -- (q'/2^53) * 2^^(e'+53) <= n/d < (q'+1)/2^53 * 2^^(e'+53), 1/2 <= q'/2^53 < 1
+            -- normal: 0x1p-1022 <= x <= 0x1.fffffffffffffp+1023
+      in if expMin <= e' + fDigits && e' + fDigits <= expMax then
+           -- normal
+           if r' == 0 then
+             encodeFloat q' e' -- exact
+           else
+             -- inexact
+             let down = encodeFloat q' e'
+                 up = encodeFloat (q' + 1) e' -- may be infinity
+                 toNearest = case compare (2 * r') d' of
+                   LT -> down
+                   EQ -> down -- ties toward zero
+                   GT -> up
+             in toNearest
+         else
+           -- infinity or subnormal
+           if expMax <= e' + fDigits then
+             -- infinity
+             (1 / 0) -- ToNearest
+           else
+             -- subnormal
+             -- e' + fDigits < expMin (or, e' < expMin - fDigits = -1074)
+             -- 0 <= rounded(n/d) <= 2^(expMin - 1) = 0x1p-1022, minimum (positive) subnormal: 0x1p-1074
+             let (!q'', !r'') = q' `quotRem` (1 `unsafeShiftL` (expMin - fDigits - e'))
+                 -- q' = q'' * 2^(expMin - fDigits - e') + r'', 0 <= r'' < 2^(expMin - fDigits - e')
+                 -- 2^(fDigits-1) <= q' = q'' * 2^(expMin - fDigits - e') + r'' < 2^fDigits
+                 -- n / d * 2^^(-e') = q' + r' / d' = q'' * 2^(expMin - fDigits - e') + r'' + r' / d'
+                 -- n / d = q'' * 2^^(expMin - fDigits) + (r'' + r' / d') * 2^^e'
+                 -- 0 <= r'' < 2^(expMin - fDigits - e')
+             in if r' == 0 && r'' == 0 then
+                  encodeFloat q'' (expMin - fDigits) -- exact
+                else
+                  let down = encodeFloat q'' (expMin - fDigits)
+                      up = encodeFloat (q'' + 1) (expMin - fDigits)
+                      toNearest = case compare r'' (1 `unsafeShiftL` (expMin - fDigits - e' - 1)) of
+                                    LT -> down
+                                    GT -> up
+                                    EQ | r' /= 0   -> up
+                                       | otherwise -> down -- ties toward zero
+                  in toNearest
+      where
+        !fDigits = floatDigits (undefined :: a) -- 53 for Double
+        (!expMin, !expMax) = floatRange (undefined :: a) -- (-1021, 1024) for Double
+
+
 -- |
 -- IEEE 754 @minimum@ operation.
+-- @-0@ is smaller than @+0@.
+-- Propagates NaNs.
 minimum' :: RealFloat a => a -> a -> a
 minimum' x y | x < y || isNaN x || (x == y && isNegativeZero x) = x
              | otherwise = y
 
 -- |
 -- IEEE 754 @minimumNumber@ operation.
+-- @-0@ is smaller than @+0@.
+-- Treats NaNs as missing data.
 minimumNumber :: RealFloat a => a -> a -> a
 minimumNumber x y | x < y || isNaN y || (x == y && isNegativeZero x) = x
                   | otherwise = y
 
 -- |
 -- IEEE 754 @maximum@ operation.
+-- @-0@ is smaller than @+0@.
+-- Propagates NaNs.
 maximum' :: RealFloat a => a -> a -> a
 maximum' x y | x < y || isNaN y || (x == y && isNegativeZero x) = y
              | otherwise = x
 
 -- |
 -- IEEE 754 @maximumNumber@ operation.
+-- @-0@ is smaller than @+0@.
+-- Treats NaNs as missing data.
 maximumNumber :: RealFloat a => a -> a -> a
 maximumNumber x y | x < y || isNaN x || (x == y && isNegativeZero x) = y
                   | otherwise = x

@@ -1,3 +1,4 @@
+import qualified AugmentedArithSpec
 import qualified ClassificationSpec
 import           Data.Proxy
 import qualified FMASpec
@@ -11,3 +12,4 @@ main = hspec $ do
   describe "TwoSum" TwoSumSpec.spec
   describe "FMA" FMASpec.spec
   describe "NextAfter" NextAfterSpec.spec
+  describe "AugmentedArith" AugmentedArithSpec.spec
