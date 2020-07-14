@@ -53,7 +53,7 @@ testSpecialValues name f sp = forM_ sp $ \(a,b,c,result) -> do
   it label $ f a b c `sameFloatP` result
 
 spec :: Spec
-spec = modifyMaxSuccess (* 10000) $ do
+spec = modifyMaxSuccess (* 100) $ do
   describe "Double" $ do
     let fusedMultiplyAdd_generic :: Double -> Double -> Double -> Double
         fusedMultiplyAdd_generic = coerce (fusedMultiplyAdd :: Identity Double -> Identity Double -> Identity Double -> Identity Double)

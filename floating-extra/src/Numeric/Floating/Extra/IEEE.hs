@@ -147,6 +147,8 @@ module Numeric.Floating.Extra.IEEE
   , augmentedAddition
   , augmentedSubtraction
   , augmentedMultiplication
+  , augmentedAddition_viaRational
+  , augmentedMultiplication_viaRational
 
   -- * 9.6 Minimum and maximum operations
   , minimum'
@@ -164,6 +166,7 @@ module Numeric.Floating.Extra.IEEE
   , distanceUlp
   , twoSum
   , twoProduct
+  , twoProduct_nonscaling
   , split
   , isMantissaEven
   , roundTiesTowardZero
@@ -748,6 +751,7 @@ remainder x y | isFinite x && isInfinite y = x
               | otherwise = let n = round (toRational x / toRational y) -- TODO: Is round (x / y) okay?
                                 r = x - y * fromInteger n
                             in r -- if r == 0, the sign of r is the same as x
+{-# NOINLINE [1] remainder #-}
 
 #ifdef USE_FFI
 foreign import ccall unsafe "remainderf"
@@ -772,6 +776,7 @@ roundToIntegralTiesToEven x = case round x of
                                 0 | x < 0 -> -0
                                   | otherwise -> 0
                                 n -> fromInteger n
+{-# NOINLINE [1] roundToIntegralTiesToEven #-}
 
 -- |
 -- IEEE 754 @roundToIntegralTiesToAway@ operation.
@@ -794,6 +799,7 @@ roundToIntegralTiesToAway x = case properFraction x of
                                              fromInteger (n - 1)
                                            else
                                              fromInteger (n + 1)
+{-# NOINLINE [1] roundToIntegralTiesToAway #-}
 
 -- |
 -- IEEE 754 @roundToIntegralTowardZero@ operation.
@@ -806,6 +812,7 @@ roundToIntegralTowardZero x = case truncate x of
                                 0 | x < 0 -> -0
                                   | otherwise -> 0
                                 n -> fromInteger n
+{-# NOINLINE [1] roundToIntegralTowardZero #-}
 
 -- |
 -- IEEE 754 @roundToIntegralTowardPositive@ operation.
@@ -818,6 +825,7 @@ roundToIntegralTowardPositive x = case ceiling x of
                                     0 | x < 0 -> -0
                                       | otherwise -> 0
                                     n -> fromInteger n
+{-# NOINLINE [1] roundToIntegralTowardPositive #-}
 
 -- |
 -- IEEE 754 @roundToIntegralTowardNegative@ operation.
@@ -827,6 +835,7 @@ roundToIntegralTowardPositive x = case ceiling x of
 roundToIntegralTowardNegative :: RealFloat a => a -> a
 roundToIntegralTowardNegative x | isInfinite x || isNaN x || isNegativeZero x = x
                                 | otherwise = fromInteger (floor x)
+{-# NOINLINE [1] roundToIntegralTowardNegative #-}
 
 -- |
 -- IEEE 754 @convertToIntegerTiesToAway@ operation.
@@ -869,6 +878,12 @@ foreign import ccall unsafe "rintFloat"
 foreign import ccall unsafe "rintDouble"
   c_rintDouble :: Double -> Double
 -}
+#if defined(HAS_FAST_ROUNDEVEN)
+foreign import ccall unsafe "hs_roundevenFloat"
+  c_roundevenFloat :: Float -> Float
+foreign import ccall unsafe "hs_roundevenDouble"
+  c_roundevenDouble :: Double -> Double
+#endif
 
 {-# RULES
 "roundToIntegralTiesToAway/Float"
@@ -1057,7 +1072,7 @@ classifyDouble x = let w = castDoubleToWord64 x
                         (False, 0,     _) -> PositiveSubnormal
                         (True,  0x7ff, 0) -> NegativeInfinity
                         (False, 0x7ff, 0) -> PositiveInfinity
-                        (_,     0x7ff, _) -> QuietNaN -- treat signaling NaNs as quiet
+                        (_,     0x7ff, _) -> QuietNaN -- treat all NaNs as quiet
                         (True,  _,     _) -> NegativeNormal
                         (False, _,     _) -> PositiveNormal
 
@@ -1141,11 +1156,11 @@ augmentedAddition !x !y
                      -- Handle undue overflow: e.g. 0x1.ffff_ffff_ffff_f8p1023
                      handleUndueOverflow
                    else
-                     if 2 * u2 == ulpTowardZero then
-                       (u1 - ulpTowardZero, ulpTowardZero + u2)
+                     if u2 == 0 then
+                       (u1, 0 * u1) -- signed zero
                      else
-                       if u2 == 0 then
-                         (u1, 0 * u1) -- signed zero
+                       if (-2) * u2 == ulpTowardZero then
+                         (u1 - ulpTowardZero, ulpTowardZero + u2)
                        else
                          (u1, u2)
   where
@@ -1155,7 +1170,7 @@ augmentedAddition !x !y
           y' = scaleFloat (- e) y
           (u1, u2) = twoSum x' y'
           ulpTowardZero = u1 - nextTowardZero u1
-          (v1, v2) | 2 * u2 == ulpTowardZero = (u1 - ulpTowardZero, ulpTowardZero + u2)
+          (v1, v2) | (-2) * u2 == ulpTowardZero = (u1 - ulpTowardZero, ulpTowardZero + u2)
                    | otherwise = (u1, u2)
           r1 = scaleFloat e v1
           r2 = scaleFloat e v2
@@ -1179,16 +1194,19 @@ augmentedMultiplication !x !y
                     y' = significand y
                     (u1, u2) = twoProduct_nonscaling x' y'
                     !_ = assert (toRational x' * toRational y' == toRational u1 + toRational u2) ()
-                    -- The product is subnormal <=> exy < expMin
-                    -- The product is inexact => exy < expMin + d
-                in if exy >= expMin then
+                    -- The product is subnormal <=> exy + exponent u1 < expMin
+                    -- The product is inexact => exy + exponent u1 < expMin + d
+                in if exy + exponent u1 >= expMin then
                      -- The result is exact
                      let ulpTowardZero = u1 - nextTowardZero u1
-                         (v1, v2) = if 2 * u2 == ulpTowardZero then
+                         !_ = assert (2 * abs u2 <= abs ulpTowardZero) ()
+                         (v1, v2) = if (-2) * u2 == ulpTowardZero then
                                       (u1 - ulpTowardZero, ulpTowardZero + u2)
                                     else
                                       (u1, u2)
+                         !_ = assert (v1 + v2 == u1 + u2) ()
                          r1 = scaleFloat exy v1
+                         !_ = assert (r1 == roundTiesTowardZero (toRational x * toRational y)) ()
                      in if isInfinite r1 then
                           (r1, r1)
                         else
@@ -1202,31 +1220,88 @@ augmentedMultiplication !x !y
                             else
                               -- The upper part is normal, the lower is subnormal (and inexact)
                               -- Compute 'scaleFloat exy v2' with roundTiesTowardZero
-                              let r2 = scaleFloat exy (nextTowardZero v2) -- Is this okay?
+                              let !r2 = scaleFloatIntoSubnormalTiesTowardZero exy v2
+                                  !_ = assert (r2 == roundTiesTowardZero (toRational x * toRational y - toRational r1)) ()
                               in (r1, r2)
                    else
                      -- The upper part is subnormal (possibly inexact), and the lower is signed zero (possibly inexact)
                      if u2 == 0 then
-                       let r1 = scaleFloat exy (nextTowardZero u1) -- Is this okay?
-                       in (r1, 0 * r1)
+                       -- u1 is exact
+                       let !_ = assert (toRational x' * toRational y' == toRational u1) ()
+                           r1 = scaleFloatIntoSubnormalTiesTowardZero exy u1
+                           r1' = scaleFloat (-exy) r1
+                       in if u1 == r1' then
+                            (r1, 0 * r1)
+                          else
+                            (r1, 0 * (u1 - r1'))
                      else
                        let u1' = scaleFloat exy u1
-                           v1' = scaleFloat exy (nextTowardZero u1)
+                           v1' = scaleFloat exy (if u2 > 0 then nextUp u1 else nextDown u1)
                        in if u1' == v1' then
-                            -- u1 is not on a midpoint
+                            -- u1 is not on a midpoint, or u1' was rounded toward zero.
                             let u1'' = scaleFloat (-exy) u1' -- rounded value
-                            in (u1', 0 * (u1' - u1'')) -- signed zero
+                                u2'' = u1 - u1'' + u2
+                            in (u1', 0 * (u1 - u1'' + u2)) -- signed zero
                           else
-                            -- u1 is on a midpoint
-                            let w1 = if u2 > 0 then
-                                       nextUp u1
-                                     else
-                                       nextDown u1
-                                w1' = scaleFloat exy w1
-                            in (w1', (-0) * u2) -- ???
+                            -- u1 or nextUp/nextDown u1 is on a midpoint
+                            if isMantissaEven u1' then
+                              (v1', 0 * (u1 - scaleFloat (-exy) v1' + u2))
+                            else
+                              (u1', 0 * (u1 - scaleFloat (-exy) u1' + u2))
   where
     d = floatDigits x
     (expMin,_expMax) = floatRange x
+
+    -- Compute 'scaleFloat e z' with roundTiesTowardZero
+    scaleFloatIntoSubnormalTiesTowardZero e z =
+      let z' = scaleFloat e z
+          w' = scaleFloat e (nextTowardZero z)
+      in if z' == w' || not (isMantissaEven z) then
+           z'
+         else
+           w'
+
+augmentedAddition_viaRational :: forall a. (RealFloat a, Show a) => a -> a -> (a, a)
+augmentedAddition_viaRational x y
+  | isFinite x && isFinite y && (x /= 0 || y /= 0) =
+    let z :: Rational
+        z' :: a
+        z = toRational x + toRational y
+        z' = roundTiesTowardZero z
+    in if isInfinite z' then
+         (z', z')
+       else
+         let w :: Rational
+             w' :: a
+             w = z - toRational z'
+             w' = roundTiesTowardZero w
+         in if w == 0 then
+              (z', 0 * z')
+            else
+              (z', w')
+  | otherwise = let z = x + y
+                in (z, z)
+
+augmentedMultiplication_viaRational :: forall a. (RealFloat a, Show a) => a -> a -> (a, a)
+augmentedMultiplication_viaRational x y
+  | isFinite x && isFinite y && x * y /= 0 =
+    let z :: Rational
+        z' :: a
+        z = toRational x * toRational y
+        z' = roundTiesTowardZero z
+    in if isInfinite z' then
+         (z', z')
+       else
+         let w :: Rational
+             w' :: a
+             w = z - toRational z'
+             w' = roundTiesTowardZero w
+         in if w == 0 then
+              (z', 0 * z')
+            else
+              (z', w')
+  | otherwise = let z = x * y
+                in (z, z)
 
 roundTiesTowardZero :: forall a. RealFloat a => Rational -> a
 roundTiesTowardZero x | x < 0 = - fromPositiveRatio (- numerator x) (denominator x)
