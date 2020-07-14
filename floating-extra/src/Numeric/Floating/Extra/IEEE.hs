@@ -19,6 +19,12 @@ On i386 target, you may need to set @-msse2@ option to get correct floating-poin
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+#if defined(HAS_FAST_TWOPRODUCT)
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE UnboxedTuples #-}
+{-# LANGUAGE GHCForeignImportPrim #-}
+{-# LANGUAGE UnliftedFFITypes #-}
+#endif
 module Numeric.Floating.Extra.IEEE
   (
   -- * 5.3 Homogeneous general-computational operations
@@ -166,7 +172,12 @@ module Numeric.Floating.Extra.IEEE
   , distanceUlp
   , twoSum
   , twoProduct
+  , twoProductFloat_viaDouble
   , twoProduct_nonscaling
+#if defined(HAS_FAST_TWOPRODUCT)
+  , fastTwoProductFloat
+  , fastTwoProductDouble
+#endif
   , split
   , isMantissaEven
   , roundTiesTowardZero
@@ -180,6 +191,9 @@ import           GHC.Float.Compat (castDoubleToWord64, castFloatToWord32,
 import           Math.NumberTheory.Logarithms (integerLog2')
 import           MyPrelude
 import           Numeric.Floating.Extra.Conversion
+#if defined(HAS_FAST_TWOPRODUCT)
+import           GHC.Exts
+#endif
 
 default ()
 
@@ -524,11 +538,11 @@ twoProduct a b =
       x = a * b -- Since 'significand' doesn't honor the sign of zero, we can't use @a' * b'@
       y' = al * bl - (scaleFloat (-eab) x - ah * bh - al * bh - ah * bl)
   in (x, scaleFloat eab y')
+-- TODO: subnormal behavior?
 {-# SPECIALIZE twoProduct :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
 
-{-
-twoProduct_Float :: Float -> Float -> (Float, Float)
-twoProduct_Float a b =
+twoProductFloat_viaDouble :: Float -> Float -> (Float, Float)
+twoProductFloat_viaDouble a b =
   let x, y :: Float
       a', b', x' :: Double
       a' = float2Double a
@@ -537,7 +551,6 @@ twoProduct_Float a b =
       x = double2Float x'
       y = double2Float (x' - float2Double x)
   in (x, y)
--}
 
 twoProduct_nonscaling :: RealFloat a => a -> a -> (a, a)
 twoProduct_nonscaling a b =
@@ -547,6 +560,20 @@ twoProduct_nonscaling a b =
       y = al * bl - (x - ah * bh - al * bh - ah * bl)
   in (x, y)
 {-# SPECIALIZE twoProduct_nonscaling :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
+
+#if defined(HAS_FAST_TWOPRODUCT)
+foreign import prim "hs_twoProductFloat"
+  prim_twoProductFloat :: Float# -> Float# -> (# Float#, Float# #)
+foreign import prim "hs_twoProductDouble"
+  prim_twoProductDouble :: Double# -> Double# -> (# Double#, Double# #)
+
+fastTwoProductFloat :: Float -> Float -> (Float, Float)
+fastTwoProductFloat (F# x#) (F# y#) = case prim_twoProductFloat x# y# of
+                                         (# r#, s# #) -> (F# r#, F# s#)
+fastTwoProductDouble :: Double -> Double -> (Double, Double)
+fastTwoProductDouble (D# x#) (D# y#) = case prim_twoProductDouble x# y# of
+                                         (# r#, s# #) -> (D# r#, D# s#)
+#endif
 
 -- This function doesn't handle overflow or underflow
 split :: RealFloat a => a -> (a, a)
@@ -870,21 +897,6 @@ foreign import ccall unsafe "truncf"
 foreign import ccall unsafe "floor"
   c_truncDouble :: Double -> Double
 
--- TODO: Rules for roundToIntegralTiesToEven
--- nearbyint or roundeven (C2x)
-{- from base
-foreign import ccall unsafe "rintFloat"
-  c_rintFloat :: Float -> Float
-foreign import ccall unsafe "rintDouble"
-  c_rintDouble :: Double -> Double
--}
-#if defined(HAS_FAST_ROUNDEVEN)
-foreign import ccall unsafe "hs_roundevenFloat"
-  c_roundevenFloat :: Float -> Float
-foreign import ccall unsafe "hs_roundevenDouble"
-  c_roundevenDouble :: Double -> Double
-#endif
-
 {-# RULES
 "roundToIntegralTiesToAway/Float"
   roundToIntegralTiesToAway = c_roundFloat
@@ -903,6 +915,26 @@ foreign import ccall unsafe "hs_roundevenDouble"
 "roundToIntegralTowardNegative/Double"
   roundToIntegralTowardNegative = c_floorDouble
   #-}
+
+{- from base
+foreign import ccall unsafe "rintFloat"
+  c_rintFloat :: Float -> Float
+foreign import ccall unsafe "rintDouble"
+  c_rintDouble :: Double -> Double
+-}
+#if defined(HAS_FAST_ROUNDEVEN)
+foreign import ccall unsafe "hs_roundevenFloat"
+  c_roundevenFloat :: Float -> Float
+foreign import ccall unsafe "hs_roundevenDouble"
+  c_roundevenDouble :: Double -> Double
+
+{-# RULES
+"roundToIntegralTiesToEven/Float"
+  roundToIntegralTiesToEven = c_roundevenFloat
+"roundToIntegralTiesToEven/Double"
+  roundToIntegralTiesToEven = c_roundevenDouble
+  #-}
+#endif
 
 #endif
 

@@ -81,4 +81,21 @@ main = defaultMain
               , bench "GHC.Float.isFloatFinite" $ nf isFloatFinite arg
               ]
          ]
+       , bgroup "twoProduct"
+         [ let arg :: (Double, Double)
+               arg = (1.3 * 2^500, pi / 2^500)
+           in bgroup "Double"
+              [ bench "Haskell (default)" $ nf (uncurry twoProduct) arg
+              , bench "Haskell (nonscaling)" $ nf (uncurry twoProduct_nonscaling) arg
+              , bench "asm" $ nf (uncurry fastTwoProductDouble) arg
+              ]
+         , let arg :: (Float, Float)
+               arg = (1.3 * 2^50, pi / 2^50)
+           in bgroup "Float"
+              [ bench "Haskell (default)" $ nf (uncurry twoProduct) arg
+              , bench "Haskell (nonscaling)" $ nf (uncurry twoProduct_nonscaling) arg
+              , bench "Haskell (via Double)" $ nf (uncurry twoProductFloat_viaDouble) arg
+              , bench "asm" $ nf (uncurry fastTwoProductFloat) arg
+              ]
+         ]
        ]

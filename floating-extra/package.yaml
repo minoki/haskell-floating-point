@@ -22,12 +22,119 @@ dependencies:
 # We use some post-GHC-8.6 language extensions: HexFloatLiterals, NumericUnderscores
 # cast{Word32,Word64}To{Float,Double}, cast{Float,Double}To{Word32,Word64} are since base-4.10.0.0
 
+flags:
+  pure-hs:
+    description: "Disable FFI"
+    manual: True
+    default: false
+
+  c99:
+    description: "Restrict use of platform-dependent features and only use C99 features"
+    manual: true
+    default: false
+
+  sse4_1:
+    description: "Use SSE4.1"
+    manual: true
+    default: false
+
+  fma3:
+    description: "Use FMA3 on x86_64"
+    manual: true
+    default: false
+
+  ghc-prim:
+    description: "Use GHC's \"foreign import prim\" on the supported platform"
+    manual: true
+    default: true
+
+  x87-long-double:
+    description: "Support x87 \"long double\""
+    manual: true
+    default: true
+
+  float128:
+    description: "Support Float128"
+    manual: true
+    default: false
+
+  half:
+    description: "Support Half (float16)"
+    manual: true
+    default: false
+
+# Custom setup is required to allow assembly sources to #include "ghcconfig.h"
+build-type: Custom
+custom-setup:
+  dependencies:
+  - base >= 4.7
+  - Cabal >= 1.24
+
 library:
   source-dirs: src
   other-modules:
   - GHC.Float.Compat
   dependencies:
   - integer-logarithms
+
+  when:
+  - condition: "!flag(pure-hs)"
+    cpp-options:
+    - -DUSE_FFI
+
+  # flag(c99): Disable platform-dependent techniques and only use C99 features
+  - condition: flag(c99)
+    cc-options:
+    - -DUSE_C99
+
+  # flag(sse4_1): Use SSE4.1
+  - condition: flag(sse4_1)
+    cc-options:
+    - -DUSE_SSE4_1
+    - -msse4.1
+    # Use case: roundeven
+
+  - condition: "!flag(pure-hs) && !flag(c99) && (((arch(i386) || arch(x86_64)) && flag(sse4_1)) || arch(aarch64))"
+    cpp-options:
+    - -DHAS_FAST_ROUNDEVEN
+    c-sources:
+    - cbits/roundeven.c
+
+  - condition: "!flag(pure-hs) && !flag(c99) && flag(ghc-prim) && impl(ghc) && arch(x86_64)"
+    cpp-options:
+    - -DHAS_FAST_TWOPRODUCT
+    c-sources:
+    - cbits/twoproduct-x86_64-fma3.S
+
+  - condition: "!flag(pure-hs) && !flag(c99) && flag(ghc-prim) && impl(ghc) && arch(aarch64)"
+    cpp-options:
+    - -DHAS_FAST_TWOPRODUCT
+    c-sources:
+    - cbits/twoproduct-aarch64.S
+
+  # flag(x87-long-double): Support LongDouble on x86
+  - condition: "flag(x87-long-double) && (arch(i386) || arch(x86_64))"
+    dependencies: long-double
+    cpp-options:
+    - -DUSE_X87_LONG_DOUBLE
+
+  # flag(float128): Support Float128
+  - condition: flag(float128)
+    dependencies: float128
+    cpp-options:
+    - -DUSE_FLOAT128
+
+  # flag(half): Support Half
+  - condition: flag(half)
+    dependencies: half
+    cpp-options:
+    - -DUSE_HALF
+
+  #- condition: "!flag(pure-hs) && flag(half) && arch(aarch64)"
+  #  cpp-options:
+  #  - -DHAS_FAST_DOUBLE_TO_HALF
+  #  c-sources:
+  #  - cbits/half.c
 
 tests:
   floating-extra-test:
@@ -37,6 +144,7 @@ tests:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -fno-ignore-asserts
     dependencies:
     - floating-extra
     - QuickCheck
