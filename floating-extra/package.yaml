@@ -100,7 +100,7 @@ library:
     c-sources:
     - cbits/roundeven.c
 
-  - condition: "!flag(pure-hs) && !flag(c99) && flag(ghc-prim) && impl(ghc) && arch(x86_64)"
+  - condition: "!flag(pure-hs) && !flag(c99) && flag(ghc-prim) && impl(ghc) && arch(x86_64) && flag(fma3)"
     cpp-options:
     - -DHAS_FAST_TWOPRODUCT
     c-sources:
