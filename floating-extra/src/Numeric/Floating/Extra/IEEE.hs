@@ -178,6 +178,7 @@ module Numeric.Floating.Extra.IEEE
   , fastTwoProductFloat
   , fastTwoProductDouble
 #endif
+  , twoProductWithFMA
   , split
   , isMantissaEven
   , roundTiesTowardZero
@@ -574,6 +575,12 @@ fastTwoProductDouble :: Double -> Double -> (Double, Double)
 fastTwoProductDouble (D# x#) (D# y#) = case prim_twoProductDouble x# y# of
                                          (# r#, s# #) -> (D# r#, D# s#)
 #endif
+
+twoProductWithFMA :: RealFloat a => a -> a -> (a, a)
+twoProductWithFMA x y = let !r = x * y
+                            !s = fusedMultiplyAdd x y (-r)
+                        in (r, s)
+{-# SPECIALIZE twoProductWithFMA :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
 
 -- This function doesn't handle overflow or underflow
 split :: RealFloat a => a -> (a, a)

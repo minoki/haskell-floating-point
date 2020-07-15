@@ -88,6 +88,7 @@ main = defaultMain
               [ bench "Haskell (default)" $ nf (uncurry twoProduct) arg
               , bench "Haskell (nonscaling)" $ nf (uncurry twoProduct_nonscaling) arg
               , bench "asm" $ nf (uncurry fastTwoProductDouble) arg
+              , bench "Haskell (FMA)" $ nf (uncurry twoProductWithFMA) arg
               ]
          , let arg :: (Float, Float)
                arg = (1.3 * 2^50, pi / 2^50)
@@ -96,6 +97,7 @@ main = defaultMain
               , bench "Haskell (nonscaling)" $ nf (uncurry twoProduct_nonscaling) arg
               , bench "Haskell (via Double)" $ nf (uncurry twoProductFloat_viaDouble) arg
               , bench "asm" $ nf (uncurry fastTwoProductFloat) arg
+              , bench "Haskell (FMA)" $ nf (uncurry twoProductWithFMA) arg
               ]
          ]
        ]
