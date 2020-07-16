@@ -106,16 +106,12 @@ augmentedMultiplication !x !y
                      else
                        let u1' = scaleFloat exy u1
                            v1' = scaleFloat exy (if u2 > 0 then nextUp u1 else nextDown u1)
-                       in if u1' == v1' then
-                            -- u1 is not on a midpoint, or u1' was rounded toward zero.
-                            let u1'' = scaleFloat (-exy) u1' -- rounded value
-                            in (u1', 0 * (u1 - u1'' + u2)) -- signed zero
-                          else
-                            -- u1 or nextUp/nextDown u1 is on a midpoint
-                            if isMantissaEven u1' then
-                              (v1', 0 * (u1 - scaleFloat (-exy) v1' + u2))
-                            else
-                              (u1', 0 * (u1 - scaleFloat (-exy) u1' + u2))
+                           r1 = if u1' == v1' || not (isMantissaEven u1') then
+                                  u1'
+                                else
+                                  v1'
+                           r1' = scaleFloat (-exy) r1
+                       in (r1, 0 * (u1 - r1' + u2))
   where
     d = floatDigits x
     (expMin,_expMax) = floatRange x
@@ -124,7 +120,7 @@ augmentedMultiplication !x !y
     scaleFloatIntoSubnormalTiesTowardZero e z =
       let z' = scaleFloat e z
           w' = scaleFloat e (nextTowardZero z)
-      in if z' == w' || not (isMantissaEven z) then
+      in if z' == w' || not (isMantissaEven z') then
            z'
          else
            w'
