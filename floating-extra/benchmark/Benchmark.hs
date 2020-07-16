@@ -1,8 +1,8 @@
-import           Numeric.Floating.Extra.IEEE
-import Gauge.Main
-import Data.Functor.Identity
-import Data.Coerce
-import GHC.Float (isDoubleFinite, isFloatFinite)
+import           Data.Coerce
+import           Data.Functor.Identity
+import           Gauge.Main
+import           GHC.Float (isDoubleFinite, isFloatFinite)
+import           Numeric.Floating.IEEE
 
 foreign import ccall unsafe "fma"
   c_fma_double :: Double -> Double -> Double -> Double
@@ -87,7 +87,7 @@ main = defaultMain
            in bgroup "Double"
               [ bench "Haskell (default)" $ nf (uncurry twoProduct) arg
               , bench "Haskell (nonscaling)" $ nf (uncurry twoProduct_nonscaling) arg
-              , bench "asm" $ nf (uncurry fastTwoProductDouble) arg
+              -- , bench "asm" $ nf (uncurry fastTwoProductDouble) arg
               , bench "Haskell (FMA)" $ nf (uncurry twoProductWithFMA) arg
               ]
          , let arg :: (Float, Float)
@@ -96,7 +96,7 @@ main = defaultMain
               [ bench "Haskell (default)" $ nf (uncurry twoProduct) arg
               , bench "Haskell (nonscaling)" $ nf (uncurry twoProduct_nonscaling) arg
               , bench "Haskell (via Double)" $ nf (uncurry twoProductFloat_viaDouble) arg
-              , bench "asm" $ nf (uncurry fastTwoProductFloat) arg
+              -- , bench "asm" $ nf (uncurry fastTwoProductFloat) arg
               , bench "Haskell (FMA)" $ nf (uncurry twoProductWithFMA) arg
               ]
          ]

@@ -1,6 +1,6 @@
 {-# LANGUAGE HexFloatLiterals #-}
 module FMASpec (spec) where
-import           Numeric.Floating.Extra.IEEE
+import           Numeric.Floating.IEEE
 import           Test.Hspec
 import           Test.Hspec.QuickCheck -- (prop)
 import           Test.QuickCheck

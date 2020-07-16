@@ -1,9 +1,9 @@
 module TwoSumSpec (spec) where
-import           Numeric.Floating.Extra.IEEE
+import           Numeric.Floating.IEEE
 import           Test.Hspec
-import           Test.Hspec.QuickCheck -- (prop)
+import           Test.Hspec.QuickCheck
 import           Test.QuickCheck
-import           Util (sameFloatP, forAllFloats2)
+import           Util (forAllFloats2, sameFloatP)
 
 prop_twoSum :: (RealFloat a, Show a) => a -> a -> Property
 prop_twoSum x y = case twoSum x y of

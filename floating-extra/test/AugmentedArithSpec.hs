@@ -1,14 +1,14 @@
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE HexFloatLiterals #-}
 {-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module AugmentedArithSpec (spec) where
-import Numeric.Floating.Extra.IEEE
-import Test.Hspec
-import Test.Hspec.QuickCheck
-import Test.QuickCheck hiding (classify)
-import Util
-import Numeric
-import Control.Monad
+import           Control.Monad
+import           Numeric
+import           Numeric.Floating.IEEE
+import           Test.Hspec
+import           Test.Hspec.QuickCheck
+import           Test.QuickCheck hiding (classify)
+import           Util
 
 sameFloatPairP :: (RealFloat a, Show a) => (a, a) -> (a, a) -> Property
 sameFloatPairP (x,y) (x',y') = counterexample (showPair x y . showString (interpret res) . showPair x' y' $ "") res

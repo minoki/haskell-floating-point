@@ -1,10 +1,10 @@
 module ClassificationSpec (spec) where
-import Numeric.Floating.Extra.IEEE
-import Test.Hspec
-import Test.Hspec.QuickCheck
-import Test.QuickCheck hiding (classify)
-import Util
-import Data.Functor.Identity
+import           Data.Functor.Identity
+import           Numeric.Floating.IEEE
+import           Test.Hspec
+import           Test.Hspec.QuickCheck
+import           Test.QuickCheck hiding (classify)
+import           Util
 
 prop_classify :: (RealFloat a, Show a) => a -> Property
 prop_classify x = conjoin

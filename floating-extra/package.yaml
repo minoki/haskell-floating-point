@@ -75,6 +75,15 @@ library:
   other-modules:
   - MyPrelude
   - GHC.Float.Compat
+  - Numeric.Floating.IEEE.Internal.Base
+  - Numeric.Floating.IEEE.Internal.Augmented
+  - Numeric.Floating.IEEE.Internal.Classify
+  - Numeric.Floating.IEEE.Internal.Conversion
+  - Numeric.Floating.IEEE.Internal.FMA
+  - Numeric.Floating.IEEE.Internal.GenericArith
+  - Numeric.Floating.IEEE.Internal.MinMax
+  - Numeric.Floating.IEEE.Internal.NextFloat
+  - Numeric.Floating.IEEE.Internal.Round
   dependencies:
   - integer-logarithms
 

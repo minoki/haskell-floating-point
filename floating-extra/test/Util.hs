@@ -5,9 +5,9 @@ module Util where
 import           Control.Applicative
 import           Data.Ratio
 import           Numeric
+import           Numeric.Floating.IEEE
 import           System.Random
 import           Test.QuickCheck
-import Numeric.Floating.Extra.IEEE
 
 newtype ShowHexFloat a = ShowHexFloat a deriving (Eq,Ord,Arbitrary)
 

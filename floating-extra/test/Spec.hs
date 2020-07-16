@@ -3,8 +3,8 @@ import qualified ClassificationSpec
 import           Data.Proxy
 import qualified FMASpec
 import qualified NextAfterSpec
-import qualified TwoSumSpec
 import           Test.Hspec
+import qualified TwoSumSpec
 
 main :: IO ()
 main = hspec $ do
