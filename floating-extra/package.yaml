@@ -43,11 +43,6 @@ flags:
     manual: true
     default: false
 
-  ghc-prim:
-    description: "Use GHC's \"foreign import prim\" on the supported platform"
-    manual: true
-    default: true
-
   x87-long-double:
     description: "Support x87 \"long double\""
     manual: true
@@ -103,30 +98,43 @@ library:
     cc-options:
     - -DUSE_C99
 
-  # flag(sse4_1): Use SSE4.1
-  - condition: flag(sse4_1)
+  # Fast roundeven: needs SSE4.1 on x86
+  - condition: "!flag(pure-hs) && !flag(c99) && (arch(i386) || arch(x86_64)) && flag(sse4_1)"
+    cpp-options:
+    - -DHAS_FAST_ROUNDEVEN
     cc-options:
-    - -DUSE_SSE4_1
     - -msse4.1
-    # Use case: roundeven
+    c-sources:
+    - cbits/roundeven.c
 
-  - condition: "!flag(pure-hs) && !flag(c99) && (((arch(i386) || arch(x86_64)) && flag(sse4_1)) || arch(aarch64))"
+  # Fast roundeven: available on AArch64
+  - condition: "!flag(pure-hs) && !flag(c99) && arch(aarch64)"
     cpp-options:
     - -DHAS_FAST_ROUNDEVEN
     c-sources:
     - cbits/roundeven.c
 
-  - condition: "!flag(pure-hs) && !flag(c99) && flag(ghc-prim) && impl(ghc) && arch(x86_64) && flag(fma3)"
+  # Fast FMA: needs FMA3 or similar on x86
+  - condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3)"
     cpp-options:
-    - -DHAS_FAST_TWOPRODUCT
+    - -DHAS_FAST_FMA
+    cc-options:
+    - -mfma
     c-sources:
-    - cbits/twoproduct-x86_64-fma3.S
+    - cbits/fma.c
 
-  - condition: "!flag(pure-hs) && !flag(c99) && flag(ghc-prim) && impl(ghc) && arch(aarch64)"
+  # Fast FMA: available on AArch64
+  - condition: "!flag(pure-hs) && arch(aarch64)"
     cpp-options:
-    - -DHAS_FAST_TWOPRODUCT
+    - -DHAS_FAST_FMA
     c-sources:
-    - cbits/twoproduct-aarch64.S
+    - cbits/fma.c
+
+  # Enable use of libm's fma unless "pure-hs" is set; but not on Windows
+  # (mingw-w64's fma is not reliable)
+  - condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && !os(windows)"
+    cpp-options:
+    - -DUSE_C99_FMA
 
   # flag(x87-long-double): Support LongDouble on x86
   - condition: "flag(x87-long-double) && (arch(i386) || arch(x86_64))"

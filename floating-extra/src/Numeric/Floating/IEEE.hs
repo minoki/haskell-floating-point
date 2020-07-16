@@ -165,13 +165,13 @@ module Numeric.Floating.IEEE
   , distanceUlp
   , twoSum
   , twoProduct
+  , twoProduct_generic
   , twoProductFloat_viaDouble
   , twoProduct_nonscaling
-#if defined(HAS_FAST_TWOPRODUCT)
+#if defined(HAS_FAST_FMA)
   , fastTwoProductFloat
   , fastTwoProductDouble
 #endif
-  , twoProductWithFMA
   , split
   , isMantissaEven
   , roundTiesTowardZero

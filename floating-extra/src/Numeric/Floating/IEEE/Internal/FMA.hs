@@ -1,12 +1,6 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE NoImplicitPrelude #-}
-#if defined(HAS_FAST_TWOPRODUCT)
-{-# LANGUAGE MagicHash #-}
-{-# LANGUAGE UnboxedTuples #-}
-{-# LANGUAGE GHCForeignImportPrim #-}
-{-# LANGUAGE UnliftedFFITypes #-}
-#endif
 module Numeric.Floating.IEEE.Internal.FMA where
 import           Control.Exception (assert)
 import           Data.Bits
@@ -16,9 +10,6 @@ import           MyPrelude
 import           Numeric.Floating.IEEE.Internal.Base
 import           Numeric.Floating.IEEE.Internal.Classify
 import           Numeric.Floating.IEEE.Internal.NextFloat
-#if defined(HAS_FAST_TWOPRODUCT)
-import           GHC.Exts
-#endif
 
 default ()
 
@@ -67,10 +58,19 @@ add_roundToOdd x y = let (u, v) = twoSum x y
                      in result
 {-# SPECIALIZE add_roundToOdd :: Float -> Float -> Float, Double -> Double -> Double #-}
 
--- |
--- prop> \a b -> case twoProduct a b of (x, y) -> a * b == x && fromRational (toRational a * toRational b - toRational x) == y
-twoProduct :: RealFloat a => a -> a -> (a, a)
-twoProduct a b =
+-- This function doesn't handle overflow or underflow
+split :: RealFloat a => a -> (a, a)
+split a =
+  let c = factor * a
+      x = c - (c - a)
+      y = a - x
+  in (x, y)
+  where factor = fromInteger $ 1 + floatRadix a ^! ((floatDigits a + 1) `quot` 2)
+  -- factor == 134217729 for Double, 4097 for Float
+{-# SPECIALIZE split :: Float -> (Float, Float), Double -> (Double, Double) #-}
+
+twoProduct_generic :: RealFloat a => a -> a -> (a, a)
+twoProduct_generic a b =
   let eab = exponent a + exponent b
       a' = significand a
       b' = significand b
@@ -79,8 +79,7 @@ twoProduct a b =
       x = a * b -- Since 'significand' doesn't honor the sign of zero, we can't use @a' * b'@
       y' = al * bl - (scaleFloat (-eab) x - ah * bh - al * bh - ah * bl)
   in (x, scaleFloat eab y')
--- TODO: subnormal behavior?
-{-# SPECIALIZE twoProduct :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
+{-# SPECIALIZE twoProduct_generic :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
 
 twoProductFloat_viaDouble :: Float -> Float -> (Float, Float)
 twoProductFloat_viaDouble a b =
@@ -93,6 +92,15 @@ twoProductFloat_viaDouble a b =
       y = double2Float (x' - float2Double x)
   in (x, y)
 
+-- This function will be rewritten into fastTwoProduct{Float,Double} if fast FMA is available; the rewriting may change behavior regarding overflow.
+-- TODO: subnormal behavior?
+-- |
+-- prop> \a b -> case twoProduct a b of (x, y) -> a * b == x && fromRational (toRational a * toRational b - toRational x) == y
+twoProduct :: RealFloat a => a -> a -> (a, a)
+twoProduct = twoProduct_generic
+{-# INLINE [1] twoProduct #-}
+
+-- This function will be rewritten into fastTwoProduct{Float,Double} if fast FMA is available; the rewriting may change behavior regarding overflow.
 twoProduct_nonscaling :: RealFloat a => a -> a -> (a, a)
 twoProduct_nonscaling a b =
   let (ah, al) = split a
@@ -100,38 +108,36 @@ twoProduct_nonscaling a b =
       x = a * b
       y = al * bl - (x - ah * bh - al * bh - ah * bl)
   in (x, y)
-{-# SPECIALIZE twoProduct_nonscaling :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
+{-# NOINLINE [1] twoProduct_nonscaling #-}
 
-#if defined(HAS_FAST_TWOPRODUCT)
-foreign import prim "hs_twoProductFloat"
-  prim_twoProductFloat :: Float# -> Float# -> (# Float#, Float# #)
-foreign import prim "hs_twoProductDouble"
-  prim_twoProductDouble :: Double# -> Double# -> (# Double#, Double# #)
+#if defined(HAS_FAST_FMA)
 
 fastTwoProductFloat :: Float -> Float -> (Float, Float)
-fastTwoProductFloat (F# x#) (F# y#) = case prim_twoProductFloat x# y# of
-                                         (# r#, s# #) -> (F# r#, F# s#)
+fastTwoProductFloat x y = let !r = x * y
+                              !s = c_fusedMultiplyAddFloat x y (-r)
+                          in (r, s)
+
 fastTwoProductDouble :: Double -> Double -> (Double, Double)
-fastTwoProductDouble (D# x#) (D# y#) = case prim_twoProductDouble x# y# of
-                                         (# r#, s# #) -> (D# r#, D# s#)
+fastTwoProductDouble x y = let !r = x * y
+                               !s = c_fusedMultiplyAddDouble x y (-r)
+                           in (r, s)
+
+{-# RULES
+"twoProduct/Float" twoProduct = fastTwoProductFloat
+"twoProduct/Double" twoProduct = fastTwoProductDouble
+"twoProduct_nonscaling/Float" twoProduct_nonscaling = fastTwoProductFloat
+"twoProduct_nonscaling/Double" twoProduct_nonscaling = fastTwoProductDouble
+  #-}
+
+#else
+
+{-# RULES
+"twoProduct/Float" twoProduct = twoProductFloat_viaDouble
+"twoProduct_nonscaling/Float" twoProduct_nonscaling = twoProductFloat_viaDouble
+  #-}
+{-# SPECIALIZE twoProduct_nonscaling :: Double -> Double -> (Double, Double) #-}
+
 #endif
-
-twoProductWithFMA :: RealFloat a => a -> a -> (a, a)
-twoProductWithFMA x y = let !r = x * y
-                            !s = fusedMultiplyAdd x y (-r)
-                        in (r, s)
-{-# SPECIALIZE twoProductWithFMA :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
-
--- This function doesn't handle overflow or underflow
-split :: RealFloat a => a -> (a, a)
-split a =
-  let c = factor * a
-      x = c - (c - a)
-      y = a - x
-  in (x, y)
-  where factor = fromInteger $ 1 + floatRadix a ^! ((floatDigits a + 1) `quot` 2)
-  -- factor == 134217729 for Double, 4097 for Float
-{-# SPECIALIZE split :: Float -> (Float, Float), Double -> (Double, Double) #-}
 
 -- |
 -- prop> \a b c -> toRational (fma_twoProd a b c) == toRational a * toRational b + toRational c
@@ -230,7 +236,19 @@ fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a
 fusedMultiplyAdd = fusedMultiplyAdd_twoProduct
 {-# INLINE [1] fusedMultiplyAdd #-}
 
-#ifdef USE_FFI
+#if defined(HAS_FAST_FMA)
+
+foreign import ccall unsafe "hs_fusedMultiplyAddFloat"
+  c_fusedMultiplyAddFloat :: Float -> Float -> Float -> Float
+foreign import ccall unsafe "hs_fusedMultiplyAddDouble"
+  c_fusedMultiplyAddDouble :: Double -> Double -> Double -> Double
+
+{-# RULES
+"fusedMultiplyAdd/Float" fusedMultiplyAdd = c_fusedMultiplyAddFloat
+"fusedMultiplyAdd/Double" fusedMultiplyAdd = c_fusedMultiplyAddDouble
+  #-}
+
+#elif defined(USE_C99_FMA)
 
 -- libm's fma might be implemented with hardware
 foreign import ccall unsafe "fmaf"
