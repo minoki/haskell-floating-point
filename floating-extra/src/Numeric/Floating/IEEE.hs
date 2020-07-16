@@ -55,6 +55,12 @@ module Numeric.Floating.IEEE
   , (/) -- division
   , sqrt -- squareRoot
   , fusedMultiplyAdd
+  , genericAdd
+  , genericSub
+  , genericMul
+  , genericDiv
+  -- | @genericSqrt@: not implemented yet
+  , genericFusedMultiplyAdd
   -- |
   -- @convertFromInt@: not implemented yet
   , round    -- convertToIntegerTiesToEven: round
@@ -165,6 +171,7 @@ import           Numeric.Floating.IEEE.Internal.Base
 import           Numeric.Floating.IEEE.Internal.Classify
 import           Numeric.Floating.IEEE.Internal.Conversion
 import           Numeric.Floating.IEEE.Internal.FMA
+import           Numeric.Floating.IEEE.Internal.GenericArith
 import           Numeric.Floating.IEEE.Internal.MinMax
 import           Numeric.Floating.IEEE.Internal.NextFloat
 import           Numeric.Floating.IEEE.Internal.Round
