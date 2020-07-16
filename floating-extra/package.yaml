@@ -70,6 +70,12 @@ custom-setup:
   - base >= 4.7
   - Cabal >= 1.24
 
+# Always enable SSE2 on i386
+when:
+- condition: arch(i386)
+  ghc-options:
+  - -msse2
+
 library:
   source-dirs: src
   other-modules:
