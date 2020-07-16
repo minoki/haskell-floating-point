@@ -1,4 +1,4 @@
-module NextAfterSpec where
+module NextFloatSpec where
 import           Numeric.Floating.IEEE
 import           Test.Hspec
 import           Test.Hspec.QuickCheck (prop)

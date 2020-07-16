@@ -1,7 +1,7 @@
 import qualified AugmentedArithSpec
 import qualified ClassificationSpec
 import qualified FMASpec
-import qualified NextAfterSpec
+import qualified NextFloatSpec
 import           System.Environment (getArgs, withArgs)
 import           Test.Hspec hiding (hspec)
 import           Test.Hspec.Core.Runner hiding (hspec)
@@ -27,5 +27,5 @@ main = hspec $ do
   describe "Classification" ClassificationSpec.spec
   describe "TwoSum" TwoSumSpec.spec
   describe "FMA" FMASpec.spec
-  describe "NextAfter" NextAfterSpec.spec
+  describe "NextFloat" NextFloatSpec.spec
   describe "AugmentedArith" AugmentedArithSpec.spec
