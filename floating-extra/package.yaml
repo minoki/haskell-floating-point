@@ -39,7 +39,7 @@ flags:
     default: false
 
   fma3:
-    description: "Use FMA3 on x86_64"
+    description: "Use FMA3 instruction on x86_64"
     manual: true
     default: false
 
@@ -159,7 +159,12 @@ tests:
     - floating-extra
     - QuickCheck
     - hspec
+    - hspec-core
     - random
+    when:
+    - condition: "!flag(pure-hs)"
+      cpp-options:
+      - -DUSE_FFI
 
 benchmarks:
   floating-extra-benchmark:

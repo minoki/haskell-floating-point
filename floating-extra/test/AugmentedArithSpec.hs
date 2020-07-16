@@ -97,9 +97,10 @@ spec = modifyMaxSuccess (* 100) $ do
 
     do -- augmentedMultiplication
       let cases :: [(Float, Float, Float, Float)]
-          cases = [ (0x1.b8508p-130, -0x1.93994p-4, -0x1.5b17p-133, -0x0p+0)
-                  , (0x1.5433bcp-126, -0x1.69a04p-1, -0x1.e091e8p-127, -0x0p+0)
-                  , (0x1.c7363p-128, -0x1.c5d164p-1, -0x1.937b98p-128, -0x0p+0)
+          cases = [ (0x1.b8508p-130,  -0x1.93994p-4,  -0x1.5b17p-133,   -0x0p+0)
+                  , (0x1.5433bcp-126, -0x1.69a04p-1,  -0x1.e091e8p-127, -0x0p+0)
+                  , (0x1.c7363p-128,  -0x1.c5d164p-1, -0x1.937b98p-128, -0x0p+0)
+                  , (-0x1.a31946p0,   -0x1p-127,       0x1.a31944p-127,  0x0p+0)
                   ]
       testAugmented "augmentedMultiplication" augmentedMultiplication cases
       testAugmented "augmentedMultiplication_viaRational" augmentedMultiplication_viaRational cases
