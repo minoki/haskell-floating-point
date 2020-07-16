@@ -1,4 +1,6 @@
-module Numeric.Floating.Extra.Conversion where
+{-# LANGUAGE NoImplicitPrelude #-}
+module Numeric.Floating.IEEE.Internal.Conversion where
+import MyPrelude
 
 -- |
 -- Similar to 'realToFrac', but treats NaN, infinities, negative zero even if the rewrite rule is off.

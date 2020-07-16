@@ -1,9 +1,9 @@
 {-# LANGUAGE NumericUnderscores #-}
-module Numeric.Floating.Extra.IEEE.NaN where
-import Data.Bits
-import           GHC.Float (castDoubleToWord64, castFloatToWord32,
-                            castWord32ToFloat, castWord64ToDouble)
-import Numeric.Floating.Extra.IEEE (Class(..))
+module Numeric.Floating.IEEE.NaN where
+import           Data.Bits
+import           GHC.Float.Compat (castDoubleToWord64, castFloatToWord32,
+                                   castWord32ToFloat, castWord64ToDouble)
+import           Numeric.Floating.IEEE (Class (..))
 
 class SupportsNaN a where
   -- 5.5.1 Sign bit operations

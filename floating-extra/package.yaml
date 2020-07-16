@@ -73,6 +73,7 @@ custom-setup:
 library:
   source-dirs: src
   other-modules:
+  - MyPrelude
   - GHC.Float.Compat
   dependencies:
   - integer-logarithms
