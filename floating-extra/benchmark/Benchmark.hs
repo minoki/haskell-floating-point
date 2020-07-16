@@ -1,8 +1,13 @@
+{-# LANGUAGE CPP #-}
 import           Data.Coerce
 import           Data.Functor.Identity
 import           Gauge.Main
 import           GHC.Float (isDoubleFinite, isFloatFinite)
 import           Numeric.Floating.IEEE
+import           Numeric.Floating.IEEE.Internal
+#if defined(USE_HALF)
+import           Numeric.Half
+#endif
 
 foreign import ccall unsafe "fma"
   c_fma_double :: Double -> Double -> Double -> Double
@@ -87,8 +92,9 @@ main = defaultMain
            in bgroup "Double"
               [ bench "Haskell (default)" $ nf (uncurry twoProduct) arg
               , bench "Haskell (nonscaling)" $ nf (uncurry twoProduct_nonscaling) arg
-              -- , bench "asm" $ nf (uncurry fastTwoProductDouble) arg
-              , bench "Haskell (FMA)" $ nf (uncurry twoProductWithFMA) arg
+#if defined(HAS_FAST_FMA)
+              , bench "FMA" $ nf (uncurry fastTwoProductDouble) arg
+#endif
               ]
          , let arg :: (Float, Float)
                arg = (1.3 * 2^50, pi / 2^50)
@@ -96,8 +102,51 @@ main = defaultMain
               [ bench "Haskell (default)" $ nf (uncurry twoProduct) arg
               , bench "Haskell (nonscaling)" $ nf (uncurry twoProduct_nonscaling) arg
               , bench "Haskell (via Double)" $ nf (uncurry twoProductFloat_viaDouble) arg
-              -- , bench "asm" $ nf (uncurry fastTwoProductFloat) arg
-              , bench "Haskell (FMA)" $ nf (uncurry twoProductWithFMA) arg
+#if defined(HAS_FAST_FMA)
+              , bench "FMA" $ nf (uncurry fastTwoProductFloat) arg
+#endif
               ]
          ]
+#if defined(USE_HALF)
+       , bgroup "from Half"
+         [ let x = 1.3 :: Half
+           in bgroup "to Float"
+              [ bench "half" $ nf fromHalf x
+#if defined(HAS_FAST_HALF_CONVERSION)
+              , bench "C impl" $ nf fastHalfToFloat x
+#endif
+              , bench "realToFrac" $ nf (realToFrac :: Half -> Float) x
+              , bench "realFloatToFrac" $ nf (realFloatToFrac :: Half -> Float) x
+              ]
+         , let x = 1.3 :: Half
+           in bgroup "to Double"
+              [
+#if defined(HAS_FAST_HALF_CONVERSION)
+                bench "C impl" $ nf fastHalfToDouble x
+#endif
+              , bench "realToFrac" $ nf (realToFrac :: Half -> Double) x
+              , bench "realFloatToFrac" $ nf (realFloatToFrac :: Half -> Double) x
+              ]
+         ]
+       , bgroup "to Half"
+         [ let x = 1.3 :: Float
+           in bgroup "from Float"
+              [ bench "half" $ nf toHalf x
+#if defined(HAS_FAST_HALF_CONVERSION)
+              , bench "C impl" $ nf fastFloatToHalf x
+#endif
+              , bench "realToFrac" $ nf (realToFrac :: Float -> Half) x
+              , bench "realFloatToFrac" $ nf (realFloatToFrac :: Float -> Half) x
+              ]
+         , let x = 1.3 :: Double
+           in bgroup "from Double"
+              [
+#if defined(HAS_FAST_HALF_CONVERSION)
+                bench "C impl" $ nf fastDoubleToHalf x
+#endif
+              , bench "realToFrac" $ nf (realToFrac :: Double -> Half) x
+              , bench "realFloatToFrac" $ nf (realFloatToFrac :: Double -> Half) x
+              ]
+         ]
+#endif
        ]

@@ -34,35 +34,120 @@ flags:
     default: false
 
   sse4_1:
-    description: "Use SSE4.1"
+    description: "Use SSE4.1 instructions on x86"
     manual: true
     default: false
 
   fma3:
-    description: "Use FMA3 instruction on x86_64"
+    description: "Use FMA3 instructions on x86"
+    manual: true
+    default: false
+
+  f16c:
+    description: "Use F16C instructions on x86"
     manual: true
     default: false
 
   x87-long-double:
-    description: "Support x87 \"long double\""
+    description: "Support x87 \"long double\" via long-double package"
     manual: true
     default: true
 
   float128:
-    description: "Support Float128"
+    description: "Support Float128 via float128 package"
     manual: true
     default: false
 
   half:
-    description: "Support Half (float16)"
+    description: "Support Half (float16) via half package"
     manual: true
     default: false
 
-# Always enable SSE2 on i386
 when:
+# Always enable SSE2 on i386
 - condition: arch(i386)
   ghc-options:
   - -msse2
+
+- condition: "!flag(pure-hs)"
+  cpp-options:
+  - -DUSE_FFI
+
+# flag(c99): Disable platform-dependent techniques and only use C99 features
+- condition: flag(c99)
+  cc-options:
+  - -DUSE_C99
+
+# Fast roundeven: needs SSE4.1 on x86
+- condition: "!flag(pure-hs) && !flag(c99) && (arch(i386) || arch(x86_64)) && flag(sse4_1)"
+  cpp-options:
+  - -DHAS_FAST_ROUNDEVEN
+  cc-options:
+  - -msse4.1
+  c-sources:
+  - cbits/roundeven.c
+
+# Fast roundeven: available on AArch64
+- condition: "!flag(pure-hs) && !flag(c99) && arch(aarch64)"
+  cpp-options:
+  - -DHAS_FAST_ROUNDEVEN
+  c-sources:
+  - cbits/roundeven.c
+
+# Fast FMA: needs FMA3 (or FMA4) on x86
+- condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3)"
+  cpp-options:
+  - -DHAS_FAST_FMA
+  cc-options:
+  - -mfma
+  c-sources:
+  - cbits/fma.c
+
+# Fast FMA: available on AArch64
+- condition: "!flag(pure-hs) && arch(aarch64)"
+  cpp-options:
+  - -DHAS_FAST_FMA
+  c-sources:
+  - cbits/fma.c
+
+# Enable use of libm's fma unless "pure-hs" is set; but not on Windows
+# (mingw-w64's fma is not reliable)
+- condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && !os(windows)"
+  cpp-options:
+  - -DUSE_C99_FMA
+
+# flag(x87-long-double): Support LongDouble on x86
+- condition: "flag(x87-long-double) && (arch(i386) || arch(x86_64))"
+  dependencies: long-double
+  cpp-options:
+  - -DUSE_X87_LONG_DOUBLE
+
+# flag(float128): Support Float128
+- condition: flag(float128)
+  dependencies: float128
+  cpp-options:
+  - -DUSE_FLOAT128
+
+# flag(half): Support Half
+# Note that half-0.3's isInfinite is buggy (https://github.com/ekmett/half/issues/23)
+- condition: flag(half)
+  dependencies: half
+  cpp-options:
+  - -DUSE_HALF
+
+- condition: "!flag(pure-hs) && !flag(c99) && flag(half) && arch(x86_64) && flag(f16c)"
+  cpp-options:
+  - -DHAS_FAST_HALF_CONVERSION
+  cc-options:
+  - -mf16c
+  c-sources:
+  - cbits/half.c
+
+- condition: "!flag(pure-hs) && !flag(c99) && flag(half) && arch(aarch64)"
+  cpp-options:
+  - -DHAS_FAST_HALF_CONVERSION
+  c-sources:
+  - cbits/half.c
 
 library:
   source-dirs: src
@@ -80,78 +165,6 @@ library:
   - Numeric.Floating.IEEE.Internal.Round
   dependencies:
   - integer-logarithms
-
-  when:
-  - condition: "!flag(pure-hs)"
-    cpp-options:
-    - -DUSE_FFI
-
-  # flag(c99): Disable platform-dependent techniques and only use C99 features
-  - condition: flag(c99)
-    cc-options:
-    - -DUSE_C99
-
-  # Fast roundeven: needs SSE4.1 on x86
-  - condition: "!flag(pure-hs) && !flag(c99) && (arch(i386) || arch(x86_64)) && flag(sse4_1)"
-    cpp-options:
-    - -DHAS_FAST_ROUNDEVEN
-    cc-options:
-    - -msse4.1
-    c-sources:
-    - cbits/roundeven.c
-
-  # Fast roundeven: available on AArch64
-  - condition: "!flag(pure-hs) && !flag(c99) && arch(aarch64)"
-    cpp-options:
-    - -DHAS_FAST_ROUNDEVEN
-    c-sources:
-    - cbits/roundeven.c
-
-  # Fast FMA: needs FMA3 or similar on x86
-  - condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3)"
-    cpp-options:
-    - -DHAS_FAST_FMA
-    cc-options:
-    - -mfma
-    c-sources:
-    - cbits/fma.c
-
-  # Fast FMA: available on AArch64
-  - condition: "!flag(pure-hs) && arch(aarch64)"
-    cpp-options:
-    - -DHAS_FAST_FMA
-    c-sources:
-    - cbits/fma.c
-
-  # Enable use of libm's fma unless "pure-hs" is set; but not on Windows
-  # (mingw-w64's fma is not reliable)
-  - condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && !os(windows)"
-    cpp-options:
-    - -DUSE_C99_FMA
-
-  # flag(x87-long-double): Support LongDouble on x86
-  - condition: "flag(x87-long-double) && (arch(i386) || arch(x86_64))"
-    dependencies: long-double
-    cpp-options:
-    - -DUSE_X87_LONG_DOUBLE
-
-  # flag(float128): Support Float128
-  - condition: flag(float128)
-    dependencies: float128
-    cpp-options:
-    - -DUSE_FLOAT128
-
-  # flag(half): Support Half
-  - condition: flag(half)
-    dependencies: half
-    cpp-options:
-    - -DUSE_HALF
-
-  #- condition: "!flag(pure-hs) && flag(half) && arch(aarch64)"
-  #  cpp-options:
-  #  - -DHAS_FAST_DOUBLE_TO_HALF
-  #  c-sources:
-  #  - cbits/half.c
 
 tests:
   floating-extra-test:
