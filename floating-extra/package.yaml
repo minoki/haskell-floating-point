@@ -1,6 +1,6 @@
 name:                floating-extra
 version:             0.1.0.0
-github:              "minoki/fp-suite"
+github:              "minoki/haskell-floating-point"
 license:             BSD3
 author:              "ARATA Mizuki"
 maintainer:          "minorinoki@gmail.com"
@@ -15,7 +15,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/minoki/fp-suite/floating-extra#readme>
+description:         Please see the README on GitHub at <https://github.com/minoki/haskell-floating-point/floating-extra#readme>
 
 dependencies:
 - base >= 4.12 && < 5
@@ -165,6 +165,8 @@ library:
   - Numeric.Floating.IEEE.Internal.Round
   dependencies:
   - integer-logarithms
+  ghc-options:
+  - -Wall
 
 tests:
   floating-extra-test:
