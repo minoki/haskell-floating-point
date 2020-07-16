@@ -158,7 +158,6 @@ module Numeric.Floating.IEEE
   -- * Uncategorized
   , minPositive
   , maxFinite
-  , distanceUlp
   , twoSum
   , twoProduct
   , isMantissaEven
@@ -175,16 +174,6 @@ import           Numeric.Floating.IEEE.Internal.GenericArith
 import           Numeric.Floating.IEEE.Internal.MinMax
 import           Numeric.Floating.IEEE.Internal.NextFloat
 import           Numeric.Floating.IEEE.Internal.Round
-
-distanceUlp :: RealFloat a => a -> a -> Maybe Integer
-distanceUlp x y
-  | isInfinite x || isInfinite y || isNaN x || isNaN y = Nothing
-  | otherwise = let m = min (abs x) (abs y)
-                    m' = nextUp m
-                    v = (toRational y - toRational x) / toRational (m' - m)
-                in if denominator v == 1
-                   then Just (abs (numerator v))
-                   else error "distanceUlp"
 
 -- |
 -- IEEE 754 @remainder@ operation.
