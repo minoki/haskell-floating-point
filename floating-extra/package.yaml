@@ -58,13 +58,6 @@ flags:
     manual: true
     default: false
 
-# Custom setup is required to allow assembly sources to #include "ghcconfig.h"
-build-type: Custom
-custom-setup:
-  dependencies:
-  - base >= 4.7
-  - Cabal >= 1.24
-
 # Always enable SSE2 on i386
 when:
 - condition: arch(i386)
