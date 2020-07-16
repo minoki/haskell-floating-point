@@ -34,8 +34,6 @@ module Numeric.Floating.IEEE
   -- | 'nextTowardZero' is not in IEEE, but may be useful to some.
   , nextTowardZero -- not in IEEE
   , remainder
-  -- , c_remainderFloat
-  -- , c_remainderDouble
 
   -- ** 5.3.2 Decimal operations (not supported)
   --
@@ -57,12 +55,6 @@ module Numeric.Floating.IEEE
   , (/) -- division
   , sqrt -- squareRoot
   , fusedMultiplyAdd
-  , fusedMultiplyAdd_viaRational
-  , fusedMultiplyAdd_viaInteger
-  , fusedMultiplyAdd_twoProduct
-  , fusedMultiplyAddFloat_viaDouble
-  -- , c_fusedMultiplyAddFloat
-  -- , c_fusedMultiplyAddDouble
   -- |
   -- @convertFromInt@: not implemented yet
   , round    -- convertToIntegerTiesToEven: round
@@ -146,8 +138,6 @@ module Numeric.Floating.IEEE
   , augmentedAddition
   , augmentedSubtraction
   , augmentedMultiplication
-  , augmentedAddition_viaRational
-  , augmentedMultiplication_viaRational
 
   -- * 9.6 Minimum and maximum operations
   , minimum'
@@ -165,14 +155,6 @@ module Numeric.Floating.IEEE
   , distanceUlp
   , twoSum
   , twoProduct
-  , twoProduct_generic
-  , twoProductFloat_viaDouble
-  , twoProduct_nonscaling
-#if defined(HAS_FAST_FMA)
-  , fastTwoProductFloat
-  , fastTwoProductDouble
-#endif
-  , split
   , isMantissaEven
   , roundTiesTowardZero
   ) where

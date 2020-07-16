@@ -5,6 +5,7 @@ module AugmentedArithSpec (spec) where
 import           Control.Monad
 import           Numeric
 import           Numeric.Floating.IEEE
+import           Numeric.Floating.IEEE.Internal
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck hiding (classify)

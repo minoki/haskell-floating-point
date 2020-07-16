@@ -1,5 +1,6 @@
 module TwoSumSpec (spec) where
 import           Numeric.Floating.IEEE
+import           Numeric.Floating.IEEE.Internal
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck

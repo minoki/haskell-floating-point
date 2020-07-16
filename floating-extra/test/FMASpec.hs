@@ -6,6 +6,7 @@ import           Data.Coerce
 import           Data.Functor.Identity
 import           Numeric
 import           Numeric.Floating.IEEE
+import           Numeric.Floating.IEEE.Internal
 import           System.Random
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
