@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 module Numeric.Floating.IEEE.Internal.Conversion where
+import           GHC.Float.Compat (double2Float, float2Double)
 import           MyPrelude
 #if defined(USE_HALF) && defined(HAS_FAST_HALF_CONVERSION)
 import           Data.Coerce
@@ -8,6 +9,8 @@ import           Data.Word
 import           Foreign.C.Types
 import           Numeric.Half
 #endif
+
+default ()
 
 -- |
 -- Similar to 'realToFrac', but treats NaN, infinities, negative zero even if the rewrite rule is off.
@@ -21,8 +24,8 @@ realFloatToFrac x | isNaN x = 0/0
 {-# NOINLINE [1] realFloatToFrac #-}
 {-# RULES
 "realFloatToFrac/a->a" realFloatToFrac = id
-"realFloatToFrac/Float->Double" realFloatToFrac = realToFrac :: Float -> Double -- should be rewritten into float2Double
-"realFloatToFrac/Double->Float" realFloatToFrac = realToFrac :: Double -> Float -- should be rewritten into double2Float
+"realFloatToFrac/Float->Double" realFloatToFrac = float2Double
+"realFloatToFrac/Double->Float" realFloatToFrac = double2Float
   #-}
 
 #if defined(HAS_FAST_HALF_CONVERSION)
