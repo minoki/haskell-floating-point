@@ -35,14 +35,14 @@ spec = modifyMaxSuccess (* 100) $ do
     do -- roundTiesTowardZero
       let cases :: [(Rational, Double)]
           cases = [(0x1.ffff_ffff_ffff_f8p1023, maxFinite)
-                             ,(0x1.ffff_ffff_ffff_f8p1023 + 1/723, 1/0)
-                             ,(0x1.ffff_ffff_ffff_f8p1023 - 1/255, maxFinite)
-                             ,(0xdead_beef.8p-1074, 0xdead_beefp-1074)
-                             ,(0xdead_beef.9p-1074, 0xdead_bef0p-1074)
-                             ,(-0xdead_beef.7p-1074, -0xdead_beefp-1074)
-                             ,(-0x0.8p-1074, -0)
-                             ,(-0x0.80007p-1074, -0x1p-1074)
-                             ]
+                  ,(0x1.ffff_ffff_ffff_f8p1023 + 1/723, 1/0)
+                  ,(0x1.ffff_ffff_ffff_f8p1023 - 1/255, maxFinite)
+                  ,(0xdead_beef.8p-1074, 0xdead_beefp-1074)
+                  ,(0xdead_beef.9p-1074, 0xdead_bef0p-1074)
+                  ,(-0xdead_beef.7p-1074, -0xdead_beefp-1074)
+                  ,(-0x0.8p-1074, -0)
+                  ,(-0x0.80007p-1074, -0x1p-1074)
+                  ]
       testUnary "roundTiesTowardZero" roundTiesTowardZero cases
 
     do -- augmentedAddition
