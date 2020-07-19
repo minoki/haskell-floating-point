@@ -1,12 +1,9 @@
 #include <math.h>
 #include <fenv.h>
 
-// __SSE4_1__
-#if defined(__SSE4_1__)
+#if defined(__SSE4_1__) // SSE 4.1
 
 #include <x86intrin.h>
-
-// const char hs_roundeven_impl[] = "SSE4.1";
 
 float hs_roundevenFloat(float x)
 {
@@ -28,13 +25,11 @@ double hs_roundevenDouble(double x)
 
 #elif defined(__aarch64__) // ARMv8-A
 
-// const char hs_roundeven_impl[] = "AArch64 FRINTN";
-
 float hs_roundevenFloat(float x)
 {
     float result;
     // a floating-exception can be generated
-    asm("frintn %1, %0" : "r"(x) : "=r"(result));
+    asm("frintn %1, %0" : "=r"(result) : "r"(x));
     return result;
 }
 
@@ -42,7 +37,7 @@ double hs_roundevenDouble(double x)
 {
     double result;
     // a floating-exception can be generated
-    asm("frintn %1, %0" : "r"(x) : "=r"(result));
+    asm("frintn %1, %0" : "=r"(result) : "r"(x));
     return result;
 }
 
