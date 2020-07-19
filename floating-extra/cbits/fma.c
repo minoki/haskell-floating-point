@@ -11,7 +11,7 @@ double hs_fusedMultiplyAddDouble(double a, double b, double c)
 {
     return fma(a, b, c);
 }
-float hs_fusedMultiplyAddDouble(float a, float b, float c)
+float hs_fusedMultiplyAddFloat(float a, float b, float c)
 {
     return fmaf(a, b, c);
 }
