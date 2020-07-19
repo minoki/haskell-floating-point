@@ -104,14 +104,31 @@ classify x | isNaN x                 = QuietNaN
            | otherwise               = PositiveNormal
 {-# NOINLINE [1] classify #-}
 {-# RULES
+"classify/Float" classify = classifyFloat
 "classify/Double" classify = classifyDouble
   #-}
 
+classifyFloat :: Float -> Class
+classifyFloat x = let w = castFloatToWord32 x
+                      s = testBit w 31 -- sign bit
+                      e = (w `unsafeShiftR` 23) .&. 0xff -- exponent (8 bits)
+                      m = w .&. 0x007f_ffff -- mantissa (23 bits without leading 1)
+                   in case (s, e, m) of
+                        (True,  0,    0) -> NegativeZero
+                        (False, 0,    0) -> PositiveZero
+                        (True,  0,    _) -> NegativeSubnormal
+                        (False, 0,    _) -> PositiveSubnormal
+                        (True,  0xff, 0) -> NegativeInfinity
+                        (False, 0xff, 0) -> PositiveInfinity
+                        (_,     0xff, _) -> QuietNaN -- treat all NaNs as quiet
+                        (True,  _,    _) -> NegativeNormal
+                        (False, _,    _) -> PositiveNormal
+
 classifyDouble :: Double -> Class
 classifyDouble x = let w = castDoubleToWord64 x
-                       s = testBit w 63 -- sign
-                       e = (w `unsafeShiftR` 52) .&. 0x7ff -- exponent
-                       m = w .&. 0x000f_ffff_ffff_ffff -- mantissa
+                       s = testBit w 63 -- sign bit
+                       e = (w `unsafeShiftR` 52) .&. 0x7ff -- exponent (11 bits)
+                       m = w .&. 0x000f_ffff_ffff_ffff -- mantissa (52 bits without leading 1)
                    in case (s, e, m) of
                         (True,  0,     0) -> NegativeZero
                         (False, 0,     0) -> PositiveZero
