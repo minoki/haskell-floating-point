@@ -2,6 +2,7 @@ import qualified AugmentedArithSpec
 import qualified ClassificationSpec
 import qualified FMASpec
 import qualified NextFloatSpec
+import qualified RoundingSpec
 import           System.Environment (getArgs, withArgs)
 import           Test.Hspec hiding (hspec)
 import           Test.Hspec.Core.Runner hiding (hspec)
@@ -29,3 +30,4 @@ main = hspec $ do
   describe "FMA" FMASpec.spec
   describe "NextFloat" NextFloatSpec.spec
   describe "AugmentedArith" AugmentedArithSpec.spec
+  describe "Rounding" RoundingSpec.spec
