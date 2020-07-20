@@ -43,7 +43,7 @@ spec = modifyMaxSuccess (* 100) $ do
                   ,(-0x0.8p-1074, -0)
                   ,(-0x0.80007p-1074, -0x1p-1074)
                   ]
-      testUnary "roundTiesTowardZero" roundTiesTowardZero cases
+      testUnary "roundTiesTowardZero" (roundTiesTowardZero . fromRationalR) cases
 
     do -- augmentedAddition
       prop "augmentedAddition/equality" $ forAllFloats2 $ \(x :: Double) y ->
@@ -82,7 +82,7 @@ spec = modifyMaxSuccess (* 100) $ do
                   , (-0x0.8p-149, -0)
                   , (-0x0.80007p-149, -0x1p-149)
                   ]
-      testUnary "roundTiesTowardZero" roundTiesTowardZero cases
+      testUnary "roundTiesTowardZero" (roundTiesTowardZero . fromRationalR) cases
 
     do -- augmentedAddition
       prop "augmentedAddition/equality" $ forAllFloats2 $ \(x :: Float) y ->

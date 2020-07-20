@@ -10,6 +10,7 @@ import           MyPrelude
 import           Numeric.Floating.IEEE.Internal.Classify
 import           Numeric.Floating.IEEE.Internal.FMA
 import           Numeric.Floating.IEEE.Internal.NextFloat
+import           Numeric.Floating.IEEE.Internal.Rounding
 
 default ()
 
@@ -75,7 +76,7 @@ augmentedMultiplication !x !y
                                       (u1, u2)
                          !_ = assert (v1 + v2 == u1 + u2) ()
                          r1 = scaleFloat exy v1
-                         !_ = assert (r1 == roundTiesTowardZero (toRational x * toRational y)) ()
+                         !_ = assert (r1 == roundTiesTowardZero (fromRationalR (toRational x * toRational y))) ()
                      in if isInfinite r1 then
                           (r1, r1)
                         else
@@ -90,7 +91,7 @@ augmentedMultiplication !x !y
                               -- The upper part is normal, the lower is subnormal (and inexact)
                               -- Compute 'scaleFloat exy v2' with roundTiesTowardZero
                               let !r2 = scaleFloatIntoSubnormalTiesTowardZero exy v2
-                                  !_ = assert (r2 == roundTiesTowardZero (toRational x * toRational y - toRational r1)) ()
+                                  !_ = assert (r2 == roundTiesTowardZero (fromRationalR (toRational x * toRational y - toRational r1))) ()
                               in (r1, r2)
                    else
                      -- The upper part is subnormal (possibly inexact), and the lower is signed zero (possibly inexact)
@@ -131,13 +132,13 @@ augmentedAddition_viaRational x y
   | isFinite x && isFinite y && (x /= 0 || y /= 0) =
     let z :: Rational
         z = toRational x + toRational y
-        z' = roundTiesTowardZero z `asTypeOf` x
+        z' = roundTiesTowardZero (fromRationalR z) `asTypeOf` x
     in if isInfinite z' then
          (z', z')
        else
          let w :: Rational
              w = z - toRational z'
-             w' = roundTiesTowardZero w `asTypeOf` x
+             w' = roundTiesTowardZero (fromRationalR w) `asTypeOf` x
          in if w == 0 then
               (z', 0 * z')
             else
@@ -150,90 +151,16 @@ augmentedMultiplication_viaRational x y
   | isFinite x && isFinite y && x * y /= 0 =
     let z :: Rational
         z = toRational x * toRational y
-        z' = roundTiesTowardZero z `asTypeOf` x
+        z' = roundTiesTowardZero (fromRationalR z) `asTypeOf` x
     in if isInfinite z' then
          (z', z')
        else
          let w :: Rational
              w = z - toRational z'
-             w' = roundTiesTowardZero w `asTypeOf` x
+             w' = roundTiesTowardZero (fromRationalR w) `asTypeOf` x
          in if w == 0 then
               (z', 0 * z')
             else
               (z', w')
   | otherwise = let z = x * y
                 in (z, z)
-
-roundTiesTowardZero :: forall a. RealFloat a => Rational -> a
-roundTiesTowardZero x | x < 0 = - fromPositiveRatio (- numerator x) (denominator x)
-                      | otherwise = fromPositiveRatio (numerator x) (denominator x)
-  where
-    fromPositiveRatio :: Integer -> Integer -> a
-    fromPositiveRatio !n !d
-      = let ln, ld, e :: Int
-            ln = integerLog2' n
-            ld = integerLog2' d
-            e = ln - ld - fDigits
-            q, r, d_ :: Integer
-            d_ | e >= 0 = d `unsafeShiftL` e
-               | otherwise = d
-            (!q, !r) | e >= 0 = n `quotRem` d_
-                     | otherwise = (n `unsafeShiftL` (-e)) `quotRem` d
-            !_ = assert (n % d * 2^^(-e) == fromInteger q + r % d_) ()
-            -- e >= 0: n = q * (d * 2^e) + r, 0 <= r < d * 2^e
-            -- e <= 0: n * 2^(-e) = q * d + r, 0 <= r < d
-            -- n / d * 2^^(-e) = q + r / d_
-            -- 52 <= log2 q < 54
-
-            q', r', d' :: Integer
-            e' :: Int
-            (!q', !r', !d', !e') | q < (1 `unsafeShiftL` fDigits) = (q, r, d_, e)
-                                 | otherwise = let (q'', r'') = q `quotRem` 2
-                                               in (q'', r'' * d_ + r, 2 * d_, e + 1)
-            !_ = assert (n % d * 2^^(-e') == fromInteger q' + r' % d') ()
-            -- n / d * 2^^(-e') = q' + r' / d', 2^52 <= q' < 2^53, 0 <= r' < d'
-            -- q' * 2^^e' <= n/d < (q'+1) * 2^^e', 2^52 <= q' < 2^53
-            -- (q'/2^53) * 2^^(e'+53) <= n/d < (q'+1)/2^53 * 2^^(e'+53), 1/2 <= q'/2^53 < 1
-            -- normal: 0x1p-1022 <= x <= 0x1.fffffffffffffp+1023
-      in if expMin <= e' + fDigits && e' + fDigits <= expMax then
-           -- normal
-           if r' == 0 then
-             encodeFloat q' e' -- exact
-           else
-             -- inexact
-             let down = encodeFloat q' e'
-                 up = encodeFloat (q' + 1) e' -- may be infinity
-                 toNearest = case compare (2 * r') d' of
-                   LT -> down
-                   EQ -> down -- ties toward zero
-                   GT -> up
-             in toNearest
-         else
-           -- infinity or subnormal
-           if expMax <= e' + fDigits then
-             -- infinity
-             (1 / 0) -- ToNearest
-           else
-             -- subnormal
-             -- e' + fDigits < expMin (or, e' < expMin - fDigits = -1074)
-             -- 0 <= rounded(n/d) <= 2^(expMin - 1) = 0x1p-1022, minimum (positive) subnormal: 0x1p-1074
-             let (!q'', !r'') = q' `quotRem` (1 `unsafeShiftL` (expMin - fDigits - e'))
-                 -- q' = q'' * 2^(expMin - fDigits - e') + r'', 0 <= r'' < 2^(expMin - fDigits - e')
-                 -- 2^(fDigits-1) <= q' = q'' * 2^(expMin - fDigits - e') + r'' < 2^fDigits
-                 -- n / d * 2^^(-e') = q' + r' / d' = q'' * 2^(expMin - fDigits - e') + r'' + r' / d'
-                 -- n / d = q'' * 2^^(expMin - fDigits) + (r'' + r' / d') * 2^^e'
-                 -- 0 <= r'' < 2^(expMin - fDigits - e')
-             in if r' == 0 && r'' == 0 then
-                  encodeFloat q'' (expMin - fDigits) -- exact
-                else
-                  let down = encodeFloat q'' (expMin - fDigits)
-                      up = encodeFloat (q'' + 1) (expMin - fDigits)
-                      toNearest = case compare r'' (1 `unsafeShiftL` (expMin - fDigits - e' - 1)) of
-                                    LT -> down
-                                    GT -> up
-                                    EQ | r' /= 0   -> up
-                                       | otherwise -> down -- ties toward zero
-                  in toNearest
-      where
-        !fDigits = floatDigits (undefined :: a) -- 53 for Double
-        (!expMin, !expMax) = floatRange (undefined :: a) -- (-1021, 1024) for Double

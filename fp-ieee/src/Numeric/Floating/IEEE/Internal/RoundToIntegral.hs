@@ -25,7 +25,7 @@ roundToIntegralTiesToEven x = case round x of
 -- |
 -- IEEE 754 @roundToIntegralTiesToAway@ operation.
 --
--- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTiesToAway x == fromInteger (roundTiesToAway x)
+-- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTiesToAway x == fromInteger (roundAway x)
 -- prop> isNegativeZero (roundToIntegralTiesToAway (-0.4))
 roundToIntegralTiesToAway :: RealFloat a => a -> a
 roundToIntegralTiesToAway x | isInfinite x || isNaN x || isNegativeZero x = x
@@ -84,19 +84,19 @@ roundToIntegralTowardNegative x | isInfinite x || isNaN x || isNegativeZero x = 
 -- |
 -- IEEE 754 @convertToIntegerTiesToAway@ operation.
 --
--- >>> roundTiesToAway 4.5
+-- >>> roundAway 4.5
 -- 5
-roundTiesToAway :: (RealFrac a, Integral b) => a -> b
-roundTiesToAway x = case properFraction x of
-                      -- x == n + f, signum x == signum f, 0 <= abs f < 1
-                      (n,r) -> if abs r < 0.5 then
-                                 n
-                               else
-                                 if r < 0 then
-                                   n - 1
-                                 else
-                                   n + 1
-{-# INLINE roundTiesToAway #-}
+roundAway :: (RealFrac a, Integral b) => a -> b
+roundAway x = case properFraction x of
+                -- x == n + f, signum x == signum f, 0 <= abs f < 1
+                (n,r) -> if abs r < 0.5 then
+                           n
+                         else
+                           if r < 0 then
+                             n - 1
+                           else
+                             n + 1
+{-# INLINE roundAway #-}
 
 #ifdef USE_FFI
 

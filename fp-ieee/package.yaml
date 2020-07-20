@@ -166,6 +166,7 @@ library:
   - Numeric.Floating.IEEE.Internal.NaN
   - Numeric.Floating.IEEE.Internal.NextFloat
   - Numeric.Floating.IEEE.Internal.RoundToIntegral
+  - Numeric.Floating.IEEE.Internal.Rounding
   dependencies:
   - integer-logarithms
   ghc-options:

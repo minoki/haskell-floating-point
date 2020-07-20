@@ -4,12 +4,8 @@ import           Control.Monad
 import           Data.Proxy
 import           Data.Ratio
 import           Numeric
-import           Numeric.Floating.IEEE hiding (roundTiesToAway,
-                                        roundTiesTowardZero)
-import           Numeric.Floating.IEEE.Internal hiding (roundTiesToAway,
-                                                 roundTiesTowardZero)
-import           Numeric.Floating.IEEE.Internal.Rounding
-import qualified Numeric.Floating.IEEE.Internal as Augmented (roundTiesTowardZero)
+import           Numeric.Floating.IEEE
+import           Numeric.Floating.IEEE.Internal
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck hiding (classify)
@@ -85,12 +81,6 @@ prop_add_roundToOdd _ x y = isFinite x && isFinite y && isFinite (x + y) ==>
             roundToOdd (fromRationalR (toRational x + toRational y))
   in z `sameFloatP` w
 
-prop_roundTiesTowardZero :: RealFloat a => Proxy a -> Rational -> Property
-prop_roundTiesTowardZero proxy x =
-  let z = Augmented.roundTiesTowardZero x
-      w = roundTiesTowardZero (fromRationalR x)
-  in z `sameFloatP` w
-
 eachStrategy :: Testable prop => (forall f. RoundingStrategy f => (f a -> a) -> prop) -> Property
 eachStrategy p = conjoin
   [ counterexample "roundTiesToEven" (p roundTiesToEven)
@@ -115,7 +105,6 @@ spec = do
     prop "result of fromRationalR" $ \x -> prop_order proxyDouble (fromRationalR x)
     prop "result of encodeFloatR" $ \m k -> prop_order proxyDouble (encodeFloatR m k)
     prop "add_roundToOdd" $ forAllFloats2 $ prop_add_roundToOdd proxyDouble
-    prop "roundTiesTowardZero" $ prop_roundTiesTowardZero proxyDouble
   describe "Float" $ do
     let proxyFloat :: Proxy Float
         proxyFloat = Proxy
@@ -127,5 +116,4 @@ spec = do
     prop "result of fromRationalR" $ \x -> prop_order proxyFloat (fromRationalR x)
     prop "result of encodeFloatR" $ \m k -> prop_order proxyFloat (encodeFloatR m k)
     prop "add_roundToOdd" $ forAllFloats2 $ prop_add_roundToOdd proxyFloat
-    prop "roundTiesTowardZero" $ prop_roundTiesTowardZero proxyFloat
 {-# NOINLINE spec #-}

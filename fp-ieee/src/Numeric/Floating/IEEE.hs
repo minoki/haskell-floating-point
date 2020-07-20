@@ -64,7 +64,7 @@ module Numeric.Floating.IEEE
   -- |
   -- @convertFromInt@: not implemented yet
   , round    -- convertToIntegerTiesToEven: round
-  , roundTiesToAway
+  , roundAway
   , truncate -- convertToIntegerTowardZero: truncate
   , ceiling  -- convertToIntegerTowardPositive: ceiling
   , floor    -- convertToIntegerTowardNegative: floor
@@ -162,7 +162,6 @@ module Numeric.Floating.IEEE
   , twoSum
   , twoProduct
   , isMantissaEven
-  , roundTiesTowardZero
   ) where
 import           MyPrelude
 import           Numeric.Floating.IEEE.Internal
