@@ -1,3 +1,4 @@
+{-# LANGUAGE HexFloatLiterals #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 module HalfSpec where
@@ -7,6 +8,7 @@ import           Data.Functor.Identity
 import           Data.Int
 import           Data.Proxy
 import qualified FMASpec
+import qualified NaNSpec
 import qualified NextFloatSpec
 import           Numeric.Floating.IEEE
 import           Numeric.Floating.IEEE.Internal
@@ -70,3 +72,15 @@ spec = do
   prop "result of encodeFloatR" $ \m k -> RoundingSpec.prop_order proxy (encodeFloatR m k)
   prop "add_roundToOdd" $ forAllFloats2 $ RoundingSpec.prop_add_roundToOdd proxy
   prop "roundTiesTowardZero" $ RoundingSpec.prop_roundTiesTowardZero proxy
+
+  prop "copySign" $ forAllFloats2 $ NaNSpec.prop_copySign proxy
+  prop "isSignMinus" $ forAllFloats $ NaNSpec.prop_isSignMinus proxy
+  prop "isSignaling" $ NaNSpec.prop_isSignaling proxy
+  prop "setPayload/getPayload" $ NaNSpec.prop_setPayload_getPayload proxy
+  prop "setPayload/0" $ NaNSpec.prop_setPayload proxy 0
+  prop "setPayload/0x1p9" $ NaNSpec.prop_setPayload proxy 0x1p9
+  prop "setPayload/Int" $ NaNSpec.prop_setPayload proxy . (fromIntegral :: Int -> Half)
+  prop "setPayloadSignaling/0" $ NaNSpec.prop_setPayloadSignaling proxy 0
+  prop "setPayloadSignaling/0x1p9" $ NaNSpec.prop_setPayloadSignaling proxy 0x1p9
+  prop "setPayloadSignaling/Int" $ NaNSpec.prop_setPayloadSignaling proxy . (fromIntegral :: Int -> Half)
+  prop "classify" $ forAllFloats $ NaNSpec.prop_classify proxy

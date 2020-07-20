@@ -6,7 +6,8 @@ import           GHC.Float (isDoubleFinite, isFloatFinite)
 import           Numeric.Floating.IEEE
 import           Numeric.Floating.IEEE.Internal
 #if defined(USE_HALF)
-import           Numeric.Half
+import           Numeric.Half hiding (isZero)
+import qualified Numeric.Half
 #endif
 
 foreign import ccall unsafe "fma"
@@ -108,44 +109,62 @@ main = defaultMain
               ]
          ]
 #if defined(USE_HALF)
-       , bgroup "from Half"
-         [ let x = 1.3 :: Half
-           in bgroup "to Float"
-              [ bench "half" $ nf fromHalf x
+       , bgroup "Half"
+         [ bgroup "from Half"
+           [ let x = 1.3 :: Half
+             in bgroup "to Float"
+                [ bench "half" $ nf fromHalf x
 #if defined(HAS_FAST_HALF_CONVERSION)
-              , bench "C impl" $ nf fastHalfToFloat x
+                , bench "C impl" $ nf fastHalfToFloat x
 #endif
-              , bench "realToFrac" $ nf (realToFrac :: Half -> Float) x
-              , bench "realFloatToFrac" $ nf (realFloatToFrac :: Half -> Float) x
+                , bench "realToFrac" $ nf (realToFrac :: Half -> Float) x
+                , bench "realFloatToFrac" $ nf (realFloatToFrac :: Half -> Float) x
+                ]
+           , let x = 1.3 :: Half
+             in bgroup "to Double"
+                [
+#if defined(HAS_FAST_HALF_CONVERSION)
+                  bench "C impl" $ nf fastHalfToDouble x ,
+#endif
+                  bench "realToFrac" $ nf (realToFrac :: Half -> Double) x
+                , bench "realFloatToFrac" $ nf (realFloatToFrac :: Half -> Double) x
+                ]
+           ]
+         , bgroup "to Half"
+           [ let x = 1.3 :: Float
+             in bgroup "from Float"
+                [ bench "half" $ nf toHalf x
+#if defined(HAS_FAST_HALF_CONVERSION)
+                , bench "C impl" $ nf fastFloatToHalf x
+#endif
+                , bench "realToFrac" $ nf (realToFrac :: Float -> Half) x
+                , bench "realFloatToFrac" $ nf (realFloatToFrac :: Float -> Half) x
+                ]
+           , let x = 1.3 :: Double
+             in bgroup "from Double"
+                [
+#if defined(HAS_FAST_HALF_CONVERSION)
+                  bench "C impl" $ nf fastDoubleToHalf x ,
+#endif
+                  bench "realToFrac" $ nf (realToFrac :: Double -> Half) x
+                , bench "realFloatToFrac" $ nf (realFloatToFrac :: Double -> Half) x
+                ]
+           ]
+         , let arg = pi :: Half
+           in bgroup "isNormal"
+              [ bench "default" $ nf isNormal arg
+              , bench "generic" $ nf (isNormal . Identity) arg
               ]
-         , let x = 1.3 :: Half
-           in bgroup "to Double"
-              [
-#if defined(HAS_FAST_HALF_CONVERSION)
-                bench "C impl" $ nf fastHalfToDouble x
-#endif
-              , bench "realToFrac" $ nf (realToFrac :: Half -> Double) x
-              , bench "realFloatToFrac" $ nf (realFloatToFrac :: Half -> Double) x
+         , let arg = pi :: Half
+           in bgroup "isFinite"
+              [ bench "default" $ nf isFinite arg
+              , bench "generic" $ nf (isFinite . Identity) arg
               ]
-         ]
-       , bgroup "to Half"
-         [ let x = 1.3 :: Float
-           in bgroup "from Float"
-              [ bench "half" $ nf toHalf x
-#if defined(HAS_FAST_HALF_CONVERSION)
-              , bench "C impl" $ nf fastFloatToHalf x
-#endif
-              , bench "realToFrac" $ nf (realToFrac :: Float -> Half) x
-              , bench "realFloatToFrac" $ nf (realFloatToFrac :: Float -> Half) x
-              ]
-         , let x = 1.3 :: Double
-           in bgroup "from Double"
-              [
-#if defined(HAS_FAST_HALF_CONVERSION)
-                bench "C impl" $ nf fastDoubleToHalf x
-#endif
-              , bench "realToFrac" $ nf (realToFrac :: Double -> Half) x
-              , bench "realFloatToFrac" $ nf (realFloatToFrac :: Double -> Half) x
+         , let arg = -0 :: Half
+           in bgroup "isZero"
+              [ bench "default" $ nf isZero arg
+              , bench "generic" $ nf (isZero . Identity) arg
+              , bench "Numeric.Half.isZero" $ nf Numeric.Half.isZero arg
               ]
          ]
 #endif

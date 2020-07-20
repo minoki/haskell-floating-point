@@ -1,5 +1,5 @@
 {-# LANGUAGE HexFloatLiterals #-}
-module NaNSpec (spec) where
+module NaNSpec where
 import           Data.Proxy
 import           Numeric.Floating.IEEE hiding (classify, compareByTotalOrder,
                                         isSignMinus)

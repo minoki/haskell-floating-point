@@ -154,21 +154,26 @@ when:
 library:
   source-dirs: src
   other-modules:
-  - MyPrelude
   - GHC.Float.Compat
-  - Numeric.Floating.IEEE.Internal.Base
+  - MyPrelude
   - Numeric.Floating.IEEE.Internal.Augmented
+  - Numeric.Floating.IEEE.Internal.Base
   - Numeric.Floating.IEEE.Internal.Classify
   - Numeric.Floating.IEEE.Internal.Conversion
   - Numeric.Floating.IEEE.Internal.FMA
   - Numeric.Floating.IEEE.Internal.GenericArith
   - Numeric.Floating.IEEE.Internal.MinMax
+  - Numeric.Floating.IEEE.Internal.NaN
   - Numeric.Floating.IEEE.Internal.NextFloat
   - Numeric.Floating.IEEE.Internal.Round
   dependencies:
   - integer-logarithms
   ghc-options:
   - -Wall
+  when:
+  - condition: flag(half)
+    other-modules:
+    - Numeric.Floating.IEEE.Internal.Half
 
 tests:
   fp-ieee-test:
@@ -185,6 +190,10 @@ tests:
     - hspec
     - hspec-core
     - random
+    when:
+    - condition: flag(half)
+      other-modules:
+      - HalfSpec
 
   fp-ieee-doctests:
     main: doctests.hs
