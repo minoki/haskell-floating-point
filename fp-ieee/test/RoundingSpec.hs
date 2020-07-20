@@ -1,3 +1,5 @@
+{-# LANGUAGE HexFloatLiterals #-}
+{-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE RankNTypes #-}
 module RoundingSpec where
 import           Control.Monad
@@ -92,28 +94,58 @@ eachStrategy p = conjoin
   , counterexample "roundToOdd" (p roundToOdd)
   ]
 
+testUnary :: RealFloat b => (a -> b) -> [(String, a, b)] -> Property
+testUnary f cases = conjoin
+  [ counterexample t $ f a `sameFloatP` result
+  | (t,a,result) <- cases
+  ]
+
+{-# NOINLINE spec #-}
 spec :: Spec
 spec = do
   describe "Double" $ do
-    let proxyDouble :: Proxy Double
-        proxyDouble = Proxy
-    prop "fromIntegerR vs fromRationalR" $ eachStrategy (prop_fromIntegerR_vs_fromRationalR proxyDouble)
-    prop "fromIntegerR vs encodeFloatR" $ eachStrategy (prop_fromIntegerR_vs_encodeFloatR proxyDouble)
-    prop "fromRationalR vs encodeFloatR" $ eachStrategy (prop_fromRationalR_vs_encodeFloatR proxyDouble)
-    prop "fromRationalR vs fromRational" $ prop_fromRationalR_vs_fromRational proxyDouble
-    prop "result of fromIntegerR" $ \x -> prop_order proxyDouble (fromIntegerR x)
-    prop "result of fromRationalR" $ \x -> prop_order proxyDouble (fromRationalR x)
-    prop "result of encodeFloatR" $ \m k -> prop_order proxyDouble (encodeFloatR m k)
-    prop "add_roundToOdd" $ forAllFloats2 $ prop_add_roundToOdd proxyDouble
+    let proxy :: Proxy Double
+        proxy = Proxy
+    prop "fromIntegerR vs fromRationalR" $ eachStrategy (prop_fromIntegerR_vs_fromRationalR proxy)
+    prop "fromIntegerR vs encodeFloatR" $ eachStrategy (prop_fromIntegerR_vs_encodeFloatR proxy)
+    prop "fromRationalR vs encodeFloatR" $ eachStrategy (prop_fromRationalR_vs_encodeFloatR proxy)
+    prop "fromRationalR vs fromRational" $ prop_fromRationalR_vs_fromRational proxy
+    prop "result of fromIntegerR" $ \x -> prop_order proxy (fromIntegerR x)
+    prop "result of fromRationalR" $ \x -> prop_order proxy (fromRationalR x)
+    prop "result of encodeFloatR" $ \m k -> prop_order proxy (encodeFloatR m k)
+    prop "add_roundToOdd" $ forAllFloats2 $ prop_add_roundToOdd proxy
+    let cases :: [(String, Rational, Double)]
+        cases = [("0x1.ffff_ffff_ffff_f8p1023", 0x1.ffff_ffff_ffff_f8p1023, maxFinite)
+                ,("(0x1.ffff_ffff_ffff_f8p1023 + 1/723)", 0x1.ffff_ffff_ffff_f8p1023 + 1/723, 1/0)
+                ,("(0x1.ffff_ffff_ffff_f8p1023 - 1/255)", 0x1.ffff_ffff_ffff_f8p1023 - 1/255, maxFinite)
+                ,("0xdead_beef.8p-1074", 0xdead_beef.8p-1074, 0xdead_beefp-1074)
+                ,("0xdead_beef.9p-1074", 0xdead_beef.9p-1074, 0xdead_bef0p-1074)
+                ,("-0xdead_beef.7p-1074", -0xdead_beef.7p-1074, -0xdead_beefp-1074)
+                ,("-0x0.8p-1074", -0x0.8p-1074, -0)
+                ,("-0x0.80007p-1074", -0x0.80007p-1074, -0x1p-1074)
+                ]
+    prop "roundTiesTowardZero" $ testUnary (roundTiesTowardZero . fromRationalR) cases
+
   describe "Float" $ do
-    let proxyFloat :: Proxy Float
-        proxyFloat = Proxy
-    prop "fromIntegerR vs fromRationalR" $ eachStrategy (prop_fromIntegerR_vs_fromRationalR proxyFloat)
-    prop "fromIntegerR vs encodeFloatR" $ eachStrategy (prop_fromIntegerR_vs_encodeFloatR proxyFloat)
-    prop "fromRationalR vs encodeFloatR" $ eachStrategy (prop_fromRationalR_vs_encodeFloatR proxyFloat)
-    prop "fromRationalR vs fromRational" $ prop_fromRationalR_vs_fromRational proxyFloat
-    prop "result of fromIntegerR" $ \x -> prop_order proxyFloat (fromIntegerR x)
-    prop "result of fromRationalR" $ \x -> prop_order proxyFloat (fromRationalR x)
-    prop "result of encodeFloatR" $ \m k -> prop_order proxyFloat (encodeFloatR m k)
-    prop "add_roundToOdd" $ forAllFloats2 $ prop_add_roundToOdd proxyFloat
-{-# NOINLINE spec #-}
+    let proxy :: Proxy Float
+        proxy = Proxy
+    prop "fromIntegerR vs fromRationalR" $ eachStrategy (prop_fromIntegerR_vs_fromRationalR proxy)
+    prop "fromIntegerR vs encodeFloatR" $ eachStrategy (prop_fromIntegerR_vs_encodeFloatR proxy)
+    prop "fromRationalR vs encodeFloatR" $ eachStrategy (prop_fromRationalR_vs_encodeFloatR proxy)
+    prop "fromRationalR vs fromRational" $ prop_fromRationalR_vs_fromRational proxy
+    prop "result of fromIntegerR" $ \x -> prop_order proxy (fromIntegerR x)
+    prop "result of fromRationalR" $ \x -> prop_order proxy (fromRationalR x)
+    prop "result of encodeFloatR" $ \m k -> prop_order proxy (encodeFloatR m k)
+    prop "add_roundToOdd" $ forAllFloats2 $ prop_add_roundToOdd proxy
+
+    let cases :: [(String, Rational, Float)]
+        cases = [ ("0x1.ffff_ffp127", 0x1.ffff_ffp127, maxFinite)
+                , ("(0x1.ffff_ffp127 + 1/723)", 0x1.ffff_ffp127 + 1/723, 1/0)
+                , ("(0x1.ffff_ffp127 - 1/255)", 0x1.ffff_ffp127 - 1/255, maxFinite)
+                , ("0xbeef.8p-149", 0xbeef.8p-149, 0xbeefp-149)
+                , ("0xbeef.9p-149", 0xbeef.9p-149, 0xbef0p-149)
+                , ("-0xbeef.7p-149", -0xbeef.7p-149, -0xbeefp-149)
+                , ("-0x0.8p-149", -0x0.8p-149, -0)
+                , ("-0x0.80007p-149", -0x0.80007p-149, -0x1p-149)
+                ]
+    prop "roundTiesTowardZero" $ testUnary (roundTiesTowardZero . fromRationalR) cases

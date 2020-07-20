@@ -37,30 +37,31 @@ spec :: Spec
 spec = do
   let proxy :: Proxy Half
       proxy = Proxy
-  prop "classify" $ forAllFloats (ClassificationSpec.prop_classify :: Half -> Property)
-  prop "classify (generic)" $ forAllFloats ((ClassificationSpec.prop_classify :: Identity Half -> Property) . Identity)
-  prop "twoSum" $ forAllFloats2 (TwoSumSpec.prop_twoSum :: Half -> Half -> Property)
-  prop "twoProduct" $ forAllFloats2 (TwoSumSpec.prop_twoProduct twoProduct :: Half -> Half -> Property)
-  prop "twoProduct_generic" $ forAllFloats2 (TwoSumSpec.prop_twoProduct twoProduct_generic :: Half -> Half -> Property)
+  prop "classify" $ forAllFloats $ ClassificationSpec.prop_classify proxy
+  prop "classify (generic)" $ forAllFloats $ ClassificationSpec.prop_classify (Proxy :: Proxy (Identity Half)) . Identity
+  prop "twoSum" $ forAllFloats2 $ TwoSumSpec.prop_twoSum proxy
+  prop "twoProduct" $ forAllFloats2 $ TwoSumSpec.prop_twoProduct proxy twoProduct
+  prop "twoProduct_generic" $ forAllFloats2 $ TwoSumSpec.prop_twoProduct proxy twoProduct_generic
   let casesForHalf :: [(Half, Half, Half, Half)]
       casesForHalf = [ (-0, 0, -0, -0)
                      , (-0, -0, -0, 0)
+                       -- TODO: Add more
                      ]
   FMASpec.checkFMA         "fusedMultiplyAdd (default)"             fusedMultiplyAdd             casesForHalf
   FMASpec.checkFMA_generic "fusedMultiplyAdd (default, generic)"    fusedMultiplyAdd             casesForHalf
   FMASpec.checkFMA         "fusedMultiplyAdd (twoProduct)"          fusedMultiplyAdd_twoProduct  casesForHalf
   FMASpec.checkFMA_generic "fusedMultiplyAdd (twoProduct, generic)" fusedMultiplyAdd_twoProduct  casesForHalf
   FMASpec.checkFMA         "fusedMultiplyAdd (via Rational)"        fusedMultiplyAdd_viaRational casesForHalf
-  prop "nextUp . nextDown == id (unless -inf)" $ forAllFloats (NextFloatSpec.prop_nextUp_nextDown :: Half -> Property)
-  prop "nextDown . nextUp == id (unless inf)" $ forAllFloats (NextFloatSpec.prop_nextDown_nextUp :: Half -> Property)
+  prop "nextUp . nextDown == id (unless -inf)" $ forAllFloats $ NextFloatSpec.prop_nextUp_nextDown proxy
+  prop "nextDown . nextUp == id (unless inf)" $ forAllFloats $ NextFloatSpec.prop_nextDown_nextUp proxy
   prop "augmentedAddition/equality" $ forAllFloats2 $ \(x :: Half) y ->
     isFinite x && isFinite y ==>
     let (s,t) = augmentedAddition x y
     in isFinite s ==> isFinite t .&&. toRational s + toRational t === toRational x + toRational y
   prop "augmentedAddition" $ forAllFloats2 $ \(x :: Half) y ->
-    augmentedAddition x y `AugmentedArithSpec.sameFloatPairP` augmentedAddition_viaRational x y
+    augmentedAddition x y `sameFloatPairP` augmentedAddition_viaRational x y
   prop "augmentedMultiplication" $ forAllFloats2 $ \(x :: Half) y ->
-    augmentedMultiplication x y `AugmentedArithSpec.sameFloatPairP` augmentedMultiplication_viaRational x y
+    augmentedMultiplication x y `sameFloatPairP` augmentedMultiplication_viaRational x y
 
   prop "fromIntegerR vs fromRationalR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_fromIntegerR_vs_fromRationalR proxy)
   prop "fromIntegerR vs encodeFloatR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_fromIntegerR_vs_encodeFloatR proxy)

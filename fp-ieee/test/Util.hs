@@ -34,7 +34,15 @@ sameFloatP x y = counterexample (showHFloat x . showString (interpret res) . sho
     interpret True  = " === "
     interpret False = " =/= "
 
-infix 4 `sameFloat`, `sameFloatP`
+sameFloatPairP :: (RealFloat a, Show a) => (a, a) -> (a, a) -> Property
+sameFloatPairP (x,y) (x',y') = counterexample (showPair x y . showString (interpret res) . showPair x' y' $ "") res
+  where
+    showPair s t = showChar '(' . showHFloat s . showChar ',' . showHFloat t . showChar ')'
+    res = x `sameFloat` x' && y `sameFloat` y'
+    interpret True  = " === "
+    interpret False = " =/= "
+
+infix 4 `sameFloat`, `sameFloatP`, `sameFloatPairP`
 
 variousFloats :: forall a. (RealFloat a, Arbitrary a, Random a, Show a) => Gen a
 variousFloats = frequency
