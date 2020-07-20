@@ -1,4 +1,4 @@
-name:                floating-extra
+name:                fp-ieee
 version:             0.1.0.0
 github:              "minoki/haskell-floating-point"
 license:             BSD3
@@ -15,7 +15,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/minoki/haskell-floating-point/floating-extra#readme>
+description:         Please see the README on GitHub at <https://github.com/minoki/haskell-floating-point/fp-ieee#readme>
 
 dependencies:
 - base >= 4.12 && < 5
@@ -171,7 +171,7 @@ library:
   - -Wall
 
 tests:
-  floating-extra-test:
+  fp-ieee-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -180,21 +180,21 @@ tests:
     - -with-rtsopts=-N
     - -fno-ignore-asserts
     dependencies:
-    - floating-extra
+    - fp-ieee
     - QuickCheck
     - hspec
     - hspec-core
     - random
 
-  floating-extra-doctests:
+  fp-ieee-doctests:
     main: doctests.hs
     dependencies:
     - doctest >= 0.8
 
 benchmarks:
-  floating-extra-benchmark:
+  fp-ieee-benchmark:
     main: Benchmark.hs
     source-dirs: benchmark
     dependencies:
-    - floating-extra
+    - fp-ieee
     - gauge

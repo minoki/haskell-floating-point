@@ -1,7 +1,7 @@
 resolver: lts-16.1
 
 packages:
-- floating-extra/
+- fp-ieee/
 - rounded-hw/
 
 extra-deps:
