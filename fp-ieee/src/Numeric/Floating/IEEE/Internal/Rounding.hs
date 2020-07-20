@@ -137,6 +137,20 @@ fromIntegerR n | n < 0 = negate <$> fromPositiveIntegerR True (- n)
                | otherwise = fromPositiveIntegerR False n
 {-# INLINE fromIntegerR #-}
 
+-- |
+-- IEEE 754 @convertFromInt@ operation, with each rounding attributes.
+fromIntegerTiesToEven, fromIntegerTiesToAway, fromIntegerTowardPositive, fromIntegerTowardNegative, fromIntegerTowardZero :: RealFloat a => Integer -> a
+fromIntegerTiesToEven = roundTiesToEven . fromIntegerR
+fromIntegerTiesToAway = roundTiesToAway . fromIntegerR
+fromIntegerTowardPositive = roundUpward . fromIntegerR
+fromIntegerTowardNegative = roundDownward . fromIntegerR
+fromIntegerTowardZero = roundTowardZero . fromIntegerR
+{-# INLINE fromIntegerTiesToEven #-}
+{-# INLINE fromIntegerTiesToAway #-}
+{-# INLINE fromIntegerTowardPositive #-}
+{-# INLINE fromIntegerTowardNegative #-}
+{-# INLINE fromIntegerTowardZero #-}
+
 -- n > 0
 fromPositiveIntegerR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> f a
 fromPositiveIntegerR !neg !n = assert (n > 0) result

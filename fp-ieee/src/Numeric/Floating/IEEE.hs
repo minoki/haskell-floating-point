@@ -61,8 +61,11 @@ module Numeric.Floating.IEEE
   , genericDiv
   -- | @genericSqrt@: not implemented yet
   , genericFusedMultiplyAdd
-  -- |
-  -- @convertFromInt@: not implemented yet
+  , fromIntegerTiesToEven
+  , fromIntegerTiesToAway
+  , fromIntegerTowardPositive
+  , fromIntegerTowardNegative
+  , fromIntegerTowardZero
   , round    -- convertToIntegerTiesToEven: round
   , roundAway
   , truncate -- convertToIntegerTowardZero: truncate
