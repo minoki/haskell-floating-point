@@ -57,7 +57,10 @@ prop_classify _ x = conjoin
   , counterexample "isDenormalized" $ isDenormalized x === (c == NegativeSubnormal || c == PositiveSubnormal)
   , counterexample "isZero" $ isZero x === (c == NegativeZero || c == PositiveZero)
   , counterexample "isFinite" $ isFinite x === (c `elem` [NegativeNormal, NegativeSubnormal, NegativeZero, PositiveZero, PositiveSubnormal, PositiveNormal])
-  , counterexample "isSignMinus" $ isSignMinus x === (c `elem` [NegativeInfinity, NegativeNormal, NegativeSubnormal, NegativeZero, SignalingNaN, QuietNaN])
+  , counterexample "isSignMinus" $ if isSignMinus x then
+                                     c `elem` [NegativeInfinity, NegativeNormal, NegativeSubnormal, NegativeZero, QuietNaN, SignalingNaN]
+                                   else
+                                     c `elem` [PositiveInfinity, PositiveNormal, PositiveSubnormal, PositiveZero, QuietNaN, SignalingNaN]
   ]
   where c = classify x
 {-# SPECIALIZE prop_classify :: Proxy Float -> Float -> Property, Proxy Double -> Double -> Property #-}
@@ -79,6 +82,7 @@ spec = do
     prop "setPayloadSignaling/0x1p24" $ prop_setPayloadSignaling proxy 0x1p24
     prop "setPayloadSignaling/Int" $ prop_setPayloadSignaling proxy . (fromIntegral :: Int -> Float)
     prop "classify" $ forAllFloats $ prop_classify proxy
+    prop "classify (signaling NaN)" $ prop_classify proxy (setPayloadSignaling 123)
   describe "Double" $ do
     let proxy :: Proxy Double
         proxy = Proxy
@@ -93,3 +97,4 @@ spec = do
     prop "setPayloadSignaling/0x1p53" $ prop_setPayloadSignaling proxy 0x1p53
     prop "setPayloadSignaling/Int" $ prop_setPayloadSignaling proxy . (fromIntegral :: Int -> Double)
     prop "classify" $ forAllFloats $ prop_classify proxy
+    prop "classify (signaling NaN)" $ prop_classify proxy (setPayloadSignaling 123)
