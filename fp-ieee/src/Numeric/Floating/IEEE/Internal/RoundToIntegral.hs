@@ -12,74 +12,85 @@ default ()
 -- |
 -- IEEE 754 @roundToIntegralTiesToEven@ operation.
 --
--- prop> \(x :: Double) -> isFinite x ==> (roundToIntegralTiesToEven x == fromInteger (round x))
--- prop> isNegativeZero (roundToIntegralTiesToEven (-0.5))
-roundToIntegralTiesToEven :: RealFloat a => a -> a
-roundToIntegralTiesToEven x | isInfinite x || isNaN x || isNegativeZero x = x + x
-roundToIntegralTiesToEven x = case round x of
-                                0 | x < 0 -> -0
-                                  | otherwise -> 0
-                                n -> fromInteger n
-{-# NOINLINE [1] roundToIntegralTiesToEven #-}
+-- prop> \(x :: Double) -> isFinite x ==> (round' x == fromInteger (round x))
+-- >>> round' (-0.5)
+-- -0.0
+round' :: RealFloat a => a -> a
+round' x | isInfinite x || isNaN x || isNegativeZero x = x + x
+round' x = case round x of
+             0 | x < 0 -> -0
+               | otherwise -> 0
+             n -> fromInteger n
+{-# NOINLINE [1] round' #-}
 
 -- |
 -- IEEE 754 @roundToIntegralTiesToAway@ operation.
 --
--- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTiesToAway x == fromInteger (roundAway x)
--- prop> isNegativeZero (roundToIntegralTiesToAway (-0.4))
-roundToIntegralTiesToAway :: RealFloat a => a -> a
-roundToIntegralTiesToAway x | isInfinite x || isNaN x || isNegativeZero x = x + x
-roundToIntegralTiesToAway x = case properFraction x of
-                                -- x == n + f, signum x == signum f, 0 <= abs f < 1
-                                (n,r) -> if abs r < 0.5 then
-                                           -- round toward zero
-                                           if n == 0 then
-                                             0.0 * r -- signed zero
-                                           else
-                                             fromInteger n
-                                         else
-                                           -- round away from zero
-                                           if r < 0 then
-                                             fromInteger (n - 1)
-                                           else
-                                             fromInteger (n + 1)
-{-# NOINLINE [1] roundToIntegralTiesToAway #-}
+-- prop> \(x :: Double) -> isFinite x ==> roundAway' x == fromInteger (roundAway x)
+-- >>> roundAway' (-0.5)
+-- -1.0
+-- >>> roundAway' (-0.4)
+-- -0.0
+roundAway' :: RealFloat a => a -> a
+roundAway' x | isInfinite x || isNaN x || isNegativeZero x = x + x
+roundAway' x = case properFraction x of
+                 -- x == n + f, signum x == signum f, 0 <= abs f < 1
+                 (n,r) -> if abs r < 0.5 then
+                            -- round toward zero
+                            if n == 0 then
+                              0.0 * r -- signed zero
+                            else
+                              fromInteger n
+                          else
+                            -- round away from zero
+                            if r < 0 then
+                              fromInteger (n - 1)
+                            else
+                              fromInteger (n + 1)
+{-# NOINLINE [1] roundAway' #-}
 
 -- |
 -- IEEE 754 @roundToIntegralTowardZero@ operation.
 --
--- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTowardZero x == fromInteger (truncate x)
--- prop> isNegativeZero (roundToIntegralTowardZero (-0.5))
-roundToIntegralTowardZero :: RealFloat a => a -> a
-roundToIntegralTowardZero x | isInfinite x || isNaN x || isNegativeZero x = x + x
-roundToIntegralTowardZero x = case truncate x of
-                                0 | x < 0 -> -0
-                                  | otherwise -> 0
-                                n -> fromInteger n
-{-# NOINLINE [1] roundToIntegralTowardZero #-}
+-- prop> \(x :: Double) -> isFinite x ==> truncate' x == fromInteger (truncate x)
+-- >>> truncate' (-0.5)
+-- -0.0
+truncate' :: RealFloat a => a -> a
+truncate' x | isInfinite x || isNaN x || isNegativeZero x = x + x
+truncate' x = case truncate x of
+                0 | x < 0 -> -0
+                  | otherwise -> 0
+                n -> fromInteger n
+{-# NOINLINE [1] truncate' #-}
 
 -- |
 -- IEEE 754 @roundToIntegralTowardPositive@ operation.
 --
--- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTowardPositive x == fromInteger (ceiling x)
--- prop> isNegativeZero (roundToIntegralTowardPositive (-0.5))
-roundToIntegralTowardPositive :: RealFloat a => a -> a
-roundToIntegralTowardPositive x | isInfinite x || isNaN x || isNegativeZero x = x + x
-roundToIntegralTowardPositive x = case ceiling x of
-                                    0 | x < 0 -> -0
-                                      | otherwise -> 0
-                                    n -> fromInteger n
-{-# NOINLINE [1] roundToIntegralTowardPositive #-}
+-- prop> \(x :: Double) -> isFinite x ==> ceiling' x == fromInteger (ceiling x)
+-- >>> ceiling' (-0.8)
+-- -0.0
+-- >>> ceiling' (-0.5)
+-- -0.0
+ceiling' :: RealFloat a => a -> a
+ceiling' x | isInfinite x || isNaN x || isNegativeZero x = x + x
+ceiling' x = case ceiling x of
+               0 | x < 0 -> -0
+                 | otherwise -> 0
+               n -> fromInteger n
+{-# NOINLINE [1] ceiling' #-}
 
 -- |
 -- IEEE 754 @roundToIntegralTowardNegative@ operation.
 --
--- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTowardNegative x == fromInteger (floor x)
--- prop> isNegativeZero (roundToIntegralTowardNegative (-0))
-roundToIntegralTowardNegative :: RealFloat a => a -> a
-roundToIntegralTowardNegative x | isInfinite x || isNaN x || isNegativeZero x = x + x
-                                | otherwise = fromInteger (floor x)
-{-# NOINLINE [1] roundToIntegralTowardNegative #-}
+-- prop> \(x :: Double) -> isFinite x ==> floor' x == fromInteger (floor x)
+-- >>> floor' (-0.1)
+-- -1.0
+-- >>> floor' (-0)
+-- -0.0
+floor' :: RealFloat a => a -> a
+floor' x | isInfinite x || isNaN x || isNegativeZero x = x + x
+         | otherwise = fromInteger (floor x)
+{-# NOINLINE [1] floor' #-}
 
 -- |
 -- IEEE 754 @convertToIntegerTiesToAway@ operation.
@@ -118,22 +129,22 @@ foreign import ccall unsafe "floor"
   c_truncDouble :: Double -> Double
 
 {-# RULES
-"roundToIntegralTiesToAway/Float"
-  roundToIntegralTiesToAway = c_roundFloat
-"roundToIntegralTiesToAway/Double"
-  roundToIntegralTiesToAway = c_roundDouble
-"roundToIntegralTowardZero/Float"
-  roundToIntegralTowardZero = c_truncFloat
-"roundToIntegralTowardZero/Double"
-  roundToIntegralTowardZero = c_truncDouble
-"roundToIntegralTowardPositive/Float"
-  roundToIntegralTowardPositive = c_ceilFloat
-"roundToIntegralTowardPositive/Double"
-  roundToIntegralTowardPositive = c_ceilDouble
-"roundToIntegralTowardNegative/Float"
-  roundToIntegralTowardNegative = c_floorFloat
-"roundToIntegralTowardNegative/Double"
-  roundToIntegralTowardNegative = c_floorDouble
+"roundAway'/Float"
+  roundAway' = c_roundFloat
+"roundAway'/Double"
+  roundAway' = c_roundDouble
+"truncate'/Float"
+  truncate' = c_truncFloat
+"truncate'/Double"
+  truncate' = c_truncDouble
+"ceiling'/Float"
+  ceiling' = c_ceilFloat
+"ceiling'/Double"
+  ceiling' = c_ceilDouble
+"floor'/Float"
+  floor' = c_floorFloat
+"floor'/Double"
+  floor' = c_floorDouble
   #-}
 
 {- from base
@@ -149,10 +160,10 @@ foreign import ccall unsafe "hs_roundevenDouble"
   c_roundevenDouble :: Double -> Double
 
 {-# RULES
-"roundToIntegralTiesToEven/Float"
-  roundToIntegralTiesToEven = c_roundevenFloat
-"roundToIntegralTiesToEven/Double"
-  roundToIntegralTiesToEven = c_roundevenDouble
+"round'/Float"
+  round' = c_roundevenFloat
+"round'/Double"
+  round' = c_roundevenDouble
   #-}
 #endif
 

@@ -73,11 +73,11 @@ prop_signalingNaN proxy =
   let snan = setPayloadSignaling 123 `asProxyTypeOf` proxy -- Assume 123 is a valid payload
   in conjoin
      [ counterexample "setPayloadSignaling produces a signaling NaN" $ isSignaling snan
-     , counterexample "roundToIntegralTiesToEven" $ isQuietNaN (roundToIntegralTiesToEven snan)
-     , counterexample "roundToIntegralTiesToAway" $ isQuietNaN (roundToIntegralTiesToAway snan)
-     , counterexample "roundToIntegralToawrdZero" $ isQuietNaN (roundToIntegralTowardZero snan)
-     , counterexample "roundToIntegralToawrdPositive" $ isQuietNaN (roundToIntegralTowardPositive snan)
-     , counterexample "roundToIntegralToawrdNegative" $ isQuietNaN (roundToIntegralTowardNegative snan)
+     , counterexample "round'" $ isQuietNaN (round' snan)
+     , counterexample "roundAway'" $ isQuietNaN (roundAway' snan)
+     , counterexample "truncate'" $ isQuietNaN (truncate' snan)
+     , counterexample "ceiling'" $ isQuietNaN (ceiling' snan)
+     , counterexample "floor'" $ isQuietNaN (floor' snan)
      , counterexample "nextUp" $ isQuietNaN (nextUp snan)
      , counterexample "nextDown" $ isQuietNaN (nextDown snan)
      , counterexample "nextTowardZero" $ isQuietNaN (nextTowardZero snan)

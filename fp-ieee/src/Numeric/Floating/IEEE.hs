@@ -23,11 +23,11 @@ module Numeric.Floating.IEEE
   -- * 5.3 Homogeneous general-computational operations
   --
   -- ** 5.3.1 General operations
-    roundToIntegralTiesToEven
-  , roundToIntegralTiesToAway
-  , roundToIntegralTowardZero
-  , roundToIntegralTowardPositive
-  , roundToIntegralTowardNegative
+    round'
+  , roundAway'
+  , truncate'
+  , ceiling'
+  , floor'
   -- | @roundToIntegralExact{...}@: not implemented yet
   , nextUp
   , nextDown
