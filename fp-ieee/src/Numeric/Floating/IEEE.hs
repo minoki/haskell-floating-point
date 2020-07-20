@@ -164,17 +164,10 @@ module Numeric.Floating.IEEE
   , isMantissaEven
   , roundTiesTowardZero
   ) where
-import           Data.Ratio
 import           MyPrelude
-import           Numeric.Floating.IEEE.Internal.Augmented
-import           Numeric.Floating.IEEE.Internal.Base
-import           Numeric.Floating.IEEE.Internal.Classify
-import           Numeric.Floating.IEEE.Internal.Conversion
-import           Numeric.Floating.IEEE.Internal.FMA
-import           Numeric.Floating.IEEE.Internal.GenericArith
-import           Numeric.Floating.IEEE.Internal.MinMax
-import           Numeric.Floating.IEEE.Internal.NextFloat
-import           Numeric.Floating.IEEE.Internal.Round
+import           Numeric.Floating.IEEE.Internal
+
+default ()
 
 -- |
 -- IEEE 754 @remainder@ operation.

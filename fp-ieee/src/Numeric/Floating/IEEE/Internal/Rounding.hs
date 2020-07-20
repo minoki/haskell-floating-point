@@ -1,7 +1,7 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE NoImplicitPrelude #-}
-module Numeric.Floating.IEEE.Internal.Integer where
+module Numeric.Floating.IEEE.Internal.Rounding where
 import           Control.Exception (assert)
 import           Data.Bits
 import           Data.Functor.Product

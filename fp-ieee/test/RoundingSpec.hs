@@ -8,7 +8,7 @@ import           Numeric.Floating.IEEE hiding (roundTiesToAway,
                                         roundTiesTowardZero)
 import           Numeric.Floating.IEEE.Internal hiding (roundTiesToAway,
                                                  roundTiesTowardZero)
-import           Numeric.Floating.IEEE.Internal.Integer
+import           Numeric.Floating.IEEE.Internal.Rounding
 import qualified Numeric.Floating.IEEE.Internal as Augmented (roundTiesTowardZero)
 import           Test.Hspec
 import           Test.Hspec.QuickCheck

@@ -12,7 +12,7 @@ import qualified NaNSpec
 import qualified NextFloatSpec
 import           Numeric.Floating.IEEE
 import           Numeric.Floating.IEEE.Internal
-import           Numeric.Floating.IEEE.Internal.Integer
+import           Numeric.Floating.IEEE.Internal.Rounding
 import           Numeric.Half
 import qualified RoundingSpec
 import           System.Random

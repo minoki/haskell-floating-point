@@ -1,6 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE NoImplicitPrelude #-}
-module Numeric.Floating.IEEE.Internal.Round where
+module Numeric.Floating.IEEE.Internal.RoundToIntegral where
 import           MyPrelude
 
 default ()
