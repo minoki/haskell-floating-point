@@ -1,7 +1,25 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE NoImplicitPrelude #-}
-module Numeric.Floating.IEEE.Internal.FMA where
+module Numeric.Floating.IEEE.Internal.FMA
+  ( isMantissaEven
+  , twoSum
+  , add_roundToOdd
+  , split
+  , twoProduct_generic
+  , twoProductFloat_viaDouble
+  , twoProduct
+  , twoProduct_nonscaling
+#if defined(HAS_FAST_FMA)
+  , fastTwoProductFloat
+  , fastTwoProductDouble
+#endif
+  , fusedMultiplyAdd_twoProduct
+  , fusedMultiplyAddFloat_viaDouble
+  , fusedMultiplyAdd_viaInteger
+  , fusedMultiplyAdd_viaRational
+  , fusedMultiplyAdd
+  ) where
 import           Control.Exception (assert)
 import           Data.Bits
 import           GHC.Float.Compat (castDoubleToWord64, castFloatToWord32,

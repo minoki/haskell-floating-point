@@ -1,6 +1,17 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE NoImplicitPrelude #-}
-module Numeric.Floating.IEEE.Internal.RoundToIntegral where
+module Numeric.Floating.IEEE.Internal.RoundToIntegral
+  ( round'
+  , roundAway'
+  , truncate'
+  , ceiling'
+  , floor'
+  , round
+  , roundAway
+  , truncate
+  , ceiling
+  , floor
+  ) where
 import           MyPrelude
 
 default ()
