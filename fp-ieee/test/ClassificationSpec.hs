@@ -1,4 +1,4 @@
-module ClassificationSpec (spec) where
+module ClassificationSpec where
 import           Data.Functor.Identity
 import           Numeric.Floating.IEEE
 import           Test.Hspec

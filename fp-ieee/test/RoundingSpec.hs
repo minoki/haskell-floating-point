@@ -1,5 +1,5 @@
 {-# LANGUAGE RankNTypes #-}
-module RoundingSpec (spec) where
+module RoundingSpec where
 import           Control.Monad
 import           Data.Proxy
 import           Data.Ratio

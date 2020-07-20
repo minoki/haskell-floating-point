@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 import qualified AugmentedArithSpec
 import qualified ClassificationSpec
 import qualified FMASpec
@@ -8,6 +9,9 @@ import           System.Environment (getArgs, withArgs)
 import           Test.Hspec hiding (hspec)
 import           Test.Hspec.Core.Runner hiding (hspec)
 import qualified TwoSumSpec
+#if defined(USE_HALF)
+import qualified HalfSpec
+#endif
 
 -- "Extra" tests are not run by default; set --skip "***" to run them.
 myFilter :: Path -> Bool
@@ -33,3 +37,6 @@ main = hspec $ do
   describe "AugmentedArith" AugmentedArithSpec.spec
   describe "Rounding" RoundingSpec.spec
   describe "NaN" NaNSpec.spec
+#if defined(USE_HALF)
+  describe "Half" HalfSpec.spec
+#endif

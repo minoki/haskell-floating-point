@@ -1,7 +1,7 @@
 {-# LANGUAGE HexFloatLiterals #-}
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-module AugmentedArithSpec (spec) where
+module AugmentedArithSpec where
 import           Control.Monad
 import           Numeric
 import           Numeric.Floating.IEEE

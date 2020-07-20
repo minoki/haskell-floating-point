@@ -1,4 +1,4 @@
-module TwoSumSpec (spec) where
+module TwoSumSpec where
 import           Numeric.Floating.IEEE
 import           Numeric.Floating.IEEE.Internal
 import           Test.Hspec

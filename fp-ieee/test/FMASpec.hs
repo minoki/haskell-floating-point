@@ -1,6 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE HexFloatLiterals #-}
-module FMASpec (spec) where
+module FMASpec where
 import           Control.Monad
 import           Data.Coerce
 import           Data.Functor.Identity
