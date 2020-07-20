@@ -48,7 +48,8 @@ twoSum a b =
   in (x, y)
 {-# SPECIALIZE twoSum :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
 
--- Addition, with round to nearest odd floating-point number
+-- Addition, with round to nearest odd floating-point number.
+-- Does not handle undue overflow.
 add_roundToOdd :: RealFloat a => a -> a -> a
 add_roundToOdd x y = let (u, v) = twoSum x y
                          result | v < 0 && isMantissaEven u = nextDown u

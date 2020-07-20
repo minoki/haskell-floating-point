@@ -16,14 +16,14 @@ default ()
 
 class Functor f => RoundingStrategy f where
   exact :: a -> f a
-  inexactNotTie :: Bool -- ^ negative (True => negative, False -> positive)
-                -> Int -- ^ parity (even => toward-zero is even, odd => toward-zero is odd)
+  inexactNotTie :: Bool -- ^ negative (True -> negative, False -> positive)
+                -> Int -- ^ parity (even -> toward-zero is even, odd -> toward-zero is odd)
                 -> a -- ^ nearest
                 -> a -- ^ toward zero
                 -> a -- ^ away from zero
                 -> f a
-  inexactTie :: Bool -- ^ negative (True => negative, False -> positive)
-             -> Int -- ^ parity (even => toward-zero is even, odd => toward-zero is odd)
+  inexactTie :: Bool -- ^ negative (True -> negative, False -> positive)
+             -> Int -- ^ parity (even -> toward-zero is even, odd -> toward-zero is odd)
              -> a -- ^ toward zero
              -> a -- ^ away from zero
              -> f a
@@ -92,7 +92,7 @@ instance RoundingStrategy RoundToOdd where
                                    | otherwise = RoundToOdd zero
 
 newtype Exactness a = Exactness { isExact :: Bool }
- deriving (Eq,Show,Functor)
+  deriving (Eq,Show,Functor)
 
 instance RoundingStrategy Exactness where
   exact _ = Exactness True
@@ -109,6 +109,8 @@ fromIntegerR :: (RealFloat a, RoundingStrategy f) => Integer -> f a
 fromRationalR :: (RealFloat a, RoundingStrategy f) => Rational -> f a
 encodeFloatR :: (RealFloat a, RoundingStrategy f) => Integer -> Int -> f a
 scaleFloatR :: (RealFloat a, RoundingStrategy f) => Int -> a -> f a
+floatToInteger :: (RealFloat a, RoundingStrategy f) => a -> f Integer
+floatToInteger' :: (RealFloat a, RoundingStrategy f) => a -> f a
 -}
 
 {-
@@ -142,7 +144,7 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
     result = let k = integerLogBase' base n -- floor (logBase base n)
                  -- base^k <= n < base^(k+1)
              in if k < fDigits then
-                  exact (fromInteger n)
+                  exact $ fromInteger n
                 else
                   if k >= expMax then
                     -- overflow
@@ -156,7 +158,7 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
                   else
                     let e = k - fDigits + 1
                         (q, r) = quotRemByExpt n base e -- n `quotRem` (base^e)
-                        -- 2^52 <= q < 2^53, 0 <= r < 2^(k-52)
+                        -- base^(fDigits - 1) <= q < base^fDigits, 0 <= r < base^(k-fDigits+1)
                     in if r == 0 then
                          exact $ encodeFloat q e
                        else
@@ -195,7 +197,7 @@ fromRatioR :: (RealFloat a, RoundingStrategy f)
            => Integer -- ^ numerator
            -> Integer -- ^ denominator
            -> f a
-fromRatioR 0 _ = exact 0
+fromRatioR 0 !_ = exact 0
 fromRatioR n 0 | n > 0 = exact (1 / 0) -- positive infinity
                | otherwise = exact (- 1 / 0) -- negative infinity
 fromRatioR n d | d < 0 = error "fromRatio: negative denominator"
@@ -203,46 +205,50 @@ fromRatioR n d | d < 0 = error "fromRatio: negative denominator"
                | otherwise = fromPositiveRatioR False n d
 
 fromPositiveRatioR :: (RealFloat a, RoundingStrategy f)
-                   => Bool -> Integer -> Integer -> f a
-fromPositiveRatioR !neg !n !d = result
+                   => Bool -- ^ True if the result will be negated
+                   -> Integer -- ^ numerator
+                   -> Integer -- ^ denominator
+                   -> f a
+fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
   where
-    result = let e :: Int
-                 e = integerLogBase' base n - integerLogBase' base d - fDigits
-                 q, r, d_ :: Integer
-                 d_ | e >= 0 = multiplyByExpt d base e
-                    | otherwise = d
-                 (!q, !r) = if e >= 0 then
-                              n `quotRem` d_
-                            else
-                              (divideByExpt n base (-e)) `quotRem` d
-                 -- e >= 0: n = q * (d * 2^e) + r, 0 <= r < d * 2^e
-                 -- e <= 0: n * 2^(-e) = q * d + r, 0 <= r < d
-                 -- n / d * 2^^(-e) = q + r / d_
-                 !_ = assert (n % d * fromInteger base^^(-e) == fromInteger q + r % d_) ()
-                 -- 52 <= log2 q < 54
-                 q', r', d' :: Integer
-                 e' :: Int
-                 (!q', !r', !d', !e') =
-                   if q < expt base fDigits then
-                     (q, r, d_, e)
+    result = let e0 :: Int
+                 e0 = integerLogBase' base n - integerLogBase' base d - fDigits
+                 q0, r0, d0 :: Integer
+                 (!d0, (!q0, !r0)) =
+                   if e0 >= 0 then
+                     -- n = q0 * (d * base^e0) + r0, 0 <= r0 < d * base^e0
+                     let d_ = multiplyByExpt d base e0
+                     in (d_, n `quotRem` d_)
                    else
-                     let (q'', r'') = q `quotRem` base -- q = q'' * base + r''
-                     in (q'', r'' * d_ + r, base * d_, e + 1)
-                 -- n / d * 2^^(-e') = q' + r' / d', 2^52 <= q' < 2^53, 0 <= r' < d'
-                 !_ = assert (n % d * fromInteger base^^(-e') == fromInteger q' + r' % d') ()
-                 -- q' * 2^^e' <= n/d < (q'+1) * 2^^e', 2^52 <= q' < 2^53
-                 -- (q'/2^53) * 2^^(e'+53) <= n/d < (q'+1)/2^53 * 2^^(e'+53), 1/2 <= q'/2^53 < 1
-                 -- normal: 0x1p-1022 <= x <= 0x1.fffffffffffffp+1023
-             in if expMin <= e' + fDigits && e' + fDigits <= expMax then
-                  -- normal
-                  if r' == 0 then
-                    exact $ encodeFloat q' e'
+                     -- n * base^(-e0) = q0 * d + r0, 0 <= r0 < d
+                     (d, (multiplyByExpt n base (-e0)) `quotRem` d)
+                 -- Invariant: n / d * base^^(-e0) = q0 + r0 / d0
+                 !_ = assert (n % d * fromInteger base^^(-e0) == fromInteger q0 + r0 % d0) ()
+                 !_ = assert (base^(fDigits-1) <= q0 && q0 < base^(fDigits+1)) ()
+
+                 q, r, d' :: Integer
+                 e :: Int
+                 (!q, !r, !d', !e) =
+                   if q0 < expt base fDigits then
+                     -- base^(fDigits-1) <= q0 < base^fDigits
+                     (q0, r0, d0, e0)
+                   else
+                     -- base^fDigits <= q0 < base^(fDigits+1)
+                     let (q', r') = q0 `quotRem` base
+                     in (q', r' * d0 + r0, base * d0, e0 + 1)
+                 -- Invariant: n / d * 2^^(-e) = q + r / d', base^(fDigits-1) <= q < base^fDigits, 0 <= r < d'
+                 !_ = assert (n % d * fromInteger base^^(-e) == fromInteger q + r % d') ()
+                 -- base^(e+fDigits-1) <= q * base^^e <= n/d < (q+1) * base^^e <= base^(e+fDigits)
+             in if expMin <= e + fDigits && e + fDigits <= expMax then
+                  -- normal: base^^(expMin-1) <= n/d < base^expMax
+                  if r == 0 then
+                    exact $ encodeFloat q e
                   else
                     -- inexact
-                    let down = encodeFloat q' e'
-                        up = encodeFloat (q' + 1) e' -- may be infinity
-                        parity = fromInteger q' :: Int
-                    in case compare (base * r') d' of
+                    let down = encodeFloat q e
+                        up = encodeFloat (q + 1) e -- may be infinity
+                        parity = fromInteger q :: Int
+                    in case compare (base * r) d' of
                          LT -> inexactNotTie
                                  neg
                                  parity
@@ -261,8 +267,7 @@ fromPositiveRatioR !neg !n !d = result
                                  down -- zero
                                  up -- away
                 else
-                  -- overflow or underflow (subnormal)
-                  if expMax <= e' + fDigits then
+                  if expMax < e + fDigits then
                     -- overflow
                     let inf = 1 / 0
                     in inexactNotTie
@@ -272,29 +277,27 @@ fromPositiveRatioR !neg !n !d = result
                          maxFinite -- zero
                          inf -- away
                   else
-                    -- subnormal
-                    -- e' + fDigits < expMin (or, e' < expMin - fDigits = -1074)
-                    -- 0 <= rounded(n/d) <= 2^(expMin - 1) = 0x1p-1022, minimum (positive) subnormal: 0x1p-1074
-                    let (!q'', !r'') = quotRemByExpt q' base (expMin - fDigits - e')
-                        -- q' = q'' * 2^(expMin - fDigits - e') + r'', 0 <= r'' < 2^(expMin - fDigits - e')
-                        -- 2^(fDigits-1) <= q' = q'' * 2^(expMin - fDigits - e') + r'' < 2^fDigits
-                        -- n / d * 2^^(-e') = q' + r' / d' = q'' * 2^(expMin - fDigits - e') + r'' + r' / d'
-                        -- n / d = q'' * 2^^(expMin - fDigits) + (r'' + r' / d') * 2^^e'
-                        -- 0 <= r'' < 2^(expMin - fDigits - e')
-                    in if r' == 0 && r'' == 0 then
-                         exact $ encodeFloat q'' (expMin - fDigits) -- exact
+                    -- subnormal: 0 < n/d < base^^(expMin-1)
+                    -- e + fDigits < expMin
+                    let (!q', !r') = quotRemByExpt q base (expMin - fDigits - e)
+                        -- q = q' * base^(expMin-fDigits-e) + r', 0 <= r' < base^(expMin-fDigits-e)
+                        -- n / d * base^^(-e) = q' * base^(expMin-fDigits-e) + r' + r / d'
+                        -- n / d = q' * base^^(expMin - fDigits) + (r' + r / d') * base^^e
+                    in if r == 0 && r' == 0 then
+                         exact $ encodeFloat q' (expMin - fDigits)
                        else
-                         let down = encodeFloat q'' (expMin - fDigits)
-                             up = encodeFloat (q'' + 1) (expMin - fDigits)
-                             parity = fromInteger q'' :: Int
-                         in case compare r'' (expt base (expMin - fDigits - e' - 1)) of
+                         -- (r' + r / d') * base^^e vs. base^^(expMin-fDigits-1)
+                         let down = encodeFloat q' (expMin - fDigits)
+                             up = encodeFloat (q' + 1) (expMin - fDigits)
+                             parity = fromInteger q' :: Int
+                         in case compare r' (expt base (expMin - fDigits - e - 1)) of
                               LT -> inexactNotTie
                                       neg
                                       parity
                                       down -- near
                                       down -- zero
                                       up -- away
-                              EQ -> if r' == 0 then
+                              EQ -> if r == 0 then
                                       inexactTie
                                         neg
                                         parity
@@ -319,7 +322,7 @@ fromPositiveRatioR !neg !n !d = result
     (!expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
 
 encodeFloatR :: (RealFloat a, RoundingStrategy f) => Integer -> Int -> f a
-encodeFloatR 0 n = exact 0
+encodeFloatR 0 !_ = exact 0
 encodeFloatR m n | m < 0 = negate <$> encodePositiveFloatR True (- m) n
                  | otherwise = encodePositiveFloatR False m n
 
@@ -342,7 +345,6 @@ encodePositiveFloatR !neg !m !n = assert (m > 0) result
                         -- base^(fDigits-1) <= q = m `quot` (base^^(k-fDigits+1)) < base^fDigits
                         -- m * base^^n = q * base^^(n+k-fDigits+1) + r * base^^n
                     in if r == 0 then
-                         -- exact
                          exact $ encodeFloat q (n + k - fDigits + 1)
                        else
                          -- inexact
@@ -389,7 +391,6 @@ encodePositiveFloatR !neg !m !n = assert (m > 0) result
                           -- q <= m * base^^(n-expMin+fDigits) < q+1
                           -- q * base^^(expMin-fDigits) <= m * base^^n < (q+1) * base^^(expMin-fDigits)
                       in if r == 0 then
-                           -- exact
                            exact $ encodeFloat q (expMin - fDigits)
                          else
                            -- inexact

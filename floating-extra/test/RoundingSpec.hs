@@ -77,9 +77,12 @@ prop_order _ result =
        ]
 
 prop_add_roundToOdd :: RealFloat a => Proxy a -> a -> a -> Property
-prop_add_roundToOdd _ x y = isFinite x && isFinite y ==>
+prop_add_roundToOdd _ x y = isFinite x && isFinite y && isFinite (x + y) ==>
   let z = add_roundToOdd x y
-      w = roundToOdd (fromRationalR (toRational x + toRational y))
+      w = if x == 0 && y == 0 then
+            x + y
+          else
+            roundToOdd (fromRationalR (toRational x + toRational y))
   in z `sameFloatP` w
 
 prop_roundTiesTowardZero :: RealFloat a => Proxy a -> Rational -> Property
