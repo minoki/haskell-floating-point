@@ -1,9 +1,11 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE HexFloatLiterals #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 module HalfSpec where
 import qualified AugmentedArithSpec
 import qualified ClassificationSpec
+import           Control.Monad
 import           Data.Functor.Identity
 import           Data.Int
 import           Data.Proxy
@@ -34,12 +36,23 @@ instance Random Half where
                  (x,g') = random g
              in (fromIntegral x / 2^(32 :: Int), g') -- TODO: do better
 
+isInfiniteWorkaround :: (Half -> Property) -> (Half -> Property)
+isInfiniteIsKnownToBeBuggy :: Bool
+#if MIN_VERSION_half(0,3,1)
+-- I hope https://github.com/ekmett/half/issues/23 is fixed before the next releaso
+isInfiniteWorkaround = id
+isInfiniteIsKnownToBeBuggy = False
+#else
+isInfiniteWorkaround f x = not (isNaN x) ==> f x
+isInfiniteIsKnownToBeBuggy = True
+#endif
+
 spec :: Spec
 spec = do
   let proxy :: Proxy Half
       proxy = Proxy
-  prop "classify" $ forAllFloats $ ClassificationSpec.prop_classify proxy
-  prop "classify (generic)" $ forAllFloats $ ClassificationSpec.prop_classify (Proxy :: Proxy (Identity Half)) . Identity
+  prop "classify" $ forAllFloats $ isInfiniteWorkaround $ ClassificationSpec.prop_classify proxy
+  prop "classify (generic)" $ forAllFloats $ isInfiniteWorkaround $ ClassificationSpec.prop_classify (Proxy :: Proxy (Identity Half)) . Identity
   prop "twoSum" $ forAllFloats2 $ TwoSumSpec.prop_twoSum proxy
   prop "twoProduct" $ forAllFloats2 $ TwoSumSpec.prop_twoProduct proxy twoProduct
   prop "twoProduct_generic" $ forAllFloats2 $ TwoSumSpec.prop_twoProduct proxy twoProduct_generic
@@ -83,6 +96,10 @@ spec = do
   prop "setPayloadSignaling/0" $ NaNSpec.prop_setPayloadSignaling proxy 0
   prop "setPayloadSignaling/0x1p9" $ NaNSpec.prop_setPayloadSignaling proxy 0x1p9
   prop "setPayloadSignaling/Int" $ NaNSpec.prop_setPayloadSignaling proxy . (fromIntegral :: Int -> Half)
-  prop "classify" $ forAllFloats $ NaNSpec.prop_classify proxy
-  prop "classify (signaling NaN)" $ NaNSpec.prop_classify proxy (setPayloadSignaling 123)
+  prop "classify" $ forAllFloats $ isInfiniteWorkaround $ NaNSpec.prop_classify proxy
+  when (not isInfiniteIsKnownToBeBuggy) $ do
+    prop "classify (signaling NaN)" $ NaNSpec.prop_classify proxy (setPayloadSignaling 123)
   prop "signaling NaN propagation" $ NaNSpec.prop_signalingNaN proxy
+
+  when isInfiniteIsKnownToBeBuggy $ do
+    runIO $ putStrLn "Half's isInfinite is known to be buggy on this version. Some tests were skipped."
