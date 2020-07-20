@@ -28,7 +28,6 @@ module Numeric.Floating.IEEE
   , truncate'
   , ceiling'
   , floor'
-  -- | @roundToIntegralExact{...}@: not implemented yet
   , nextUp
   , nextDown
   -- | 'nextTowardZero' is not in IEEE, but may be useful to some.
@@ -49,6 +48,10 @@ module Numeric.Floating.IEEE
   --
   -- ** 5.4.1 Arithmetic operations
   --
+  -- |
+  -- For IEEE-compliant floating-point types, '(+)', '(-)', '(*)', '(/)', and 'sqrt' from "Prelude" should be correctly-rounding.
+  -- 'fusedMultiplyAdd' is provided by this library.
+  -- This library also provides \"generic\" version of the arithmetic operations, which can be useful if the target type is narrower than source.
   , (+) -- addition
   , (-) -- subtraction
   , (*) -- multiplication
@@ -61,11 +64,18 @@ module Numeric.Floating.IEEE
   , genericDiv
   -- | @genericSqrt@: not implemented yet
   , genericFusedMultiplyAdd
+  -- |
+  -- The rounding direction of 'fromInteger' for the standard floating-point types may vary depending on the magnitude of input.
+  -- To get consistend rounding behavior, 'fromIntegerTiesToEven' can be used instead.
   , fromIntegerTiesToEven
   , fromIntegerTiesToAway
   , fromIntegerTowardPositive
   , fromIntegerTowardNegative
   , fromIntegerTowardZero
+  -- |
+  -- For IEEE-compliant floating-point types, 'round', 'truncate', 'ceiling', and 'floor' from 'RealFrac" class should be correct implementation of IEEE 754 @convertToInteger@ operations.
+  -- To complete them, 'roundAway' is provided by this library.
+  -- Note that Haskell's 'round' is specified to be ties-to-even, whereas C's @round@ is ties-to-away.
   , round    -- convertToIntegerTiesToEven: round
   , roundAway
   , truncate -- convertToIntegerTowardZero: truncate
@@ -74,26 +84,33 @@ module Numeric.Floating.IEEE
 
   -- ** 5.4.2 Conversion operations for floating-point formats and decimal character sequences
   --
+  -- |
+  -- Unfortunately, the good old 'realToFrac' does not have a good semantics, and changes behavior with rewrite rules (consider @realToFrac (0/0 :: Float) :: Double@).
+  -- This library provides 'realFloatToFrac', with good semantics on signed zeroes, infinities and NaNs.
+  -- Like 'realToFrac', 'realFloatToFrac' comes with some rewrite rules for particular types, but they should not change behavior.
   , realFloatToFrac -- convertFormat
   -- |
-  -- @convertFromDecimalCharacter@: not implemented. readSigned readFloat?
+  -- @convertFromDecimalCharacter@: not implemented.
   --
-  -- convertToDecimalCharacter: not implemented. show(E|F|G)Float?
+  -- convertToDecimalCharacter: not implemented.
 
   -- * 5.4.3 Conversion operations for binary formats
   --
   -- |
-  -- convertFromHexCharacter: not implemented. readHexFloat?
+  -- convertFromHexCharacter: not implemented.
   --
-  -- convertToHexCharacter: not implemented. show(E|F|G)Float?
+  -- convertToHexCharacter: not implemented.
 
   -- * 5.5 Quiet-computational operations
   --
   -- ** 5.5.1 Sign bit operations
-  -- copy: id
+  --
+  -- |
+  -- For IEEE-compliant floating-point types, 'negate' and 'abs' from "Prelude" should comply with IEEE semantics.
   , negate
   , abs
-  -- | copySign: not implemented
+  -- |
+  -- @copySign@: not implemented
 
   -- ** 5.5.2 Decimal re-encoding operations (not supported)
   --
@@ -115,6 +132,11 @@ module Numeric.Floating.IEEE
   -- Not supported.
 
   -- ** 5.7.2 General operations
+  --
+  -- |
+  -- Functions in this module disregards the content of NaNs: sign bit, signaling-or-quiet, and payload.
+  -- All NaNs are treated as quiet, positive.
+  -- To properly handle NaNs, use the typeclass and functions from "Numeric.Floating.IEEE.NaN".
   , Class(..)
   , classify -- class
   , isSignMinus
@@ -125,8 +147,8 @@ module Numeric.Floating.IEEE
   , isInfinite -- re-export
   , isNaN -- re-export
   -- |
-  -- isSignaling: not supported here.
-  -- isCanonical: not supported.
+  -- @isSignaling@: not supported here.
+  -- @isCanonical@: not supported.
   , floatRadix -- radix
   , compareByTotalOrder -- totalOrder
   , compareByTotalOrderMag -- totalOrderMag
@@ -158,13 +180,10 @@ module Numeric.Floating.IEEE
   , maximumMagnitude
   , maximumMagnitudeNumber
 
-  -- * Uncategorized
+  -- * Floating-point constants
   , minPositive
   , minPositiveNormal
   , maxFinite
-  , twoSum
-  , twoProduct
-  , isMantissaEven
   ) where
 import           MyPrelude
 import           Numeric.Floating.IEEE.Internal
