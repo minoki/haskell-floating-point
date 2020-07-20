@@ -9,7 +9,9 @@ default ()
 -- @-0@ is smaller than @+0@.
 -- Propagates NaNs.
 minimum' :: RealFloat a => a -> a -> a
-minimum' x y | x < y || isNaN x || (x == y && isNegativeZero x) = x
+minimum' x y | isNaN x = x + x
+             | isNaN y = y + y
+             | x < y || (x == y && isNegativeZero x) = x
              | otherwise = y
 
 -- |
@@ -17,7 +19,8 @@ minimum' x y | x < y || isNaN x || (x == y && isNegativeZero x) = x
 -- @-0@ is smaller than @+0@.
 -- Treats NaNs as missing data.
 minimumNumber :: RealFloat a => a -> a -> a
-minimumNumber x y | x < y || isNaN y || (x == y && isNegativeZero x) = x
+minimumNumber x y | isNaN x && isNaN y = x + x
+                  | x < y || isNaN y || (x == y && isNegativeZero x) = x
                   | otherwise = y
 
 -- |
@@ -25,7 +28,9 @@ minimumNumber x y | x < y || isNaN y || (x == y && isNegativeZero x) = x
 -- @-0@ is smaller than @+0@.
 -- Propagates NaNs.
 maximum' :: RealFloat a => a -> a -> a
-maximum' x y | x < y || isNaN y || (x == y && isNegativeZero x) = y
+maximum' x y | isNaN x = x + x
+             | isNaN y = y + y
+             | x < y || (x == y && isNegativeZero x) = y
              | otherwise = x
 
 -- |
@@ -33,7 +38,8 @@ maximum' x y | x < y || isNaN y || (x == y && isNegativeZero x) = y
 -- @-0@ is smaller than @+0@.
 -- Treats NaNs as missing data.
 maximumNumber :: RealFloat a => a -> a -> a
-maximumNumber x y | x < y || isNaN x || (x == y && isNegativeZero x) = y
+maximumNumber x y | isNaN x && isNaN y = x + x
+                  | x < y || isNaN x || (x == y && isNegativeZero x) = y
                   | otherwise = x
 
 -- |

@@ -65,6 +65,45 @@ prop_classify _ x = conjoin
   where c = classify x
 {-# SPECIALIZE prop_classify :: Proxy Float -> Float -> Property, Proxy Double -> Double -> Property #-}
 
+isQuietNaN :: (RealFloat a, SupportsNaN a) => a -> Bool
+isQuietNaN x = isNaN x && not (isSignaling x)
+
+prop_signalingNaN :: (RealFloat a, SupportsNaN a, Show a) => Proxy a -> Property
+prop_signalingNaN proxy =
+  let snan = setPayloadSignaling 123 `asProxyTypeOf` proxy -- Assume 123 is a valid payload
+  in conjoin
+     [ counterexample "setPayloadSignaling produces a signaling NaN" $ isSignaling snan
+     , counterexample "roundToIntegralTiesToEven" $ isQuietNaN (roundToIntegralTiesToEven snan)
+     , counterexample "roundToIntegralTiesToAway" $ isQuietNaN (roundToIntegralTiesToAway snan)
+     , counterexample "roundToIntegralToawrdZero" $ isQuietNaN (roundToIntegralTowardZero snan)
+     , counterexample "roundToIntegralToawrdPositive" $ isQuietNaN (roundToIntegralTowardPositive snan)
+     , counterexample "roundToIntegralToawrdNegative" $ isQuietNaN (roundToIntegralTowardNegative snan)
+     , counterexample "nextUp" $ isQuietNaN (nextUp snan)
+     , counterexample "nextDown" $ isQuietNaN (nextDown snan)
+     , counterexample "nextTowardZero" $ isQuietNaN (nextTowardZero snan)
+     -- , counterexample "remainder" $ isQuietNaN (remainder snan snan)
+     -- , counterexample "scaleFloat" $ isQuietNaN (scaleFloat 1 snan)
+     , counterexample "+" $ isQuietNaN (snan + snan)
+     , counterexample "-" $ isQuietNaN (snan - snan)
+     , counterexample "*" $ isQuietNaN (snan * snan)
+     , counterexample "/" $ isQuietNaN (snan / snan)
+     , counterexample "sqrt" $ isQuietNaN (sqrt snan)
+     , counterexample "fusedMultiplyAdd" $ isQuietNaN (fusedMultiplyAdd snan snan snan)
+     , counterexample "negate" $ isSignaling (negate snan)
+     , counterexample "abs" $ isSignaling (abs snan)
+     , counterexample "augmentedAddition" $ case augmentedAddition snan snan of (x, y) -> isQuietNaN x .&&. isQuietNaN y
+     , counterexample "augmentedSubtraction" $ case augmentedSubtraction snan snan of (x, y) -> isQuietNaN x .&&. isQuietNaN y
+     , counterexample "augmentedMultiplication" $ case augmentedMultiplication snan snan of (x, y) -> isQuietNaN x .&&. isQuietNaN y
+     , counterexample "minimum" $ isQuietNaN (minimum' snan snan)
+     , counterexample "minimumNumber" $ isQuietNaN (minimumNumber snan snan)
+     , counterexample "maximum" $ isQuietNaN (maximum' snan snan)
+     , counterexample "maximumNumber" $ isQuietNaN (maximumNumber snan snan)
+     , counterexample "minimumMagnitude" $ isQuietNaN (minimumMagnitude snan snan)
+     , counterexample "minimumMagnitudeNumber" $ isQuietNaN (minimumMagnitudeNumber snan snan)
+     , counterexample "maximumMagnitude" $ isQuietNaN (maximumMagnitude snan snan)
+     , counterexample "maximumMagnitudeNumber" $ isQuietNaN (maximumMagnitudeNumber snan snan)
+     ]
+
 {-# NOINLINE spec #-}
 spec :: Spec
 spec = do
@@ -83,6 +122,7 @@ spec = do
     prop "setPayloadSignaling/Int" $ prop_setPayloadSignaling proxy . (fromIntegral :: Int -> Float)
     prop "classify" $ forAllFloats $ prop_classify proxy
     prop "classify (signaling NaN)" $ prop_classify proxy (setPayloadSignaling 123)
+    prop "signaling NaN propagation" $ prop_signalingNaN proxy
   describe "Double" $ do
     let proxy :: Proxy Double
         proxy = Proxy
@@ -98,3 +138,4 @@ spec = do
     prop "setPayloadSignaling/Int" $ prop_setPayloadSignaling proxy . (fromIntegral :: Int -> Double)
     prop "classify" $ forAllFloats $ prop_classify proxy
     prop "classify (signaling NaN)" $ prop_classify proxy (setPayloadSignaling 123)
+    prop "signaling NaN propagation" $ prop_signalingNaN proxy

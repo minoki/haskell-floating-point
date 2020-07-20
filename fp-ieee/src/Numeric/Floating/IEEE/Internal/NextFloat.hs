@@ -27,7 +27,7 @@ default ()
 nextUp :: RealFloat a => a -> a
 nextUp x | not (isIEEE x) = error "non-IEEE numbers are not supported"
          | floatRadix x /= 2 = error "non-binary types are not supported" -- TODO
-         | isNaN x || (isInfinite x && x > 0) = x -- NaN or positive infinity
+         | isNaN x || (isInfinite x && x > 0) = x + x -- NaN or positive infinity
          | x >= 0 = nextUp_positive x
          | otherwise = - nextDown_positive (- x)
 {-# INLINE [1] nextUp #-}
@@ -46,7 +46,7 @@ nextUp x | not (isIEEE x) = error "non-IEEE numbers are not supported"
 nextDown :: RealFloat a => a -> a
 nextDown x | not (isIEEE x) = error "non-IEEE numbers are not supported"
            | floatRadix x /= 2 = error "non-binary types are not supported" -- TODO
-           | isNaN x || (isInfinite x && x < 0) = x -- NaN or negative infinity
+           | isNaN x || (isInfinite x && x < 0) = x + x -- NaN or negative infinity
            | x >= 0 = nextDown_positive x
            | otherwise = - nextUp_positive (- x)
 {-# INLINE [1] nextDown #-}
@@ -62,7 +62,7 @@ nextDown x | not (isIEEE x) = error "non-IEEE numbers are not supported"
 nextTowardZero :: RealFloat a => a -> a
 nextTowardZero x | not (isIEEE x) = error "non-IEEE numbers are not supported"
                  | floatRadix x /= 2 = error "non-binary types are not supported" -- TODO
-                 | isNaN x || x == 0 = x -- NaN or zero
+                 | isNaN x || x == 0 = x + x -- NaN or zero
                  | x >= 0 = nextDown_positive x
                  | otherwise = - nextDown_positive (- x)
 {-# INLINE [1] nextTowardZero #-}
@@ -138,7 +138,7 @@ nextUpFloat :: Float -> Float
 nextUpFloat x =
   case castFloatToWord32 x of
     w | w .&. 0x7f80_0000 == 0x7f80_0000
-      , w /= 0xff80_0000 -> x -- NaN or positive infinity -> itself
+      , w /= 0xff80_0000 -> x + x -- NaN or positive infinity -> itself
     0x8000_0000 -> minPositive -- -0 -> min positive
     w | testBit w 31 -> castWord32ToFloat (w - 1) -- negative
       | otherwise -> castWord32ToFloat (w + 1) -- positive
@@ -156,7 +156,7 @@ nextUpDouble :: Double -> Double
 nextUpDouble x =
   case castDoubleToWord64 x of
     w | w .&. 0x7ff0_0000_0000_0000 == 0x7ff0_0000_0000_0000
-      , w /= 0xfff0_0000_0000_0000 -> x -- NaN or positive infinity -> itself
+      , w /= 0xfff0_0000_0000_0000 -> x + x -- NaN or positive infinity -> itself
     0x8000_0000_0000_0000 -> minPositive -- -0 -> min positive
     w | testBit w 63 -> castWord64ToDouble (w - 1) -- negative
       | otherwise -> castWord64ToDouble (w + 1) -- positive
@@ -174,7 +174,7 @@ nextDownFloat :: Float -> Float
 nextDownFloat x =
   case castFloatToWord32 x of
     w | w .&. 0x7f80_0000 == 0x7f80_0000
-      , w /= 0x7f80_0000 -> x -- NaN or negative infinity -> itself
+      , w /= 0x7f80_0000 -> x + x -- NaN or negative infinity -> itself
     0x0000_0000 -> - minPositive -- +0 -> max negative
     w | testBit w 31 -> castWord32ToFloat (w + 1) -- negative
       | otherwise -> castWord32ToFloat (w - 1) -- positive
@@ -192,7 +192,7 @@ nextDownDouble :: Double -> Double
 nextDownDouble x =
   case castDoubleToWord64 x of
     w | w .&. 0x7ff0_0000_0000_0000 == 0x7ff0_0000_0000_0000
-      , w /= 0x7ff0_0000_0000_0000 -> x -- NaN or negative infinity -> itself
+      , w /= 0x7ff0_0000_0000_0000 -> x + x -- NaN or negative infinity -> itself
     0x0000_0000_0000_0000 -> - minPositive -- +0 -> max negative
     w | testBit w 63 -> castWord64ToDouble (w + 1) -- negative
       | otherwise -> castWord64ToDouble (w - 1) -- positive
@@ -211,7 +211,7 @@ nextTowardZeroFloat :: Float -> Float
 nextTowardZeroFloat x =
   case castFloatToWord32 x of
     w | w .&. 0x7f80_0000 == 0x7f80_0000
-      , w .&. 0x007f_ffff /= 0 -> x -- NaN -> itself
+      , w .&. 0x007f_ffff /= 0 -> x + x -- NaN -> itself
     0x8000_0000 -> x -- -0 -> itself
     0x0000_0000 -> x -- +0 -> itself
     w -> castWord32ToFloat (w - 1) -- positive / negative
@@ -230,7 +230,7 @@ nextTowardZeroDouble :: Double -> Double
 nextTowardZeroDouble x =
   case castDoubleToWord64 x of
     w | w .&. 0x7ff0_0000_0000_0000 == 0x7ff0_0000_0000_0000
-      , w .&. 0x000f_ffff_ffff_ffff /= 0 -> x -- NaN -> itself
+      , w .&. 0x000f_ffff_ffff_ffff /= 0 -> x + x -- NaN -> itself
     0x8000_0000_0000_0000 -> x -- -0 -> itself
     0x0000_0000_0000_0000 -> x -- +0 -> itself
     w -> castWord64ToDouble (w - 1) -- positive / negative

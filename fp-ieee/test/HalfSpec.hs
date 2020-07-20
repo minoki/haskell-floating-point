@@ -12,7 +12,7 @@ import qualified NaNSpec
 import qualified NextFloatSpec
 import           Numeric.Floating.IEEE
 import           Numeric.Floating.IEEE.Internal
-import qualified Numeric.Floating.IEEE.NaN (setPayloadSignaling)
+import           Numeric.Floating.IEEE.NaN (setPayloadSignaling)
 import           Numeric.Half
 import qualified RoundingSpec
 import           System.Random
@@ -85,3 +85,4 @@ spec = do
   prop "setPayloadSignaling/Int" $ NaNSpec.prop_setPayloadSignaling proxy . (fromIntegral :: Int -> Half)
   prop "classify" $ forAllFloats $ NaNSpec.prop_classify proxy
   prop "classify (signaling NaN)" $ NaNSpec.prop_classify proxy (setPayloadSignaling 123)
+  prop "signaling NaN propagation" $ NaNSpec.prop_signalingNaN proxy

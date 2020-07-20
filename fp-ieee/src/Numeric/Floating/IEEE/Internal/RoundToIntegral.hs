@@ -15,7 +15,7 @@ default ()
 -- prop> \(x :: Double) -> isFinite x ==> (roundToIntegralTiesToEven x == fromInteger (round x))
 -- prop> isNegativeZero (roundToIntegralTiesToEven (-0.5))
 roundToIntegralTiesToEven :: RealFloat a => a -> a
-roundToIntegralTiesToEven x | isInfinite x || isNaN x || isNegativeZero x = x
+roundToIntegralTiesToEven x | isInfinite x || isNaN x || isNegativeZero x = x + x
 roundToIntegralTiesToEven x = case round x of
                                 0 | x < 0 -> -0
                                   | otherwise -> 0
@@ -28,7 +28,7 @@ roundToIntegralTiesToEven x = case round x of
 -- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTiesToAway x == fromInteger (roundAway x)
 -- prop> isNegativeZero (roundToIntegralTiesToAway (-0.4))
 roundToIntegralTiesToAway :: RealFloat a => a -> a
-roundToIntegralTiesToAway x | isInfinite x || isNaN x || isNegativeZero x = x
+roundToIntegralTiesToAway x | isInfinite x || isNaN x || isNegativeZero x = x + x
 roundToIntegralTiesToAway x = case properFraction x of
                                 -- x == n + f, signum x == signum f, 0 <= abs f < 1
                                 (n,r) -> if abs r < 0.5 then
@@ -51,7 +51,7 @@ roundToIntegralTiesToAway x = case properFraction x of
 -- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTowardZero x == fromInteger (truncate x)
 -- prop> isNegativeZero (roundToIntegralTowardZero (-0.5))
 roundToIntegralTowardZero :: RealFloat a => a -> a
-roundToIntegralTowardZero x | isInfinite x || isNaN x || isNegativeZero x = x
+roundToIntegralTowardZero x | isInfinite x || isNaN x || isNegativeZero x = x + x
 roundToIntegralTowardZero x = case truncate x of
                                 0 | x < 0 -> -0
                                   | otherwise -> 0
@@ -64,7 +64,7 @@ roundToIntegralTowardZero x = case truncate x of
 -- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTowardPositive x == fromInteger (ceiling x)
 -- prop> isNegativeZero (roundToIntegralTowardPositive (-0.5))
 roundToIntegralTowardPositive :: RealFloat a => a -> a
-roundToIntegralTowardPositive x | isInfinite x || isNaN x || isNegativeZero x = x
+roundToIntegralTowardPositive x | isInfinite x || isNaN x || isNegativeZero x = x + x
 roundToIntegralTowardPositive x = case ceiling x of
                                     0 | x < 0 -> -0
                                       | otherwise -> 0
@@ -77,7 +77,7 @@ roundToIntegralTowardPositive x = case ceiling x of
 -- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTowardNegative x == fromInteger (floor x)
 -- prop> isNegativeZero (roundToIntegralTowardNegative (-0))
 roundToIntegralTowardNegative :: RealFloat a => a -> a
-roundToIntegralTowardNegative x | isInfinite x || isNaN x || isNegativeZero x = x
+roundToIntegralTowardNegative x | isInfinite x || isNaN x || isNegativeZero x = x + x
                                 | otherwise = fromInteger (floor x)
 {-# NOINLINE [1] roundToIntegralTowardNegative #-}
 
