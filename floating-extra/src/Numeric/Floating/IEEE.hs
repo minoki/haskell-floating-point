@@ -157,6 +157,7 @@ module Numeric.Floating.IEEE
 
   -- * Uncategorized
   , minPositive
+  , minPositiveNormal
   , maxFinite
   , twoSum
   , twoProduct

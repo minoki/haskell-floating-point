@@ -7,6 +7,7 @@ default ()
 
 -- $setup
 -- >>> :set -XHexFloatLiterals -XNumericUnderscores
+-- >>> import Numeric.Floating.IEEE.Internal.NextFloat (nextDown)
 
 isFloatBinary32 :: Bool
 isFloatBinary32 = isIEEE x
@@ -37,7 +38,19 @@ minPositive = let d = floatDigits x
 {-# INLINABLE minPositive #-}
 {-# SPECIALIZE minPositive :: Float, Double #-}
 
--- TODO: minPositiveNormal?
+-- |
+-- prop> (minPositiveNormal :: Float) == 0x1p-126
+-- prop> (minPositiveNormal :: Double) == 0x1p-1022
+-- prop> not (isDenormalized (minPositiveNormal :: Float))
+-- prop> not (isDenormalized (minPositiveNormal :: Double))
+-- prop> isDenormalized (nextDown (minPositiveNormal :: Float))
+-- prop> isDenormalized (nextDown (minPositiveNormal :: Double))
+minPositiveNormal :: RealFloat a => a
+minPositiveNormal = let (expMin,_expMax) = floatRange x
+                        x = encodeFloat 1 (expMin - 1)
+                    in x
+{-# INLINABLE minPositiveNormal #-}
+{-# SPECIALIZE minPositiveNormal :: Float, Double #-}
 
 -- |
 -- prop> (maxFinite :: Float) == 0x1.fffffep+127
