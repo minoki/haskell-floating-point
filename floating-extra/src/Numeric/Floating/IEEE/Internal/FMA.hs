@@ -14,7 +14,7 @@ import           Numeric.Floating.IEEE.Internal.NextFloat
 default ()
 
 -- $setup
--- >>> :set -XHexFloatLiterals -XNumericUnderscores
+-- >>> :set -XScopedTypeVariables
 
 -- Assumption: input is finite
 isMantissaEven :: RealFloat a => a -> Bool
@@ -39,7 +39,7 @@ isMantissaEven x = let !_ = assert (isFinite x) ()
   #-}
 
 -- |
--- prop> \a b -> case twoSum a b of (x, y) -> a + b == x && toRational a + toRational b == toRational x + toRational y
+-- prop> \(a :: Double) (b :: Double) -> let (x, y) = twoSum a b in a + b == x && toRational a + toRational b == toRational x + toRational y
 twoSum :: Num a => a -> a -> (a, a)
 twoSum a b =
   let x = a + b
@@ -96,7 +96,7 @@ twoProductFloat_viaDouble a b =
 -- This function will be rewritten into fastTwoProduct{Float,Double} if fast FMA is available; the rewriting may change behavior regarding overflow.
 -- TODO: subnormal behavior?
 -- |
--- prop> \a b -> case twoProduct a b of (x, y) -> a * b == x && fromRational (toRational a * toRational b - toRational x) == y
+-- prop> \(a :: Double) (b :: Double) -> let (x, y) = twoProduct a b in a * b == x && fromRational (toRational a * toRational b - toRational x) == y
 twoProduct :: RealFloat a => a -> a -> (a, a)
 twoProduct = twoProduct_generic
 {-# INLINE [1] twoProduct #-}
@@ -140,8 +140,6 @@ fastTwoProductDouble x y = let !r = x * y
 
 #endif
 
--- |
--- prop> \a b c -> toRational (fma_twoProd a b c) == toRational a * toRational b + toRational c
 fusedMultiplyAdd_twoProduct :: RealFloat a => a -> a -> a -> a
 fusedMultiplyAdd_twoProduct a b c
   | isFinite a && isFinite b && isFinite c =
@@ -233,6 +231,8 @@ fusedMultiplyAdd_viaRational x y z
 
 -- |
 -- IEEE 754 @fusedMultiplyAdd@ operation.
+--
+-- prop> \(a :: Double) (b :: Double) (c :: Double) -> fusedMultiplyAdd a b c == fromRational (toRational a * toRational b + toRational c)
 fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a
 fusedMultiplyAdd = fusedMultiplyAdd_twoProduct
 {-# INLINE [1] fusedMultiplyAdd #-}

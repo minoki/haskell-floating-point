@@ -5,10 +5,14 @@ import           MyPrelude
 
 default ()
 
+-- $setup
+-- >>> :set -XScopedTypeVariables
+-- >>> import Numeric.Floating.IEEE.Internal.Classify (isFinite)
+
 -- |
 -- IEEE 754 @roundToIntegralTiesToEven@ operation.
 --
--- prop> \x -> roundToIntegralTiesToEven x == fromInteger (round x)
+-- prop> \(x :: Double) -> isFinite x ==> (roundToIntegralTiesToEven x == fromInteger (round x))
 -- prop> isNegativeZero (roundToIntegralTiesToEven (-0.5))
 roundToIntegralTiesToEven :: RealFloat a => a -> a
 roundToIntegralTiesToEven x | isInfinite x || isNaN x || isNegativeZero x = x
@@ -21,7 +25,7 @@ roundToIntegralTiesToEven x = case round x of
 -- |
 -- IEEE 754 @roundToIntegralTiesToAway@ operation.
 --
--- prop> \x -> roundToIntegralTiesToAway x == fromInteger (roundTiesToAway x)
+-- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTiesToAway x == fromInteger (roundTiesToAway x)
 -- prop> isNegativeZero (roundToIntegralTiesToAway (-0.4))
 roundToIntegralTiesToAway :: RealFloat a => a -> a
 roundToIntegralTiesToAway x | isInfinite x || isNaN x || isNegativeZero x = x
@@ -44,7 +48,7 @@ roundToIntegralTiesToAway x = case properFraction x of
 -- |
 -- IEEE 754 @roundToIntegralTowardZero@ operation.
 --
--- prop> \x -> roundToIntegralTowardZero x == fromInteger (truncate x)
+-- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTowardZero x == fromInteger (truncate x)
 -- prop> isNegativeZero (roundToIntegralTowardZero (-0.5))
 roundToIntegralTowardZero :: RealFloat a => a -> a
 roundToIntegralTowardZero x | isInfinite x || isNaN x || isNegativeZero x = x
@@ -57,7 +61,7 @@ roundToIntegralTowardZero x = case truncate x of
 -- |
 -- IEEE 754 @roundToIntegralTowardPositive@ operation.
 --
--- prop> \x -> roundToIntegralTowardPositive x == fromInteger (ceiling x)
+-- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTowardPositive x == fromInteger (ceiling x)
 -- prop> isNegativeZero (roundToIntegralTowardPositive (-0.5))
 roundToIntegralTowardPositive :: RealFloat a => a -> a
 roundToIntegralTowardPositive x | isInfinite x || isNaN x || isNegativeZero x = x
@@ -70,7 +74,7 @@ roundToIntegralTowardPositive x = case ceiling x of
 -- |
 -- IEEE 754 @roundToIntegralTowardNegative@ operation.
 --
--- prop> \x -> roundToIntegralTowardNegative x == fromInteger (floor x)
+-- prop> \(x :: Double) -> isFinite x ==> roundToIntegralTowardNegative x == fromInteger (floor x)
 -- prop> isNegativeZero (roundToIntegralTowardNegative (-0))
 roundToIntegralTowardNegative :: RealFloat a => a -> a
 roundToIntegralTowardNegative x | isInfinite x || isNaN x || isNegativeZero x = x
@@ -79,6 +83,9 @@ roundToIntegralTowardNegative x | isInfinite x || isNaN x || isNegativeZero x = 
 
 -- |
 -- IEEE 754 @convertToIntegerTiesToAway@ operation.
+--
+-- >>> roundTiesToAway 4.5
+-- 5
 roundTiesToAway :: (RealFrac a, Integral b) => a -> b
 roundTiesToAway x = case properFraction x of
                       -- x == n + f, signum x == signum f, 0 <= abs f < 1
