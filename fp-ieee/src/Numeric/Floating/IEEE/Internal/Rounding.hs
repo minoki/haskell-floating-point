@@ -36,6 +36,9 @@ instance RoundingStrategy RoundTiesToEven where
   inexactNotTie _neg _parity near _zero _away = RoundTiesToEven near
   inexactTie _neg parity zero away | even parity = RoundTiesToEven zero
                                    | otherwise = RoundTiesToEven away
+  {-# INLINE exact #-}
+  {-# INLINE inexactNotTie #-}
+  {-# INLINE inexactTie #-}
 
 newtype RoundTiesToAway a = RoundTiesToAway { roundTiesToAway :: a }
   deriving (Eq,Show,Functor)
@@ -44,6 +47,9 @@ instance RoundingStrategy RoundTiesToAway where
   exact = RoundTiesToAway
   inexactNotTie _neg _parity near _zero _away = RoundTiesToAway near
   inexactTie _neg _parity _zero away = RoundTiesToAway away
+  {-# INLINE exact #-}
+  {-# INLINE inexactNotTie #-}
+  {-# INLINE inexactTie #-}
 
 newtype RoundTowardPositive a = RoundTowardPositive { roundTowardPositive :: a }
   deriving (Eq,Show,Functor)
@@ -54,6 +60,9 @@ instance RoundingStrategy RoundTowardPositive where
                                             | otherwise = RoundTowardPositive away
   inexactTie neg _parity zero away | neg = RoundTowardPositive zero
                                    | otherwise = RoundTowardPositive away
+  {-# INLINE exact #-}
+  {-# INLINE inexactNotTie #-}
+  {-# INLINE inexactTie #-}
 
 newtype RoundTowardNegative a = RoundTowardNegative { roundTowardNegative :: a }
   deriving (Eq,Show,Functor)
@@ -64,6 +73,9 @@ instance RoundingStrategy RoundTowardNegative where
                                             | otherwise = RoundTowardNegative zero
   inexactTie neg _parity zero away | neg = RoundTowardNegative away
                                    | otherwise = RoundTowardNegative zero
+  {-# INLINE exact #-}
+  {-# INLINE inexactNotTie #-}
+  {-# INLINE inexactTie #-}
 
 newtype RoundTowardZero a = RoundTowardZero { roundTowardZero :: a }
   deriving (Eq,Show,Functor)
@@ -72,6 +84,9 @@ instance RoundingStrategy RoundTowardZero where
   exact = RoundTowardZero
   inexactNotTie _neg _parity _near zero _away = RoundTowardZero zero
   inexactTie _neg _parity zero _away = RoundTowardZero zero
+  {-# INLINE exact #-}
+  {-# INLINE inexactNotTie #-}
+  {-# INLINE inexactTie #-}
 
 newtype RoundTiesTowardZero a = RoundTiesTowardZero { roundTiesTowardZero :: a }
   deriving (Eq,Show,Functor)
@@ -98,11 +113,17 @@ instance RoundingStrategy Exactness where
   exact _ = Exactness True
   inexactNotTie _neg _parity _near _zero _away = Exactness False
   inexactTie _neg _parity _zero _away = Exactness False
+  {-# INLINE exact #-}
+  {-# INLINE inexactNotTie #-}
+  {-# INLINE inexactTie #-}
 
 instance (RoundingStrategy f, RoundingStrategy g) => RoundingStrategy (Product f g) where
   exact x = Pair (exact x) (exact x)
   inexactNotTie neg parity near zero away = Pair (inexactNotTie neg parity near zero away) (inexactNotTie neg parity near zero away)
   inexactTie neg parity zero away = Pair (inexactTie neg parity zero away) (inexactTie neg parity zero away)
+  {-# INLINE exact #-}
+  {-# INLINE inexactNotTie #-}
+  {-# INLINE inexactTie #-}
 
 {-
 fromIntegerR :: (RealFloat a, RoundingStrategy f) => Integer -> f a
@@ -122,14 +143,17 @@ expt base n = base ^ n
 quotRemByExpt :: Integer -> Integer -> Int -> (Integer, Integer)
 quotRemByExpt x 2 n    = (x `shiftR` n, x .&. (bit n - 1))
 quotRemByExpt x base n = x `quotRem` expt base n
+{-# INLINE quotRemByExpt #-}
 
 multiplyByExpt :: Integer -> Integer -> Int -> Integer
 multiplyByExpt x 2 n    = x `shiftL` n
 multiplyByExpt x base n = x * expt base n
+{-# INLINE multiplyByExpt #-}
 
 divideByExpt :: Integer -> Integer -> Int -> Integer
 divideByExpt x 2 n    = x `shiftR` n
 divideByExpt x base n = x `quot` expt base n
+{-# INLINE divideByExpt #-}
 
 fromIntegerR :: (RealFloat a, RoundingStrategy f) => Integer -> f a
 fromIntegerR 0 = exact 0
@@ -202,6 +226,27 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
     !base = floatRadix (undefined `asProxyTypeOf` result) -- 2 or 10
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
     (_expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
+{-# SPECIALIZE [0] fromPositiveIntegerR
+                     :: RealFloat a => Bool -> Integer -> RoundTiesToEven a
+                      , RealFloat a => Bool -> Integer -> RoundTiesToAway a
+                      , RealFloat a => Bool -> Integer -> RoundTowardPositive a
+                      , RealFloat a => Bool -> Integer -> RoundTowardNegative a
+                      , RealFloat a => Bool -> Integer -> RoundTowardZero a
+                      , RoundingStrategy f => Bool -> Integer -> f Double
+                      , RoundingStrategy f => Bool -> Integer -> f Float
+  #-}
+{-# SPECIALIZE fromPositiveIntegerR
+                 :: Bool -> Integer -> RoundTiesToEven Double
+                  , Bool -> Integer -> RoundTiesToAway Double
+                  , Bool -> Integer -> RoundTowardPositive Double
+                  , Bool -> Integer -> RoundTowardNegative Double
+                  , Bool -> Integer -> RoundTowardZero Double
+                  , Bool -> Integer -> RoundTiesToEven Float
+                  , Bool -> Integer -> RoundTiesToAway Float
+                  , Bool -> Integer -> RoundTowardPositive Float
+                  , Bool -> Integer -> RoundTowardNegative Float
+                  , Bool -> Integer -> RoundTowardZero Float
+  #-}
 
 fromRationalR :: (RealFloat a, RoundingStrategy f) => Rational -> f a
 fromRationalR x = fromRatioR (numerator x) (denominator x)

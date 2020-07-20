@@ -108,6 +108,17 @@ main = defaultMain
 #endif
               ]
          ]
+       , bgroup "fromInteger"
+         [ let x = 418237418 * 2^80 + 4811 * 2^32 + 1412
+           in bgroup "Double"
+              [ bench "stock" $ nf (fromInteger :: Integer -> Double) x
+              , bench "fromIntegerTiesToEven" $ nf (fromIntegerTiesToEven :: Integer -> Double) x
+              , bench "fromIntegerTiesToAway" $ nf (fromIntegerTiesToAway :: Integer -> Double) x
+              , bench "fromIntegerTowardPositive" $ nf (fromIntegerTowardPositive :: Integer -> Double) x
+              , bench "fromIntegerTowardNegative" $ nf (fromIntegerTowardNegative :: Integer -> Double) x
+              , bench "fromIntegerTowardZero" $ nf (fromIntegerTowardZero :: Integer -> Double) x
+              ]
+         ]
 #if defined(USE_HALF)
        , bgroup "Half"
          [ bgroup "from Half"
