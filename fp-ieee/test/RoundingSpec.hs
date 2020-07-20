@@ -42,8 +42,8 @@ prop_order _ result =
   let tiesToEven = roundTiesToEven result
       tiesToAway = roundTiesToAway result
       tiesTowardZero = roundTiesTowardZero result
-      up = roundUpward result
-      down = roundDownward result
+      up = roundTowardPositive result
+      down = roundTowardNegative result
       zero = roundTowardZero result
       toOdd = roundToOdd result
   in if isExact result then
@@ -88,8 +88,8 @@ eachStrategy p = conjoin
   [ counterexample "roundTiesToEven" (p roundTiesToEven)
   , counterexample "roundTiesToAway" (p roundTiesToAway)
   , counterexample "roundTiesTowardZero" (p roundTiesTowardZero)
-  , counterexample "roundUpward" (p roundUpward)
-  , counterexample "roundDownward" (p roundDownward)
+  , counterexample "roundTowardPositive" (p roundTowardPositive)
+  , counterexample "roundTowardNegative" (p roundTowardNegative)
   , counterexample "roundTowardZero" (p roundTowardZero)
   , counterexample "roundToOdd" (p roundToOdd)
   ]

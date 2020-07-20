@@ -45,25 +45,25 @@ instance RoundingStrategy RoundTiesToAway where
   inexactNotTie _neg _parity near _zero _away = RoundTiesToAway near
   inexactTie _neg _parity _zero away = RoundTiesToAway away
 
-newtype RoundUpward a = RoundUpward { roundUpward :: a }
+newtype RoundTowardPositive a = RoundTowardPositive { roundTowardPositive :: a }
   deriving (Eq,Show,Functor)
 
-instance RoundingStrategy RoundUpward where
-  exact = RoundUpward
-  inexactNotTie neg _parity _near zero away | neg = RoundUpward zero
-                                            | otherwise = RoundUpward away
-  inexactTie neg _parity zero away | neg = RoundUpward zero
-                                   | otherwise = RoundUpward away
+instance RoundingStrategy RoundTowardPositive where
+  exact = RoundTowardPositive
+  inexactNotTie neg _parity _near zero away | neg = RoundTowardPositive zero
+                                            | otherwise = RoundTowardPositive away
+  inexactTie neg _parity zero away | neg = RoundTowardPositive zero
+                                   | otherwise = RoundTowardPositive away
 
-newtype RoundDownward a = RoundDownward { roundDownward :: a }
+newtype RoundTowardNegative a = RoundTowardNegative { roundTowardNegative :: a }
   deriving (Eq,Show,Functor)
 
-instance RoundingStrategy RoundDownward where
-  exact = RoundDownward
-  inexactNotTie neg _parity _near zero away | neg = RoundDownward away
-                                            | otherwise = RoundDownward zero
-  inexactTie neg _parity zero away | neg = RoundDownward away
-                                   | otherwise = RoundDownward zero
+instance RoundingStrategy RoundTowardNegative where
+  exact = RoundTowardNegative
+  inexactNotTie neg _parity _near zero away | neg = RoundTowardNegative away
+                                            | otherwise = RoundTowardNegative zero
+  inexactTie neg _parity zero away | neg = RoundTowardNegative away
+                                   | otherwise = RoundTowardNegative zero
 
 newtype RoundTowardZero a = RoundTowardZero { roundTowardZero :: a }
   deriving (Eq,Show,Functor)
@@ -142,8 +142,8 @@ fromIntegerR n | n < 0 = negate <$> fromPositiveIntegerR True (- n)
 fromIntegerTiesToEven, fromIntegerTiesToAway, fromIntegerTowardPositive, fromIntegerTowardNegative, fromIntegerTowardZero :: RealFloat a => Integer -> a
 fromIntegerTiesToEven = roundTiesToEven . fromIntegerR
 fromIntegerTiesToAway = roundTiesToAway . fromIntegerR
-fromIntegerTowardPositive = roundUpward . fromIntegerR
-fromIntegerTowardNegative = roundDownward . fromIntegerR
+fromIntegerTowardPositive = roundTowardPositive . fromIntegerR
+fromIntegerTowardNegative = roundTowardNegative . fromIntegerR
 fromIntegerTowardZero = roundTowardZero . fromIntegerR
 {-# INLINE fromIntegerTiesToEven #-}
 {-# INLINE fromIntegerTiesToAway #-}
