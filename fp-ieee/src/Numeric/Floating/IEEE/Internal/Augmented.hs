@@ -3,9 +3,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Numeric.Floating.IEEE.Internal.Augmented where
 import           Control.Exception (assert)
-import           Data.Bits
 import           Data.Ratio
-import           Math.NumberTheory.Logarithms (integerLog2')
 import           MyPrelude
 import           Numeric.Floating.IEEE.Internal.Classify
 import           Numeric.Floating.IEEE.Internal.FMA
