@@ -1,6 +1,7 @@
 import qualified AugmentedArithSpec
 import qualified ClassificationSpec
 import qualified FMASpec
+import qualified NaNSpec
 import qualified NextFloatSpec
 import qualified RoundingSpec
 import           System.Environment (getArgs, withArgs)
@@ -31,3 +32,4 @@ main = hspec $ do
   describe "NextFloat" NextFloatSpec.spec
   describe "AugmentedArith" AugmentedArithSpec.spec
   describe "Rounding" RoundingSpec.spec
+  describe "NaN" NaNSpec.spec
