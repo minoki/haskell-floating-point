@@ -8,7 +8,7 @@ import           Data.Functor.Product
 import           Data.Proxy (asProxyTypeOf)
 import           Data.Ratio
 import           GHC.Float (expt)
-import           Math.NumberTheory.Logarithms (integerLogBase')
+import           Math.NumberTheory.Logarithms (integerLog2', integerLogBase')
 import           MyPrelude
 import           Numeric.Floating.IEEE.Internal.Base
 
@@ -175,11 +175,24 @@ fromIntegerTowardZero = roundTowardZero . fromIntegerR
 {-# INLINE fromIntegerTowardNegative #-}
 {-# INLINE fromIntegerTowardZero #-}
 
+matchOrdering :: Ordering -> a -> a -> a -> a
+matchOrdering ordering x y z = case ordering of
+                                 LT -> x
+                                 EQ -> y
+                                 GT -> z
+{-# INLINE [0] matchOrdering #-}
+{-# RULES
+"matchOrdering" forall o x. matchOrdering o x x x = x
+  #-}
+
 -- n > 0
 fromPositiveIntegerR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> f a
 fromPositiveIntegerR !neg !n = assert (n > 0) result
   where
-    result = let k = integerLogBase' base n -- floor (logBase base n)
+    result = let k = if base == 2 then
+                       integerLog2' n
+                     else
+                       integerLogBase' base n -- floor (logBase base n)
                  -- base^k <= n < base^(k+1)
              in if k < fDigits then
                   exact $ fromInteger n
@@ -204,24 +217,30 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
                          let down = encodeFloat q e
                              up = encodeFloat (q + 1) e
                              parity = fromInteger q :: Int
-                         in case compare r (expt base (e - 1)) of
-                              LT -> inexactNotTie
-                                      neg
-                                      parity
-                                      down -- near
-                                      down -- zero
-                                      up -- away
-                              EQ -> inexactTie
-                                      neg
-                                      parity
-                                      down -- zero
-                                      up -- away
-                              GT -> inexactNotTie
-                                      neg
-                                      parity
-                                      up -- near
-                                      down -- zero
-                                      up -- away
+                         in matchOrdering (compare r (expt base (e - 1)))
+                            -- LT ->
+                            (inexactNotTie
+                              neg
+                              parity
+                              down -- near
+                              down -- zero
+                              up -- away
+                            )
+                            -- EQ ->
+                            (inexactTie
+                              neg
+                              parity
+                              down -- zero
+                              up -- away
+                            )
+                            -- GT ->
+                            (inexactNotTie
+                              neg
+                              parity
+                              up -- near
+                              down -- zero
+                              up -- away
+                            )
 
     !base = floatRadix (undefined `asProxyTypeOf` result) -- 2 or 10
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
