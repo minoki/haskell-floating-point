@@ -63,6 +63,11 @@ flags:
     manual: true
     default: false
 
+  integer-gmp:
+    description: "Use integer-gmp package"
+    manual: false
+    default: true
+
 when:
 # Always enable SSE2 on i386
 - condition: arch(i386)
@@ -175,6 +180,9 @@ library:
   - condition: flag(half)
     other-modules:
     - Numeric.Floating.IEEE.Internal.Half
+  - condition: flag(integer-gmp)
+    dependencies:
+    - integer-gmp
 
 tests:
   fp-ieee-test:
