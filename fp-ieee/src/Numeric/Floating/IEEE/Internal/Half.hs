@@ -14,6 +14,7 @@ import           Numeric.Floating.IEEE.Internal.FMA
 import           Numeric.Floating.IEEE.Internal.NaN (SupportsNaN)
 import qualified Numeric.Floating.IEEE.Internal.NaN as NaN
 import           Numeric.Floating.IEEE.Internal.NextFloat
+import           Numeric.Floating.IEEE.Internal.Rounding
 import           Numeric.Half hiding (isZero)
 import qualified Numeric.Half
 
@@ -147,6 +148,17 @@ compareByTotalOrderHalfNaNAware x y =
   isMantissaEven x = even (castHalfToWord16 x)
 "NaN.classify/Half" NaN.classify = classifyHalfNaNAware
 "NaN.compareByTotalOrder/Half" NaN.compareByTotalOrder = compareByTotalOrderHalfNaNAware
+  #-}
+
+{-# SPECIALIZE [0] fromPositiveIntegerR
+                     :: RoundingStrategy f => Bool -> Integer -> f Half
+  #-}
+{-# SPECIALIZE fromPositiveIntegerR
+                 :: Bool -> Integer -> RoundTiesToEven Half
+                  , Bool -> Integer -> RoundTiesToAway Half
+                  , Bool -> Integer -> RoundTowardPositive Half
+                  , Bool -> Integer -> RoundTowardNegative Half
+                  , Bool -> Integer -> RoundTowardZero Half
   #-}
 
 #if defined(HAS_FAST_HALF_CONVERSION)

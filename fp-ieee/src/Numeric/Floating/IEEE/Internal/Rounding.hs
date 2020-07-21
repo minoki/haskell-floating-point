@@ -8,9 +8,10 @@ import           Data.Functor.Product
 import           Data.Proxy (asProxyTypeOf)
 import           Data.Ratio
 import           GHC.Float (expt)
-import           Math.NumberTheory.Logarithms (integerLog2', integerLogBase')
+import           Math.NumberTheory.Logarithms (integerLog2', integerLogBase', intLog2')
 import           MyPrelude
 import           Numeric.Floating.IEEE.Internal.Base
+import           Numeric.Floating.IEEE.Internal.IntegerInternals
 
 default ()
 
@@ -141,17 +142,17 @@ expt base n = base ^ n
 -}
 
 quotRemByExpt :: Integer -> Integer -> Int -> (Integer, Integer)
-quotRemByExpt x 2 n    = (x `shiftR` n, x .&. (bit n - 1))
+quotRemByExpt x 2 n    = assert (n >= 0) (x `unsafeShiftRInteger` n, x .&. (bit n - 1))
 quotRemByExpt x base n = x `quotRem` expt base n
 {-# INLINE quotRemByExpt #-}
 
 multiplyByExpt :: Integer -> Integer -> Int -> Integer
-multiplyByExpt x 2 n    = x `shiftL` n
+multiplyByExpt x 2 n    = assert (n >= 0) (x `unsafeShiftLInteger` n)
 multiplyByExpt x base n = x * expt base n
 {-# INLINE multiplyByExpt #-}
 
 divideByExpt :: Integer -> Integer -> Int -> Integer
-divideByExpt x 2 n    = x `shiftR` n
+divideByExpt x 2 n    = assert (n >= 0) (x `unsafeShiftRInteger` n)
 divideByExpt x base n = x `quot` expt base n
 {-# INLINE divideByExpt #-}
 
@@ -175,6 +176,18 @@ fromIntegerTowardZero = roundTowardZero . fromIntegerR
 {-# INLINE fromIntegerTowardNegative #-}
 {-# INLINE fromIntegerTowardZero #-}
 
+-- Like 'if-then-else', but the condition will not be computed if the branches are same
+pureIfThenElse :: Bool -> a -> a -> a
+pureIfThenElse cond x y = if cond then
+                            x
+                          else
+                            y
+{-# INLINE [0] pureIfThenElse #-}
+{-# RULES
+"pureIfThenElse" forall cond x. pureIfThenElse cond x x = x
+  #-}
+
+-- Like 'case' on Ordering, but the Ordering value will not be computed if the branches are same
 matchOrdering :: Ordering -> a -> a -> a -> a
 matchOrdering ordering x y z = case ordering of
                                  LT -> x
@@ -182,12 +195,79 @@ matchOrdering ordering x y z = case ordering of
                                  GT -> z
 {-# INLINE [0] matchOrdering #-}
 {-# RULES
-"matchOrdering" forall o x. matchOrdering o x x x = x
+"matchOrdering" forall ordering x. matchOrdering ordering x x x = x
   #-}
+
+fromPositiveIntToBinaryR :: (RealFloat a, RoundingStrategy f) => Bool -> Int -> f a
+fromPositiveIntToBinaryR !neg !n | finiteBitSize n <= fDigits = exact $ fromIntegral n
+                                 | otherwise = result
+  where
+    result = let k = intLog2' n -- floor (log2 n)
+                 -- 2^k <= n < 2^(k+1) <= 2^(finiteBitSize n - 1)
+                 -- k <= finiteBitSize n - 2
+             in if k < fDigits then
+                  exact $ fromIntegral n
+                else
+                  -- expMax <= k implies expMax <= finiteBitSize n - 2
+                  if expMax <= finiteBitSize n - 2 && k >= expMax then
+                    -- overflow
+                    let inf = 1 / 0
+                    in inexactNotTie
+                         neg
+                         1 -- parity
+                         inf -- near
+                         maxFinite -- zero
+                         inf -- away
+                  else
+                    let e = k - fDigits + 1
+                        q = n `unsafeShiftR` e
+                        r = n .&. (bit e - 1)
+                        -- (q, r) = n `quotRem` (base^e)
+                        -- base^(fDigits - 1) <= q < base^fDigits, 0 <= r < base^(k-fDigits+1)
+                    in pureIfThenElse (r == 0) -- The computation of 'r' should be avoided if possible
+                       -- then
+                       (exact $ fromIntegral (q `unsafeShiftL` e))
+                       -- else: inexact case
+                       (let down = fromIntegral (q `unsafeShiftL` e)
+                            up = fromIntegral ((q + 1) `unsafeShiftL` e)
+                            parity = q
+                        in matchOrdering (compare r (bit (e - 1))) -- The computation of 'compare ...' should be avoided if possible
+                           -- LT ->
+                           (inexactNotTie
+                             neg
+                             parity
+                             down -- near
+                             down -- zero
+                             up -- away
+                           )
+                           -- EQ ->
+                           (inexactTie
+                             neg
+                             parity
+                             down -- zero
+                             up -- away
+                           )
+                           -- GT ->
+                           (inexactNotTie
+                             neg
+                             parity
+                             up -- near
+                             down -- zero
+                             up -- away
+                           )
+                       )
+
+    !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
+    (_expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
 
 -- n > 0
 fromPositiveIntegerR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> f a
-fromPositiveIntegerR !neg !n = assert (n > 0) result
+fromPositiveIntegerR !neg !n = assert (n > 0) $ if base == 2 then
+                                                  case integerToIntMaybe n of
+                                                    Just i -> fromPositiveIntToBinaryR neg i
+                                                    Nothing -> result
+                                                else
+                                                  result
   where
     result = let k = if base == 2 then
                        integerLog2' n
@@ -207,44 +287,47 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
                          maxFinite -- zero
                          inf -- away
                   else
+                    -- k >= fDigits
                     let e = k - fDigits + 1
                         (q, r) = quotRemByExpt n base e -- n `quotRem` (base^e)
                         -- base^(fDigits - 1) <= q < base^fDigits, 0 <= r < base^(k-fDigits+1)
-                    in if r == 0 then
-                         exact $ encodeFloat q e
-                       else
-                         -- inexact
-                         let down = encodeFloat q e
-                             up = encodeFloat (q + 1) e
-                             parity = fromInteger q :: Int
-                         in matchOrdering (compare r (expt base (e - 1)))
-                            -- LT ->
-                            (inexactNotTie
-                              neg
-                              parity
-                              down -- near
-                              down -- zero
-                              up -- away
-                            )
-                            -- EQ ->
-                            (inexactTie
-                              neg
-                              parity
-                              down -- zero
-                              up -- away
-                            )
-                            -- GT ->
-                            (inexactNotTie
-                              neg
-                              parity
-                              up -- near
-                              down -- zero
-                              up -- away
-                            )
+                    in pureIfThenElse (r == 0) -- The computation of 'r' should be avoided if possible
+                       -- then
+                       (exact $ encodeFloat q e)
+                       -- else: inexact case
+                       (let down = encodeFloat q e
+                            up = encodeFloat (q + 1) e
+                            parity = fromInteger q :: Int
+                        in matchOrdering (compare r (expt base (e - 1))) -- The computation of 'compare ...' should be avoided if possible
+                           -- LT ->
+                           (inexactNotTie
+                             neg
+                             parity
+                             down -- near
+                             down -- zero
+                             up -- away
+                           )
+                           -- EQ ->
+                           (inexactTie
+                             neg
+                             parity
+                             down -- zero
+                             up -- away
+                           )
+                           -- GT ->
+                           (inexactNotTie
+                             neg
+                             parity
+                             up -- near
+                             down -- zero
+                             up -- away
+                           )
+                       )
 
     !base = floatRadix (undefined `asProxyTypeOf` result) -- 2 or 10
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
     (_expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
+{-# INLINABLE fromPositiveIntegerR #-}
 {-# SPECIALIZE [0] fromPositiveIntegerR
                      :: RealFloat a => Bool -> Integer -> RoundTiesToEven a
                       , RealFloat a => Bool -> Integer -> RoundTiesToAway a
