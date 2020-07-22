@@ -102,6 +102,7 @@ prop_signalingNaN proxy =
      , counterexample "minimumMagnitudeNumber" $ isQuietNaN (minimumMagnitudeNumber snan snan)
      , counterexample "maximumMagnitude" $ isQuietNaN (maximumMagnitude snan snan)
      , counterexample "maximumMagnitudeNumber" $ isQuietNaN (maximumMagnitudeNumber snan snan)
+     -- , counterexample "realFloatToFrac" $ isQuietNaN (realFloatToFrac snan `asProxyTypeOf` proxy)
      ]
 
 {-# NOINLINE spec #-}
