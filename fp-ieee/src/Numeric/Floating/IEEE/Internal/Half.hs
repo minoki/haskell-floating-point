@@ -169,6 +169,14 @@ compareByTotalOrderHalfNaNAware x y =
                         , Bool -> Integer -> RoundTowardNegative Half
                         , Bool -> Integer -> RoundTowardZero Half
   #-}
+{-# SPECIALIZE
+  fromPositiveRatioR :: RoundingStrategy f => Bool -> Integer -> Integer -> f Half
+                      , Bool -> Integer -> Integer -> RoundTiesToEven Half
+                      , Bool -> Integer -> Integer -> RoundTiesToAway Half
+                      , Bool -> Integer -> Integer -> RoundTowardPositive Half
+                      , Bool -> Integer -> Integer -> RoundTowardNegative Half
+                      , Bool -> Integer -> Integer -> RoundTowardZero Half
+  #-}
 
 #if defined(HAS_FAST_HALF_CONVERSION)
 

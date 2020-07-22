@@ -505,6 +505,18 @@ fromRationalR :: (RealFloat a, RoundingStrategy f) => Rational -> f a
 fromRationalR x = fromRatioR (numerator x) (denominator x)
 {-# INLINE fromRationalR #-}
 
+fromRationalTiesToEven, fromRationalTiesToAway, fromRationalTowardPositive, fromRationalTowardNegative, fromRationalTowardZero :: RealFloat a => Rational -> a
+fromRationalTiesToEven = roundTiesToEven . fromRationalR
+fromRationalTiesToAway = roundTiesToAway . fromRationalR
+fromRationalTowardPositive = roundTowardPositive . fromRationalR
+fromRationalTowardNegative = roundTowardNegative . fromRationalR
+fromRationalTowardZero = roundTowardZero . fromRationalR
+{-# INLINE fromRationalTiesToEven #-}
+{-# INLINE fromRationalTiesToAway #-}
+{-# INLINE fromRationalTowardPositive #-}
+{-# INLINE fromRationalTowardNegative #-}
+{-# INLINE fromRationalTowardZero #-}
+
 fromRatioR :: (RealFloat a, RoundingStrategy f)
            => Integer -- ^ numerator
            -> Integer -- ^ denominator
@@ -515,16 +527,20 @@ fromRatioR n 0 | n > 0 = exact (1 / 0) -- positive infinity
 fromRatioR n d | d < 0 = error "fromRatio: negative denominator"
                | n < 0 = negate <$> fromPositiveRatioR True (- n) d
                | otherwise = fromPositiveRatioR False n d
+{-# INLINE fromRatioR #-}
 
 fromPositiveRatioR :: (RealFloat a, RoundingStrategy f)
                    => Bool -- ^ True if the result will be negated
-                   -> Integer -- ^ numerator
-                   -> Integer -- ^ denominator
+                   -> Integer -- ^ numerator (> 0)
+                   -> Integer -- ^ denominator (> 0)
                    -> f a
 fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
   where
     result = let e0 :: Int
-                 e0 = integerLogBase' base n - integerLogBase' base d - fDigits
+                 e0 = if base == 2 then
+                        integerLog2' n - integerLog2' d - fDigits
+                      else
+                        integerLogBase' base n - integerLogBase' base d - fDigits
                  q0, r0, d0 :: Integer
                  (!d0, (!q0, !r0)) =
                    if e0 >= 0 then
@@ -553,31 +569,38 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                  -- base^(e+fDigits-1) <= q * base^^e <= n/d < (q+1) * base^^e <= base^(e+fDigits)
              in if expMin <= e + fDigits && e + fDigits <= expMax then
                   -- normal: base^^(expMin-1) <= n/d < base^expMax
-                  if r == 0 then
-                    exact $ encodeFloat q e
-                  else
-                    -- inexact
-                    let down = encodeFloat q e
-                        up = encodeFloat (q + 1) e -- may be infinity
-                        parity = fromInteger q :: Int
-                    in case compare (base * r) d' of
-                         LT -> inexactNotTie
-                                 neg
-                                 parity
-                                 down -- near
-                                 down -- zero
-                                 up -- away
-                         EQ -> inexactTie
-                                 neg
-                                 parity
-                                 down -- zero
-                                 up -- away
-                         GT -> inexactNotTie
-                                 neg
-                                 parity
-                                 up -- near
-                                 down -- zero
-                                 up -- away
+                  pureIfThenElse (r == 0)
+                  -- then
+                  (exact $ encodeFloat q e)
+                  -- else: inexact case
+                  (let down = encodeFloat q e
+                       up = encodeFloat (q + 1) e -- may be infinity
+                       parity = fromInteger q :: Int
+                   in matchOrdering (compare (base * r) d')
+                      -- LT ->
+                      (inexactNotTie
+                        neg
+                        parity
+                        down -- near
+                        down -- zero
+                        up -- away
+                      )
+                      -- EQ ->
+                      (inexactTie
+                        neg
+                        parity
+                        down -- zero
+                        up -- away
+                      )
+                      -- GT ->
+                      (inexactNotTie
+                        neg
+                        parity
+                        up -- near
+                        down -- zero
+                        up -- away
+                      )
+                  )
                 else
                   if expMax < e + fDigits then
                     -- overflow
@@ -595,43 +618,74 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                         -- q = q' * base^(expMin-fDigits-e) + r', 0 <= r' < base^(expMin-fDigits-e)
                         -- n / d * base^^(-e) = q' * base^(expMin-fDigits-e) + r' + r / d'
                         -- n / d = q' * base^^(expMin - fDigits) + (r' + r / d') * base^^e
-                    in if r == 0 && r' == 0 then
-                         exact $ encodeFloat q' (expMin - fDigits)
-                       else
-                         -- (r' + r / d') * base^^e vs. base^^(expMin-fDigits-1)
-                         let down = encodeFloat q' (expMin - fDigits)
-                             up = encodeFloat (q' + 1) (expMin - fDigits)
-                             parity = fromInteger q' :: Int
-                         in case compare r' (expt base (expMin - fDigits - e - 1)) of
-                              LT -> inexactNotTie
-                                      neg
-                                      parity
-                                      down -- near
-                                      down -- zero
-                                      up -- away
-                              EQ -> if r == 0 then
-                                      inexactTie
-                                        neg
-                                        parity
-                                        down -- zero
-                                        up -- away
-                                    else
-                                      inexactNotTie
-                                        neg
-                                        parity
-                                        up -- near
-                                        down -- zero
-                                        up -- away
-                              GT -> inexactNotTie
-                                      neg
-                                      parity
-                                      up -- near
-                                      down -- zero
-                                      up -- away
+                    in pureIfThenElse (r == 0 && r' == 0)
+                       -- then
+                       (exact $ encodeFloat q' (expMin - fDigits))
+                       -- else
+                       -- (r' + r / d') * base^^e vs. base^^(expMin-fDigits-1)
+                       (let down = encodeFloat q' (expMin - fDigits)
+                            up = encodeFloat (q' + 1) (expMin - fDigits)
+                            parity = fromInteger q' :: Int
+                        in matchOrdering (compare r' (expt base (expMin - fDigits - e - 1)))
+                           -- LT ->
+                           (inexactNotTie
+                             neg
+                             parity
+                             down -- near
+                             down -- zero
+                             up -- away
+                           )
+                           -- EQ ->
+                           (pureIfThenElse (r == 0)
+                            -- then
+                            (inexactTie
+                              neg
+                              parity
+                              down -- zero
+                              up -- away
+                            )
+                            -- else
+                            (inexactNotTie
+                              neg
+                              parity
+                              up -- near
+                              down -- zero
+                              up -- away
+                            )
+                           )
+                           -- GT ->
+                           (inexactNotTie
+                             neg
+                             parity
+                             up -- near
+                             down -- zero
+                             up -- away
+                           )
+                       )
 
     !base = floatRadix (undefined `asProxyTypeOf` result)
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
     (!expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
+{-# INLINABLE fromPositiveRatioR #-}
+{-# SPECIALIZE
+  fromPositiveRatioR :: RealFloat a => Bool -> Integer -> Integer -> RoundTiesToEven a
+                      , RealFloat a => Bool -> Integer -> Integer -> RoundTiesToAway a
+                      , RealFloat a => Bool -> Integer -> Integer -> RoundTowardPositive a
+                      , RealFloat a => Bool -> Integer -> Integer -> RoundTowardNegative a
+                      , RealFloat a => Bool -> Integer -> Integer -> RoundTowardZero a
+                      , RoundingStrategy f => Bool -> Integer -> Integer -> f Double
+                      , RoundingStrategy f => Bool -> Integer -> Integer -> f Float
+                      , Bool -> Integer -> Integer -> RoundTiesToEven Double
+                      , Bool -> Integer -> Integer -> RoundTiesToAway Double
+                      , Bool -> Integer -> Integer -> RoundTowardPositive Double
+                      , Bool -> Integer -> Integer -> RoundTowardNegative Double
+                      , Bool -> Integer -> Integer -> RoundTowardZero Double
+                      , Bool -> Integer -> Integer -> RoundTiesToEven Float
+                      , Bool -> Integer -> Integer -> RoundTiesToAway Float
+                      , Bool -> Integer -> Integer -> RoundTowardPositive Float
+                      , Bool -> Integer -> Integer -> RoundTowardNegative Float
+                      , Bool -> Integer -> Integer -> RoundTowardZero Float
+  #-}
 
 encodeFloatR :: (RealFloat a, RoundingStrategy f) => Integer -> Int -> f a
 encodeFloatR 0 !_ = exact 0

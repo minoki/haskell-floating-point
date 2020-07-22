@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE HexFloatLiterals #-}
 {-# LANGUAGE NumericUnderscores #-}
 import           Data.Coerce
 import           Data.Functor.Identity
@@ -191,6 +192,65 @@ main = defaultMain
                   ]
                 ]
            ]
+         ]
+       , bgroup "fromRational"
+         [ let x = (418237418 * 2^80 + 4811 * 2^32 + 1412) / (2234321954 * 2^75 + 2345234566) :: Rational
+           in bgroup "large/large"
+              [ bgroup "Double"
+                [ bench "stock" $ nf (fromRational :: Rational -> Double) x
+                , bench "fromRationalTiesToEven" $ nf (fromRationalTiesToEven :: Rational -> Double) x
+                , bench "fromRationalTiesToAway" $ nf (fromRationalTiesToAway :: Rational -> Double) x
+                , bench "fromRationalTowardPositive" $ nf (fromRationalTowardPositive :: Rational -> Double) x
+                , bench "fromRationalTowardNegative" $ nf (fromRationalTowardNegative :: Rational -> Double) x
+                , bench "fromRationalTowardZero" $ nf (fromRationalTowardZero :: Rational -> Double) x
+                ]
+              , bgroup "Float"
+                [ bench "stock" $ nf (fromRational :: Rational -> Float) x
+                , bench "fromRationalTiesToEven" $ nf (fromRationalTiesToEven :: Rational -> Float) x
+                , bench "fromRationalTiesToAway" $ nf (fromRationalTiesToAway :: Rational -> Float) x
+                , bench "fromRationalTowardPositive" $ nf (fromRationalTowardPositive :: Rational -> Float) x
+                , bench "fromRationalTowardNegative" $ nf (fromRationalTowardNegative :: Rational -> Float) x
+                , bench "fromRationalTowardZero" $ nf (fromRationalTowardZero :: Rational -> Float) x
+                ]
+              ]
+         , let x = 355 / 113 :: Rational
+           in bgroup "small/small"
+              [ bgroup "Double"
+                [ bench "stock" $ nf (fromRational :: Rational -> Double) x
+                , bench "fromRationalTiesToEven" $ nf (fromRationalTiesToEven :: Rational -> Double) x
+                , bench "fromRationalTiesToAway" $ nf (fromRationalTiesToAway :: Rational -> Double) x
+                , bench "fromRationalTowardPositive" $ nf (fromRationalTowardPositive :: Rational -> Double) x
+                , bench "fromRationalTowardNegative" $ nf (fromRationalTowardNegative :: Rational -> Double) x
+                , bench "fromRationalTowardZero" $ nf (fromRationalTowardZero :: Rational -> Double) x
+                ]
+              , bgroup "Float"
+                [ bench "stock" $ nf (fromRational :: Rational -> Float) x
+                , bench "fromRationalTiesToEven" $ nf (fromRationalTiesToEven :: Rational -> Float) x
+                , bench "fromRationalTiesToAway" $ nf (fromRationalTiesToAway :: Rational -> Float) x
+                , bench "fromRationalTowardPositive" $ nf (fromRationalTowardPositive :: Rational -> Float) x
+                , bench "fromRationalTowardNegative" $ nf (fromRationalTowardNegative :: Rational -> Float) x
+                , bench "fromRationalTowardZero" $ nf (fromRationalTowardZero :: Rational -> Float) x
+                ]
+              ]
+         , let x = 0x1.deafbeefcafec0ffeep100 :: Rational
+           in bgroup "binary"
+              [ bgroup "Double"
+                [ bench "stock" $ nf (fromRational :: Rational -> Double) x
+                , bench "fromRationalTiesToEven" $ nf (fromRationalTiesToEven :: Rational -> Double) x
+                , bench "fromRationalTiesToAway" $ nf (fromRationalTiesToAway :: Rational -> Double) x
+                , bench "fromRationalTowardPositive" $ nf (fromRationalTowardPositive :: Rational -> Double) x
+                , bench "fromRationalTowardNegative" $ nf (fromRationalTowardNegative :: Rational -> Double) x
+                , bench "fromRationalTowardZero" $ nf (fromRationalTowardZero :: Rational -> Double) x
+                ]
+              , bgroup "Float"
+                [ bench "stock" $ nf (fromRational :: Rational -> Float) x
+                , bench "fromRationalTiesToEven" $ nf (fromRationalTiesToEven :: Rational -> Float) x
+                , bench "fromRationalTiesToAway" $ nf (fromRationalTiesToAway :: Rational -> Float) x
+                , bench "fromRationalTowardPositive" $ nf (fromRationalTowardPositive :: Rational -> Float) x
+                , bench "fromRationalTowardNegative" $ nf (fromRationalTowardNegative :: Rational -> Float) x
+                , bench "fromRationalTowardZero" $ nf (fromRationalTowardZero :: Rational -> Float) x
+                ]
+              ]
          ]
 #if defined(USE_HALF)
        , bgroup "Half"
