@@ -9,7 +9,6 @@ module Numeric.Floating.IEEE.Internal.Base
   , negateIntAsWord
   , absIntAsWord
   ) where
-import           Data.Bits
 import           MyPrelude
 
 default ()
