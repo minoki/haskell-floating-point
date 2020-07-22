@@ -6,6 +6,8 @@ module Numeric.Floating.IEEE.Internal.Base
   , minPositiveNormal
   , maxFinite
   , (^!)
+  , negateIntAsWord
+  , absIntAsWord
   ) where
 import           Data.Bits
 import           MyPrelude
@@ -88,3 +90,24 @@ pow_helper _ x y = x ^ y
                         else
                           x * (x * x) ^! (y `quot` 2)
   #-}
+
+-- |
+-- prop> negateIntAsWord minBound == fromInteger (negate (fromIntegral (minBound :: Int)))
+negateIntAsWord :: Int -> Word
+negateIntAsWord x = fromIntegral (negate x)
+
+-- |
+-- prop> absIntAsWord minBound == fromInteger (abs (fromIntegral (minBound :: Int)))
+absIntAsWord :: Int -> Word
+absIntAsWord x = fromIntegral (abs x)
+
+{- More careful definitions:
+
+negateIntAsWord :: Int -> Word
+negateIntAsWord x | x == minBound = fromInteger (negate (fromIntegral (minBound :: Int)))
+                  | otherwise = fromIntegral (negate x)
+
+absIntAsWord :: Int -> Word
+absIntAsWord x | x == minBound = fromInteger (abs (fromIntegral (minBound :: Int)))
+               | otherwise = fromIntegral (abs x)
+-}
