@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 module Numeric.Floating.IEEE.Internal.GenericArith where
+import           Data.Proxy
 import           MyPrelude
 import           Numeric.Floating.IEEE.Internal.Classify
 import           Numeric.Floating.IEEE.Internal.Conversion
@@ -69,3 +70,34 @@ genericFusedMultiplyAdd a b c
 "genericDiv/a->a" genericDiv = (/)
 "genericFusedMultiplyAdd/a->a" genericFusedMultiplyAdd = fusedMultiplyAdd
   #-}
+
+-- | Returns True if 'a' is a subtype of 'b'
+--
+-- >>> isSubFloatingType (undefined :: Float) (undefined :: Double)
+-- True
+-- >>> isSubFloatingType (undefined :: Double) (undefined :: Float)
+-- False
+-- >>> isSubFloatingType (undefined :: Double) (undefined :: Double)
+-- True
+isSubFloatingType :: (RealFloat a, RealFloat b) => a -> b -> Bool
+isSubFloatingType a b = ieeeA && ieeeB && baseA == baseB && eminB <= eminA && emaxA <= emaxB && digitsA <= digitsB
+  where
+    ieeeA = isIEEE a
+    ieeeB = isIEEE b
+    baseA = floatRadix a
+    baseB = floatRadix b
+    (eminA,emaxA) = floatRange a
+    (eminB,emaxB) = floatRange b
+    digitsA = floatDigits a
+    digitsB = floatDigits b
+
+-- | Returns True if 'a' is a subtype of 'b'
+--
+-- >>> isSubFloatingTypeProxy (Proxy :: Proxy Float) (Proxy :: Proxy Double)
+-- True
+-- >>> isSubFloatingTypeProxy (Proxy :: Proxy Double) (Proxy :: Proxy Float)
+-- False
+-- >>> isSubFloatingTypeProxy (Proxy :: Proxy Double) (Proxy :: Proxy Double)
+-- True
+isSubFloatingTypeProxy :: (RealFloat a, RealFloat b) => Proxy a -> Proxy b -> Bool
+isSubFloatingTypeProxy proxyA proxyB = isSubFloatingType (undefined `asProxyTypeOf` proxyA) (undefined `asProxyTypeOf` proxyB)
