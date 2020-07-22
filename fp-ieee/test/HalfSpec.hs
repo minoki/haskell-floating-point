@@ -17,6 +17,7 @@ import           Numeric.Floating.IEEE.Internal
 import           Numeric.Floating.IEEE.NaN (setPayloadSignaling)
 import           Numeric.Half
 import qualified RoundingSpec
+import qualified RoundToIntegralSpec
 import           System.Random
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
@@ -85,6 +86,9 @@ spec = do
   prop "result of fromRationalR" $ \x -> RoundingSpec.prop_order proxy (fromRationalR x)
   prop "result of encodeFloatR" $ \m k -> RoundingSpec.prop_order proxy (encodeFloatR m k)
   prop "add_roundToOdd" $ forAllFloats2 $ RoundingSpec.prop_add_roundToOdd proxy
+
+  prop "roundToIntegral" $ RoundToIntegralSpec.prop_roundToIntegral proxy
+  RoundToIntegralSpec.checkCases proxy
 
   prop "copySign" $ forAllFloats2 $ NaNSpec.prop_copySign proxy
   prop "isSignMinus" $ forAllFloats $ NaNSpec.prop_isSignMinus proxy

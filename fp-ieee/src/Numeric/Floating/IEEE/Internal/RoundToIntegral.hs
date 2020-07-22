@@ -136,7 +136,7 @@ foreign import ccall unsafe "round"
   c_roundDouble :: Double -> Double -- ties to away
 foreign import ccall unsafe "truncf"
   c_truncFloat :: Float -> Float
-foreign import ccall unsafe "floor"
+foreign import ccall unsafe "trunc"
   c_truncDouble :: Double -> Double
 
 {-# RULES

@@ -5,6 +5,7 @@ import qualified FMASpec
 import qualified NaNSpec
 import qualified NextFloatSpec
 import qualified RoundingSpec
+import qualified RoundToIntegralSpec
 import           System.Environment (getArgs, withArgs)
 import           Test.Hspec hiding (hspec)
 import           Test.Hspec.Core.Runner hiding (hspec)
@@ -36,6 +37,7 @@ main = hspec $ do
   describe "NextFloat" NextFloatSpec.spec
   describe "AugmentedArith" AugmentedArithSpec.spec
   describe "Rounding" RoundingSpec.spec
+  describe "RoundToIntegral" RoundToIntegralSpec.spec
   describe "NaN" NaNSpec.spec
 #if defined(USE_HALF)
   describe "Half" HalfSpec.spec
