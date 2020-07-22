@@ -1,6 +1,8 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE NumericUnderscores #-}
 import           Data.Coerce
 import           Data.Functor.Identity
+import           Data.Word
 import           Gauge.Main
 import           GHC.Float (isDoubleFinite, isFloatFinite)
 import           Numeric.Floating.IEEE
@@ -146,6 +148,48 @@ main = defaultMain
              , bench "fromIntegerTowardNegative" $ nf (fromIntegerTowardNegative :: Integer -> Float) x
              , bench "fromIntegerTowardZero" $ nf (fromIntegerTowardZero :: Integer -> Float) x
              ]
+           ]
+         ]
+       , bgroup "fromIntegral"
+         [ bgroup "Word64"
+           [ let x = 0xdead_beef_1234_7777 :: Word64
+             in bgroup "large"
+                [ bgroup "Double"
+                  [ bench "stock" $ nf (fromIntegral :: Word64 -> Double) x
+                  , bench "fromIntegralTiesToEven" $ nf (fromIntegralTiesToEven :: Word64 -> Double) x
+                  , bench "fromIntegralTiesToAway" $ nf (fromIntegralTiesToAway :: Word64 -> Double) x
+                  , bench "fromIntegralTowardPositive" $ nf (fromIntegralTowardPositive :: Word64 -> Double) x
+                  , bench "fromIntegralTowardNegative" $ nf (fromIntegralTowardNegative :: Word64 -> Double) x
+                  , bench "fromIntegralTowardZero" $ nf (fromIntegralTowardZero :: Word64 -> Double) x
+                  ]
+                , bgroup "Float"
+                  [ bench "stock" $ nf (fromIntegral :: Word64 -> Float) x
+                  , bench "fromIntegralTiesToEven" $ nf (fromIntegralTiesToEven :: Word64 -> Float) x
+                  , bench "fromIntegralTiesToAway" $ nf (fromIntegralTiesToAway :: Word64 -> Float) x
+                  , bench "fromIntegralTowardPositive" $ nf (fromIntegralTowardPositive :: Word64 -> Float) x
+                  , bench "fromIntegralTowardNegative" $ nf (fromIntegralTowardNegative :: Word64 -> Float) x
+                  , bench "fromIntegralTowardZero" $ nf (fromIntegralTowardZero :: Word64 -> Float) x
+                  ]
+                ]
+           , let x = 0x14_7777 :: Word64
+             in bgroup "small"
+                [ bgroup "Double"
+                  [ bench "stock" $ nf (fromIntegral :: Word64 -> Double) x
+                  , bench "fromIntegralTiesToEven" $ nf (fromIntegralTiesToEven :: Word64 -> Double) x
+                  , bench "fromIntegralTiesToAway" $ nf (fromIntegralTiesToAway :: Word64 -> Double) x
+                  , bench "fromIntegralTowardPositive" $ nf (fromIntegralTowardPositive :: Word64 -> Double) x
+                  , bench "fromIntegralTowardNegative" $ nf (fromIntegralTowardNegative :: Word64 -> Double) x
+                  , bench "fromIntegralTowardZero" $ nf (fromIntegralTowardZero :: Word64 -> Double) x
+                  ]
+                , bgroup "Float"
+                  [ bench "stock" $ nf (fromIntegral :: Word64 -> Float) x
+                  , bench "fromIntegralTiesToEven" $ nf (fromIntegralTiesToEven :: Word64 -> Float) x
+                  , bench "fromIntegralTiesToAway" $ nf (fromIntegralTiesToAway :: Word64 -> Float) x
+                  , bench "fromIntegralTowardPositive" $ nf (fromIntegralTowardPositive :: Word64 -> Float) x
+                  , bench "fromIntegralTowardNegative" $ nf (fromIntegralTowardNegative :: Word64 -> Float) x
+                  , bench "fromIntegralTowardZero" $ nf (fromIntegralTowardZero :: Word64 -> Float) x
+                  ]
+                ]
            ]
          ]
 #if defined(USE_HALF)

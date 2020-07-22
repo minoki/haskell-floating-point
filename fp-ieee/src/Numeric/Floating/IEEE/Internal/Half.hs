@@ -153,15 +153,21 @@ compareByTotalOrderHalfNaNAware x y =
 {-# SPECIALIZE minPositive :: Half #-}
 {-# SPECIALIZE minPositiveNormal :: Half #-}
 {-# SPECIALIZE maxFinite :: Half #-}
-{-# SPECIALIZE [0] fromPositiveIntegerR
-                     :: RoundingStrategy f => Bool -> Integer -> f Half
+{-# SPECIALIZE
+  positiveWordToBinaryFloatR :: RoundingStrategy f => Bool -> Word -> f Half
+                              , Bool -> Word -> RoundTiesToEven Half
+                              , Bool -> Word -> RoundTiesToAway Half
+                              , Bool -> Word -> RoundTowardPositive Half
+                              , Bool -> Word -> RoundTowardNegative Half
+                              , Bool -> Word -> RoundTowardZero Half
   #-}
-{-# SPECIALIZE fromPositiveIntegerR
-                 :: Bool -> Integer -> RoundTiesToEven Half
-                  , Bool -> Integer -> RoundTiesToAway Half
-                  , Bool -> Integer -> RoundTowardPositive Half
-                  , Bool -> Integer -> RoundTowardNegative Half
-                  , Bool -> Integer -> RoundTowardZero Half
+{-# SPECIALIZE
+  fromPositiveIntegerR :: RoundingStrategy f => Bool -> Integer -> f Half
+                        , Bool -> Integer -> RoundTiesToEven Half
+                        , Bool -> Integer -> RoundTiesToAway Half
+                        , Bool -> Integer -> RoundTowardPositive Half
+                        , Bool -> Integer -> RoundTowardNegative Half
+                        , Bool -> Integer -> RoundTowardZero Half
   #-}
 
 #if defined(HAS_FAST_HALF_CONVERSION)
