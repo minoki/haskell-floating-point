@@ -29,7 +29,7 @@ float hs_roundevenFloat(float x)
 {
     float result;
     // a floating-exception can be generated
-    asm("frintn %s1, %s0" : "=w"(result) : "w"(x));
+    asm("frintn %s0, %s1" : "=w"(result) : "w"(x));
     return result;
 }
 
@@ -37,7 +37,7 @@ double hs_roundevenDouble(double x)
 {
     double result;
     // a floating-exception can be generated
-    asm("frintn %d1, %d0" : "=w"(result) : "w"(x));
+    asm("frintn %d0, %d1" : "=w"(result) : "w"(x));
     return result;
 }
 
