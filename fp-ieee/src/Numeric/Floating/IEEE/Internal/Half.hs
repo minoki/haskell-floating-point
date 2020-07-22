@@ -150,6 +150,9 @@ compareByTotalOrderHalfNaNAware x y =
 "NaN.compareByTotalOrder/Half" NaN.compareByTotalOrder = compareByTotalOrderHalfNaNAware
   #-}
 
+{-# SPECIALIZE minPositive :: Half #-}
+{-# SPECIALIZE minPositiveNormal :: Half #-}
+{-# SPECIALIZE maxFinite :: Half #-}
 {-# SPECIALIZE [0] fromPositiveIntegerR
                      :: RoundingStrategy f => Bool -> Integer -> f Half
   #-}
