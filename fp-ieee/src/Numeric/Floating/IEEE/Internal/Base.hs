@@ -1,5 +1,12 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-module Numeric.Floating.IEEE.Internal.Base where
+module Numeric.Floating.IEEE.Internal.Base
+  ( isFloatBinary32
+  , isDoubleBinary64
+  , minPositive
+  , minPositiveNormal
+  , maxFinite
+  , (^!)
+  ) where
 import           Data.Bits
 import           MyPrelude
 
@@ -64,19 +71,20 @@ maxFinite = let d = floatDigits x
 {-# INLINABLE maxFinite #-}
 {-# SPECIALIZE maxFinite :: Float, Double #-}
 
--- A variant of (^) allowing constant folding for base = 2
+-- A variant of (^) that allows constant folding
 infixr 8 ^!
 (^!) :: Integer -> Int -> Integer
 (^!) = (^)
-{-# INLINE [2] (^!) #-}
-{-# RULES
-"2^!" forall y. 2 ^! y = staticIf (y >= 0) (1 `shiftL` y) (2 ^ y)
-  #-}
+{-# INLINE [0] (^!) #-}
 
-staticIf :: Bool -> a -> a -> a
-staticIf _ _ x = x
-{-# INLINE [0] staticIf #-}
+pow_helper :: Bool -> Integer -> Int -> Integer
+pow_helper _ x y = x ^ y
+{-# INLINE [0] pow_helper #-}
 {-# RULES
-"staticIf/True" forall x y. staticIf True x y = x
-"staticIf/False" forall x y. staticIf False x y = y
+"x^!" forall x y. x ^! y = pow_helper (y > 0) x y
+"pow_helper" forall x y.
+  pow_helper True x y = if y `rem` 2 == 0 then
+                          (x * x) ^! (y `quot` 2)
+                        else
+                          x * (x * x) ^! (y `quot` 2)
   #-}
