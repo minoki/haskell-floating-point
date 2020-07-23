@@ -20,44 +20,24 @@ default ()
 
 class Functor f => RoundingStrategy f where
   exact :: a -> f a
-  inexactNotTie :: Bool -- ^ negative (True -> negative, False -> positive)
-                -> Int -- ^ parity (even -> toward-zero is even, odd -> toward-zero is odd)
-                -> a -- ^ nearest
-                -> a -- ^ toward zero
-                -> a -- ^ away from zero
-                -> f a
-  inexactTie :: Bool -- ^ negative (True -> negative, False -> positive)
-             -> Int -- ^ parity (even -> toward-zero is even, odd -> toward-zero is odd)
-             -> a -- ^ toward zero
-             -> a -- ^ away from zero
-             -> f a
   inexact :: Ordering -- ^ LT -> toward-zero is the nearest, EQ -> midpoint, GT -> away-from-zero is the nearest
           -> Bool -- ^ negative (True -> negative, False -> positive)
           -> Int -- ^ parity (even -> toward-zero is even, odd -> toward-zero is odd)
           -> a -- ^ toward zero
           -> a -- ^ away from zero
           -> f a
-  inexact LT neg parity down up = inexactNotTie neg parity down down up
-  inexact EQ neg parity down up = inexactTie neg parity down up
-  inexact GT neg parity down up= inexactNotTie neg parity up down up
-  {-# INLINE inexact #-}
 
 newtype RoundTiesToEven a = RoundTiesToEven { roundTiesToEven :: a }
   deriving (Eq,Show,Functor)
 
 instance RoundingStrategy RoundTiesToEven where
   exact = RoundTiesToEven
-  inexactNotTie _neg _parity near _zero _away = RoundTiesToEven near
-  inexactTie _neg parity zero away | even parity = RoundTiesToEven zero
-                                   | otherwise = RoundTiesToEven away
   inexact o _neg parity zero away = RoundTiesToEven $ case o of
                                                         LT -> zero
                                                         EQ | even parity -> zero
                                                            | otherwise -> away
                                                         GT -> away
   {-# INLINE exact #-}
-  {-# INLINE inexactNotTie #-}
-  {-# INLINE inexactTie #-}
   {-# INLINE inexact #-}
 
 newtype RoundTiesToAway a = RoundTiesToAway { roundTiesToAway :: a }
@@ -65,15 +45,11 @@ newtype RoundTiesToAway a = RoundTiesToAway { roundTiesToAway :: a }
 
 instance RoundingStrategy RoundTiesToAway where
   exact = RoundTiesToAway
-  inexactNotTie _neg _parity near _zero _away = RoundTiesToAway near
-  inexactTie _neg _parity _zero away = RoundTiesToAway away
   inexact o _neg _parity zero away = RoundTiesToAway $ case o of
                                                          LT -> zero
                                                          EQ -> away
                                                          GT -> away
   {-# INLINE exact #-}
-  {-# INLINE inexactNotTie #-}
-  {-# INLINE inexactTie #-}
   {-# INLINE inexact #-}
 
 newtype RoundTowardPositive a = RoundTowardPositive { roundTowardPositive :: a }
@@ -81,15 +57,9 @@ newtype RoundTowardPositive a = RoundTowardPositive { roundTowardPositive :: a }
 
 instance RoundingStrategy RoundTowardPositive where
   exact = RoundTowardPositive
-  inexactNotTie neg _parity _near zero away | neg = RoundTowardPositive zero
-                                            | otherwise = RoundTowardPositive away
-  inexactTie neg _parity zero away | neg = RoundTowardPositive zero
-                                   | otherwise = RoundTowardPositive away
   inexact _o neg _parity zero away | neg = RoundTowardPositive zero
                                    | otherwise = RoundTowardPositive away
   {-# INLINE exact #-}
-  {-# INLINE inexactNotTie #-}
-  {-# INLINE inexactTie #-}
   {-# INLINE inexact #-}
 
 newtype RoundTowardNegative a = RoundTowardNegative { roundTowardNegative :: a }
@@ -97,15 +67,9 @@ newtype RoundTowardNegative a = RoundTowardNegative { roundTowardNegative :: a }
 
 instance RoundingStrategy RoundTowardNegative where
   exact = RoundTowardNegative
-  inexactNotTie neg _parity _near zero away | neg = RoundTowardNegative away
-                                            | otherwise = RoundTowardNegative zero
-  inexactTie neg _parity zero away | neg = RoundTowardNegative away
-                                   | otherwise = RoundTowardNegative zero
   inexact _o neg _parity zero away | neg = RoundTowardNegative away
                                    | otherwise = RoundTowardNegative zero
   {-# INLINE exact #-}
-  {-# INLINE inexactNotTie #-}
-  {-# INLINE inexactTie #-}
   {-# INLINE inexact #-}
 
 newtype RoundTowardZero a = RoundTowardZero { roundTowardZero :: a }
@@ -113,12 +77,8 @@ newtype RoundTowardZero a = RoundTowardZero { roundTowardZero :: a }
 
 instance RoundingStrategy RoundTowardZero where
   exact = RoundTowardZero
-  inexactNotTie _neg _parity _near zero _away = RoundTowardZero zero
-  inexactTie _neg _parity zero _away = RoundTowardZero zero
   inexact _o _neg _parity zero _away = RoundTowardZero zero
   {-# INLINE exact #-}
-  {-# INLINE inexactNotTie #-}
-  {-# INLINE inexactTie #-}
   {-# INLINE inexact #-}
 
 newtype RoundTiesTowardZero a = RoundTiesTowardZero { roundTiesTowardZero :: a }
@@ -126,8 +86,6 @@ newtype RoundTiesTowardZero a = RoundTiesTowardZero { roundTiesTowardZero :: a }
 
 instance RoundingStrategy RoundTiesTowardZero where
   exact = RoundTiesTowardZero
-  inexactNotTie _neg _parity near _zero _away = RoundTiesTowardZero near
-  inexactTie _neg _parity zero _away = RoundTiesTowardZero zero
   inexact o _neg _parity zero away = RoundTiesTowardZero $ case o of
                                                              LT -> zero
                                                              EQ -> zero
@@ -138,10 +96,6 @@ newtype RoundToOdd a = RoundToOdd { roundToOdd :: a }
 
 instance RoundingStrategy RoundToOdd where
   exact = RoundToOdd
-  inexactNotTie _neg parity _near zero away | even parity = RoundToOdd away
-                                            | otherwise = RoundToOdd zero
-  inexactTie _neg parity zero away | even parity = RoundToOdd away
-                                   | otherwise = RoundToOdd zero
   inexact _o _neg parity zero away | even parity = RoundToOdd away
                                    | otherwise = RoundToOdd zero
 
@@ -150,20 +104,14 @@ newtype Exactness a = Exactness { isExact :: Bool }
 
 instance RoundingStrategy Exactness where
   exact _ = Exactness True
-  inexactNotTie _neg _parity _near _zero _away = Exactness False
-  inexactTie _neg _parity _zero _away = Exactness False
+  inexact _o _neg _parity _zero _away = Exactness False
   {-# INLINE exact #-}
-  {-# INLINE inexactNotTie #-}
-  {-# INLINE inexactTie #-}
+  {-# INLINE inexact #-}
 
 instance (RoundingStrategy f, RoundingStrategy g) => RoundingStrategy (Product f g) where
   exact x = Pair (exact x) (exact x)
-  inexactNotTie neg parity near zero away = Pair (inexactNotTie neg parity near zero away) (inexactNotTie neg parity near zero away)
-  inexactTie neg parity zero away = Pair (inexactTie neg parity zero away) (inexactTie neg parity zero away)
   inexact o neg parity zero away = Pair (inexact o neg parity zero away) (inexact o neg parity zero away)
   {-# INLINE exact #-}
-  {-# INLINE inexactNotTie #-}
-  {-# INLINE inexactTie #-}
   {-# INLINE inexact #-}
 
 {-
@@ -376,12 +324,7 @@ positiveWordToBinaryFloatR !neg !n = result
                   if expMax <= finiteBitSize n - 1 && k >= expMax then
                     -- overflow
                     let inf = 1 / 0
-                    in inexactNotTie
-                         neg
-                         1 -- parity
-                         inf -- near
-                         maxFinite -- zero
-                         inf -- away
+                    in inexact GT neg 1 maxFinite inf
                   else
                     let e = k - fDigits + 1
                         q = n `unsafeShiftR` e
@@ -441,12 +384,7 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
                   if k >= expMax then
                     -- overflow
                     let inf = 1 / 0
-                    in inexactNotTie
-                         neg
-                         1 -- parity
-                         inf -- near
-                         maxFinite -- zero
-                         inf -- away
+                    in inexact GT neg 1 maxFinite inf
                   else
                     -- k >= fDigits
                     let e = k - fDigits + 1
@@ -577,12 +515,7 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                   if expMax < e + fDigits then
                     -- overflow
                     let inf = 1 / 0
-                    in inexactNotTie
-                         neg
-                         1 -- parity
-                         inf -- near
-                         maxFinite -- zero
-                         inf -- away
+                    in inexact GT neg 1 maxFinite inf
                   else
                     -- subnormal: 0 < n/d < base^^(expMin-1)
                     -- e + fDigits < expMin
@@ -687,12 +620,7 @@ encodePositiveFloatR !neg !m !n = assert (m > 0) result
                   if expMax <= k + n then
                     -- overflow
                     let inf = 1 / 0
-                    in inexactNotTie
-                         neg
-                         1 -- parity
-                         inf -- near
-                         maxFinite -- zero
-                         inf -- away
+                    in inexact GT neg 1 maxFinite inf
                   else -- k + n <= expMin
                     -- subnormal
                     if expMin - fDigits <= n then
