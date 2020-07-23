@@ -353,6 +353,7 @@ positiveWordToBinaryFloatR# !neg n# = result
                                , RealFloat a => Bool -> Word# -> RoundTowardPositive a
                                , RealFloat a => Bool -> Word# -> RoundTowardNegative a
                                , RealFloat a => Bool -> Word# -> RoundTowardZero a
+                               , RealFloat a => Bool -> Word# -> Product RoundTowardNegative RoundTowardPositive a
                                , Bool -> Word# -> RoundTiesToEven Float
                                , Bool -> Word# -> RoundTiesToAway Float
                                , Bool -> Word# -> RoundTowardPositive Float
@@ -363,6 +364,8 @@ positiveWordToBinaryFloatR# !neg n# = result
                                , Bool -> Word# -> RoundTowardPositive Double
                                , Bool -> Word# -> RoundTowardNegative Double
                                , Bool -> Word# -> RoundTowardZero Double
+                               , Bool -> Word# -> Product RoundTowardNegative RoundTowardPositive Float
+                               , Bool -> Word# -> Product RoundTowardNegative RoundTowardPositive Double
   #-}
 
 -- n > 0
@@ -411,6 +414,7 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
                         , RealFloat a => Bool -> Integer -> RoundTowardPositive a
                         , RealFloat a => Bool -> Integer -> RoundTowardNegative a
                         , RealFloat a => Bool -> Integer -> RoundTowardZero a
+                        , RealFloat a => Bool -> Integer -> Product RoundTowardNegative RoundTowardPositive a
                         , RoundingStrategy f => Bool -> Integer -> f Double
                         , RoundingStrategy f => Bool -> Integer -> f Float
                         , Bool -> Integer -> RoundTiesToEven Double
@@ -423,6 +427,8 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
                         , Bool -> Integer -> RoundTowardPositive Float
                         , Bool -> Integer -> RoundTowardNegative Float
                         , Bool -> Integer -> RoundTowardZero Float
+                        , Bool -> Integer -> Product RoundTowardNegative RoundTowardPositive Double
+                        , Bool -> Integer -> Product RoundTowardNegative RoundTowardPositive Float
   #-}
 
 fromRationalR :: (RealFloat a, RoundingStrategy f) => Rational -> f a
@@ -545,6 +551,7 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                       , RealFloat a => Bool -> Integer -> Integer -> RoundTowardPositive a
                       , RealFloat a => Bool -> Integer -> Integer -> RoundTowardNegative a
                       , RealFloat a => Bool -> Integer -> Integer -> RoundTowardZero a
+                      , RealFloat a => Bool -> Integer -> Integer -> Product RoundTowardNegative RoundTowardPositive a
                       , RoundingStrategy f => Bool -> Integer -> Integer -> f Double
                       , RoundingStrategy f => Bool -> Integer -> Integer -> f Float
                       , Bool -> Integer -> Integer -> RoundTiesToEven Double
@@ -557,6 +564,8 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                       , Bool -> Integer -> Integer -> RoundTowardPositive Float
                       , Bool -> Integer -> Integer -> RoundTowardNegative Float
                       , Bool -> Integer -> Integer -> RoundTowardZero Float
+                      , Bool -> Integer -> Integer -> Product RoundTowardNegative RoundTowardPositive Double
+                      , Bool -> Integer -> Integer -> Product RoundTowardNegative RoundTowardPositive Float
   #-}
 
 encodeFloatR :: (RealFloat a, RoundingStrategy f) => Integer -> Int -> f a
@@ -658,6 +667,7 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                          , RealFloat a => Bool -> Integer -> Int# -> RoundTowardPositive a
                          , RealFloat a => Bool -> Integer -> Int# -> RoundTowardNegative a
                          , RealFloat a => Bool -> Integer -> Int# -> RoundTowardZero a
+                         , RealFloat a => Bool -> Integer -> Int# -> Product RoundTowardNegative RoundTowardPositive a
                          , RoundingStrategy f => Bool -> Integer -> Int# -> f Double
                          , RoundingStrategy f => Bool -> Integer -> Int# -> f Float
                          , Bool -> Integer -> Int# -> RoundTiesToEven Double
@@ -670,4 +680,6 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                          , Bool -> Integer -> Int# -> RoundTowardPositive Float
                          , Bool -> Integer -> Int# -> RoundTowardNegative Float
                          , Bool -> Integer -> Int# -> RoundTowardZero Float
+                         , Bool -> Integer -> Int# -> Product RoundTowardNegative RoundTowardPositive Double
+                         , Bool -> Integer -> Int# -> Product RoundTowardNegative RoundTowardPositive Float
   #-}
