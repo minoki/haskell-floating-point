@@ -5,13 +5,21 @@
 
 #include "MachDeps.h"
 
-module Numeric.Floating.IEEE.Internal.IntegerInternals where
+module Numeric.Floating.IEEE.Internal.IntegerInternals
+  ( integerToIntMaybe
+  , integerToInt64Maybe
+  , naturalToWordMaybe
+  , naturalToWord64Maybe
+  , unsafeShiftLInteger
+  , unsafeShiftRInteger
+  ) where
 import           Data.Bits
 import           GHC.Exts
 import           GHC.Int (Int (I#), Int64 (I64#))
 import           GHC.Word (Word (W#), Word64 (W64#))
 import           MyPrelude
 import           Numeric.Natural
+import           Numeric.Floating.IEEE.Internal.Base
 #if defined(MIN_VERSION_integer_gmp)
 import qualified GHC.Integer
 import           GHC.Integer.GMP.Internals (Integer (S#))
@@ -29,8 +37,21 @@ unsafeShiftRInteger :: Integer -> Int -> Integer
 
 #if defined(MIN_VERSION_integer_gmp)
 
+maxBoundIntAsInteger :: Integer
+maxBoundIntAsInteger = 2 ^! (finiteBitSize (0 :: Int) - 1) - 1
+
+-- Enable constant folding
+integerToIntMaybe x = staticIf
+  (- maxBoundIntAsInteger - 1 <= x && x <= maxBoundIntAsInteger)
+  (Just (fromIntegral x))
+  (case x of
+     S# x# -> Just (I# x#)
+     _ -> Nothing -- relies on Integer's invariant
+  )
+{-
 integerToIntMaybe (S# x#) = Just (I# x#)
 integerToIntMaybe _       = Nothing -- relies on Integer's invariant
+-}
 
 naturalToWordMaybe (NatS# x#) = Just (W# x#)
 naturalToWordMaybe _          = Nothing
@@ -58,6 +79,15 @@ naturalToWord64Maybe = toIntegralSized
 
 unsafeShiftLInteger x (I# i#) = GHC.Integer.shiftLInteger x i#
 unsafeShiftRInteger x (I# i#) = GHC.Integer.shiftRInteger x i#
+
+staticIf :: Bool -> a -> a -> a
+staticIf _ _ y = y
+{-# INLINE [0] staticIf #-}
+
+{-# RULES
+"staticIf/True" forall x y. staticIf True x y = x
+"staticIf/False" forall x y. staticIf False x y = y
+  #-}
 
 #else
 
