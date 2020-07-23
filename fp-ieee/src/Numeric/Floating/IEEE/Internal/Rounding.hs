@@ -634,6 +634,19 @@ encodeFloatR :: (RealFloat a, RoundingStrategy f) => Integer -> Int -> f a
 encodeFloatR 0 !_ = exact 0
 encodeFloatR m n | m < 0 = negate <$> encodePositiveFloatR True (- m) n
                  | otherwise = encodePositiveFloatR False m n
+{-# INLINE encodeFloatR #-}
+
+encodeFloatTiesToEven, encodeFloatTiesToAway, encodeFloatTowardPositive, encodeFloatTowardNegative, encodeFloatTowardZero :: RealFloat a => Integer -> Int -> a
+encodeFloatTiesToEven m = roundTiesToEven . encodeFloatR m
+encodeFloatTiesToAway m = roundTiesToAway . encodeFloatR m
+encodeFloatTowardPositive m = roundTowardPositive . encodeFloatR m
+encodeFloatTowardNegative m = roundTowardNegative . encodeFloatR m
+encodeFloatTowardZero m = roundTowardZero . encodeFloatR m
+{-# INLINE encodeFloatTiesToEven #-}
+{-# INLINE encodeFloatTiesToAway #-}
+{-# INLINE encodeFloatTowardPositive #-}
+{-# INLINE encodeFloatTowardNegative #-}
+{-# INLINE encodeFloatTowardZero #-}
 
 encodePositiveFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Int -> f a
 encodePositiveFloatR !neg !m !n = assert (m > 0) result

@@ -252,6 +252,26 @@ main = defaultMain
                 ]
               ]
          ]
+       , bgroup "encodeFloat"
+         [ let arg = (0xcafe_0000_abcd_7777, -25) :: (Integer, Int)
+           in bgroup "Double"
+              [ bench "stock" $ nf (uncurry encodeFloat :: (Integer, Int) -> Double) arg
+              , bench "encodeFloatTiesToEven" $ nf (uncurry encodeFloatTiesToEven :: (Integer, Int) -> Double) arg
+              , bench "encodeFloatTiesToAway" $ nf (uncurry encodeFloatTiesToAway :: (Integer, Int) -> Double) arg
+              , bench "encodeFloatTowardPositive" $ nf (uncurry encodeFloatTowardPositive :: (Integer, Int) -> Double) arg
+              , bench "encodeFloatTowardNegative" $ nf (uncurry encodeFloatTowardNegative :: (Integer, Int) -> Double) arg
+              , bench "encodeFloatTowardZero" $ nf (uncurry encodeFloatTowardZero :: (Integer, Int) -> Double) arg
+              ]
+         , let arg = (0xcafe_0000_abcd_7777, -25) :: (Integer, Int)
+           in bgroup "Float"
+              [ bench "stock" $ nf (uncurry encodeFloat :: (Integer, Int) -> Float) arg
+              , bench "encodeFloatTiesToEven" $ nf (uncurry encodeFloatTiesToEven :: (Integer, Int) -> Float) arg
+              , bench "encodeFloatTiesToAway" $ nf (uncurry encodeFloatTiesToAway :: (Integer, Int) -> Float) arg
+              , bench "encodeFloatTowardPositive" $ nf (uncurry encodeFloatTowardPositive :: (Integer, Int) -> Float) arg
+              , bench "encodeFloatTowardNegative" $ nf (uncurry encodeFloatTowardNegative :: (Integer, Int) -> Float) arg
+              , bench "encodeFloatTowardZero" $ nf (uncurry encodeFloatTowardZero :: (Integer, Int) -> Float) arg
+              ]
+         ]
 #if defined(USE_HALF)
        , bgroup "Half"
          [ bgroup "from Half"
