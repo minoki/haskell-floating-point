@@ -7,7 +7,7 @@ This module provides IEEE 754-compliant operations for floating-point numbers.
 The functions in this module assume that the given floating-point type conform to IEEE 754 format.
 
 Since 'RealFloat' constraint is insufficient to query properties of a NaN, the functions here assumes all NaN as positive, quiet.
-If you want better treatment for NaNs, use the module "Numeric.Floating.Extra.IEEE.NaN".
+If you want better treatment for NaNs, use the module "Numeric.Floating.IEEE.NaN".
 
 Since floating-point exceptions cannot be accessed from Haskell in normal way, the operations provided by this module ignore exceptional behavior.
 Don't let fp exceptions trap.
