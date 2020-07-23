@@ -9,6 +9,7 @@ module Numeric.Floating.IEEE.Internal.Base
   , negateIntAsWord
   , absIntAsWord
   ) where
+import           Data.Bits
 import           MyPrelude
 
 default ()
@@ -83,6 +84,8 @@ pow_helper _ x y = x ^ y
 {-# INLINE [0] pow_helper #-}
 {-# RULES
 "x^!" forall x y. x ^! y = pow_helper (y > 0) x y
+"pow_helper/2" forall y.
+  pow_helper True 2 y = bit y
 "pow_helper" forall x y.
   pow_helper True x y = if y `rem` 2 == 0 then
                           (x * x) ^! (y `quot` 2)

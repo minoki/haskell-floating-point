@@ -270,25 +270,55 @@ boundsForExactConversion proxyR = assert ieee (minI, maxI)
   where
     maxInteger = base ^! digits
     minInteger = - maxInteger
-    minI = if signed then
-             case mbitSize of
-               Just bits | minInteger <= (- 2 ^! (bits-1)) -> Nothing -- all negative integers can be expressed in the target floating-type: no check for lower-bound is needed
-               _ -> Just (fromInteger minInteger)
-           else
-             Nothing -- no check is needed
-    maxI = case mbitSize of
-             Just bits | let maxBound' = if signed then
-                                            2 ^! (bits-1) - 1
-                                          else
-                                            2 ^! bits - 1
-                       , maxBound' <= maxInteger -> Nothing -- all positive integral values can be expressed in the target floating-type: no check for upper-bound is needed
+    minI = case minBoundAsInteger (undefined `asProxyTypeOf` minI) of
+             Just minBound' | minInteger <= minBound' -> Nothing -- all negative integers can be expressed in the target floating-type: no check for lower-bound is needed
+             _ -> Just (fromInteger minInteger)
+    maxI = case maxBoundAsInteger (undefined `asProxyTypeOf` maxI) of
+             Just maxBound' | maxBound' <= maxInteger -> Nothing -- all positive integral values can be expressed in the target floating-type: no check for upper-bound is needed
              _ -> Just (fromInteger maxInteger)
-    mbitSize = bitSizeMaybe (undefined `asProxyTypeOf` minI)
-    signed = isSigned (undefined `asProxyTypeOf` minI)
     ieee = isIEEE (undefined `asProxyTypeOf` proxyR)
     base = floatRadix (undefined `asProxyTypeOf` proxyR)
     digits = floatDigits (undefined `asProxyTypeOf` proxyR)
 {-# INLINE boundsForExactConversion #-}
+
+minBoundAsInteger :: Bits i => i -> Maybe Integer
+minBoundAsInteger dummyI = if isSigned dummyI then
+                             case bitSizeMaybe dummyI of
+                               Just bits -> Just (- bit (bits-1))
+                               Nothing -> Nothing
+                           else
+                             Just 0
+{-# INLINE minBoundAsInteger #-}
+{-# SPECIALIZE INLINE
+  minBoundAsInteger :: Int -> Maybe Integer
+                     , Int8 -> Maybe Integer
+                     , Int16 -> Maybe Integer
+                     , Int32 -> Maybe Integer
+                     , Int64 -> Maybe Integer
+                     , Word -> Maybe Integer
+                     , Word8 -> Maybe Integer
+                     , Word16 -> Maybe Integer
+                     , Word32 -> Maybe Integer
+                     , Word64 -> Maybe Integer
+  #-}
+maxBoundAsInteger :: Bits i => i -> Maybe Integer
+maxBoundAsInteger dummyI = case bitSizeMaybe dummyI of
+                             Just bits | isSigned dummyI -> Just (bit (bits-1) - 1)
+                                       | otherwise -> Just (bit bits - 1)
+                             Nothing -> Nothing
+{-# INLINE maxBoundAsInteger #-}
+{-# SPECIALIZE INLINE
+  maxBoundAsInteger :: Int -> Maybe Integer
+                     , Int8 -> Maybe Integer
+                     , Int16 -> Maybe Integer
+                     , Int32 -> Maybe Integer
+                     , Int64 -> Maybe Integer
+                     , Word -> Maybe Integer
+                     , Word8 -> Maybe Integer
+                     , Word16 -> Maybe Integer
+                     , Word32 -> Maybe Integer
+                     , Word64 -> Maybe Integer
+  #-}
 
 -- Like 'if-then-else', but the condition will not be computed if the branches are same
 pureIfThenElse :: Bool -> a -> a -> a
@@ -344,28 +374,29 @@ positiveWordToBinaryFloatR# !neg n# = result
 
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
     (_expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
-{-# INLINABLE positiveWordToBinaryFloatR# #-}
+{-# INLINABLE [0] positiveWordToBinaryFloatR# #-}
 {-# SPECIALIZE
   positiveWordToBinaryFloatR# :: RoundingStrategy f => Bool -> Word# -> f Float
                                , RoundingStrategy f => Bool -> Word# -> f Double
                                , RealFloat a => Bool -> Word# -> RoundTiesToEven a
                                , RealFloat a => Bool -> Word# -> RoundTiesToAway a
                                , RealFloat a => Bool -> Word# -> RoundTowardPositive a
-                               , RealFloat a => Bool -> Word# -> RoundTowardNegative a
                                , RealFloat a => Bool -> Word# -> RoundTowardZero a
                                , RealFloat a => Bool -> Word# -> Product RoundTowardNegative RoundTowardPositive a
                                , Bool -> Word# -> RoundTiesToEven Float
                                , Bool -> Word# -> RoundTiesToAway Float
                                , Bool -> Word# -> RoundTowardPositive Float
-                               , Bool -> Word# -> RoundTowardNegative Float
                                , Bool -> Word# -> RoundTowardZero Float
                                , Bool -> Word# -> RoundTiesToEven Double
                                , Bool -> Word# -> RoundTiesToAway Double
                                , Bool -> Word# -> RoundTowardPositive Double
-                               , Bool -> Word# -> RoundTowardNegative Double
                                , Bool -> Word# -> RoundTowardZero Double
                                , Bool -> Word# -> Product RoundTowardNegative RoundTowardPositive Float
                                , Bool -> Word# -> Product RoundTowardNegative RoundTowardPositive Double
+  #-}
+{-# RULES
+"positiveWordToBinaryFloatR#/RoundTowardNegative" forall neg x.
+  positiveWordToBinaryFloatR# neg x = RoundTowardNegative (roundTowardPositive (positiveWordToBinaryFloatR# (not neg) x))
   #-}
 
 -- n > 0
@@ -407,12 +438,11 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
     !base = floatRadix (undefined `asProxyTypeOf` result) -- 2 or 10
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
     (_expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
-{-# INLINABLE fromPositiveIntegerR #-}
+{-# INLINABLE [0] fromPositiveIntegerR #-}
 {-# SPECIALIZE
   fromPositiveIntegerR :: RealFloat a => Bool -> Integer -> RoundTiesToEven a
                         , RealFloat a => Bool -> Integer -> RoundTiesToAway a
                         , RealFloat a => Bool -> Integer -> RoundTowardPositive a
-                        , RealFloat a => Bool -> Integer -> RoundTowardNegative a
                         , RealFloat a => Bool -> Integer -> RoundTowardZero a
                         , RealFloat a => Bool -> Integer -> Product RoundTowardNegative RoundTowardPositive a
                         , RoundingStrategy f => Bool -> Integer -> f Double
@@ -420,15 +450,17 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
                         , Bool -> Integer -> RoundTiesToEven Double
                         , Bool -> Integer -> RoundTiesToAway Double
                         , Bool -> Integer -> RoundTowardPositive Double
-                        , Bool -> Integer -> RoundTowardNegative Double
                         , Bool -> Integer -> RoundTowardZero Double
                         , Bool -> Integer -> RoundTiesToEven Float
                         , Bool -> Integer -> RoundTiesToAway Float
                         , Bool -> Integer -> RoundTowardPositive Float
-                        , Bool -> Integer -> RoundTowardNegative Float
                         , Bool -> Integer -> RoundTowardZero Float
                         , Bool -> Integer -> Product RoundTowardNegative RoundTowardPositive Double
                         , Bool -> Integer -> Product RoundTowardNegative RoundTowardPositive Float
+  #-}
+{-# RULES
+"fromPositiveIntegerR/RoundTowardNegative" forall neg x.
+  fromPositiveIntegerR neg x = RoundTowardNegative (roundTowardPositive (fromPositiveIntegerR (not neg) x))
   #-}
 
 fromRationalR :: (RealFloat a, RoundingStrategy f) => Rational -> f a
@@ -544,12 +576,11 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
     !base = floatRadix (undefined `asProxyTypeOf` result)
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
     (!expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
-{-# INLINABLE fromPositiveRatioR #-}
+{-# INLINABLE [0] fromPositiveRatioR #-}
 {-# SPECIALIZE
   fromPositiveRatioR :: RealFloat a => Bool -> Integer -> Integer -> RoundTiesToEven a
                       , RealFloat a => Bool -> Integer -> Integer -> RoundTiesToAway a
                       , RealFloat a => Bool -> Integer -> Integer -> RoundTowardPositive a
-                      , RealFloat a => Bool -> Integer -> Integer -> RoundTowardNegative a
                       , RealFloat a => Bool -> Integer -> Integer -> RoundTowardZero a
                       , RealFloat a => Bool -> Integer -> Integer -> Product RoundTowardNegative RoundTowardPositive a
                       , RoundingStrategy f => Bool -> Integer -> Integer -> f Double
@@ -557,15 +588,17 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                       , Bool -> Integer -> Integer -> RoundTiesToEven Double
                       , Bool -> Integer -> Integer -> RoundTiesToAway Double
                       , Bool -> Integer -> Integer -> RoundTowardPositive Double
-                      , Bool -> Integer -> Integer -> RoundTowardNegative Double
                       , Bool -> Integer -> Integer -> RoundTowardZero Double
                       , Bool -> Integer -> Integer -> RoundTiesToEven Float
                       , Bool -> Integer -> Integer -> RoundTiesToAway Float
                       , Bool -> Integer -> Integer -> RoundTowardPositive Float
-                      , Bool -> Integer -> Integer -> RoundTowardNegative Float
                       , Bool -> Integer -> Integer -> RoundTowardZero Float
                       , Bool -> Integer -> Integer -> Product RoundTowardNegative RoundTowardPositive Double
                       , Bool -> Integer -> Integer -> Product RoundTowardNegative RoundTowardPositive Float
+  #-}
+{-# RULES
+"fromPositiveRatioR/RoundTowardNegative" forall neg x y.
+  fromPositiveRatioR neg x y = RoundTowardNegative (roundTowardPositive (fromPositiveRatioR (not neg) x y))
   #-}
 
 encodeFloatR :: (RealFloat a, RoundingStrategy f) => Integer -> Int -> f a
@@ -660,12 +693,11 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
     !base = floatRadix (undefined `asProxyTypeOf` result)
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
     (!expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
-{-# INLINABLE encodePositiveFloatR# #-}
+{-# INLINABLE [0] encodePositiveFloatR# #-}
 {-# SPECIALIZE
   encodePositiveFloatR# :: RealFloat a => Bool -> Integer -> Int# -> RoundTiesToEven a
                          , RealFloat a => Bool -> Integer -> Int# -> RoundTiesToAway a
                          , RealFloat a => Bool -> Integer -> Int# -> RoundTowardPositive a
-                         , RealFloat a => Bool -> Integer -> Int# -> RoundTowardNegative a
                          , RealFloat a => Bool -> Integer -> Int# -> RoundTowardZero a
                          , RealFloat a => Bool -> Integer -> Int# -> Product RoundTowardNegative RoundTowardPositive a
                          , RoundingStrategy f => Bool -> Integer -> Int# -> f Double
@@ -673,13 +705,15 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                          , Bool -> Integer -> Int# -> RoundTiesToEven Double
                          , Bool -> Integer -> Int# -> RoundTiesToAway Double
                          , Bool -> Integer -> Int# -> RoundTowardPositive Double
-                         , Bool -> Integer -> Int# -> RoundTowardNegative Double
                          , Bool -> Integer -> Int# -> RoundTowardZero Double
                          , Bool -> Integer -> Int# -> RoundTiesToEven Float
                          , Bool -> Integer -> Int# -> RoundTiesToAway Float
                          , Bool -> Integer -> Int# -> RoundTowardPositive Float
-                         , Bool -> Integer -> Int# -> RoundTowardNegative Float
                          , Bool -> Integer -> Int# -> RoundTowardZero Float
                          , Bool -> Integer -> Int# -> Product RoundTowardNegative RoundTowardPositive Double
                          , Bool -> Integer -> Int# -> Product RoundTowardNegative RoundTowardPositive Float
+  #-}
+{-# RULES
+"encodePositiveFloatR#/RoundTowardNegative" forall neg x y.
+  encodePositiveFloatR# neg x y = RoundTowardNegative (roundTowardPositive (encodePositiveFloatR# (not neg) x y))
   #-}
