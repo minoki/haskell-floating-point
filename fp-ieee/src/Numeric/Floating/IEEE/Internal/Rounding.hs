@@ -31,6 +31,16 @@ class Functor f => RoundingStrategy f where
              -> a -- ^ toward zero
              -> a -- ^ away from zero
              -> f a
+  inexact :: Ordering -- ^ LT -> toward-zero is the nearest, EQ -> midpoint, GT -> away-from-zero is the nearest
+          -> Bool -- ^ negative (True -> negative, False -> positive)
+          -> Int -- ^ parity (even -> toward-zero is even, odd -> toward-zero is odd)
+          -> a -- ^ toward zero
+          -> a -- ^ away from zero
+          -> f a
+  inexact LT neg parity down up = inexactNotTie neg parity down down up
+  inexact EQ neg parity down up = inexactTie neg parity down up
+  inexact GT neg parity down up= inexactNotTie neg parity up down up
+  {-# INLINE inexact #-}
 
 newtype RoundTiesToEven a = RoundTiesToEven { roundTiesToEven :: a }
   deriving (Eq,Show,Functor)
@@ -40,9 +50,15 @@ instance RoundingStrategy RoundTiesToEven where
   inexactNotTie _neg _parity near _zero _away = RoundTiesToEven near
   inexactTie _neg parity zero away | even parity = RoundTiesToEven zero
                                    | otherwise = RoundTiesToEven away
+  inexact o _neg parity zero away = RoundTiesToEven $ case o of
+                                                        LT -> zero
+                                                        EQ | even parity -> zero
+                                                           | otherwise -> away
+                                                        GT -> away
   {-# INLINE exact #-}
   {-# INLINE inexactNotTie #-}
   {-# INLINE inexactTie #-}
+  {-# INLINE inexact #-}
 
 newtype RoundTiesToAway a = RoundTiesToAway { roundTiesToAway :: a }
   deriving (Eq,Show,Functor)
@@ -51,9 +67,14 @@ instance RoundingStrategy RoundTiesToAway where
   exact = RoundTiesToAway
   inexactNotTie _neg _parity near _zero _away = RoundTiesToAway near
   inexactTie _neg _parity _zero away = RoundTiesToAway away
+  inexact o _neg _parity zero away = RoundTiesToAway $ case o of
+                                                         LT -> zero
+                                                         EQ -> away
+                                                         GT -> away
   {-# INLINE exact #-}
   {-# INLINE inexactNotTie #-}
   {-# INLINE inexactTie #-}
+  {-# INLINE inexact #-}
 
 newtype RoundTowardPositive a = RoundTowardPositive { roundTowardPositive :: a }
   deriving (Eq,Show,Functor)
@@ -64,9 +85,12 @@ instance RoundingStrategy RoundTowardPositive where
                                             | otherwise = RoundTowardPositive away
   inexactTie neg _parity zero away | neg = RoundTowardPositive zero
                                    | otherwise = RoundTowardPositive away
+  inexact _o neg _parity zero away | neg = RoundTowardPositive zero
+                                   | otherwise = RoundTowardPositive away
   {-# INLINE exact #-}
   {-# INLINE inexactNotTie #-}
   {-# INLINE inexactTie #-}
+  {-# INLINE inexact #-}
 
 newtype RoundTowardNegative a = RoundTowardNegative { roundTowardNegative :: a }
   deriving (Eq,Show,Functor)
@@ -77,9 +101,12 @@ instance RoundingStrategy RoundTowardNegative where
                                             | otherwise = RoundTowardNegative zero
   inexactTie neg _parity zero away | neg = RoundTowardNegative away
                                    | otherwise = RoundTowardNegative zero
+  inexact _o neg _parity zero away | neg = RoundTowardNegative away
+                                   | otherwise = RoundTowardNegative zero
   {-# INLINE exact #-}
   {-# INLINE inexactNotTie #-}
   {-# INLINE inexactTie #-}
+  {-# INLINE inexact #-}
 
 newtype RoundTowardZero a = RoundTowardZero { roundTowardZero :: a }
   deriving (Eq,Show,Functor)
@@ -88,9 +115,11 @@ instance RoundingStrategy RoundTowardZero where
   exact = RoundTowardZero
   inexactNotTie _neg _parity _near zero _away = RoundTowardZero zero
   inexactTie _neg _parity zero _away = RoundTowardZero zero
+  inexact _o _neg _parity zero _away = RoundTowardZero zero
   {-# INLINE exact #-}
   {-# INLINE inexactNotTie #-}
   {-# INLINE inexactTie #-}
+  {-# INLINE inexact #-}
 
 newtype RoundTiesTowardZero a = RoundTiesTowardZero { roundTiesTowardZero :: a }
   deriving (Eq,Show,Functor)
@@ -99,6 +128,10 @@ instance RoundingStrategy RoundTiesTowardZero where
   exact = RoundTiesTowardZero
   inexactNotTie _neg _parity near _zero _away = RoundTiesTowardZero near
   inexactTie _neg _parity zero _away = RoundTiesTowardZero zero
+  inexact o _neg _parity zero away = RoundTiesTowardZero $ case o of
+                                                             LT -> zero
+                                                             EQ -> zero
+                                                             GT -> away
 
 newtype RoundToOdd a = RoundToOdd { roundToOdd :: a }
   deriving (Eq,Show,Functor)
@@ -108,6 +141,8 @@ instance RoundingStrategy RoundToOdd where
   inexactNotTie _neg parity _near zero away | even parity = RoundToOdd away
                                             | otherwise = RoundToOdd zero
   inexactTie _neg parity zero away | even parity = RoundToOdd away
+                                   | otherwise = RoundToOdd zero
+  inexact _o _neg parity zero away | even parity = RoundToOdd away
                                    | otherwise = RoundToOdd zero
 
 newtype Exactness a = Exactness { isExact :: Bool }
@@ -125,9 +160,11 @@ instance (RoundingStrategy f, RoundingStrategy g) => RoundingStrategy (Product f
   exact x = Pair (exact x) (exact x)
   inexactNotTie neg parity near zero away = Pair (inexactNotTie neg parity near zero away) (inexactNotTie neg parity near zero away)
   inexactTie neg parity zero away = Pair (inexactTie neg parity zero away) (inexactTie neg parity zero away)
+  inexact o neg parity zero away = Pair (inexact o neg parity zero away) (inexact o neg parity zero away)
   {-# INLINE exact #-}
   {-# INLINE inexactNotTie #-}
   {-# INLINE inexactTie #-}
+  {-# INLINE inexact #-}
 
 {-
 fromIntegerR :: (RealFloat a, RoundingStrategy f) => Integer -> f a
@@ -326,17 +363,6 @@ pureIfThenElse cond x y = if cond then
 "pureIfThenElse" forall cond x. pureIfThenElse cond x x = x
   #-}
 
--- Like 'case' on Ordering, but the Ordering value will not be computed if the branches are same
-matchOrdering :: Ordering -> a -> a -> a -> a
-matchOrdering ordering x y z = case ordering of
-                                 LT -> x
-                                 EQ -> y
-                                 GT -> z
-{-# INLINE [0] matchOrdering #-}
-{-# RULES
-"matchOrdering" forall ordering x. matchOrdering ordering x x x = x
-  #-}
-
 positiveWordToBinaryFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Word -> f a
 positiveWordToBinaryFloatR !neg !n = result
   where
@@ -366,33 +392,15 @@ positiveWordToBinaryFloatR !neg !n = result
                        -- then
                        (exact $ fromIntegral (q `unsafeShiftL` e))
                        -- else: inexact case
-                       (let down = fromIntegral (q `unsafeShiftL` e)
-                            up = fromIntegral ((q + 1) `unsafeShiftL` e)
+                       (let towardzero = fromIntegral (q `unsafeShiftL` e)
+                            awayfromzero = fromIntegral ((q + 1) `unsafeShiftL` e)
                             parity = fromIntegral q :: Int
-                        in matchOrdering (compare r (bit (e - 1))) -- The computation of 'compare ...' should be avoided if possible
-                           -- LT ->
-                           (inexactNotTie
+                        in inexact
+                             (compare r (bit (e - 1)))
                              neg
                              parity
-                             down -- near
-                             down -- zero
-                             up -- away
-                           )
-                           -- EQ ->
-                           (inexactTie
-                             neg
-                             parity
-                             down -- zero
-                             up -- away
-                           )
-                           -- GT ->
-                           (inexactNotTie
-                             neg
-                             parity
-                             up -- near
-                             down -- zero
-                             up -- away
-                           )
+                             towardzero
+                             awayfromzero
                        )
 
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
@@ -448,33 +456,15 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
                        -- then
                        (exact $ encodeFloat q e)
                        -- else: inexact case
-                       (let down = encodeFloat q e
-                            up = encodeFloat (q + 1) e
+                       (let towardzero = encodeFloat q e
+                            awayfromzero = encodeFloat (q + 1) e
                             parity = fromInteger q :: Int
-                        in matchOrdering (compare r (expt base (e - 1))) -- The computation of 'compare ...' should be avoided if possible
-                           -- LT ->
-                           (inexactNotTie
+                        in inexact
+                             (compare r (expt base (e - 1)))
                              neg
                              parity
-                             down -- near
-                             down -- zero
-                             up -- away
-                           )
-                           -- EQ ->
-                           (inexactTie
-                             neg
-                             parity
-                             down -- zero
-                             up -- away
-                           )
-                           -- GT ->
-                           (inexactNotTie
-                             neg
-                             parity
-                             up -- near
-                             down -- zero
-                             up -- away
-                           )
+                             towardzero
+                             awayfromzero
                        )
 
     !base = floatRadix (undefined `asProxyTypeOf` result) -- 2 or 10
@@ -573,33 +563,15 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                   -- then
                   (exact $ encodeFloat q e)
                   -- else: inexact case
-                  (let down = encodeFloat q e
-                       up = encodeFloat (q + 1) e -- may be infinity
+                  (let towardzero = encodeFloat q e
+                       awayfromzero = encodeFloat (q + 1) e -- may be infinity
                        parity = fromInteger q :: Int
-                   in matchOrdering (compare (base * r) d')
-                      -- LT ->
-                      (inexactNotTie
+                   in inexact
+                        (compare (base * r) d')
                         neg
                         parity
-                        down -- near
-                        down -- zero
-                        up -- away
-                      )
-                      -- EQ ->
-                      (inexactTie
-                        neg
-                        parity
-                        down -- zero
-                        up -- away
-                      )
-                      -- GT ->
-                      (inexactNotTie
-                        neg
-                        parity
-                        up -- near
-                        down -- zero
-                        up -- away
-                      )
+                        towardzero
+                        awayfromzero
                   )
                 else
                   if expMax < e + fDigits then
@@ -623,44 +595,15 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                        (exact $ encodeFloat q' (expMin - fDigits))
                        -- else
                        -- (r' + r / d') * base^^e vs. base^^(expMin-fDigits-1)
-                       (let down = encodeFloat q' (expMin - fDigits)
-                            up = encodeFloat (q' + 1) (expMin - fDigits)
+                       (let towardzero = encodeFloat q' (expMin - fDigits)
+                            awayfromzero = encodeFloat (q' + 1) (expMin - fDigits)
                             parity = fromInteger q' :: Int
-                        in matchOrdering (compare r' (expt base (expMin - fDigits - e - 1)))
-                           -- LT ->
-                           (inexactNotTie
+                        in inexact
+                             (compare r' (expt base (expMin - fDigits - e - 1)) <> if r == 0 then EQ else GT)
                              neg
                              parity
-                             down -- near
-                             down -- zero
-                             up -- away
-                           )
-                           -- EQ ->
-                           (pureIfThenElse (r == 0)
-                            -- then
-                            (inexactTie
-                              neg
-                              parity
-                              down -- zero
-                              up -- away
-                            )
-                            -- else
-                            (inexactNotTie
-                              neg
-                              parity
-                              up -- near
-                              down -- zero
-                              up -- away
-                            )
-                           )
-                           -- GT ->
-                           (inexactNotTie
-                             neg
-                             parity
-                             up -- near
-                             down -- zero
-                             up -- away
-                           )
+                             towardzero
+                             awayfromzero
                        )
 
     !base = floatRadix (undefined `asProxyTypeOf` result)
