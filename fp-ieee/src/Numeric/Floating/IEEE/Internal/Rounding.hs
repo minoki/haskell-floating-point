@@ -651,7 +651,10 @@ encodeFloatTowardZero m = roundTowardZero . encodeFloatR m
 encodePositiveFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Int -> f a
 encodePositiveFloatR !neg !m !n = assert (m > 0) result
   where
-    result = let k = integerLogBase' base m
+    result = let k = if base == 2 then
+                       integerLog2' m
+                     else
+                       integerLogBase' base m
                  -- base^k <= m < base^(k+1)
                  -- base^^(k+n) <= m * base^^n < base^^(k+n+1)
              in if expMin < k + n && k + n < expMax then
@@ -666,31 +669,20 @@ encodePositiveFloatR !neg !m !n = assert (m > 0) result
                         -- m = q * base^^(k-fDigits+1) + r
                         -- base^(fDigits-1) <= q = m `quot` (base^^(k-fDigits+1)) < base^fDigits
                         -- m * base^^n = q * base^^(n+k-fDigits+1) + r * base^^n
-                    in if r == 0 then
-                         exact $ encodeFloat q (n + k - fDigits + 1)
-                       else
-                         -- inexact
-                         let down = encodeFloat q (n + k - fDigits + 1)
-                             up = encodeFloat (q + 1) (n + k - fDigits + 1)
-                             parity = fromInteger q :: Int
-                         in case compare r (expt base (k - fDigits)) of
-                              LT -> inexactNotTie
-                                      neg
-                                      parity
-                                      down -- near
-                                      down -- zero
-                                      up -- away
-                              EQ -> inexactTie
-                                      neg
-                                      parity
-                                      down -- zero
-                                      up -- away
-                              GT -> inexactNotTie
-                                      neg
-                                      parity
-                                      up -- near
-                                      down -- zero
-                                      up -- away
+                    in pureIfThenElse (r == 0)
+                       -- then
+                       (exact $ encodeFloat q (n + k - fDigits + 1))
+                       -- else: inexact case
+                       (let towardzero = encodeFloat q (n + k - fDigits + 1)
+                            awayfromzero = encodeFloat (q + 1) (n + k - fDigits + 1)
+                            parity = fromInteger q :: Int
+                        in inexact
+                             (compare r (expt base (k - fDigits)))
+                             neg
+                             parity
+                             towardzero
+                             awayfromzero
+                       )
                 else
                   if expMax <= k + n then
                     -- overflow
@@ -712,32 +704,40 @@ encodePositiveFloatR !neg !m !n = assert (m > 0) result
                           -- m = q * base^(expMin-fDigits-n) + r
                           -- q <= m * base^^(n-expMin+fDigits) < q+1
                           -- q * base^^(expMin-fDigits) <= m * base^^n < (q+1) * base^^(expMin-fDigits)
-                      in if r == 0 then
-                           exact $ encodeFloat q (expMin - fDigits)
-                         else
-                           -- inexact
-                           let down = encodeFloat q (expMin - fDigits)
-                               up = encodeFloat (q + 1) (expMin - fDigits)
-                               parity = fromInteger q :: Int
-                           in case compare r (expt base (expMin - fDigits - n - 1)) of
-                                LT -> inexactNotTie
-                                        neg
-                                        parity
-                                        down -- near
-                                        down -- zero
-                                        up -- away
-                                EQ -> inexactTie
-                                        neg
-                                        parity
-                                        down -- zero
-                                        up -- away
-                                GT -> inexactNotTie
-                                        neg
-                                        parity
-                                        up -- near
-                                        down -- zero
-                                        up -- away
+                      in pureIfThenElse (r == 0)
+                         -- then
+                         (exact $ encodeFloat q (expMin - fDigits))
+                         -- else: inexact case
+                         (let towardzero = encodeFloat q (expMin - fDigits)
+                              awayfromzero = encodeFloat (q + 1) (expMin - fDigits)
+                              parity = fromInteger q :: Int
+                          in inexact (compare r (expt base (expMin - fDigits - n - 1)))
+                               neg
+                               parity
+                               towardzero
+                               awayfromzero
+                         )
 
     !base = floatRadix (undefined `asProxyTypeOf` result)
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
     (!expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
+{-# INLINABLE encodePositiveFloatR #-}
+{-# SPECIALIZE
+  encodePositiveFloatR :: RealFloat a => Bool -> Integer -> Int -> RoundTiesToEven a
+                        , RealFloat a => Bool -> Integer -> Int -> RoundTiesToAway a
+                        , RealFloat a => Bool -> Integer -> Int -> RoundTowardPositive a
+                        , RealFloat a => Bool -> Integer -> Int -> RoundTowardNegative a
+                        , RealFloat a => Bool -> Integer -> Int -> RoundTowardZero a
+                        , RoundingStrategy f => Bool -> Integer -> Int -> f Double
+                        , RoundingStrategy f => Bool -> Integer -> Int -> f Float
+                        , Bool -> Integer -> Int -> RoundTiesToEven Double
+                        , Bool -> Integer -> Int -> RoundTiesToAway Double
+                        , Bool -> Integer -> Int -> RoundTowardPositive Double
+                        , Bool -> Integer -> Int -> RoundTowardNegative Double
+                        , Bool -> Integer -> Int -> RoundTowardZero Double
+                        , Bool -> Integer -> Int -> RoundTiesToEven Float
+                        , Bool -> Integer -> Int -> RoundTiesToAway Float
+                        , Bool -> Integer -> Int -> RoundTowardPositive Float
+                        , Bool -> Integer -> Int -> RoundTowardNegative Float
+                        , Bool -> Integer -> Int -> RoundTowardZero Float
+  #-}
