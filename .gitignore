@@ -1,4 +1,6 @@
 .stack-work/
 dist-newstyle/
-rounded-hw.cabal
 *~
+*.o
+*.hi
+*.dump-*
