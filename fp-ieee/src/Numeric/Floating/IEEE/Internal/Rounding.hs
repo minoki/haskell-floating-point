@@ -199,10 +199,11 @@ fromIntegralTowardZero = roundTowardZero . fromIntegralR
 fromIntegralRBits :: (Integral i, Bits i, RealFloat a, RoundingStrategy f) => i -> f a
 fromIntegralRBits x
   -- Small enough: fromIntegral should be sufficient
-  | let resultI = fromIntegral x
-  , ieee
-  , maybe True (<= x) (minBoundForExactConversion (resultI <$ Proxy))
-  , maybe True (x <=) (maxBoundForExactConversion (resultI <$ Proxy))
+  | ieee
+  , let resultI = fromIntegral x
+  , let (min', max') = boundsForExactConversion (resultI <$ Proxy)
+  , maybe True (<= x) min'
+  , maybe True (x <=) max'
   = exact resultI
 
   -- Signed, and not small enough: Test if the value fits in Int
@@ -258,48 +259,36 @@ fromIntegralRBits x
   #-}
 
 -- |
--- >>> let boundsForExactConversion p = (minBoundForExactConversion p, maxBoundForExactConversion p)
 -- >>> boundsForExactConversion (Proxy :: Proxy Double) :: (Maybe Integer, Maybe Integer) -- (Just (-2^53),Just (2^53))
 -- (Just (-9007199254740992),Just 9007199254740992)
 -- >>> boundsForExactConversion (Proxy :: Proxy Double) :: (Maybe Int32, Maybe Int32) -- the conversion is always exact
 -- (Nothing,Nothing)
 -- >>> boundForExactConversion (Proxy :: Proxy Float) :: (Maybe Word, Maybe Word) -- (Nothing,Just (2^23))
 -- (Nothing,Just 8388608)
-minBoundForExactConversion, maxBoundForExactConversion :: (Integral i, Bits i, RealFloat a) => Proxy a -> Maybe i
-minBoundForExactConversion proxyR = assert ieee minI
+boundsForExactConversion :: (Integral i, Bits i, RealFloat a) => Proxy a -> (Maybe i, Maybe i)
+boundsForExactConversion proxyR = assert ieee (minI, maxI)
   where
-    minInteger = - base ^! digits
+    maxInteger = base ^! digits
+    minInteger = - maxInteger
     minI = if signed then
              case mbitSize of
-               Just bits | minInteger <= (- 2 ^! (bits-1)) -> Nothing -- no check is needed
+               Just bits | minInteger <= (- 2 ^! (bits-1)) -> Nothing -- all negative integers can be expressed in the target floating-type: no check for lower-bound is needed
                _ -> Just (fromInteger minInteger)
            else
              Nothing -- no check is needed
+    maxI = case mbitSize of
+             Just bits | let maxBound' = if signed then
+                                            2 ^! (bits-1) - 1
+                                          else
+                                            2 ^! bits - 1
+                       , maxBound' <= maxInteger -> Nothing -- all positive integral values can be expressed in the target floating-type: no check for upper-bound is needed
+             _ -> Just (fromInteger maxInteger)
     mbitSize = bitSizeMaybe (undefined `asProxyTypeOf` minI)
     signed = isSigned (undefined `asProxyTypeOf` minI)
     ieee = isIEEE (undefined `asProxyTypeOf` proxyR)
     base = floatRadix (undefined `asProxyTypeOf` proxyR)
     digits = floatDigits (undefined `asProxyTypeOf` proxyR)
-maxBoundForExactConversion proxyR = assert ieee maxI
-  where
-    maxInteger = base ^! digits
-    maxI = case mbitSize of
-             Just bits -> let maxBound' = if signed then
-                                            2 ^! (bits-1) - 1
-                                          else
-                                            2 ^! bits - 1
-                          in if maxBound' <= maxInteger then
-                               Nothing
-                             else
-                               Just (fromInteger maxInteger)
-             Nothing -> Just (fromInteger maxInteger)
-    mbitSize = bitSizeMaybe (undefined `asProxyTypeOf` maxI)
-    signed = isSigned (undefined `asProxyTypeOf` maxI)
-    ieee = isIEEE (undefined `asProxyTypeOf` proxyR)
-    base = floatRadix (undefined `asProxyTypeOf` proxyR)
-    digits = floatDigits (undefined `asProxyTypeOf` proxyR)
-{-# INLINE minBoundForExactConversion #-}
-{-# INLINE maxBoundForExactConversion #-}
+{-# INLINE boundsForExactConversion #-}
 
 -- Like 'if-then-else', but the condition will not be computed if the branches are same
 pureIfThenElse :: Bool -> a -> a -> a
