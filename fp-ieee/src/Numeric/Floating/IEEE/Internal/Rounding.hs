@@ -83,33 +83,6 @@ instance RoundingStrategy RoundTowardZero where
   {-# INLINE exact #-}
   {-# INLINE inexact #-}
 
-newtype RoundTiesTowardZero a = RoundTiesTowardZero { roundTiesTowardZero :: a }
-  deriving (Functor)
-
-instance RoundingStrategy RoundTiesTowardZero where
-  exact = RoundTiesTowardZero
-  inexact o _neg _parity zero away = RoundTiesTowardZero $ case o of
-                                                             LT -> zero
-                                                             EQ -> zero
-                                                             GT -> away
-
-newtype RoundToOdd a = RoundToOdd { roundToOdd :: a }
-  deriving (Functor)
-
-instance RoundingStrategy RoundToOdd where
-  exact = RoundToOdd
-  inexact _o _neg parity zero away | even parity = RoundToOdd away
-                                   | otherwise = RoundToOdd zero
-
-newtype Exactness a = Exactness { isExact :: Bool }
-  deriving (Functor)
-
-instance RoundingStrategy Exactness where
-  exact _ = Exactness True
-  inexact _o _neg _parity _zero _away = Exactness False
-  {-# INLINE exact #-}
-  {-# INLINE inexact #-}
-
 instance (RoundingStrategy f, RoundingStrategy g) => RoundingStrategy (Product f g) where
   exact x = Pair (exact x) (exact x)
   inexact o neg parity zero away = Pair (inexact o neg parity zero away) (inexact o neg parity zero away)

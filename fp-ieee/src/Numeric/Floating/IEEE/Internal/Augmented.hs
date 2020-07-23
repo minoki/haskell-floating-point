@@ -1,4 +1,5 @@
 {-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Numeric.Floating.IEEE.Internal.Augmented where
@@ -124,6 +125,16 @@ augmentedMultiplication !x !y
          else
            w'
 {-# SPECIALIZE augmentedMultiplication :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
+
+newtype RoundTiesTowardZero a = RoundTiesTowardZero { roundTiesTowardZero :: a }
+  deriving (Functor)
+
+instance RoundingStrategy RoundTiesTowardZero where
+  exact = RoundTiesTowardZero
+  inexact o _neg _parity zero away = RoundTiesTowardZero $ case o of
+                                                             LT -> zero
+                                                             EQ -> zero
+                                                             GT -> away
 
 augmentedAddition_viaRational :: (RealFloat a, Show a) => a -> a -> (a, a)
 augmentedAddition_viaRational x y

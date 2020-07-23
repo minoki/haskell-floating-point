@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE HexFloatLiterals #-}
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE RankNTypes #-}
@@ -12,6 +13,21 @@ import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck hiding (classify)
 import           Util
+
+newtype RoundToOdd a = RoundToOdd { roundToOdd :: a }
+  deriving (Functor)
+
+instance RoundingStrategy RoundToOdd where
+  exact = RoundToOdd
+  inexact _o _neg parity zero away | even parity = RoundToOdd away
+                                   | otherwise = RoundToOdd zero
+
+newtype Exactness a = Exactness { isExact :: Bool }
+  deriving (Functor)
+
+instance RoundingStrategy Exactness where
+  exact _ = Exactness True
+  inexact _o _neg _parity _zero _away = Exactness False
 
 prop_fromIntegerR_vs_fromRationalR :: (RealFloat a, RoundingStrategy f) => Proxy a -> (f a -> a) -> Integer -> Property
 prop_fromIntegerR_vs_fromRationalR _ f m =
