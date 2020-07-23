@@ -1,3 +1,3 @@
-# Changelog for floating-extra
+# Changelog for fp-ieee
 
 ## Unreleased changes
