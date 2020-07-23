@@ -8,7 +8,6 @@ module Numeric.Rounded.Hardware.Backend.ViaRational where
 import           Control.DeepSeq (NFData (..))
 import           Control.Exception (assert)
 import           Data.Coerce
-import           Data.Ratio
 import           Data.Tagged
 import qualified Data.Vector.Generic as VG
 import qualified Data.Vector.Generic.Mutable as VGM
@@ -69,7 +68,7 @@ instance (RealFloat a, Num a, RealFloatConstants a) => RoundedRing (ViaRational 
               TowardNegInf -> -0
               TowardInf    ->  0
               TowardZero   ->  0
-  roundedFromInteger r x = ViaRational (fromInt r x)
+  roundedFromInteger r x = ViaRational (roundedFromInteger_default r x)
   intervalFromInteger x = case intervalFromInteger_default x of
     (a, b) -> (ViaRational <$> a, ViaRational <$> b)
   backendNameT = Tagged "via Rational"
@@ -82,7 +81,7 @@ instance (RealFloat a, Num a, RealFloatConstants a) => RoundedFractional (ViaRat
   roundedDiv r (ViaRational x) (ViaRational y)
     | isNaN x || isNaN y || isInfinite x || isInfinite y || x == 0 || y == 0 = ViaRational (x / y)
     | otherwise = roundedFromRational r (toRational x / toRational y)
-  roundedFromRational r x = ViaRational $ fromRatio r (numerator x) (denominator x)
+  roundedFromRational r x = ViaRational $ roundedFromRational_default r x
   roundedFromRealFloat r x | isNaN x = ViaRational (0/0)
                            | isInfinite x = ViaRational (if x > 0 then 1/0 else -1/0)
                            | isNegativeZero x = ViaRational (-0)

@@ -4,7 +4,6 @@
 module Numeric.Rounded.Hardware.Backend.Float128
   (
   ) where
-import           Data.Ratio
 import           Data.Tagged
 import           Foreign.C.String (CString, peekCString)
 import           Foreign.Marshal (alloca, with)
@@ -125,7 +124,7 @@ instance RoundedRing Float128 where
   roundedSub = roundedSub_f128
   roundedMul = roundedMul_f128
   roundedFusedMultiplyAdd = roundedFMA_f128
-  roundedFromInteger = fromInt
+  roundedFromInteger = roundedFromInteger_default
   intervalFromInteger = intervalFromInteger_default
   backendNameT = Tagged cBackendName
   {-# INLINE roundedAdd #-}
@@ -137,7 +136,7 @@ instance RoundedRing Float128 where
 
 instance RoundedFractional Float128 where
   roundedDiv = roundedDiv_f128
-  roundedFromRational r x = fromRatio r (numerator x) (denominator x)
+  roundedFromRational = roundedFromRational_default
   intervalFromRational = intervalFromRational_default
   {-# INLINE roundedDiv #-}
   {-# INLINE roundedFromRational #-}

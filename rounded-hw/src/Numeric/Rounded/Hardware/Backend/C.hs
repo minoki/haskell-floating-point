@@ -39,7 +39,6 @@ import           Data.Coerce
 import           Data.Int (Int64)
 import           Data.Primitive (Prim)
 import           Data.Primitive.ByteArray
-import           Data.Ratio
 import           Data.Tagged
 import qualified Data.Vector.Generic as VG
 import qualified Data.Vector.Generic.Mutable as VGM
@@ -90,7 +89,7 @@ roundedFloatFromWord64 r x = staticIf
 roundedFloatFromInteger :: RoundingMode -> Integer -> Float
 roundedFloatFromInteger r x
   | -0x1000000 <= x && x <= 0x1000000 {- abs x <= 2^24 -} = fromInteger x
-  | otherwise = fromInt r x
+  | otherwise = roundedFromInteger_default r x
 {-# NOINLINE [1] roundedFloatFromInteger #-}
 
 {-# RULES
@@ -142,7 +141,7 @@ instance RoundedFractional CFloat where
   roundedDiv = coerce F.roundedDiv
   intervalDiv x x' y y' = (coerce F.intervalDiv_down x x' y y', coerce F.intervalDiv_up x x' y y')
   intervalDivAdd x x' y y' z z' = (coerce F.intervalDivAdd_down x x' y y' z, coerce F.intervalDivAdd_up x x' y y' z')
-  roundedFromRational r x = CFloat $ fromRatio r (numerator x) (denominator x)
+  roundedFromRational r x = CFloat (roundedFromRational_default r x)
   intervalFromRational = (coerce `asTypeOf` (bimap (CFloat <$>) (CFloat <$>) .)) intervalFromRational_default
   roundedFromRealFloat r x = coerce (roundedFloatFromRealFloat r x)
   {-# INLINE roundedDiv #-}
@@ -212,7 +211,7 @@ roundedDoubleFromWord64 r x = staticIf
 roundedDoubleFromInteger :: RoundingMode -> Integer -> Double
 roundedDoubleFromInteger r x
   | -0x20000000000000 <= x && x <= 0x20000000000000 {- abs x <= 2^53 -} = fromInteger x
-  | otherwise = fromInt r x
+  | otherwise = roundedFromInteger_default r x
 {-# NOINLINE [1] roundedDoubleFromInteger #-}
 
 {-# RULES
@@ -266,7 +265,7 @@ instance RoundedFractional CDouble where
   roundedDiv = coerce D.roundedDiv
   intervalDiv x x' y y' = (coerce D.intervalDiv_down x x' y y', coerce D.intervalDiv_up x x' y y')
   intervalDivAdd x x' y y' z z' = (coerce D.intervalDivAdd_down x x' y y' z, coerce D.intervalDivAdd_up x x' y y' z')
-  roundedFromRational r x = CDouble $ fromRatio r (numerator x) (denominator x)
+  roundedFromRational r x = CDouble (roundedFromRational_default r x)
   intervalFromRational = (coerce `asTypeOf` (bimap (CDouble <$>) (CDouble <$>) .)) intervalFromRational_default
   -- TODO: Specialize small case in ***FromRational?
   roundedFromRealFloat r x = coerce (roundedDoubleFromRealFloat r x)

@@ -3,7 +3,6 @@
 module Numeric.Rounded.Hardware.Backend.X87LongDouble
   (
   ) where
-import           Data.Ratio
 import           Data.Tagged
 import           Foreign.C.String (CString, peekCString)
 import           Foreign.Marshal (alloca, with)
@@ -124,7 +123,7 @@ instance RoundedRing LongDouble where
   roundedSub = roundedSub_ld
   roundedMul = roundedMul_ld
   roundedFusedMultiplyAdd = roundedFMA_ld
-  roundedFromInteger = fromInt
+  roundedFromInteger = roundedFromInteger_default
   intervalFromInteger = intervalFromInteger_default
   backendNameT = Tagged cBackendName
   {-# INLINE roundedAdd #-}
@@ -138,7 +137,7 @@ instance RoundedRing LongDouble where
 -- Note that 'LongDouble' may not work correctly on Win64.
 instance RoundedFractional LongDouble where
   roundedDiv = roundedDiv_ld
-  roundedFromRational r x = fromRatio r (numerator x) (denominator x)
+  roundedFromRational = roundedFromRational_default
   intervalFromRational = intervalFromRational_default
   {-# INLINE roundedDiv #-}
   {-# INLINE roundedFromRational #-}
