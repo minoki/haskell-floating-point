@@ -90,15 +90,6 @@ instance (RoundingStrategy f, RoundingStrategy g) => RoundingStrategy (Product f
   {-# INLINE inexact #-}
 
 {-
-fromIntegerR :: (RealFloat a, RoundingStrategy f) => Integer -> f a
-fromRationalR :: (RealFloat a, RoundingStrategy f) => Rational -> f a
-encodeFloatR :: (RealFloat a, RoundingStrategy f) => Integer -> Int -> f a
-scaleFloatR :: (RealFloat a, RoundingStrategy f) => Int -> a -> f a
-floatToInteger :: (RealFloat a, RoundingStrategy f) => a -> f Integer
-floatToInteger' :: (RealFloat a, RoundingStrategy f) => a -> f a
--}
-
-{-
 from GHC.Float:
 expt :: Integer -> Int -> Integer
 expt base n = base ^ n
@@ -126,20 +117,6 @@ fromIntegerR n = case integerToIntMaybe n of
                            | otherwise -> fromPositiveIntegerR False n
 {-# INLINE fromIntegerR #-}
 
--- |
--- IEEE 754 @convertFromInt@ operation, with each rounding attributes.
-fromIntegerTiesToEven, fromIntegerTiesToAway, fromIntegerTowardPositive, fromIntegerTowardNegative, fromIntegerTowardZero :: RealFloat a => Integer -> a
-fromIntegerTiesToEven = roundTiesToEven . fromIntegerR
-fromIntegerTiesToAway = roundTiesToAway . fromIntegerR
-fromIntegerTowardPositive = roundTowardPositive . fromIntegerR
-fromIntegerTowardNegative = roundTowardNegative . fromIntegerR
-fromIntegerTowardZero = roundTowardZero . fromIntegerR
-{-# INLINE fromIntegerTiesToEven #-}
-{-# INLINE fromIntegerTiesToAway #-}
-{-# INLINE fromIntegerTowardPositive #-}
-{-# INLINE fromIntegerTowardNegative #-}
-{-# INLINE fromIntegerTowardZero #-}
-
 fromIntegralR :: (Integral i, RealFloat a, RoundingStrategy f) => i -> f a
 fromIntegralR x = fromIntegerR (toInteger x)
 {-# INLINE [0] fromIntegralR #-}
@@ -156,18 +133,6 @@ fromIntegralR x = fromIntegerR (toInteger x)
 "fromIntegralR/Word32->a" forall (x :: Word32). fromIntegralR x = fromIntegralRBits x
 "fromIntegralR/Word64->a" forall (x :: Word64). fromIntegralR x = fromIntegralRBits x
   #-}
-
-fromIntegralTiesToEven, fromIntegralTiesToAway, fromIntegralTowardPositive, fromIntegralTowardNegative, fromIntegralTowardZero :: (Integral i, RealFloat a) => i -> a
-fromIntegralTiesToEven = roundTiesToEven . fromIntegralR
-fromIntegralTiesToAway = roundTiesToAway . fromIntegralR
-fromIntegralTowardPositive = roundTowardPositive . fromIntegralR
-fromIntegralTowardNegative = roundTowardNegative . fromIntegralR
-fromIntegralTowardZero = roundTowardZero . fromIntegralR
-{-# INLINE fromIntegralTiesToEven #-}
-{-# INLINE fromIntegralTiesToAway #-}
-{-# INLINE fromIntegralTowardPositive #-}
-{-# INLINE fromIntegralTowardNegative #-}
-{-# INLINE fromIntegralTowardZero #-}
 
 fromIntegralRBits :: (Integral i, Bits i, RealFloat a, RoundingStrategy f) => i -> f a
 fromIntegralRBits x
@@ -440,18 +405,6 @@ fromRationalR :: (RealFloat a, RoundingStrategy f) => Rational -> f a
 fromRationalR x = fromRatioR (numerator x) (denominator x)
 {-# INLINE fromRationalR #-}
 
-fromRationalTiesToEven, fromRationalTiesToAway, fromRationalTowardPositive, fromRationalTowardNegative, fromRationalTowardZero :: RealFloat a => Rational -> a
-fromRationalTiesToEven = roundTiesToEven . fromRationalR
-fromRationalTiesToAway = roundTiesToAway . fromRationalR
-fromRationalTowardPositive = roundTowardPositive . fromRationalR
-fromRationalTowardNegative = roundTowardNegative . fromRationalR
-fromRationalTowardZero = roundTowardZero . fromRationalR
-{-# INLINE fromRationalTiesToEven #-}
-{-# INLINE fromRationalTiesToAway #-}
-{-# INLINE fromRationalTowardPositive #-}
-{-# INLINE fromRationalTowardNegative #-}
-{-# INLINE fromRationalTowardZero #-}
-
 fromRatioR :: (RealFloat a, RoundingStrategy f)
            => Integer -- ^ numerator
            -> Integer -- ^ denominator
@@ -579,18 +532,6 @@ encodeFloatR 0 !_ = exact 0
 encodeFloatR m n | m < 0 = negate <$> encodePositiveFloatR True (- m) n
                  | otherwise = encodePositiveFloatR False m n
 {-# INLINE encodeFloatR #-}
-
-encodeFloatTiesToEven, encodeFloatTiesToAway, encodeFloatTowardPositive, encodeFloatTowardNegative, encodeFloatTowardZero :: RealFloat a => Integer -> Int -> a
-encodeFloatTiesToEven m = roundTiesToEven . encodeFloatR m
-encodeFloatTiesToAway m = roundTiesToAway . encodeFloatR m
-encodeFloatTowardPositive m = roundTowardPositive . encodeFloatR m
-encodeFloatTowardNegative m = roundTowardNegative . encodeFloatR m
-encodeFloatTowardZero m = roundTowardZero . encodeFloatR m
-{-# INLINE encodeFloatTiesToEven #-}
-{-# INLINE encodeFloatTiesToAway #-}
-{-# INLINE encodeFloatTowardPositive #-}
-{-# INLINE encodeFloatTowardNegative #-}
-{-# INLINE encodeFloatTowardZero #-}
 
 -- Avoid cross-module specialization issue with worker/wrapper transformations
 encodePositiveFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Int -> f a
