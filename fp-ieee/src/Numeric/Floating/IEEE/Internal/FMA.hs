@@ -28,6 +28,7 @@ import           MyPrelude
 import           Numeric.Floating.IEEE.Internal.Base
 import           Numeric.Floating.IEEE.Internal.Classify
 import           Numeric.Floating.IEEE.Internal.NextFloat
+import           Numeric.Floating.IEEE.Internal.Rounding (encodeFloatR, roundTiesToEven)
 
 default ()
 
@@ -233,7 +234,7 @@ fusedMultiplyAdd_viaInteger x y z
           !2 = floatRadix x
       in case mx * my `shiftL` (exy - ee) + mz `shiftL` (ez - ee) of
            0 -> x * y + z
-           m -> encodeFloat m ee -- TODO: correct rounding
+           m -> roundTiesToEven (encodeFloatR m ee)
   | isFinite x && isFinite y = z -- x * y is finite, but z is Infinity or NaN
   | otherwise = x * y + z -- either x or y is Infinity or NaN
 {-# NOINLINE [1] fusedMultiplyAdd_viaInteger #-}
