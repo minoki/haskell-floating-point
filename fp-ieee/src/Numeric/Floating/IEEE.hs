@@ -66,12 +66,22 @@ module Numeric.Floating.IEEE
   , genericFusedMultiplyAdd
   -- |
   -- The rounding direction of 'fromInteger' for the standard floating-point types may vary depending on the magnitude of input.
-  -- To get consistend rounding behavior, 'fromIntegerTiesToEven' can be used instead.
+  -- To get consistent rounding behavior, 'fromIntegerTiesToEven' can be used instead.
   , fromIntegerTiesToEven
   , fromIntegerTiesToAway
   , fromIntegerTowardPositive
   , fromIntegerTowardNegative
   , fromIntegerTowardZero
+  , fromIntegralTiesToEven
+  , fromIntegralTiesToAway
+  , fromIntegralTowardPositive
+  , fromIntegralTowardNegative
+  , fromIntegralTowardZero
+  , fromRationalTiesToEven
+  , fromRationalTiesToAway
+  , fromRationalTowardPositive
+  , fromRationalTowardNegative
+  , fromRationalTowardZero
   -- |
   -- For IEEE-compliant floating-point types, 'round', 'truncate', 'ceiling', and 'floor' from 'RealFrac" class should be correct implementation of IEEE 754 @convertToInteger@ operations.
   -- To complete them, 'roundAway' is provided by this library.
