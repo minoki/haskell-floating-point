@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE CPP #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE MagicHash #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE NoImplicitPrelude #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# OPTIONS_GHC -Wno-unused-imports #-}</span><span class="hs-cpp">
+
+#include &quot;MachDeps.h&quot;
+</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Numeric.Floating.IEEE.Internal.IntegerInternals</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Bits</span></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">GHC.Exts</span></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">GHC.Int</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Int</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">I#</span></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">Int64</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">I64#</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">GHC.Word</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Word</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">W#</span></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">Word64</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">W64#</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="MyPrelude.html"><span class="hs-identifier">MyPrelude</span></a></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Numeric.Natural</span></span><span class="hs-cpp">
+#if defined(MIN_VERSION_integer_gmp)
+</span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Integer</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">GHC.Integer.GMP.Internals</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Integer</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">S#</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">GHC.Natural</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Natural</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">NatS#</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-cpp">
+#endif
+</span><span>
+</span><span id="line-21"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#integerToIntMaybe"><span class="hs-identifier hs-type">integerToIntMaybe</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-22"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#integerToInt64Maybe"><span class="hs-identifier hs-type">integerToInt64Maybe</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int64</span></span><span>
+</span><span id="line-23"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#naturalToWordMaybe"><span class="hs-identifier hs-type">naturalToWordMaybe</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word</span></span><span>
+</span><span id="line-24"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#naturalToWord64Maybe"><span class="hs-identifier hs-type">naturalToWord64Maybe</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-comment">-- The instance 'Bits Integer' is not very optimized...</span><span>
+</span><span id="line-27"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#unsafeShiftLInteger"><span class="hs-identifier hs-type">unsafeShiftLInteger</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span>
+</span><span id="line-28"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#unsafeShiftRInteger"><span class="hs-identifier hs-type">unsafeShiftRInteger</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span class="hs-cpp">
+
+#if defined(MIN_VERSION_integer_gmp)
+</span><span>
+</span><span id="line-32"></span><span id="integerToIntMaybe"><span class="annot"><span class="annottext">integerToIntMaybe :: Integer -&gt; Maybe Int
+</span><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#integerToIntMaybe"><span class="hs-identifier hs-var hs-var">integerToIntMaybe</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">S#</span></span><span> </span><span id="local-6989586621679091340"><span class="annot"><span class="annottext">x# :: Int#
+</span><a href="#local-6989586621679091340"><span class="hs-identifier hs-var">x#</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Maybe Int
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int# -&gt; Int
+</span><span class="hs-identifier hs-var">I#</span></span><span> </span><span class="annot"><span class="annottext">Int#
+</span><a href="#local-6989586621679091340"><span class="hs-identifier hs-var">x#</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#integerToIntMaybe"><span class="hs-identifier hs-var">integerToIntMaybe</span></a></span><span> </span><span class="hs-identifier">_</span><span>       </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Int
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-comment">-- relies on Integer's invariant</span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span id="naturalToWordMaybe"><span class="annot"><span class="annottext">naturalToWordMaybe :: Natural -&gt; Maybe Word
+</span><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#naturalToWordMaybe"><span class="hs-identifier hs-var hs-var">naturalToWordMaybe</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">NatS#</span></span><span> </span><span id="local-6989586621679091339"><span class="annot"><span class="annottext">x# :: GmpLimb#
+</span><a href="#local-6989586621679091339"><span class="hs-identifier hs-var">x#</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word -&gt; Maybe Word
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">GmpLimb# -&gt; Word
+</span><span class="hs-identifier hs-var">W#</span></span><span> </span><span class="annot"><span class="annottext">GmpLimb#
+</span><a href="#local-6989586621679091339"><span class="hs-identifier hs-var">x#</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-36"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#naturalToWordMaybe"><span class="hs-identifier hs-var">naturalToWordMaybe</span></a></span><span> </span><span class="hs-identifier">_</span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Word
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span class="hs-cpp">
+
+#if WORD_SIZE_IN_BITS == 64
+</span><span>
+</span><span id="line-40"></span><span id="integerToInt64Maybe"><span class="annot"><span class="annottext">integerToInt64Maybe :: Integer -&gt; Maybe Int64
+</span><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#integerToInt64Maybe"><span class="hs-identifier hs-var hs-var">integerToInt64Maybe</span></a></span></span><span>  </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">S#</span></span><span> </span><span id="local-6989586621679091338"><span class="annot"><span class="annottext">x# :: Int#
+</span><a href="#local-6989586621679091338"><span class="hs-identifier hs-var">x#</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; Maybe Int64
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int# -&gt; Int64
+</span><span class="hs-identifier hs-var">I64#</span></span><span> </span><span class="annot"><span class="annottext">Int#
+</span><a href="#local-6989586621679091338"><span class="hs-identifier hs-var">x#</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#integerToInt64Maybe"><span class="hs-identifier hs-var">integerToInt64Maybe</span></a></span><span>  </span><span class="hs-identifier">_</span><span>       </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Int64
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-42"></span><span id="naturalToWord64Maybe"><span class="annot"><span class="annottext">naturalToWord64Maybe :: Natural -&gt; Maybe Word64
+</span><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#naturalToWord64Maybe"><span class="hs-identifier hs-var hs-var">naturalToWord64Maybe</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">NatS#</span></span><span> </span><span id="local-6989586621679091337"><span class="annot"><span class="annottext">x# :: GmpLimb#
+</span><a href="#local-6989586621679091337"><span class="hs-identifier hs-var">x#</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Maybe Word64
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">GmpLimb# -&gt; Word64
+</span><span class="hs-identifier hs-var">W64#</span></span><span> </span><span class="annot"><span class="annottext">GmpLimb#
+</span><a href="#local-6989586621679091337"><span class="hs-identifier hs-var">x#</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#naturalToWord64Maybe"><span class="hs-identifier hs-var">naturalToWord64Maybe</span></a></span><span> </span><span class="hs-identifier">_</span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Word64
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-comment">-- relies on Natural's invariant</span><span class="hs-cpp">
+
+#elif WORD_SIZE_IN_BITS &lt; 64
+</span><span>
+</span><span id="line-47"></span><span class="hs-identifier">integerToInt64Maybe</span><span>  </span><span class="hs-special">(</span><span class="hs-identifier">S#</span><span> </span><span class="hs-identifier">x#</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">Just</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">fromIntegral</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">I#</span><span> </span><span class="hs-identifier">x#</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-48"></span><span class="hs-identifier">integerToInt64Maybe</span><span>  </span><span class="hs-identifier">x</span><span>       </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">toIntegralSized</span><span> </span><span class="hs-identifier">x</span><span>
+</span><span id="line-49"></span><span class="hs-identifier">naturalToWord64Maybe</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">NatS#</span><span> </span><span class="hs-identifier">x#</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">Just</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">fromIntegral</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">W#</span><span> </span><span class="hs-identifier">x#</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-50"></span><span class="hs-identifier">naturalToWord64Maybe</span><span> </span><span class="hs-identifier">x</span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">toIntegralSized</span><span> </span><span class="hs-identifier">x</span><span class="hs-cpp">
+
+#else
+</span><span>
+</span><span id="line-54"></span><span class="hs-identifier">integerToInt64Maybe</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">toIntegralSized</span><span>
+</span><span id="line-55"></span><span class="hs-identifier">naturalToWord64Maybe</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">toIntegralSized</span><span class="hs-cpp">
+
+#endif
+</span><span>
+</span><span id="line-59"></span><span id="unsafeShiftLInteger"><span class="annot"><span class="annottext">unsafeShiftLInteger :: Integer -&gt; Int -&gt; Integer
+</span><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#unsafeShiftLInteger"><span class="hs-identifier hs-var hs-var">unsafeShiftLInteger</span></a></span></span><span> </span><span id="local-6989586621679091336"><span class="annot"><span class="annottext">x :: Integer
+</span><a href="#local-6989586621679091336"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">I#</span></span><span> </span><span id="local-6989586621679091335"><span class="annot"><span class="annottext">i# :: Int#
+</span><a href="#local-6989586621679091335"><span class="hs-identifier hs-var">i#</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int# -&gt; Integer
+</span><span class="hs-identifier hs-var">GHC.Integer.shiftLInteger</span></span><span> </span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679091336"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Int#
+</span><a href="#local-6989586621679091335"><span class="hs-identifier hs-var">i#</span></a></span><span>
+</span><span id="line-60"></span><span id="unsafeShiftRInteger"><span class="annot"><span class="annottext">unsafeShiftRInteger :: Integer -&gt; Int -&gt; Integer
+</span><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#unsafeShiftRInteger"><span class="hs-identifier hs-var hs-var">unsafeShiftRInteger</span></a></span></span><span> </span><span id="local-6989586621679091334"><span class="annot"><span class="annottext">x :: Integer
+</span><a href="#local-6989586621679091334"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">I#</span></span><span> </span><span id="local-6989586621679091333"><span class="annot"><span class="annottext">i# :: Int#
+</span><a href="#local-6989586621679091333"><span class="hs-identifier hs-var">i#</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int# -&gt; Integer
+</span><span class="hs-identifier hs-var">GHC.Integer.shiftRInteger</span></span><span> </span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679091334"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Int#
+</span><a href="#local-6989586621679091333"><span class="hs-identifier hs-var">i#</span></a></span><span class="hs-cpp">
+
+#else
+</span><span>
+</span><span id="line-64"></span><span class="hs-identifier">integerToIntMaybe</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">toIntegralSized</span><span>
+</span><span id="line-65"></span><span class="hs-identifier">integerToInt64Maybe</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">toIntegralSized</span><span>
+</span><span id="line-66"></span><span class="hs-identifier">naturalToWordMaybe</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">toIntegralSized</span><span>
+</span><span id="line-67"></span><span class="hs-identifier">naturalToWord64Maybe</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">toIntegralSized</span><span>
+</span><span id="line-68"></span><span>
+</span><span id="line-69"></span><span class="hs-identifier">unsafeShiftLInteger</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">unsafeShiftL</span><span>
+</span><span id="line-70"></span><span class="hs-identifier">unsafeShiftRInteger</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">unsafeShiftR</span><span class="hs-cpp">
+
+#endif
+</span><span>
+</span><span id="line-74"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#integerToIntMaybe"><span class="hs-pragma hs-type">integerToIntMaybe</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-75"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#integerToInt64Maybe"><span class="hs-pragma hs-type">integerToInt64Maybe</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-76"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#naturalToWordMaybe"><span class="hs-pragma hs-type">naturalToWordMaybe</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-77"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#naturalToWord64Maybe"><span class="hs-pragma hs-type">naturalToWord64Maybe</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-78"></span><span>
+</span><span id="line-79"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#unsafeShiftLInteger"><span class="hs-pragma hs-type">unsafeShiftLInteger</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-80"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.IntegerInternals.html#unsafeShiftRInteger"><span class="hs-pragma hs-type">unsafeShiftRInteger</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-81"></span></pre></body></html>

@@ -1,0 +1,721 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span id="%24maxtag_ASgrDZxbqpy5EYjbaD4Cqe"><span id="%24tag2con_ASgrDZxbqpy5EYjbaD4Cqe"><span id="%24con2tag_ASgrDZxbqpy5EYjbaD4Cqe"></span></span></span><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DeriveFunctor #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE DeriveGeneric #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE KindSignatures #-}</span><span>
+</span><span id="line-6"></span><span class="hs-pragma">{-# LANGUAGE MultiParamTypeClasses #-}</span><span>
+</span><span id="line-7"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-8"></span><span class="hs-pragma">{-# LANGUAGE TypeFamilies #-}</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Numeric.Rounded.Hardware.Internal.Rounding</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier">RoundingMode</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#oppositeRoundingMode"><span class="hs-identifier">oppositeRoundingMode</span></a></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounding"><span class="hs-identifier">Rounding</span></a></span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#rounding"><span class="hs-identifier">rounding</span></a></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#reifyRounding"><span class="hs-identifier">reifyRounding</span></a></span><span>
+</span><span id="line-15"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier">Rounded</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">VUM.MVector</span></span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier">MV_Rounded</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">VU.Vector</span></span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#V_Rounded"><span class="hs-identifier">V_Rounded</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">NFData</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Coerce</span></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Proxy</span></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Tagged</span></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Vector.Generic</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">VG</span></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Vector.Generic.Mutable</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">VGM</span></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Vector.Unboxed</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">VU</span></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Vector.Unboxed.Mutable</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">VUM</span></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Foreign.Storable</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Storable</span></span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">GHC.Generics</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-comment">-- See cbits/rounded.c for the ordering</span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- | The type for IEEE754 rounding-direction attributes.</span><span>
+</span><span id="line-32"></span><span id="local-6989586621679130679"><span id="local-6989586621679130680"></span></span><span class="hs-keyword">data</span><span> </span><span id="RoundingMode"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-var">RoundingMode</span></a></span></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="ToNearest"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#ToNearest"><span class="hs-identifier hs-var">ToNearest</span></a></span></span><span>     </span><span class="hs-comment">-- ^ Round to the nearest value (IEEE754 roundTiesToEven)</span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TowardNegInf"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-identifier hs-var">TowardNegInf</span></a></span></span><span>  </span><span class="hs-comment">-- ^ Round downward (IEEE754 roundTowardNegative)</span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TowardInf"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardInf"><span class="hs-identifier hs-var">TowardInf</span></a></span></span><span>     </span><span class="hs-comment">-- ^ Round upward (IEEE754 roundTowardPositive)</span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TowardZero"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardZero"><span class="hs-identifier hs-var">TowardZero</span></a></span></span><span>    </span><span class="hs-comment">-- ^ Round toward zero (IEEE754 roundTowardZero)</span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679130675"><span id="local-6989586621679130677"><span class="annot"><span class="annottext">RoundingMode -&gt; RoundingMode -&gt; Bool
+(RoundingMode -&gt; RoundingMode -&gt; Bool)
+-&gt; (RoundingMode -&gt; RoundingMode -&gt; Bool) -&gt; Eq RoundingMode
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: RoundingMode -&gt; RoundingMode -&gt; Bool
+$c/= :: RoundingMode -&gt; RoundingMode -&gt; Bool
+== :: RoundingMode -&gt; RoundingMode -&gt; Bool
+$c== :: RoundingMode -&gt; RoundingMode -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679130659"><span id="local-6989586621679130661"><span id="local-6989586621679130663"><span id="local-6989586621679130665"><span id="local-6989586621679130667"><span id="local-6989586621679130669"><span id="local-6989586621679130671"><span class="annot"><span class="annottext">Eq RoundingMode
+Eq RoundingMode =&gt;
+(RoundingMode -&gt; RoundingMode -&gt; Ordering)
+-&gt; (RoundingMode -&gt; RoundingMode -&gt; Bool)
+-&gt; (RoundingMode -&gt; RoundingMode -&gt; Bool)
+-&gt; (RoundingMode -&gt; RoundingMode -&gt; Bool)
+-&gt; (RoundingMode -&gt; RoundingMode -&gt; Bool)
+-&gt; (RoundingMode -&gt; RoundingMode -&gt; RoundingMode)
+-&gt; (RoundingMode -&gt; RoundingMode -&gt; RoundingMode)
+-&gt; Ord RoundingMode
+RoundingMode -&gt; RoundingMode -&gt; Bool
+RoundingMode -&gt; RoundingMode -&gt; Ordering
+RoundingMode -&gt; RoundingMode -&gt; RoundingMode
+forall a.
+Eq a =&gt;
+(a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+min :: RoundingMode -&gt; RoundingMode -&gt; RoundingMode
+$cmin :: RoundingMode -&gt; RoundingMode -&gt; RoundingMode
+max :: RoundingMode -&gt; RoundingMode -&gt; RoundingMode
+$cmax :: RoundingMode -&gt; RoundingMode -&gt; RoundingMode
+&gt;= :: RoundingMode -&gt; RoundingMode -&gt; Bool
+$c&gt;= :: RoundingMode -&gt; RoundingMode -&gt; Bool
+&gt; :: RoundingMode -&gt; RoundingMode -&gt; Bool
+$c&gt; :: RoundingMode -&gt; RoundingMode -&gt; Bool
+&lt;= :: RoundingMode -&gt; RoundingMode -&gt; Bool
+$c&lt;= :: RoundingMode -&gt; RoundingMode -&gt; Bool
+&lt; :: RoundingMode -&gt; RoundingMode -&gt; Bool
+$c&lt; :: RoundingMode -&gt; RoundingMode -&gt; Bool
+compare :: RoundingMode -&gt; RoundingMode -&gt; Ordering
+$ccompare :: RoundingMode -&gt; RoundingMode -&gt; Ordering
+$cp1Ord :: Eq RoundingMode
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679130650"><span id="local-6989586621679130652"><span id="local-6989586621679130654"><span id="local-6989586621679130656"><span class="annot"><span class="annottext">ReadPrec [RoundingMode]
+ReadPrec RoundingMode
+Int -&gt; ReadS RoundingMode
+ReadS [RoundingMode]
+(Int -&gt; ReadS RoundingMode)
+-&gt; ReadS [RoundingMode]
+-&gt; ReadPrec RoundingMode
+-&gt; ReadPrec [RoundingMode]
+-&gt; Read RoundingMode
+forall a.
+(Int -&gt; ReadS a)
+-&gt; ReadS [a] -&gt; ReadPrec a -&gt; ReadPrec [a] -&gt; Read a
+readListPrec :: ReadPrec [RoundingMode]
+$creadListPrec :: ReadPrec [RoundingMode]
+readPrec :: ReadPrec RoundingMode
+$creadPrec :: ReadPrec RoundingMode
+readList :: ReadS [RoundingMode]
+$creadList :: ReadS [RoundingMode]
+readsPrec :: Int -&gt; ReadS RoundingMode
+$creadsPrec :: Int -&gt; ReadS RoundingMode
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Read</span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679130643"><span id="local-6989586621679130645"><span id="local-6989586621679130647"><span class="annot"><span class="annottext">Int -&gt; RoundingMode -&gt; ShowS
+[RoundingMode] -&gt; ShowS
+RoundingMode -&gt; String
+(Int -&gt; RoundingMode -&gt; ShowS)
+-&gt; (RoundingMode -&gt; String)
+-&gt; ([RoundingMode] -&gt; ShowS)
+-&gt; Show RoundingMode
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [RoundingMode] -&gt; ShowS
+$cshowList :: [RoundingMode] -&gt; ShowS
+show :: RoundingMode -&gt; String
+$cshow :: RoundingMode -&gt; String
+showsPrec :: Int -&gt; RoundingMode -&gt; ShowS
+$cshowsPrec :: Int -&gt; RoundingMode -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679130626"><span id="local-6989586621679130628"><span id="local-6989586621679130630"><span id="local-6989586621679130632"><span id="local-6989586621679130634"><span id="local-6989586621679130636"><span id="local-6989586621679130638"><span id="local-6989586621679130640"><span class="annot"><span class="annottext">Int -&gt; RoundingMode
+RoundingMode -&gt; Int
+RoundingMode -&gt; [RoundingMode]
+RoundingMode -&gt; RoundingMode
+RoundingMode -&gt; RoundingMode -&gt; [RoundingMode]
+RoundingMode -&gt; RoundingMode -&gt; RoundingMode -&gt; [RoundingMode]
+(RoundingMode -&gt; RoundingMode)
+-&gt; (RoundingMode -&gt; RoundingMode)
+-&gt; (Int -&gt; RoundingMode)
+-&gt; (RoundingMode -&gt; Int)
+-&gt; (RoundingMode -&gt; [RoundingMode])
+-&gt; (RoundingMode -&gt; RoundingMode -&gt; [RoundingMode])
+-&gt; (RoundingMode -&gt; RoundingMode -&gt; [RoundingMode])
+-&gt; (RoundingMode -&gt; RoundingMode -&gt; RoundingMode -&gt; [RoundingMode])
+-&gt; Enum RoundingMode
+forall a.
+(a -&gt; a)
+-&gt; (a -&gt; a)
+-&gt; (Int -&gt; a)
+-&gt; (a -&gt; Int)
+-&gt; (a -&gt; [a])
+-&gt; (a -&gt; a -&gt; [a])
+-&gt; (a -&gt; a -&gt; [a])
+-&gt; (a -&gt; a -&gt; a -&gt; [a])
+-&gt; Enum a
+enumFromThenTo :: RoundingMode -&gt; RoundingMode -&gt; RoundingMode -&gt; [RoundingMode]
+$cenumFromThenTo :: RoundingMode -&gt; RoundingMode -&gt; RoundingMode -&gt; [RoundingMode]
+enumFromTo :: RoundingMode -&gt; RoundingMode -&gt; [RoundingMode]
+$cenumFromTo :: RoundingMode -&gt; RoundingMode -&gt; [RoundingMode]
+enumFromThen :: RoundingMode -&gt; RoundingMode -&gt; [RoundingMode]
+$cenumFromThen :: RoundingMode -&gt; RoundingMode -&gt; [RoundingMode]
+enumFrom :: RoundingMode -&gt; [RoundingMode]
+$cenumFrom :: RoundingMode -&gt; [RoundingMode]
+fromEnum :: RoundingMode -&gt; Int
+$cfromEnum :: RoundingMode -&gt; Int
+toEnum :: Int -&gt; RoundingMode
+$ctoEnum :: Int -&gt; RoundingMode
+pred :: RoundingMode -&gt; RoundingMode
+$cpred :: RoundingMode -&gt; RoundingMode
+succ :: RoundingMode -&gt; RoundingMode
+$csucc :: RoundingMode -&gt; RoundingMode
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Enum</span></span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679130621"><span id="local-6989586621679130623"><span class="annot"><span class="annottext">RoundingMode
+RoundingMode -&gt; RoundingMode -&gt; Bounded RoundingMode
+forall a. a -&gt; a -&gt; Bounded a
+maxBound :: RoundingMode
+$cmaxBound :: RoundingMode
+minBound :: RoundingMode
+$cminBound :: RoundingMode
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Bounded</span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. RoundingMode -&gt; Rep RoundingMode x)
+-&gt; (forall x. Rep RoundingMode x -&gt; RoundingMode)
+-&gt; Generic RoundingMode
+forall x. Rep RoundingMode x -&gt; RoundingMode
+forall x. RoundingMode -&gt; Rep RoundingMode x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cto :: forall x. Rep RoundingMode x -&gt; RoundingMode
+$cfrom :: forall x. RoundingMode -&gt; Rep RoundingMode x
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-38"></span><span>
+</span><span id="line-39"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679130615"><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span></span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span class="hs-comment">-- | Returns the opposite rounding direction.</span><span>
+</span><span id="line-42"></span><span class="hs-comment">--</span><span>
+</span><span id="line-43"></span><span class="hs-comment">-- @TowardNegInf@ and @TowardInf@ are swapped.</span><span>
+</span><span id="line-44"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#oppositeRoundingMode"><span class="hs-identifier hs-type">oppositeRoundingMode</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span>
+</span><span id="line-45"></span><span id="oppositeRoundingMode"><span class="annot"><span class="annottext">oppositeRoundingMode :: RoundingMode -&gt; RoundingMode
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#oppositeRoundingMode"><span class="hs-identifier hs-var hs-var">oppositeRoundingMode</span></a></span></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#ToNearest"><span class="hs-identifier hs-type">ToNearest</span></a></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#ToNearest"><span class="hs-identifier hs-var">ToNearest</span></a></span><span>
+</span><span id="line-46"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#oppositeRoundingMode"><span class="hs-identifier hs-var">oppositeRoundingMode</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardZero"><span class="hs-identifier hs-type">TowardZero</span></a></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardZero"><span class="hs-identifier hs-var">TowardZero</span></a></span><span>
+</span><span id="line-47"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#oppositeRoundingMode"><span class="hs-identifier hs-var">oppositeRoundingMode</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardInf"><span class="hs-identifier hs-type">TowardInf</span></a></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-identifier hs-var">TowardNegInf</span></a></span><span>
+</span><span id="line-48"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#oppositeRoundingMode"><span class="hs-identifier hs-var">oppositeRoundingMode</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-identifier hs-type">TowardNegInf</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardInf"><span class="hs-identifier hs-var">TowardInf</span></a></span><span>
+</span><span id="line-49"></span><span>
+</span><span id="line-50"></span><span class="hs-comment">-- | This class allows you to recover the runtime value from a type-level rounding mode.</span><span>
+</span><span id="line-51"></span><span class="hs-comment">--</span><span>
+</span><span id="line-52"></span><span class="hs-comment">-- See 'rounding'.</span><span>
+</span><span id="line-53"></span><span class="hs-keyword">class</span><span> </span><span id="Rounding"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounding"><span class="hs-identifier hs-var">Rounding</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679130808"><span class="annot"><a href="#local-6989586621679130808"><span class="hs-identifier hs-type">r</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-54"></span><span>  </span><span id="roundingT"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#roundingT"><span class="hs-identifier hs-type">roundingT</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="annot"><a href="#local-6989586621679130808"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounding"><span class="hs-identifier hs-type">Rounding</span></a></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#ToNearest"><span class="hs-identifier hs-type">ToNearest</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-57"></span><span>  </span><span id="local-6989586621679130610"><span class="annot"><span class="annottext">roundingT :: Tagged 'ToNearest RoundingMode
+</span><a href="#local-6989586621679130610"><span class="hs-identifier hs-var hs-var hs-var hs-var">roundingT</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode -&gt; Tagged 'ToNearest RoundingMode
+forall k (s :: k) b. b -&gt; Tagged s b
+</span><span class="hs-identifier hs-var">Tagged</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#ToNearest"><span class="hs-identifier hs-var">ToNearest</span></a></span><span>
+</span><span id="line-58"></span><span>
+</span><span id="line-59"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounding"><span class="hs-identifier hs-type">Rounding</span></a></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardInf"><span class="hs-identifier hs-type">TowardInf</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-60"></span><span>  </span><span id="local-6989586621679130607"><span class="annot"><span class="annottext">roundingT :: Tagged 'TowardInf RoundingMode
+</span><a href="#local-6989586621679130607"><span class="hs-identifier hs-var hs-var hs-var hs-var">roundingT</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode -&gt; Tagged 'TowardInf RoundingMode
+forall k (s :: k) b. b -&gt; Tagged s b
+</span><span class="hs-identifier hs-var">Tagged</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardInf"><span class="hs-identifier hs-var">TowardInf</span></a></span><span>
+</span><span id="line-61"></span><span>
+</span><span id="line-62"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounding"><span class="hs-identifier hs-type">Rounding</span></a></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-identifier hs-type">TowardNegInf</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-63"></span><span>  </span><span id="local-6989586621679130605"><span class="annot"><span class="annottext">roundingT :: Tagged 'TowardNegInf RoundingMode
+</span><a href="#local-6989586621679130605"><span class="hs-identifier hs-var hs-var hs-var hs-var">roundingT</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode -&gt; Tagged 'TowardNegInf RoundingMode
+forall k (s :: k) b. b -&gt; Tagged s b
+</span><span class="hs-identifier hs-var">Tagged</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-identifier hs-var">TowardNegInf</span></a></span><span>
+</span><span id="line-64"></span><span>
+</span><span id="line-65"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounding"><span class="hs-identifier hs-type">Rounding</span></a></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardZero"><span class="hs-identifier hs-type">TowardZero</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-66"></span><span>  </span><span id="local-6989586621679130603"><span class="annot"><span class="annottext">roundingT :: Tagged 'TowardZero RoundingMode
+</span><a href="#local-6989586621679130603"><span class="hs-identifier hs-var hs-var hs-var hs-var">roundingT</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode -&gt; Tagged 'TowardZero RoundingMode
+forall k (s :: k) b. b -&gt; Tagged s b
+</span><span class="hs-identifier hs-var">Tagged</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardZero"><span class="hs-identifier hs-var">TowardZero</span></a></span><span>
+</span><span id="line-67"></span><span>
+</span><span id="line-68"></span><span class="hs-comment">-- | Recovers the value from type-level rounding mode.</span><span>
+</span><span id="line-69"></span><span id="local-6989586621679130601"><span id="local-6989586621679130602"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#rounding"><span class="hs-identifier hs-type">rounding</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounding"><span class="hs-identifier hs-type">Rounding</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130602"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130601"><span class="hs-identifier hs-type">proxy</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130602"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span></span></span><span>
+</span><span id="line-70"></span><span id="rounding"><span class="annot"><span class="annottext">rounding :: proxy r -&gt; RoundingMode
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#rounding"><span class="hs-identifier hs-var hs-var">rounding</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tagged r RoundingMode -&gt; proxy r -&gt; RoundingMode
+forall k (s :: k) a (proxy :: k -&gt; *). Tagged s a -&gt; proxy s -&gt; a
+</span><span class="hs-identifier hs-var">Data.Tagged.proxy</span></span><span> </span><span class="annot"><span class="annottext">Tagged r RoundingMode
+forall (r :: RoundingMode). Rounding r =&gt; Tagged r RoundingMode
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#roundingT"><span class="hs-identifier hs-var">roundingT</span></a></span><span>
+</span><span id="line-71"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#rounding"><span class="hs-pragma hs-type">rounding</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-72"></span><span>
+</span><span id="line-73"></span><span class="hs-comment">-- | Lifts a rounding mode to type-level.</span><span>
+</span><span id="line-74"></span><span id="local-6989586621679130599"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#reifyRounding"><span class="hs-identifier hs-type">reifyRounding</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679130795"><span class="annot"><a href="#local-6989586621679130795"><span class="hs-identifier hs-type">s</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounding"><span class="hs-identifier hs-type">Rounding</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130795"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679130795"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130599"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130599"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-75"></span><span id="reifyRounding"><span class="annot"><span class="annottext">reifyRounding :: RoundingMode
+-&gt; (forall (s :: RoundingMode). Rounding s =&gt; Proxy s -&gt; a) -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#reifyRounding"><span class="hs-identifier hs-var hs-var">reifyRounding</span></a></span></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#ToNearest"><span class="hs-identifier hs-type">ToNearest</span></a></span><span> </span><span id="local-6989586621679130598"><span class="annot"><span class="annottext">f :: forall (s :: RoundingMode). Rounding s =&gt; Proxy s -&gt; a
+</span><a href="#local-6989586621679130598"><span class="hs-identifier hs-var">f</span></a></span></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy 'ToNearest -&gt; a
+forall (s :: RoundingMode). Rounding s =&gt; Proxy s -&gt; a
+</span><a href="#local-6989586621679130598"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy 'ToNearest
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#ToNearest"><span class="hs-identifier hs-type">ToNearest</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-76"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#reifyRounding"><span class="hs-identifier hs-var">reifyRounding</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardInf"><span class="hs-identifier hs-type">TowardInf</span></a></span><span> </span><span id="local-6989586621679130596"><span class="annot"><span class="annottext">f :: forall (s :: RoundingMode). Rounding s =&gt; Proxy s -&gt; a
+</span><a href="#local-6989586621679130596"><span class="hs-identifier hs-var">f</span></a></span></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy 'TowardInf -&gt; a
+forall (s :: RoundingMode). Rounding s =&gt; Proxy s -&gt; a
+</span><a href="#local-6989586621679130596"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy 'TowardInf
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardInf"><span class="hs-identifier hs-type">TowardInf</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-77"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#reifyRounding"><span class="hs-identifier hs-var">reifyRounding</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-identifier hs-type">TowardNegInf</span></a></span><span> </span><span id="local-6989586621679130595"><span class="annot"><span class="annottext">f :: forall (s :: RoundingMode). Rounding s =&gt; Proxy s -&gt; a
+</span><a href="#local-6989586621679130595"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy 'TowardNegInf -&gt; a
+forall (s :: RoundingMode). Rounding s =&gt; Proxy s -&gt; a
+</span><a href="#local-6989586621679130595"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy 'TowardNegInf
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-identifier hs-type">TowardNegInf</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-78"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#reifyRounding"><span class="hs-identifier hs-var">reifyRounding</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardZero"><span class="hs-identifier hs-type">TowardZero</span></a></span><span> </span><span id="local-6989586621679130594"><span class="annot"><span class="annottext">f :: forall (s :: RoundingMode). Rounding s =&gt; Proxy s -&gt; a
+</span><a href="#local-6989586621679130594"><span class="hs-identifier hs-var">f</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy 'TowardZero -&gt; a
+forall (s :: RoundingMode). Rounding s =&gt; Proxy s -&gt; a
+</span><a href="#local-6989586621679130594"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy 'TowardZero
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardZero"><span class="hs-identifier hs-type">TowardZero</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-79"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#reifyRounding"><span class="hs-pragma hs-type">reifyRounding</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-80"></span><span>
+</span><span id="line-81"></span><span class="hs-comment">-- | A type tagged with a rounding direction.</span><span>
+</span><span id="line-82"></span><span class="hs-comment">--</span><span>
+</span><span id="line-83"></span><span class="hs-comment">-- The rounding direction is effective for a /single/ operation.</span><span>
+</span><span id="line-84"></span><span class="hs-comment">-- You won't get the correctly-rounded result for a compound expression like @(a - b * c) :: Rounded 'TowardInf Double@.</span><span>
+</span><span id="line-85"></span><span class="hs-comment">--</span><span>
+</span><span id="line-86"></span><span class="hs-comment">-- In particular, a negative literal like @-0.1 :: Rounded r Double@ doesn't yield the correctly-rounded value for @-0.1@.</span><span>
+</span><span id="line-87"></span><span class="hs-comment">-- To get the correct value, call 'fromRational' explicitly (i.e. @fromRational (-0.1) :: Rounded r Double@) or use @NegativeLiterals@ extension.</span><span>
+</span><span id="line-88"></span><span id="local-6989586621679130592"><span id="local-6989586621679130593"></span></span><span class="hs-keyword">newtype</span><span> </span><span id="Rounded"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679130591"><span class="annot"><a href="#local-6989586621679130591"><span class="hs-identifier hs-type">r</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679130590"><span class="annot"><a href="#local-6989586621679130590"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Rounded"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="getRounded"><span class="annot"><span class="annottext">Rounded r a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#getRounded"><span class="hs-identifier hs-var hs-var">getRounded</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679130590"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-special">}</span><span>
+</span><span id="line-89"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679130584"><span id="local-6989586621679130586"><span class="annot"><span class="annottext">Rounded r a -&gt; Rounded r a -&gt; Bool
+(Rounded r a -&gt; Rounded r a -&gt; Bool)
+-&gt; (Rounded r a -&gt; Rounded r a -&gt; Bool) -&gt; Eq (Rounded r a)
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+forall (r :: RoundingMode) a.
+Eq a =&gt;
+Rounded r a -&gt; Rounded r a -&gt; Bool
+/= :: Rounded r a -&gt; Rounded r a -&gt; Bool
+$c/= :: forall (r :: RoundingMode) a.
+Eq a =&gt;
+Rounded r a -&gt; Rounded r a -&gt; Bool
+== :: Rounded r a -&gt; Rounded r a -&gt; Bool
+$c== :: forall (r :: RoundingMode) a.
+Eq a =&gt;
+Rounded r a -&gt; Rounded r a -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679130569"><span id="local-6989586621679130571"><span id="local-6989586621679130573"><span id="local-6989586621679130575"><span id="local-6989586621679130577"><span id="local-6989586621679130579"><span id="local-6989586621679130581"><span class="annot"><span class="annottext">Eq (Rounded r a)
+Eq (Rounded r a) =&gt;
+(Rounded r a -&gt; Rounded r a -&gt; Ordering)
+-&gt; (Rounded r a -&gt; Rounded r a -&gt; Bool)
+-&gt; (Rounded r a -&gt; Rounded r a -&gt; Bool)
+-&gt; (Rounded r a -&gt; Rounded r a -&gt; Bool)
+-&gt; (Rounded r a -&gt; Rounded r a -&gt; Bool)
+-&gt; (Rounded r a -&gt; Rounded r a -&gt; Rounded r a)
+-&gt; (Rounded r a -&gt; Rounded r a -&gt; Rounded r a)
+-&gt; Ord (Rounded r a)
+Rounded r a -&gt; Rounded r a -&gt; Bool
+Rounded r a -&gt; Rounded r a -&gt; Ordering
+Rounded r a -&gt; Rounded r a -&gt; Rounded r a
+forall a.
+Eq a =&gt;
+(a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+forall (r :: RoundingMode) a. Ord a =&gt; Eq (Rounded r a)
+forall (r :: RoundingMode) a.
+Ord a =&gt;
+Rounded r a -&gt; Rounded r a -&gt; Bool
+forall (r :: RoundingMode) a.
+Ord a =&gt;
+Rounded r a -&gt; Rounded r a -&gt; Ordering
+forall (r :: RoundingMode) a.
+Ord a =&gt;
+Rounded r a -&gt; Rounded r a -&gt; Rounded r a
+min :: Rounded r a -&gt; Rounded r a -&gt; Rounded r a
+$cmin :: forall (r :: RoundingMode) a.
+Ord a =&gt;
+Rounded r a -&gt; Rounded r a -&gt; Rounded r a
+max :: Rounded r a -&gt; Rounded r a -&gt; Rounded r a
+$cmax :: forall (r :: RoundingMode) a.
+Ord a =&gt;
+Rounded r a -&gt; Rounded r a -&gt; Rounded r a
+&gt;= :: Rounded r a -&gt; Rounded r a -&gt; Bool
+$c&gt;= :: forall (r :: RoundingMode) a.
+Ord a =&gt;
+Rounded r a -&gt; Rounded r a -&gt; Bool
+&gt; :: Rounded r a -&gt; Rounded r a -&gt; Bool
+$c&gt; :: forall (r :: RoundingMode) a.
+Ord a =&gt;
+Rounded r a -&gt; Rounded r a -&gt; Bool
+&lt;= :: Rounded r a -&gt; Rounded r a -&gt; Bool
+$c&lt;= :: forall (r :: RoundingMode) a.
+Ord a =&gt;
+Rounded r a -&gt; Rounded r a -&gt; Bool
+&lt; :: Rounded r a -&gt; Rounded r a -&gt; Bool
+$c&lt; :: forall (r :: RoundingMode) a.
+Ord a =&gt;
+Rounded r a -&gt; Rounded r a -&gt; Bool
+compare :: Rounded r a -&gt; Rounded r a -&gt; Ordering
+$ccompare :: forall (r :: RoundingMode) a.
+Ord a =&gt;
+Rounded r a -&gt; Rounded r a -&gt; Ordering
+$cp1Ord :: forall (r :: RoundingMode) a. Ord a =&gt; Eq (Rounded r a)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. Rounded r a -&gt; Rep (Rounded r a) x)
+-&gt; (forall x. Rep (Rounded r a) x -&gt; Rounded r a)
+-&gt; Generic (Rounded r a)
+forall x. Rep (Rounded r a) x -&gt; Rounded r a
+forall x. Rounded r a -&gt; Rep (Rounded r a) x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+forall (r :: RoundingMode) a x. Rep (Rounded r a) x -&gt; Rounded r a
+forall (r :: RoundingMode) a x. Rounded r a -&gt; Rep (Rounded r a) x
+$cto :: forall (r :: RoundingMode) a x. Rep (Rounded r a) x -&gt; Rounded r a
+$cfrom :: forall (r :: RoundingMode) a x. Rounded r a -&gt; Rep (Rounded r a) x
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679130563"><span id="local-6989586621679130565"><span class="annot"><span class="annottext">a -&gt; Rounded r b -&gt; Rounded r a
+(a -&gt; b) -&gt; Rounded r a -&gt; Rounded r b
+(forall a b. (a -&gt; b) -&gt; Rounded r a -&gt; Rounded r b)
+-&gt; (forall a b. a -&gt; Rounded r b -&gt; Rounded r a)
+-&gt; Functor (Rounded r)
+forall a b. a -&gt; Rounded r b -&gt; Rounded r a
+forall a b. (a -&gt; b) -&gt; Rounded r a -&gt; Rounded r b
+forall (r :: RoundingMode) a b. a -&gt; Rounded r b -&gt; Rounded r a
+forall (r :: RoundingMode) a b.
+(a -&gt; b) -&gt; Rounded r a -&gt; Rounded r b
+forall (f :: * -&gt; *).
+(forall a b. (a -&gt; b) -&gt; f a -&gt; f b)
+-&gt; (forall a b. a -&gt; f b -&gt; f a) -&gt; Functor f
+&lt;$ :: a -&gt; Rounded r b -&gt; Rounded r a
+$c&lt;$ :: forall (r :: RoundingMode) a b. a -&gt; Rounded r b -&gt; Rounded r a
+fmap :: (a -&gt; b) -&gt; Rounded r a -&gt; Rounded r b
+$cfmap :: forall (r :: RoundingMode) a b.
+(a -&gt; b) -&gt; Rounded r a -&gt; Rounded r b
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Functor</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679130546"><span id="local-6989586621679130548"><span id="local-6989586621679130550"><span id="local-6989586621679130552"><span id="local-6989586621679130554"><span id="local-6989586621679130556"><span id="local-6989586621679130558"><span id="local-6989586621679130560"><span class="annot"><span class="annottext">Ptr b -&gt; Int -&gt; IO (Rounded r a)
+Ptr b -&gt; Int -&gt; Rounded r a -&gt; IO ()
+Ptr (Rounded r a) -&gt; IO (Rounded r a)
+Ptr (Rounded r a) -&gt; Int -&gt; IO (Rounded r a)
+Ptr (Rounded r a) -&gt; Int -&gt; Rounded r a -&gt; IO ()
+Ptr (Rounded r a) -&gt; Rounded r a -&gt; IO ()
+Rounded r a -&gt; Int
+(Rounded r a -&gt; Int)
+-&gt; (Rounded r a -&gt; Int)
+-&gt; (Ptr (Rounded r a) -&gt; Int -&gt; IO (Rounded r a))
+-&gt; (Ptr (Rounded r a) -&gt; Int -&gt; Rounded r a -&gt; IO ())
+-&gt; (forall b. Ptr b -&gt; Int -&gt; IO (Rounded r a))
+-&gt; (forall b. Ptr b -&gt; Int -&gt; Rounded r a -&gt; IO ())
+-&gt; (Ptr (Rounded r a) -&gt; IO (Rounded r a))
+-&gt; (Ptr (Rounded r a) -&gt; Rounded r a -&gt; IO ())
+-&gt; Storable (Rounded r a)
+forall b. Ptr b -&gt; Int -&gt; IO (Rounded r a)
+forall b. Ptr b -&gt; Int -&gt; Rounded r a -&gt; IO ()
+forall a.
+(a -&gt; Int)
+-&gt; (a -&gt; Int)
+-&gt; (Ptr a -&gt; Int -&gt; IO a)
+-&gt; (Ptr a -&gt; Int -&gt; a -&gt; IO ())
+-&gt; (forall b. Ptr b -&gt; Int -&gt; IO a)
+-&gt; (forall b. Ptr b -&gt; Int -&gt; a -&gt; IO ())
+-&gt; (Ptr a -&gt; IO a)
+-&gt; (Ptr a -&gt; a -&gt; IO ())
+-&gt; Storable a
+forall (r :: RoundingMode) a.
+Storable a =&gt;
+Ptr (Rounded r a) -&gt; IO (Rounded r a)
+forall (r :: RoundingMode) a.
+Storable a =&gt;
+Ptr (Rounded r a) -&gt; Int -&gt; IO (Rounded r a)
+forall (r :: RoundingMode) a.
+Storable a =&gt;
+Ptr (Rounded r a) -&gt; Int -&gt; Rounded r a -&gt; IO ()
+forall (r :: RoundingMode) a.
+Storable a =&gt;
+Ptr (Rounded r a) -&gt; Rounded r a -&gt; IO ()
+forall (r :: RoundingMode) a. Storable a =&gt; Rounded r a -&gt; Int
+forall (r :: RoundingMode) a b.
+Storable a =&gt;
+Ptr b -&gt; Int -&gt; IO (Rounded r a)
+forall (r :: RoundingMode) a b.
+Storable a =&gt;
+Ptr b -&gt; Int -&gt; Rounded r a -&gt; IO ()
+poke :: Ptr (Rounded r a) -&gt; Rounded r a -&gt; IO ()
+$cpoke :: forall (r :: RoundingMode) a.
+Storable a =&gt;
+Ptr (Rounded r a) -&gt; Rounded r a -&gt; IO ()
+peek :: Ptr (Rounded r a) -&gt; IO (Rounded r a)
+$cpeek :: forall (r :: RoundingMode) a.
+Storable a =&gt;
+Ptr (Rounded r a) -&gt; IO (Rounded r a)
+pokeByteOff :: Ptr b -&gt; Int -&gt; Rounded r a -&gt; IO ()
+$cpokeByteOff :: forall (r :: RoundingMode) a b.
+Storable a =&gt;
+Ptr b -&gt; Int -&gt; Rounded r a -&gt; IO ()
+peekByteOff :: Ptr b -&gt; Int -&gt; IO (Rounded r a)
+$cpeekByteOff :: forall (r :: RoundingMode) a b.
+Storable a =&gt;
+Ptr b -&gt; Int -&gt; IO (Rounded r a)
+pokeElemOff :: Ptr (Rounded r a) -&gt; Int -&gt; Rounded r a -&gt; IO ()
+$cpokeElemOff :: forall (r :: RoundingMode) a.
+Storable a =&gt;
+Ptr (Rounded r a) -&gt; Int -&gt; Rounded r a -&gt; IO ()
+peekElemOff :: Ptr (Rounded r a) -&gt; Int -&gt; IO (Rounded r a)
+$cpeekElemOff :: forall (r :: RoundingMode) a.
+Storable a =&gt;
+Ptr (Rounded r a) -&gt; Int -&gt; IO (Rounded r a)
+alignment :: Rounded r a -&gt; Int
+$calignment :: forall (r :: RoundingMode) a. Storable a =&gt; Rounded r a -&gt; Int
+sizeOf :: Rounded r a -&gt; Int
+$csizeOf :: forall (r :: RoundingMode) a. Storable a =&gt; Rounded r a -&gt; Int
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Storable</span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-90"></span><span>
+</span><span id="line-91"></span><span id="local-6989586621679130543"><span id="local-6989586621679130544"><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679130538"><span id="local-6989586621679130540"><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="annot"><a href="#local-6989586621679130544"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-type">Rounded</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130543"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130544"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-92"></span><span>  </span><span class="hs-comment">-- TODO: Take the rounding direction into account</span><span>
+</span><span id="line-93"></span><span>  </span><span id="local-6989586621679130537"><span class="annot"><span class="annottext">showsPrec :: Int -&gt; Rounded r a -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">showsPrec</span></span></span><span> </span><span id="local-6989586621679130535"><span class="annot"><span class="annottext">prec :: Int
+</span><a href="#local-6989586621679130535"><span class="hs-identifier hs-var">prec</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-type">Rounded</span></a></span><span> </span><span id="local-6989586621679130534"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679130534"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; ShowS -&gt; ShowS
+</span><span class="hs-identifier hs-var">showParen</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130535"><span class="hs-identifier hs-var">prec</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="hs-number">10</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ShowS -&gt; ShowS) -&gt; ShowS -&gt; ShowS
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+</span><span class="hs-identifier hs-var">showString</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Rounded &quot;</span></span><span> </span><span class="annot"><span class="annottext">ShowS -&gt; ShowS -&gt; ShowS
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; a -&gt; ShowS
+forall a. Show a =&gt; Int -&gt; a -&gt; ShowS
+</span><span class="hs-identifier hs-var">showsPrec</span></span><span> </span><span class="annot"><span class="hs-number">11</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130534"><span class="hs-identifier hs-var">x</span></a></span></span></span><span>
+</span><span id="line-94"></span><span>
+</span><span id="line-95"></span><span id="local-6989586621679130528"><span id="local-6989586621679130529"><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679130526"><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="#local-6989586621679130529"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-type">Rounded</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130528"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130529"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span></span><span>
+</span><span id="line-96"></span><span>
+</span><span id="line-97"></span><span class="hs-comment">-- Orphan instances:</span><span>
+</span><span id="line-98"></span><span class="hs-comment">-- instance Num (Rounded r a) is defined in Numeric.Rounded.Hardware.Internal.Class.</span><span>
+</span><span id="line-99"></span><span class="hs-comment">-- instance Fractional (Rounded r a) is defined in Numeric.Rounded.Hardware.Internal.Class.</span><span>
+</span><span id="line-100"></span><span class="hs-comment">-- instance Real (Rounded r a) is defined in Numeric.Rounded.Hardware.Internal.Class.</span><span>
+</span><span id="line-101"></span><span class="hs-comment">-- instance RealFrac (Rounded r a) is defined in Numeric.Rounded.Hardware.Internal.Class.</span><span>
+</span><span id="line-102"></span><span class="hs-comment">-- instance Floating (Rounded r a) is not implemented (something like CRlibm would be needed)</span><span>
+</span><span id="line-103"></span><span>
+</span><span id="line-104"></span><span class="hs-keyword">newtype</span><span> </span><span class="hs-keyword">instance</span><span> </span><span id="MVector"><span class="annot"><span class="hs-identifier hs-var">VUM.MVector</span></span></span><span> </span><span id="local-6989586621679130729"><span class="annot"><a href="#local-6989586621679130729"><span class="hs-identifier hs-type hs-type">s</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-type">Rounded</span></a></span><span> </span><span id="local-6989586621679130727"><span class="annot"><a href="#local-6989586621679130727"><span class="hs-identifier hs-type hs-type">r</span></a></span></span><span> </span><span id="local-6989586621679130728"><span class="annot"><a href="#local-6989586621679130728"><span class="hs-identifier hs-type hs-type">a</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span id="MV_Rounded"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-var">MV_Rounded</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">VUM.MVector</span></span><span> </span><span class="annot"><a href="#local-6989586621679130729"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130728"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-105"></span><span class="hs-keyword">newtype</span><span> </span><span class="hs-keyword">instance</span><span> </span><span id="Vector"><span class="annot"><span class="hs-identifier hs-var">VU.Vector</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-type">Rounded</span></a></span><span> </span><span id="local-6989586621679130696"><span class="annot"><a href="#local-6989586621679130696"><span class="hs-identifier hs-type hs-type">r</span></a></span></span><span> </span><span id="local-6989586621679130697"><span class="annot"><a href="#local-6989586621679130697"><span class="hs-identifier hs-type hs-type">a</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span id="V_Rounded"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#V_Rounded"><span class="hs-identifier hs-var">V_Rounded</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">VU.Vector</span></span><span> </span><span class="annot"><a href="#local-6989586621679130697"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-106"></span><span>
+</span><span id="line-107"></span><span id="local-6989586621679130524"><span id="local-6989586621679130525"><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">VU.Unbox</span></span><span> </span><span class="annot"><a href="#local-6989586621679130525"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">VGM.MVector</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">VUM.MVector</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-type">Rounded</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130524"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130525"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-108"></span><span>  </span><span id="local-6989586621679130509"><span class="annot"><span class="annottext">basicLength :: MVector s (Rounded r a) -&gt; Int
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicLength</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130507"><span class="annot"><a href="#local-6989586621679130507"><span class="hs-identifier hs-var">mv</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MVector s a -&gt; Int
+forall (v :: * -&gt; * -&gt; *) a s. MVector v a =&gt; v s a -&gt; Int
+</span><span class="hs-identifier hs-var">VGM.basicLength</span></span><span> </span><span class="annot"><span class="annottext">MVector s a
+</span><a href="#local-6989586621679130507"><span class="hs-identifier hs-var">mv</span></a></span><span>
+</span><span id="line-109"></span><span>  </span><span id="local-6989586621679130506"><span class="annot"><span class="annottext">basicUnsafeSlice :: Int -&gt; Int -&gt; MVector s (Rounded r a) -&gt; MVector s (Rounded r a)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicUnsafeSlice</span></span></span><span> </span><span id="local-6989586621679130504"><span class="annot"><span class="annottext">i :: Int
+</span><a href="#local-6989586621679130504"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679130503"><span class="annot"><span class="annottext">l :: Int
+</span><a href="#local-6989586621679130503"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130502"><span class="annot"><a href="#local-6989586621679130502"><span class="hs-identifier hs-var">mv</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MVector s a -&gt; MVector s (Rounded r a)
+forall s (r :: RoundingMode) a.
+MVector s a -&gt; MVector s (Rounded r a)
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-var">MV_Rounded</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; MVector s a -&gt; MVector s a
+forall (v :: * -&gt; * -&gt; *) a s.
+MVector v a =&gt;
+Int -&gt; Int -&gt; v s a -&gt; v s a
+</span><span class="hs-identifier hs-var">VGM.basicUnsafeSlice</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130504"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130503"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">MVector s a
+</span><a href="#local-6989586621679130502"><span class="hs-identifier hs-var">mv</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-110"></span><span>  </span><span id="local-6989586621679130501"><span class="annot"><span class="annottext">basicOverlaps :: MVector s (Rounded r a) -&gt; MVector s (Rounded r a) -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicOverlaps</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130499"><span class="annot"><a href="#local-6989586621679130499"><span class="hs-identifier hs-var">mv</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130498"><span class="annot"><a href="#local-6989586621679130498"><span class="hs-identifier hs-var">mv'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MVector s a -&gt; MVector s a -&gt; Bool
+forall (v :: * -&gt; * -&gt; *) a s.
+MVector v a =&gt;
+v s a -&gt; v s a -&gt; Bool
+</span><span class="hs-identifier hs-var">VGM.basicOverlaps</span></span><span> </span><span class="annot"><span class="annottext">MVector s a
+</span><a href="#local-6989586621679130499"><span class="hs-identifier hs-var">mv</span></a></span><span> </span><span class="annot"><span class="annottext">MVector s a
+</span><a href="#local-6989586621679130498"><span class="hs-identifier hs-var">mv'</span></a></span><span>
+</span><span id="line-111"></span><span>  </span><span id="local-6989586621679130497"><span class="annot"><span class="annottext">basicUnsafeNew :: Int -&gt; m (MVector (PrimState m) (Rounded r a))
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicUnsafeNew</span></span></span><span> </span><span id="local-6989586621679130495"><span class="annot"><span class="annottext">l :: Int
+</span><a href="#local-6989586621679130495"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a -&gt; MVector (PrimState m) (Rounded r a)
+forall s (r :: RoundingMode) a.
+MVector s a -&gt; MVector s (Rounded r a)
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-var">MV_Rounded</span></a></span><span> </span><span class="annot"><span class="annottext">(MVector (PrimState m) a -&gt; MVector (PrimState m) (Rounded r a))
+-&gt; m (MVector (PrimState m) a)
+-&gt; m (MVector (PrimState m) (Rounded r a))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; m (MVector (PrimState m) a)
+forall (v :: * -&gt; * -&gt; *) a (m :: * -&gt; *).
+(MVector v a, PrimMonad m) =&gt;
+Int -&gt; m (v (PrimState m) a)
+</span><span class="hs-identifier hs-var">VGM.basicUnsafeNew</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130495"><span class="hs-identifier hs-var">l</span></a></span><span>
+</span><span id="line-112"></span><span>  </span><span id="local-6989586621679130493"><span class="annot"><span class="annottext">basicInitialize :: MVector (PrimState m) (Rounded r a) -&gt; m ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicInitialize</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130491"><span class="annot"><a href="#local-6989586621679130491"><span class="hs-identifier hs-var">mv</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a -&gt; m ()
+forall (v :: * -&gt; * -&gt; *) a (m :: * -&gt; *).
+(MVector v a, PrimMonad m) =&gt;
+v (PrimState m) a -&gt; m ()
+</span><span class="hs-identifier hs-var">VGM.basicInitialize</span></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a
+</span><a href="#local-6989586621679130491"><span class="hs-identifier hs-var">mv</span></a></span><span>
+</span><span id="line-113"></span><span>  </span><span id="local-6989586621679130490"><span class="annot"><span class="annottext">basicUnsafeReplicate :: Int -&gt; Rounded r a -&gt; m (MVector (PrimState m) (Rounded r a))
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicUnsafeReplicate</span></span></span><span> </span><span id="local-6989586621679130488"><span class="annot"><span class="annottext">i :: Int
+</span><a href="#local-6989586621679130488"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679130487"><span class="annot"><span class="annottext">x :: Rounded r a
+</span><a href="#local-6989586621679130487"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a -&gt; MVector (PrimState m) (Rounded r a)
+forall s (r :: RoundingMode) a.
+MVector s a -&gt; MVector s (Rounded r a)
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-var">MV_Rounded</span></a></span><span> </span><span class="annot"><span class="annottext">(MVector (PrimState m) a -&gt; MVector (PrimState m) (Rounded r a))
+-&gt; m (MVector (PrimState m) a)
+-&gt; m (MVector (PrimState m) (Rounded r a))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; a -&gt; m (MVector (PrimState m) a)
+forall (v :: * -&gt; * -&gt; *) a (m :: * -&gt; *).
+(MVector v a, PrimMonad m) =&gt;
+Int -&gt; a -&gt; m (v (PrimState m) a)
+</span><span class="hs-identifier hs-var">VGM.basicUnsafeReplicate</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130488"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Rounded r a -&gt; a
+forall a b. Coercible a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">Rounded r a
+</span><a href="#local-6989586621679130487"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-114"></span><span>  </span><span id="local-6989586621679130486"><span class="annot"><span class="annottext">basicUnsafeRead :: MVector (PrimState m) (Rounded r a) -&gt; Int -&gt; m (Rounded r a)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicUnsafeRead</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130484"><span class="annot"><a href="#local-6989586621679130484"><span class="hs-identifier hs-var">mv</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679130483"><span class="annot"><span class="annottext">i :: Int
+</span><a href="#local-6989586621679130483"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; Rounded r a
+forall a b. Coercible a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">(a -&gt; Rounded r a) -&gt; m a -&gt; m (Rounded r a)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a -&gt; Int -&gt; m a
+forall (v :: * -&gt; * -&gt; *) a (m :: * -&gt; *).
+(MVector v a, PrimMonad m) =&gt;
+v (PrimState m) a -&gt; Int -&gt; m a
+</span><span class="hs-identifier hs-var">VGM.basicUnsafeRead</span></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a
+</span><a href="#local-6989586621679130484"><span class="hs-identifier hs-var">mv</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130483"><span class="hs-identifier hs-var">i</span></a></span><span>
+</span><span id="line-115"></span><span>  </span><span id="local-6989586621679130482"><span class="annot"><span class="annottext">basicUnsafeWrite :: MVector (PrimState m) (Rounded r a) -&gt; Int -&gt; Rounded r a -&gt; m ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicUnsafeWrite</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130480"><span class="annot"><a href="#local-6989586621679130480"><span class="hs-identifier hs-var">mv</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679130479"><span class="annot"><span class="annottext">i :: Int
+</span><a href="#local-6989586621679130479"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679130478"><span class="annot"><span class="annottext">x :: Rounded r a
+</span><a href="#local-6989586621679130478"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a -&gt; Int -&gt; a -&gt; m ()
+forall (v :: * -&gt; * -&gt; *) a (m :: * -&gt; *).
+(MVector v a, PrimMonad m) =&gt;
+v (PrimState m) a -&gt; Int -&gt; a -&gt; m ()
+</span><span class="hs-identifier hs-var">VGM.basicUnsafeWrite</span></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a
+</span><a href="#local-6989586621679130480"><span class="hs-identifier hs-var">mv</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130479"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Rounded r a -&gt; a
+forall a b. Coercible a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">Rounded r a
+</span><a href="#local-6989586621679130478"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-116"></span><span>  </span><span id="local-6989586621679130477"><span class="annot"><span class="annottext">basicClear :: MVector (PrimState m) (Rounded r a) -&gt; m ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicClear</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130475"><span class="annot"><a href="#local-6989586621679130475"><span class="hs-identifier hs-var">mv</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a -&gt; m ()
+forall (v :: * -&gt; * -&gt; *) a (m :: * -&gt; *).
+(MVector v a, PrimMonad m) =&gt;
+v (PrimState m) a -&gt; m ()
+</span><span class="hs-identifier hs-var">VGM.basicClear</span></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a
+</span><a href="#local-6989586621679130475"><span class="hs-identifier hs-var">mv</span></a></span><span>
+</span><span id="line-117"></span><span>  </span><span id="local-6989586621679130474"><span class="annot"><span class="annottext">basicSet :: MVector (PrimState m) (Rounded r a) -&gt; Rounded r a -&gt; m ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicSet</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130472"><span class="annot"><a href="#local-6989586621679130472"><span class="hs-identifier hs-var">mv</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679130471"><span class="annot"><span class="annottext">x :: Rounded r a
+</span><a href="#local-6989586621679130471"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a -&gt; a -&gt; m ()
+forall (v :: * -&gt; * -&gt; *) a (m :: * -&gt; *).
+(MVector v a, PrimMonad m) =&gt;
+v (PrimState m) a -&gt; a -&gt; m ()
+</span><span class="hs-identifier hs-var">VGM.basicSet</span></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a
+</span><a href="#local-6989586621679130472"><span class="hs-identifier hs-var">mv</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Rounded r a -&gt; a
+forall a b. Coercible a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">Rounded r a
+</span><a href="#local-6989586621679130471"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-118"></span><span>  </span><span id="local-6989586621679130470"><span class="annot"><span class="annottext">basicUnsafeCopy :: MVector (PrimState m) (Rounded r a)
+-&gt; MVector (PrimState m) (Rounded r a) -&gt; m ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicUnsafeCopy</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130468"><span class="annot"><a href="#local-6989586621679130468"><span class="hs-identifier hs-var">mv</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130467"><span class="annot"><a href="#local-6989586621679130467"><span class="hs-identifier hs-var">mv'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a -&gt; MVector (PrimState m) a -&gt; m ()
+forall (v :: * -&gt; * -&gt; *) a (m :: * -&gt; *).
+(MVector v a, PrimMonad m) =&gt;
+v (PrimState m) a -&gt; v (PrimState m) a -&gt; m ()
+</span><span class="hs-identifier hs-var">VGM.basicUnsafeCopy</span></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a
+</span><a href="#local-6989586621679130468"><span class="hs-identifier hs-var">mv</span></a></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a
+</span><a href="#local-6989586621679130467"><span class="hs-identifier hs-var">mv'</span></a></span><span>
+</span><span id="line-119"></span><span>  </span><span id="local-6989586621679130466"><span class="annot"><span class="annottext">basicUnsafeMove :: MVector (PrimState m) (Rounded r a)
+-&gt; MVector (PrimState m) (Rounded r a) -&gt; m ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicUnsafeMove</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130464"><span class="annot"><a href="#local-6989586621679130464"><span class="hs-identifier hs-var">mv</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130463"><span class="annot"><a href="#local-6989586621679130463"><span class="hs-identifier hs-var">mv'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a -&gt; MVector (PrimState m) a -&gt; m ()
+forall (v :: * -&gt; * -&gt; *) a (m :: * -&gt; *).
+(MVector v a, PrimMonad m) =&gt;
+v (PrimState m) a -&gt; v (PrimState m) a -&gt; m ()
+</span><span class="hs-identifier hs-var">VGM.basicUnsafeMove</span></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a
+</span><a href="#local-6989586621679130464"><span class="hs-identifier hs-var">mv</span></a></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a
+</span><a href="#local-6989586621679130463"><span class="hs-identifier hs-var">mv'</span></a></span><span>
+</span><span id="line-120"></span><span>  </span><span id="local-6989586621679130462"><span class="annot"><span class="annottext">basicUnsafeGrow :: MVector (PrimState m) (Rounded r a)
+-&gt; Int -&gt; m (MVector (PrimState m) (Rounded r a))
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicUnsafeGrow</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130460"><span class="annot"><a href="#local-6989586621679130460"><span class="hs-identifier hs-var">mv</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679130459"><span class="annot"><span class="annottext">n :: Int
+</span><a href="#local-6989586621679130459"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a -&gt; MVector (PrimState m) (Rounded r a)
+forall s (r :: RoundingMode) a.
+MVector s a -&gt; MVector s (Rounded r a)
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-var">MV_Rounded</span></a></span><span> </span><span class="annot"><span class="annottext">(MVector (PrimState m) a -&gt; MVector (PrimState m) (Rounded r a))
+-&gt; m (MVector (PrimState m) a)
+-&gt; m (MVector (PrimState m) (Rounded r a))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a -&gt; Int -&gt; m (MVector (PrimState m) a)
+forall (v :: * -&gt; * -&gt; *) a (m :: * -&gt; *).
+(MVector v a, PrimMonad m) =&gt;
+v (PrimState m) a -&gt; Int -&gt; m (v (PrimState m) a)
+</span><span class="hs-identifier hs-var">VGM.basicUnsafeGrow</span></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a
+</span><a href="#local-6989586621679130460"><span class="hs-identifier hs-var">mv</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130459"><span class="hs-identifier hs-var">n</span></a></span></span></span><span>
+</span><span id="line-121"></span><span>
+</span><span id="line-122"></span><span id="local-6989586621679130457"><span id="local-6989586621679130458"><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">VU.Unbox</span></span><span> </span><span class="annot"><a href="#local-6989586621679130458"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">VG.Vector</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">VU.Vector</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-type">Rounded</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130457"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130458"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-123"></span><span>  </span><span id="local-6989586621679130447"><span class="annot"><span class="annottext">basicUnsafeFreeze :: Mutable Vector (PrimState m) (Rounded r a)
+-&gt; m (Vector (Rounded r a))
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicUnsafeFreeze</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130445"><span class="annot"><a href="#local-6989586621679130445"><span class="hs-identifier hs-var">mv</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Vector a -&gt; Vector (Rounded r a)
+forall (r :: RoundingMode) a. Vector a -&gt; Vector (Rounded r a)
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#V_Rounded"><span class="hs-identifier hs-var">V_Rounded</span></a></span><span> </span><span class="annot"><span class="annottext">(Vector a -&gt; Vector (Rounded r a))
+-&gt; m (Vector a) -&gt; m (Vector (Rounded r a))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Mutable Vector (PrimState m) a -&gt; m (Vector a)
+forall (v :: * -&gt; *) a (m :: * -&gt; *).
+(Vector v a, PrimMonad m) =&gt;
+Mutable v (PrimState m) a -&gt; m (v a)
+</span><span class="hs-identifier hs-var">VG.basicUnsafeFreeze</span></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a
+Mutable Vector (PrimState m) a
+</span><a href="#local-6989586621679130445"><span class="hs-identifier hs-var">mv</span></a></span><span>
+</span><span id="line-124"></span><span>  </span><span id="local-6989586621679130444"><span class="annot"><span class="annottext">basicUnsafeThaw :: Vector (Rounded r a)
+-&gt; m (Mutable Vector (PrimState m) (Rounded r a))
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicUnsafeThaw</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#V_Rounded"><span class="hs-identifier hs-type">V_Rounded</span></a></span><span> </span><span id="local-6989586621679130442"><span class="annot"><a href="#local-6989586621679130442"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a -&gt; MVector (PrimState m) (Rounded r a)
+forall s (r :: RoundingMode) a.
+MVector s a -&gt; MVector s (Rounded r a)
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-var">MV_Rounded</span></a></span><span> </span><span class="annot"><span class="annottext">(MVector (PrimState m) a -&gt; MVector (PrimState m) (Rounded r a))
+-&gt; m (MVector (PrimState m) a)
+-&gt; m (MVector (PrimState m) (Rounded r a))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Vector a -&gt; m (Mutable Vector (PrimState m) a)
+forall (v :: * -&gt; *) a (m :: * -&gt; *).
+(Vector v a, PrimMonad m) =&gt;
+v a -&gt; m (Mutable v (PrimState m) a)
+</span><span class="hs-identifier hs-var">VG.basicUnsafeThaw</span></span><span> </span><span class="annot"><span class="annottext">Vector a
+</span><a href="#local-6989586621679130442"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><span id="line-125"></span><span>  </span><span id="local-6989586621679130441"><span class="annot"><span class="annottext">basicLength :: Vector (Rounded r a) -&gt; Int
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicLength</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#V_Rounded"><span class="hs-identifier hs-type">V_Rounded</span></a></span><span> </span><span id="local-6989586621679130439"><span class="annot"><a href="#local-6989586621679130439"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Vector a -&gt; Int
+forall (v :: * -&gt; *) a. Vector v a =&gt; v a -&gt; Int
+</span><span class="hs-identifier hs-var">VG.basicLength</span></span><span> </span><span class="annot"><span class="annottext">Vector a
+</span><a href="#local-6989586621679130439"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><span id="line-126"></span><span>  </span><span id="local-6989586621679130438"><span class="annot"><span class="annottext">basicUnsafeSlice :: Int -&gt; Int -&gt; Vector (Rounded r a) -&gt; Vector (Rounded r a)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicUnsafeSlice</span></span></span><span> </span><span id="local-6989586621679130436"><span class="annot"><span class="annottext">i :: Int
+</span><a href="#local-6989586621679130436"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679130435"><span class="annot"><span class="annottext">l :: Int
+</span><a href="#local-6989586621679130435"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#V_Rounded"><span class="hs-identifier hs-type">V_Rounded</span></a></span><span> </span><span id="local-6989586621679130434"><span class="annot"><a href="#local-6989586621679130434"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Vector a -&gt; Vector (Rounded r a)
+forall (r :: RoundingMode) a. Vector a -&gt; Vector (Rounded r a)
+</span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#V_Rounded"><span class="hs-identifier hs-var">V_Rounded</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Vector a -&gt; Vector a
+forall (v :: * -&gt; *) a. Vector v a =&gt; Int -&gt; Int -&gt; v a -&gt; v a
+</span><span class="hs-identifier hs-var">VG.basicUnsafeSlice</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130436"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130435"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Vector a
+</span><a href="#local-6989586621679130434"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-127"></span><span>  </span><span id="local-6989586621679130433"><span class="annot"><span class="annottext">basicUnsafeIndexM :: Vector (Rounded r a) -&gt; Int -&gt; m (Rounded r a)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicUnsafeIndexM</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#V_Rounded"><span class="hs-identifier hs-type">V_Rounded</span></a></span><span> </span><span id="local-6989586621679130431"><span class="annot"><a href="#local-6989586621679130431"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679130430"><span class="annot"><span class="annottext">i :: Int
+</span><a href="#local-6989586621679130430"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; Rounded r a
+forall a b. Coercible a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">(a -&gt; Rounded r a) -&gt; m a -&gt; m (Rounded r a)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Vector a -&gt; Int -&gt; m a
+forall (v :: * -&gt; *) a (m :: * -&gt; *).
+(Vector v a, Monad m) =&gt;
+v a -&gt; Int -&gt; m a
+</span><span class="hs-identifier hs-var">VG.basicUnsafeIndexM</span></span><span> </span><span class="annot"><span class="annottext">Vector a
+</span><a href="#local-6989586621679130431"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130430"><span class="hs-identifier hs-var">i</span></a></span><span>
+</span><span id="line-128"></span><span>  </span><span id="local-6989586621679130429"><span class="annot"><span class="annottext">basicUnsafeCopy :: Mutable Vector (PrimState m) (Rounded r a)
+-&gt; Vector (Rounded r a) -&gt; m ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">basicUnsafeCopy</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#MV_Rounded"><span class="hs-identifier hs-type">MV_Rounded</span></a></span><span> </span><span id="local-6989586621679130427"><span class="annot"><a href="#local-6989586621679130427"><span class="hs-identifier hs-var">mv</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#V_Rounded"><span class="hs-identifier hs-type">V_Rounded</span></a></span><span> </span><span id="local-6989586621679130426"><span class="annot"><a href="#local-6989586621679130426"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Mutable Vector (PrimState m) a -&gt; Vector a -&gt; m ()
+forall (v :: * -&gt; *) a (m :: * -&gt; *).
+(Vector v a, PrimMonad m) =&gt;
+Mutable v (PrimState m) a -&gt; v a -&gt; m ()
+</span><span class="hs-identifier hs-var">VG.basicUnsafeCopy</span></span><span> </span><span class="annot"><span class="annottext">MVector (PrimState m) a
+Mutable Vector (PrimState m) a
+</span><a href="#local-6989586621679130427"><span class="hs-identifier hs-var">mv</span></a></span><span> </span><span class="annot"><span class="annottext">Vector a
+</span><a href="#local-6989586621679130426"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><span id="line-129"></span><span>  </span><span id="local-6989586621679130425"><span class="annot"><span class="annottext">elemseq :: Vector (Rounded r a) -&gt; Rounded r a -&gt; b -&gt; b
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">elemseq</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#V_Rounded"><span class="hs-identifier hs-type">V_Rounded</span></a></span><span> </span><span id="local-6989586621679130423"><span class="annot"><a href="#local-6989586621679130423"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679130422"><span class="annot"><span class="annottext">x :: Rounded r a
+</span><a href="#local-6989586621679130422"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679130421"><span class="annot"><span class="annottext">y :: b
+</span><a href="#local-6989586621679130421"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Vector a -&gt; a -&gt; b -&gt; b
+forall (v :: * -&gt; *) a b. Vector v a =&gt; v a -&gt; a -&gt; b -&gt; b
+</span><span class="hs-identifier hs-var">VG.elemseq</span></span><span> </span><span class="annot"><span class="annottext">Vector a
+</span><a href="#local-6989586621679130423"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Rounded r a -&gt; a
+forall a b. Coercible a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">Rounded r a
+</span><a href="#local-6989586621679130422"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679130421"><span class="hs-identifier hs-var">y</span></a></span></span></span><span>
+</span><span id="line-130"></span><span>
+</span><span id="line-131"></span><span id="local-6989586621679130419"><span id="local-6989586621679130420"><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">VU.Unbox</span></span><span> </span><span class="annot"><a href="#local-6989586621679130420"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">VU.Unbox</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-type">Rounded</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130419"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130420"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-132"></span></pre></body></html>

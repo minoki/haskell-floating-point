@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">{-|
+Module: Numeric.Rounded.Hardware.Backend
+
+Although popular CPUs allow program to control the rounding direction of floating-point operations,
+such feature is not directly accessible to Haskell.
+
+Several options are available to control the rounding direction, including
+
+    * Emulate the operations using 'Rational'.
+    * Emulate the desired rounding behavior using the default rounding direction (i.e. round to nearest).
+    * Provide the rounding-direction-controlled operations in C or assembly, and use FFI to call them from Haskell.
+
+        * C FFI is portable, but has limitations (e.g. cannot return multiple values directly).
+        * GHC-specific @foreign import prim@ can return multiple values efficiently, but cannot be implemented in C.
+
+This library implements the first and third options, in &quot;Numeric.Rounded.Hardware.Backend.ViaRational&quot; and &quot;Numeric.Rounded.Hardware.Backend.C&quot;/&quot;Numeric.Rounded.Hardware.Backend.FastFFI&quot; respectively.
+
+The default implementation for 'Float' and 'Double' depends on the platform and package flags.
+To help the programmer identify which implementation is used, this module provides a function to obtain the name of implementation.
+
+To disable use of FFI, enable the package flag @pure-hs@.
+-}</span><span>
+</span><span id="line-23"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Numeric.Rounded.Hardware.Backend</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Class.html#backendName"><span class="hs-identifier">backendName</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.html"><span class="hs-identifier">Numeric.Rounded.Hardware.Internal</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Class.html#backendName"><span class="hs-identifier">backendName</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span></pre></body></html>

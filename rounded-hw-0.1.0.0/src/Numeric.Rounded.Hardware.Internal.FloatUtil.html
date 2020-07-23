@@ -1,0 +1,1163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE CPP #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE NumericUnderscores #-}</span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Numeric.Rounded.Hardware.Internal.FloatUtil</span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUp"><span class="hs-identifier">nextUp</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDown"><span class="hs-identifier">nextDown</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextTowardZero"><span class="hs-identifier">nextTowardZero</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#minPositive_ieee"><span class="hs-identifier">minPositive_ieee</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#maxFinite_ieee"><span class="hs-identifier">maxFinite_ieee</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#distanceUlp"><span class="hs-identifier">distanceUlp</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#fusedMultiplyAdd"><span class="hs-identifier">fusedMultiplyAdd</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Bits</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Ratio</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">GHC.Float</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">castDoubleToWord64</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">castFloatToWord32</span></span><span class="hs-special">,</span><span>
+</span><span id="line-15"></span><span>                            </span><span class="annot"><span class="hs-identifier">castWord32ToFloat</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">castWord64ToDouble</span></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-comment">-- $setup</span><span>
+</span><span id="line-18"></span><span class="hs-comment">-- &gt;&gt;&gt; :set -XHexFloatLiterals -XNumericUnderscores</span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- prop&gt; (minPositive_ieee :: Double) == 0x1p-1074</span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- prop&gt; (minPositive_ieee :: Float) == 0x1p-149</span><span>
+</span><span id="line-23"></span><span id="local-6989586621679130378"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#minPositive_ieee"><span class="hs-identifier hs-type">minPositive_ieee</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679130378"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130378"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-24"></span><span id="minPositive_ieee"><span class="annot"><span class="annottext">minPositive_ieee :: a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#minPositive_ieee"><span class="hs-identifier hs-var hs-var">minPositive_ieee</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679130377"><span class="annot"><span class="annottext">d :: Int
+</span><a href="#local-6989586621679130377"><span class="hs-identifier hs-var hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; Int
+forall a. RealFloat a =&gt; a -&gt; Int
+</span><span class="hs-identifier hs-var">floatDigits</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130375"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-25"></span><span>                       </span><span class="hs-special">(</span><span id="local-6989586621679130374"><span class="annot"><span class="annottext">expMin :: Int
+</span><a href="#local-6989586621679130374"><span class="hs-identifier hs-var">expMin</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679130373"><span class="annot"><span class="annottext">_expMax :: Int
+</span><a href="#local-6989586621679130373"><span class="hs-identifier hs-var">_expMax</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; (Int, Int)
+forall a. RealFloat a =&gt; a -&gt; (Int, Int)
+</span><span class="hs-identifier hs-var">floatRange</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130375"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-26"></span><span>                       </span><span id="local-6989586621679130375"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679130375"><span class="hs-identifier hs-var hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; a
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130374"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130377"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-27"></span><span>                   </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130375"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-28"></span><span class="hs-pragma">{-# SPECIALIZE</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#minPositive_ieee"><span class="hs-pragma hs-type">minPositive_ieee</span></a></span><span> </span><span class="hs-pragma">::</span><span> </span><span class="annot"><span class="hs-pragma hs-type">Double</span></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-29"></span><span class="hs-pragma">{-# SPECIALIZE</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#minPositive_ieee"><span class="hs-pragma hs-type">minPositive_ieee</span></a></span><span> </span><span class="hs-pragma">::</span><span> </span><span class="annot"><span class="hs-pragma hs-type">Float</span></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-32"></span><span class="hs-comment">-- prop&gt; (maxFinite_ieee :: Double) == 0x1.ffff_ffff_ffff_fp+1023</span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- prop&gt; (maxFinite_ieee :: Float) == 0x1.fffffep+127</span><span>
+</span><span id="line-34"></span><span id="local-6989586621679130370"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#maxFinite_ieee"><span class="hs-identifier hs-type">maxFinite_ieee</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679130370"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130370"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-35"></span><span id="maxFinite_ieee"><span class="annot"><span class="annottext">maxFinite_ieee :: a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#maxFinite_ieee"><span class="hs-identifier hs-var hs-var">maxFinite_ieee</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679130369"><span class="annot"><span class="annottext">d :: Int
+</span><a href="#local-6989586621679130369"><span class="hs-identifier hs-var hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; Int
+forall a. RealFloat a =&gt; a -&gt; Int
+</span><span class="hs-identifier hs-var">floatDigits</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130368"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-36"></span><span>                     </span><span class="hs-special">(</span><span id="local-6989586621679130367"><span class="annot"><span class="annottext">_expMin :: Int
+</span><a href="#local-6989586621679130367"><span class="hs-identifier hs-var">_expMin</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679130366"><span class="annot"><span class="annottext">expMax :: Int
+</span><a href="#local-6989586621679130366"><span class="hs-identifier hs-var">expMax</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; (Int, Int)
+forall a. RealFloat a =&gt; a -&gt; (Int, Int)
+</span><span class="hs-identifier hs-var">floatRange</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130368"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-37"></span><span>                     </span><span id="local-6989586621679130365"><span class="annot"><span class="annottext">r :: Integer
+</span><a href="#local-6989586621679130365"><span class="hs-identifier hs-var hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; Integer
+forall a. RealFloat a =&gt; a -&gt; Integer
+</span><span class="hs-identifier hs-var">floatRadix</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130368"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-38"></span><span>                     </span><span id="local-6989586621679130368"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679130368"><span class="hs-identifier hs-var hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; a
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679130365"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; Integer
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#%5E%21"><span class="hs-operator hs-var">^!</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130369"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Integer
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130366"><span class="hs-identifier hs-var">expMax</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130369"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-39"></span><span>                 </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130368"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-40"></span><span class="hs-pragma">{-# SPECIALIZE</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#maxFinite_ieee"><span class="hs-pragma hs-type">maxFinite_ieee</span></a></span><span> </span><span class="hs-pragma">::</span><span> </span><span class="annot"><span class="hs-pragma hs-type">Double</span></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-41"></span><span class="hs-pragma">{-# SPECIALIZE</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#maxFinite_ieee"><span class="hs-pragma hs-type">maxFinite_ieee</span></a></span><span> </span><span class="hs-pragma">::</span><span> </span><span class="annot"><span class="hs-pragma hs-type">Float</span></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-42"></span><span>
+</span><span id="line-43"></span><span class="hs-comment">-- A variant of (^) allowing constant folding for base = 2</span><span>
+</span><span id="line-44"></span><span class="hs-keyword">infixr</span><span> </span><span class="hs-number">8</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#%5E%21"><span class="hs-operator hs-type">^!</span></a></span><span>
+</span><span id="line-45"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#%5E%21"><span class="hs-operator hs-type">(^!)</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span>
+</span><span id="line-46"></span><span id="%5E%21"><span class="annot"><span class="annottext">^! :: Integer -&gt; Int -&gt; Integer
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#%5E%21"><span class="hs-operator hs-var hs-var">(^!)</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; Integer
+forall a b. (Num a, Integral b) =&gt; a -&gt; b -&gt; a
+</span><span class="hs-operator hs-var">(^)</span></span><span>
+</span><span id="line-47"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">2</span><span class="hs-pragma">]</span><span> </span><span class="hs-pragma">(</span><span class="hs-pragma">^!</span><span class="hs-pragma">)</span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-48"></span><span class="hs-pragma">{-# RULES</span><span>
+</span><span id="line-49"></span><span class="annot"><span class="hs-pragma">&quot;2^!&quot;</span></span><span> </span><span class="hs-pragma">forall</span><span> </span><span id="local-6989586621679130361"><span class="annot"><a href="#local-6989586621679130361"><span class="hs-pragma hs-var">y</span></a></span></span><span class="hs-pragma">.</span><span> </span><span class="annot"><span class="hs-pragma">2</span></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#%5E%21"><span class="hs-pragma hs-type">^!</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130361"><span class="hs-pragma hs-type">y</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#staticIf"><span class="hs-pragma hs-type">staticIf</span></a></span><span> </span><span class="hs-pragma">(</span><span class="annot"><a href="#local-6989586621679130361"><span class="hs-pragma hs-type">y</span></a></span><span> </span><span class="annot"><span class="hs-pragma hs-type">&gt;=</span></span><span> </span><span class="annot"><span class="hs-pragma">0</span></span><span class="hs-pragma">)</span><span> </span><span class="hs-pragma">(</span><span class="annot"><span class="hs-pragma">1</span></span><span> </span><span class="hs-pragma">`</span><span class="hs-pragma">shiftL</span><span class="hs-pragma">`</span><span> </span><span class="annot"><a href="#local-6989586621679130361"><span class="hs-pragma hs-type">y</span></a></span><span class="hs-pragma">)</span><span> </span><span class="hs-pragma">(</span><span class="annot"><span class="hs-pragma">2</span></span><span> </span><span class="annot"><span class="hs-pragma hs-type">^</span></span><span> </span><span class="annot"><a href="#local-6989586621679130361"><span class="hs-pragma hs-type">y</span></a></span><span class="hs-pragma">)</span><span>
+</span><span id="line-50"></span><span>  </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-51"></span><span>
+</span><span id="line-52"></span><span id="local-6989586621679130358"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#staticIf"><span class="hs-identifier hs-type">staticIf</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130358"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130358"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130358"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-53"></span><span id="staticIf"><span class="annot"><span class="annottext">staticIf :: Bool -&gt; a -&gt; a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#staticIf"><span class="hs-identifier hs-var hs-var">staticIf</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679130357"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679130357"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130357"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-54"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">0</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#staticIf"><span class="hs-pragma hs-type">staticIf</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-55"></span><span class="hs-pragma">{-# RULES</span><span>
+</span><span id="line-56"></span><span class="annot"><span class="hs-pragma">&quot;staticIf/True&quot;</span></span><span> </span><span class="hs-pragma">forall</span><span> </span><span id="local-6989586621679130356"><span class="annot"><a href="#local-6989586621679130356"><span class="hs-pragma hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679130355"><span class="annot"><a href="#local-6989586621679130355"><span class="hs-pragma hs-var">y</span></a></span></span><span class="hs-pragma">.</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#staticIf"><span class="hs-pragma hs-type">staticIf</span></a></span><span> </span><span class="annot"><span class="hs-pragma hs-type">True</span></span><span> </span><span class="annot"><a href="#local-6989586621679130356"><span class="hs-pragma hs-type">x</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130355"><span class="hs-pragma hs-type">y</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="#local-6989586621679130356"><span class="hs-pragma hs-type">x</span></a></span><span>
+</span><span id="line-57"></span><span class="annot"><span class="hs-pragma">&quot;staticIf/False&quot;</span></span><span> </span><span class="hs-pragma">forall</span><span> </span><span id="local-6989586621679130354"><span class="annot"><a href="#local-6989586621679130354"><span class="hs-pragma hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679130353"><span class="annot"><a href="#local-6989586621679130353"><span class="hs-pragma hs-var">y</span></a></span></span><span class="hs-pragma">.</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#staticIf"><span class="hs-pragma hs-type">staticIf</span></a></span><span> </span><span class="annot"><span class="hs-pragma hs-type">False</span></span><span> </span><span class="annot"><a href="#local-6989586621679130354"><span class="hs-pragma hs-type">x</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679130353"><span class="hs-pragma hs-type">y</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="#local-6989586621679130353"><span class="hs-pragma hs-type">y</span></a></span><span>
+</span><span id="line-58"></span><span>  </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-59"></span><span>
+</span><span id="line-60"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-61"></span><span class="hs-comment">-- prop&gt; nextUp 1 == (0x1.0000_0000_0000_1p0 :: Double)</span><span>
+</span><span id="line-62"></span><span class="hs-comment">-- prop&gt; nextUp 1 == (0x1.000002p0 :: Float)</span><span>
+</span><span id="line-63"></span><span class="hs-comment">-- prop&gt; nextUp (1/0) == (1/0 :: Double)</span><span>
+</span><span id="line-64"></span><span class="hs-comment">-- prop&gt; nextUp (-1/0) == (- maxFinite_ieee :: Double)</span><span>
+</span><span id="line-65"></span><span class="hs-comment">-- prop&gt; nextUp 0 == (0x1p-1074 :: Double)</span><span>
+</span><span id="line-66"></span><span class="hs-comment">-- prop&gt; nextUp (-0) == (0x1p-1074 :: Double)</span><span>
+</span><span id="line-67"></span><span class="hs-comment">-- prop&gt; nextUp (-0x1p-1074) == (-0 :: Double)</span><span>
+</span><span id="line-68"></span><span class="hs-comment">-- prop&gt; isNegativeZero (nextUp (-0x1p-1074) :: Double)</span><span>
+</span><span id="line-69"></span><span id="local-6989586621679130352"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUp"><span class="hs-identifier hs-type">nextUp</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679130352"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130352"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130352"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-70"></span><span id="nextUp"><span class="annot"><span class="annottext">nextUp :: a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUp"><span class="hs-identifier hs-var hs-var">nextUp</span></a></span></span><span> </span><span id="local-6989586621679130351"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679130351"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isIEEE</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130351"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; a
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;non-IEEE numbers are not supported&quot;</span></span><span>
+</span><span id="line-71"></span><span>         </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Integer
+forall a. RealFloat a =&gt; a -&gt; Integer
+</span><span class="hs-identifier hs-var">floatRadix</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130351"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">2</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; a
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;non-binary types are not supported&quot;</span></span><span>
+</span><span id="line-72"></span><span>         </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130351"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130351"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130351"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130351"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- NaN or positive infinity</span><span>
+</span><span id="line-73"></span><span>         </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130351"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;=</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; a
+forall a. RealFloat a =&gt; a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUp_ieee_positive"><span class="hs-identifier hs-var">nextUp_ieee_positive</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130351"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-74"></span><span>         </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">-</span><span> </span><span class="annot"><span class="annottext">a -&gt; a
+forall a. RealFloat a =&gt; a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDown_ieee_positive"><span class="hs-identifier hs-var">nextDown_ieee_positive</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">-</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130351"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-75"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUp"><span class="hs-pragma hs-type">nextUp</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-76"></span><span>
+</span><span id="line-77"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-78"></span><span class="hs-comment">-- prop&gt; nextDown 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)</span><span>
+</span><span id="line-79"></span><span class="hs-comment">-- prop&gt; nextDown 1 == (0x1.fffffep-1 :: Float)</span><span>
+</span><span id="line-80"></span><span class="hs-comment">-- prop&gt; nextDown (1/0) == (maxFinite_ieee :: Double)</span><span>
+</span><span id="line-81"></span><span class="hs-comment">-- prop&gt; nextDown (-1/0) == (-1/0 :: Double)</span><span>
+</span><span id="line-82"></span><span class="hs-comment">-- prop&gt; nextDown 0 == (-0x1p-1074 :: Double)</span><span>
+</span><span id="line-83"></span><span class="hs-comment">-- prop&gt; nextDown (-0) == (-0x1p-1074 :: Double)</span><span>
+</span><span id="line-84"></span><span class="hs-comment">-- prop&gt; nextDown 0x1p-1074 == (0 :: Double)</span><span>
+</span><span id="line-85"></span><span id="local-6989586621679130339"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDown"><span class="hs-identifier hs-type">nextDown</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679130339"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130339"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130339"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-86"></span><span id="nextDown"><span class="annot"><span class="annottext">nextDown :: a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDown"><span class="hs-identifier hs-var hs-var">nextDown</span></a></span></span><span> </span><span id="local-6989586621679130338"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679130338"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isIEEE</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130338"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; a
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;non-IEEE numbers are not supported&quot;</span></span><span>
+</span><span id="line-87"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Integer
+forall a. RealFloat a =&gt; a -&gt; Integer
+</span><span class="hs-identifier hs-var">floatRadix</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130338"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">2</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; a
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;non-binary types are not supported&quot;</span></span><span>
+</span><span id="line-88"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130338"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130338"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130338"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130338"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- NaN or negative infinity</span><span>
+</span><span id="line-89"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130338"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;=</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; a
+forall a. RealFloat a =&gt; a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDown_ieee_positive"><span class="hs-identifier hs-var">nextDown_ieee_positive</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130338"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-90"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">-</span><span> </span><span class="annot"><span class="annottext">a -&gt; a
+forall a. RealFloat a =&gt; a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUp_ieee_positive"><span class="hs-identifier hs-var">nextUp_ieee_positive</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">-</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130338"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-91"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDown"><span class="hs-pragma hs-type">nextDown</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-92"></span><span>
+</span><span id="line-93"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-94"></span><span class="hs-comment">-- prop&gt; nextTowardZero 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)</span><span>
+</span><span id="line-95"></span><span class="hs-comment">-- prop&gt; nextTowardZero 1 == (0x1.fffffep-1 :: Float)</span><span>
+</span><span id="line-96"></span><span class="hs-comment">-- prop&gt; nextTowardZero (1/0) == (maxFinite_ieee :: Double)</span><span>
+</span><span id="line-97"></span><span class="hs-comment">-- prop&gt; nextTowardZero (-1/0) == (-maxFinite_ieee :: Double)</span><span>
+</span><span id="line-98"></span><span class="hs-comment">-- prop&gt; nextTowardZero 0 == (0 :: Double)</span><span>
+</span><span id="line-99"></span><span class="hs-comment">-- prop&gt; isNegativeZero (nextTowardZero (-0 :: Double))</span><span>
+</span><span id="line-100"></span><span class="hs-comment">-- prop&gt; nextTowardZero 0x1p-1074 == (0 :: Double)</span><span>
+</span><span id="line-101"></span><span id="local-6989586621679130336"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextTowardZero"><span class="hs-identifier hs-type">nextTowardZero</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679130336"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130336"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130336"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-102"></span><span id="nextTowardZero"><span class="annot"><span class="annottext">nextTowardZero :: a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextTowardZero"><span class="hs-identifier hs-var hs-var">nextTowardZero</span></a></span></span><span> </span><span id="local-6989586621679130335"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679130335"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isIEEE</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130335"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; a
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;non-IEEE numbers are not supported&quot;</span></span><span>
+</span><span id="line-103"></span><span>                 </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Integer
+forall a. RealFloat a =&gt; a -&gt; Integer
+</span><span class="hs-identifier hs-var">floatRadix</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130335"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">2</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; a
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;non-binary types are not supported &quot;</span></span><span>
+</span><span id="line-104"></span><span>                 </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130335"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130335"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130335"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- NaN or zero</span><span>
+</span><span id="line-105"></span><span>                 </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130335"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;=</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; a
+forall a. RealFloat a =&gt; a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDown_ieee_positive"><span class="hs-identifier hs-var">nextDown_ieee_positive</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130335"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-106"></span><span>                 </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">-</span><span> </span><span class="annot"><span class="annottext">a -&gt; a
+forall a. RealFloat a =&gt; a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDown_ieee_positive"><span class="hs-identifier hs-var">nextDown_ieee_positive</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">-</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130335"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-107"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextTowardZero"><span class="hs-pragma hs-type">nextTowardZero</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-108"></span><span>
+</span><span id="line-109"></span><span id="local-6989586621679130402"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUp_ieee_positive"><span class="hs-identifier hs-type">nextUp_ieee_positive</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679130402"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130402"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130402"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-110"></span><span id="nextUp_ieee_positive"><span class="annot"><span class="annottext">nextUp_ieee_positive :: a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUp_ieee_positive"><span class="hs-identifier hs-var hs-var">nextUp_ieee_positive</span></a></span></span><span> </span><span id="local-6989586621679130334"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679130334"><span class="hs-identifier hs-var">x</span></a></span></span><span>
+</span><span id="line-111"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130334"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130334"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; a
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;nextUp_ieee_positive&quot;</span></span><span>
+</span><span id="line-112"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130334"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130334"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-113"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130334"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; a
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130333"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130332"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- min positive</span><span>
+</span><span id="line-114"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="#local-6989586621679130331"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span>
+</span><span id="line-115"></span><span>                    </span><span class="annot"><a href="#local-6989586621679130330"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-116"></span><span>                    </span><span class="hs-special">(</span><span id="local-6989586621679130331"><span class="annot"><span class="annottext">m :: Integer
+</span><a href="#local-6989586621679130331"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679130330"><span class="annot"><span class="annottext">e :: Int
+</span><a href="#local-6989586621679130330"><span class="hs-identifier hs-var">e</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; (Integer, Int)
+forall a. RealFloat a =&gt; a -&gt; (Integer, Int)
+</span><span class="hs-identifier hs-var">decodeFloat</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130334"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-117"></span><span>                    </span><span class="hs-comment">-- x = m * 2^e, 2^(d-1) &lt;= m &lt; 2^d</span><span>
+</span><span id="line-118"></span><span>                    </span><span class="hs-comment">-- 2^expMin &lt; x &lt; 2^expMax</span><span>
+</span><span id="line-119"></span><span>                    </span><span class="hs-comment">-- 2^(expMin-d): min positive</span><span>
+</span><span id="line-120"></span><span>                    </span><span class="hs-comment">-- 2^(expMin - 1): min normal 0x1p-1022</span><span>
+</span><span id="line-121"></span><span>                    </span><span class="hs-comment">-- expMin - d &lt;= e &lt;= expMax - d (-1074 .. 971)</span><span>
+</span><span id="line-122"></span><span>                </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130333"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130332"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;=</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130330"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-123"></span><span>                   </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; a
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679130331"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Integer
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130330"><span class="hs-identifier hs-var">e</span></a></span><span> </span><span class="hs-comment">-- normal</span><span>
+</span><span id="line-124"></span><span>                   </span><span class="hs-keyword">else</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679130326"><span class="annot"><span class="annottext">m' :: Integer
+</span><a href="#local-6989586621679130326"><span class="hs-identifier hs-var hs-var">m'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679130331"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; Integer
+forall a. Bits a =&gt; a -&gt; Int -&gt; a
+</span><span class="hs-operator hs-var">`shiftR`</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130333"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130332"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130330"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-125"></span><span>                        </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; a
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679130326"><span class="hs-identifier hs-var">m'</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Integer
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130333"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130332"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- subnormal</span><span>
+</span><span id="line-126"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-127"></span><span>    </span><span class="annot"><a href="#local-6989586621679130332"><span class="hs-identifier hs-type">d</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679130333"><span class="hs-identifier hs-type">expMin</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-128"></span><span>    </span><span id="local-6989586621679130332"><span class="annot"><span class="annottext">d :: Int
+</span><a href="#local-6989586621679130332"><span class="hs-identifier hs-var hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; Int
+forall a. RealFloat a =&gt; a -&gt; Int
+</span><span class="hs-identifier hs-var">floatDigits</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130334"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- 53 for Double</span><span>
+</span><span id="line-129"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679130333"><span class="annot"><span class="annottext">expMin :: Int
+</span><a href="#local-6989586621679130333"><span class="hs-identifier hs-var">expMin</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679130324"><span class="annot"><span class="annottext">_expMax :: Int
+</span><a href="#local-6989586621679130324"><span class="hs-identifier hs-var">_expMax</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; (Int, Int)
+forall a. RealFloat a =&gt; a -&gt; (Int, Int)
+</span><span class="hs-identifier hs-var">floatRange</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130334"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- (-1021,1024) for Double</span><span>
+</span><span id="line-130"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUp_ieee_positive"><span class="hs-pragma hs-type">nextUp_ieee_positive</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-131"></span><span>
+</span><span id="line-132"></span><span id="local-6989586621679130323"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDown_ieee_positive"><span class="hs-identifier hs-type">nextDown_ieee_positive</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679130323"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130323"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130323"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-133"></span><span id="nextDown_ieee_positive"><span class="annot"><span class="annottext">nextDown_ieee_positive :: a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDown_ieee_positive"><span class="hs-identifier hs-var hs-var">nextDown_ieee_positive</span></a></span></span><span> </span><span id="local-6989586621679130322"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679130322"><span class="hs-identifier hs-var">x</span></a></span></span><span>
+</span><span id="line-134"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130322"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130322"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; a
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;nextDown_ieee_positive&quot;</span></span><span>
+</span><span id="line-135"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130322"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; a
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><span class="hs-number">1</span></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; Integer
+forall a. Bits a =&gt; a -&gt; Int -&gt; a
+</span><span class="hs-operator hs-var">`unsafeShiftL`</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130320"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Integer
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130319"><span class="hs-identifier hs-var">expMax</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130320"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- max finite</span><span>
+</span><span id="line-136"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130322"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; a
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">-</span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130318"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130320"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- max negative</span><span>
+</span><span id="line-137"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="#local-6989586621679130317"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span>
+</span><span id="line-138"></span><span>                    </span><span class="annot"><a href="#local-6989586621679130316"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-139"></span><span>                    </span><span class="hs-special">(</span><span id="local-6989586621679130317"><span class="annot"><span class="annottext">m :: Integer
+</span><a href="#local-6989586621679130317"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679130316"><span class="annot"><span class="annottext">e :: Int
+</span><a href="#local-6989586621679130316"><span class="hs-identifier hs-var">e</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; (Integer, Int)
+forall a. RealFloat a =&gt; a -&gt; (Integer, Int)
+</span><span class="hs-identifier hs-var">decodeFloat</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130322"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-140"></span><span>                    </span><span class="hs-comment">-- x = m * 2^e, 2^(d-1) &lt;= m &lt; 2^d</span><span>
+</span><span id="line-141"></span><span>                    </span><span class="hs-comment">-- 2^expMin &lt; x &lt; 2^expMax</span><span>
+</span><span id="line-142"></span><span>                    </span><span class="hs-comment">-- 2^(expMin-d): min positive</span><span>
+</span><span id="line-143"></span><span>                    </span><span class="hs-comment">-- 2^(expMin - 1): min normal 0x1p-1022</span><span>
+</span><span id="line-144"></span><span>                    </span><span class="hs-comment">-- expMin - d &lt;= e &lt;= expMax - d (-1074 .. 971)</span><span>
+</span><span id="line-145"></span><span>                </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130318"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130320"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;=</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130316"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-146"></span><span>                   </span><span class="hs-keyword">then</span><span> </span><span class="hs-comment">-- normal</span><span>
+</span><span id="line-147"></span><span>                     </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679130315"><span class="annot"><span class="annottext">m1 :: Integer
+</span><a href="#local-6989586621679130315"><span class="hs-identifier hs-var hs-var">m1</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679130317"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Integer
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span>
+</span><span id="line-148"></span><span>                     </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679130317"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Integer
+forall a. Bits a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679130315"><span class="hs-identifier hs-var">m1</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span>
+</span><span id="line-149"></span><span>                        </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; a
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-number">2</span></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Integer
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679130317"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Integer
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130316"><span class="hs-identifier hs-var">e</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
+</span><span id="line-150"></span><span>                        </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; a
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679130315"><span class="hs-identifier hs-var">m1</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130316"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-151"></span><span>                   </span><span class="hs-keyword">else</span><span> </span><span class="hs-comment">-- subnormal</span><span>
+</span><span id="line-152"></span><span>                     </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679130312"><span class="annot"><span class="annottext">m' :: Integer
+</span><a href="#local-6989586621679130312"><span class="hs-identifier hs-var hs-var">m'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679130317"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; Integer
+forall a. Bits a =&gt; a -&gt; Int -&gt; a
+</span><span class="hs-operator hs-var">`shiftR`</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130318"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130320"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130316"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-153"></span><span>                     </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; a
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679130312"><span class="hs-identifier hs-var">m'</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Integer
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130318"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130320"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-154"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-155"></span><span>    </span><span class="annot"><a href="#local-6989586621679130320"><span class="hs-identifier hs-type">d</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679130318"><span class="hs-identifier hs-type">expMin</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-156"></span><span>    </span><span id="local-6989586621679130320"><span class="annot"><span class="annottext">d :: Int
+</span><a href="#local-6989586621679130320"><span class="hs-identifier hs-var hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; Int
+forall a. RealFloat a =&gt; a -&gt; Int
+</span><span class="hs-identifier hs-var">floatDigits</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130322"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- 53 for Double</span><span>
+</span><span id="line-157"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679130318"><span class="annot"><span class="annottext">expMin :: Int
+</span><a href="#local-6989586621679130318"><span class="hs-identifier hs-var">expMin</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679130319"><span class="annot"><span class="annottext">expMax :: Int
+</span><a href="#local-6989586621679130319"><span class="hs-identifier hs-var">expMax</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; (Int, Int)
+forall a. RealFloat a =&gt; a -&gt; (Int, Int)
+</span><span class="hs-identifier hs-var">floatRange</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130322"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- (-1021,1024) for Double</span><span>
+</span><span id="line-158"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDown_ieee_positive"><span class="hs-pragma hs-type">nextDown_ieee_positive</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-159"></span><span>
+</span><span id="line-160"></span><span class="hs-pragma">{-# RULES</span><span>
+</span><span id="line-161"></span><span class="annot"><span class="hs-pragma">&quot;nextUp/Float&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUp"><span class="hs-pragma hs-type">nextUp</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUpFloat"><span class="hs-pragma hs-type">nextUpFloat</span></a></span><span>
+</span><span id="line-162"></span><span class="annot"><span class="hs-pragma">&quot;nextUp/Double&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUp"><span class="hs-pragma hs-type">nextUp</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUpDouble"><span class="hs-pragma hs-type">nextUpDouble</span></a></span><span>
+</span><span id="line-163"></span><span class="annot"><span class="hs-pragma">&quot;nextDown/Float&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDown"><span class="hs-pragma hs-type">nextDown</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDownFloat"><span class="hs-pragma hs-type">nextDownFloat</span></a></span><span>
+</span><span id="line-164"></span><span class="annot"><span class="hs-pragma">&quot;nextDown/Double&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDown"><span class="hs-pragma hs-type">nextDown</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDownDouble"><span class="hs-pragma hs-type">nextDownDouble</span></a></span><span>
+</span><span id="line-165"></span><span class="annot"><span class="hs-pragma">&quot;nextTowardZero/Float&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextTowardZero"><span class="hs-pragma hs-type">nextTowardZero</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextTowardZeroFloat"><span class="hs-pragma hs-type">nextTowardZeroFloat</span></a></span><span>
+</span><span id="line-166"></span><span class="annot"><span class="hs-pragma">&quot;nextTowardZero/Double&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextTowardZero"><span class="hs-pragma hs-type">nextTowardZero</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextTowardZeroDouble"><span class="hs-pragma hs-type">nextTowardZeroDouble</span></a></span><span>
+</span><span id="line-167"></span><span>  </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-168"></span><span>
+</span><span id="line-169"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-170"></span><span class="hs-comment">-- prop&gt; nextUpFloat 1 == 0x1.000002p0</span><span>
+</span><span id="line-171"></span><span class="hs-comment">-- prop&gt; nextUpFloat (1/0) == 1/0</span><span>
+</span><span id="line-172"></span><span class="hs-comment">-- prop&gt; nextUpFloat (-1/0) == - maxFinite_ieee</span><span>
+</span><span id="line-173"></span><span class="hs-comment">-- prop&gt; nextUpFloat 0 == 0x1p-149</span><span>
+</span><span id="line-174"></span><span class="hs-comment">-- prop&gt; nextUpFloat (-0) == 0x1p-149</span><span>
+</span><span id="line-175"></span><span class="hs-comment">-- prop&gt; isNegativeZero (nextUpFloat (-0x1p-149))</span><span>
+</span><span id="line-176"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUpFloat"><span class="hs-identifier hs-type">nextUpFloat</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
+</span><span id="line-177"></span><span id="nextUpFloat"><span class="annot"><span class="annottext">nextUpFloat :: Float -&gt; Float
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUpFloat"><span class="hs-identifier hs-var hs-var">nextUpFloat</span></a></span></span><span> </span><span id="local-6989586621679130305"><span class="annot"><span class="annottext">x :: Float
+</span><a href="#local-6989586621679130305"><span class="hs-identifier hs-var">x</span></a></span></span><span>
+</span><span id="line-178"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Float -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isIEEE</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130305"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Float -&gt; Integer
+forall a. RealFloat a =&gt; a -&gt; Integer
+</span><span class="hs-identifier hs-var">floatRadix</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130305"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">2</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130304"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">24</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130303"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="hs-glyph">-</span><span class="annot"><span class="hs-number">125</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130302"><span class="hs-identifier hs-var">expMax</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">128</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Float
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded-hw assumes Float is IEEE binary32&quot;</span></span><span>
+</span><span id="line-179"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Float -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130305"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130305"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- NaN -&gt; itself</span><span>
+</span><span id="line-180"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Float -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNegativeZero</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130305"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; Float
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130303"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130304"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- -0 -&gt; min positive</span><span>
+</span><span id="line-181"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130305"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Float -&gt; Float -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Float
+</span><span class="hs-identifier hs-var">castWord32ToFloat</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Float -&gt; Word32
+</span><span class="hs-identifier hs-var">castFloatToWord32</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130305"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Word32
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- negative</span><span>
+</span><span id="line-182"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Float -&gt; Word32
+</span><span class="hs-identifier hs-var">castFloatToWord32</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130305"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-183"></span><span>                  </span><span class="hs-number">0x7f80_0000</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130305"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- positive infinity -&gt; itself</span><span>
+</span><span id="line-184"></span><span>                  </span><span id="local-6989586621679130300"><span class="annot"><span class="annottext">w :: Word32
+</span><a href="#local-6989586621679130300"><span class="hs-identifier hs-var">w</span></a></span></span><span>           </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Float
+</span><span class="hs-identifier hs-var">castWord32ToFloat</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679130300"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Word32
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- positive</span><span>
+</span><span id="line-185"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-186"></span><span>    </span><span class="annot"><a href="#local-6989586621679130304"><span class="hs-identifier hs-type">d</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679130303"><span class="hs-identifier hs-type">expMin</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-187"></span><span>    </span><span id="local-6989586621679130304"><span class="annot"><span class="annottext">d :: Int
+</span><a href="#local-6989586621679130304"><span class="hs-identifier hs-var hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Float -&gt; Int
+forall a. RealFloat a =&gt; a -&gt; Int
+</span><span class="hs-identifier hs-var">floatDigits</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130305"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- 53 for Double</span><span>
+</span><span id="line-188"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679130303"><span class="annot"><span class="annottext">expMin :: Int
+</span><a href="#local-6989586621679130303"><span class="hs-identifier hs-var">expMin</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679130302"><span class="annot"><span class="annottext">expMax :: Int
+</span><a href="#local-6989586621679130302"><span class="hs-identifier hs-var">expMax</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Float -&gt; (Int, Int)
+forall a. RealFloat a =&gt; a -&gt; (Int, Int)
+</span><span class="hs-identifier hs-var">floatRange</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130305"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- (-1021,1024) for Double</span><span>
+</span><span id="line-189"></span><span>    </span><span class="hs-comment">-- Note: castFloatToWord32 is buggy on GHC &lt;= 8.8 on x86_64, so we can't use it to test for NaN or negative number</span><span>
+</span><span id="line-190"></span><span>    </span><span class="hs-comment">--   https://gitlab.haskell.org/ghc/ghc/issues/16617</span><span>
+</span><span id="line-191"></span><span>
+</span><span id="line-192"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-193"></span><span class="hs-comment">-- prop&gt; nextUpDouble 1 == 0x1.0000_0000_0000_1p0</span><span>
+</span><span id="line-194"></span><span class="hs-comment">-- prop&gt; nextUpDouble (1/0) == 1/0</span><span>
+</span><span id="line-195"></span><span class="hs-comment">-- prop&gt; nextUpDouble (-1/0) == - maxFinite_ieee</span><span>
+</span><span id="line-196"></span><span class="hs-comment">-- prop&gt; nextUpDouble 0 == 0x1p-1074</span><span>
+</span><span id="line-197"></span><span class="hs-comment">-- prop&gt; nextUpDouble (-0) == 0x1p-1074</span><span>
+</span><span id="line-198"></span><span class="hs-comment">-- prop&gt; isNegativeZero (nextUpDouble (-0x1p-1074))</span><span>
+</span><span id="line-199"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUpDouble"><span class="hs-identifier hs-type">nextUpDouble</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span>
+</span><span id="line-200"></span><span id="nextUpDouble"><span class="annot"><span class="annottext">nextUpDouble :: Double -&gt; Double
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUpDouble"><span class="hs-identifier hs-var hs-var">nextUpDouble</span></a></span></span><span> </span><span id="local-6989586621679130299"><span class="annot"><span class="annottext">x :: Double
+</span><a href="#local-6989586621679130299"><span class="hs-identifier hs-var">x</span></a></span></span><span>
+</span><span id="line-201"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Double -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isIEEE</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130299"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Double -&gt; Integer
+forall a. RealFloat a =&gt; a -&gt; Integer
+</span><span class="hs-identifier hs-var">floatRadix</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130299"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">2</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130298"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">53</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130297"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="hs-glyph">-</span><span class="annot"><span class="hs-number">1021</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130296"><span class="hs-identifier hs-var">expMax</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">1024</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Double
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded-hw assumes Double is IEEE binary64&quot;</span></span><span>
+</span><span id="line-202"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Double -&gt; Word64
+</span><span class="hs-identifier hs-var">castDoubleToWord64</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130299"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-203"></span><span>                  </span><span id="local-6989586621679130295"><span class="annot"><span class="annottext">w :: Word64
+</span><a href="#local-6989586621679130295"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679130295"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
+forall a. Bits a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="annot"><span class="hs-number">0x7ff0_0000_0000_0000</span></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0x7ff0_0000_0000_0000</span></span><span>
+</span><span id="line-204"></span><span>                    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679130295"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">0xfff0_0000_0000_0000</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130299"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- NaN or positive infinity -&gt; itself</span><span>
+</span><span id="line-205"></span><span>                  </span><span class="hs-number">0x8000_0000_0000_0000</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; Double
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130297"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130298"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- -0 -&gt; min positive</span><span>
+</span><span id="line-206"></span><span>                  </span><span id="local-6989586621679130294"><span class="annot"><span class="annottext">w :: Word64
+</span><a href="#local-6989586621679130294"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Int -&gt; Bool
+forall a. Bits a =&gt; a -&gt; Int -&gt; Bool
+</span><span class="hs-identifier hs-var">testBit</span></span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679130294"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="hs-number">63</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Double
+</span><span class="hs-identifier hs-var">castWord64ToDouble</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679130294"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- negative</span><span>
+</span><span id="line-207"></span><span>                    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Double
+</span><span class="hs-identifier hs-var">castWord64ToDouble</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679130294"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- positive</span><span>
+</span><span id="line-208"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-209"></span><span>    </span><span class="annot"><a href="#local-6989586621679130298"><span class="hs-identifier hs-type">d</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679130297"><span class="hs-identifier hs-type">expMin</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-210"></span><span>    </span><span id="local-6989586621679130298"><span class="annot"><span class="annottext">d :: Int
+</span><a href="#local-6989586621679130298"><span class="hs-identifier hs-var hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; Int
+forall a. RealFloat a =&gt; a -&gt; Int
+</span><span class="hs-identifier hs-var">floatDigits</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130299"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- 53 for Double</span><span>
+</span><span id="line-211"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679130297"><span class="annot"><span class="annottext">expMin :: Int
+</span><a href="#local-6989586621679130297"><span class="hs-identifier hs-var">expMin</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679130296"><span class="annot"><span class="annottext">expMax :: Int
+</span><a href="#local-6989586621679130296"><span class="hs-identifier hs-var">expMax</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; (Int, Int)
+forall a. RealFloat a =&gt; a -&gt; (Int, Int)
+</span><span class="hs-identifier hs-var">floatRange</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130299"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- (-1021,1024) for Double</span><span>
+</span><span id="line-212"></span><span>
+</span><span id="line-213"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-214"></span><span class="hs-comment">-- prop&gt; nextDownFloat 1 == 0x1.fffffep-1</span><span>
+</span><span id="line-215"></span><span class="hs-comment">-- prop&gt; nextDownFloat (1/0) == maxFinite_ieee</span><span>
+</span><span id="line-216"></span><span class="hs-comment">-- prop&gt; nextDownFloat (-1/0) == -1/0</span><span>
+</span><span id="line-217"></span><span class="hs-comment">-- prop&gt; nextDownFloat 0 == -0x1p-149</span><span>
+</span><span id="line-218"></span><span class="hs-comment">-- prop&gt; nextDownFloat (-0) == -0x1p-149</span><span>
+</span><span id="line-219"></span><span class="hs-comment">-- prop&gt; nextDownFloat 0x1p-149 == 0</span><span>
+</span><span id="line-220"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDownFloat"><span class="hs-identifier hs-type">nextDownFloat</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
+</span><span id="line-221"></span><span id="nextDownFloat"><span class="annot"><span class="annottext">nextDownFloat :: Float -&gt; Float
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDownFloat"><span class="hs-identifier hs-var hs-var">nextDownFloat</span></a></span></span><span> </span><span id="local-6989586621679130292"><span class="annot"><span class="annottext">x :: Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span></span><span>
+</span><span id="line-222"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Float -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isIEEE</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Float -&gt; Integer
+forall a. RealFloat a =&gt; a -&gt; Integer
+</span><span class="hs-identifier hs-var">floatRadix</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">2</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130291"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">24</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130290"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="hs-glyph">-</span><span class="annot"><span class="hs-number">125</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130289"><span class="hs-identifier hs-var">expMax</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">128</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Float
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded-hw assumes Float is IEEE binary32&quot;</span></span><span>
+</span><span id="line-223"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Float -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Float -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Float -&gt; Float -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- NaN or negative infinity -&gt; itself</span><span>
+</span><span id="line-224"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Float -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNegativeZero</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Float -&gt; Float -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Float
+</span><span class="hs-identifier hs-var">castWord32ToFloat</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Float -&gt; Word32
+</span><span class="hs-identifier hs-var">castFloatToWord32</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Word32
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- negative</span><span>
+</span><span id="line-225"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Float -&gt; Float -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; Float
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">-</span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130290"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130291"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- +0 -&gt; max negative</span><span>
+</span><span id="line-226"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Float
+</span><span class="hs-identifier hs-var">castWord32ToFloat</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Float -&gt; Word32
+</span><span class="hs-identifier hs-var">castFloatToWord32</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Word32
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- positive</span><span>
+</span><span id="line-227"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-228"></span><span>    </span><span class="annot"><a href="#local-6989586621679130291"><span class="hs-identifier hs-type">d</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679130290"><span class="hs-identifier hs-type">expMin</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-229"></span><span>    </span><span id="local-6989586621679130291"><span class="annot"><span class="annottext">d :: Int
+</span><a href="#local-6989586621679130291"><span class="hs-identifier hs-var hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Float -&gt; Int
+forall a. RealFloat a =&gt; a -&gt; Int
+</span><span class="hs-identifier hs-var">floatDigits</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- 53 for Double</span><span>
+</span><span id="line-230"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679130290"><span class="annot"><span class="annottext">expMin :: Int
+</span><a href="#local-6989586621679130290"><span class="hs-identifier hs-var">expMin</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679130289"><span class="annot"><span class="annottext">expMax :: Int
+</span><a href="#local-6989586621679130289"><span class="hs-identifier hs-var">expMax</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Float -&gt; (Int, Int)
+forall a. RealFloat a =&gt; a -&gt; (Int, Int)
+</span><span class="hs-identifier hs-var">floatRange</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130292"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- (-1021,1024) for Double</span><span>
+</span><span id="line-231"></span><span>    </span><span class="hs-comment">-- Note: castFloatToWord32 is buggy on GHC &lt;= 8.8 on x86_64, so we can't use it to test for NaN or negative number</span><span>
+</span><span id="line-232"></span><span>    </span><span class="hs-comment">--   https://gitlab.haskell.org/ghc/ghc/issues/16617</span><span>
+</span><span id="line-233"></span><span>
+</span><span id="line-234"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-235"></span><span class="hs-comment">-- prop&gt; nextDownDouble 1 == 0x1.ffff_ffff_ffff_fp-1</span><span>
+</span><span id="line-236"></span><span class="hs-comment">-- prop&gt; nextDownDouble (1/0) == maxFinite_ieee</span><span>
+</span><span id="line-237"></span><span class="hs-comment">-- prop&gt; nextDownDouble (-1/0) == -1/0</span><span>
+</span><span id="line-238"></span><span class="hs-comment">-- prop&gt; nextDownDouble 0 == -0x1p-1074</span><span>
+</span><span id="line-239"></span><span class="hs-comment">-- prop&gt; nextDownDouble (-0) == -0x1p-1074</span><span>
+</span><span id="line-240"></span><span class="hs-comment">-- prop&gt; nextDownDouble 0x1p-1074 == 0</span><span>
+</span><span id="line-241"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDownDouble"><span class="hs-identifier hs-type">nextDownDouble</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span>
+</span><span id="line-242"></span><span id="nextDownDouble"><span class="annot"><span class="annottext">nextDownDouble :: Double -&gt; Double
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextDownDouble"><span class="hs-identifier hs-var hs-var">nextDownDouble</span></a></span></span><span> </span><span id="local-6989586621679130288"><span class="annot"><span class="annottext">x :: Double
+</span><a href="#local-6989586621679130288"><span class="hs-identifier hs-var">x</span></a></span></span><span>
+</span><span id="line-243"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Double -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isIEEE</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130288"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Double -&gt; Integer
+forall a. RealFloat a =&gt; a -&gt; Integer
+</span><span class="hs-identifier hs-var">floatRadix</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130288"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">2</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130287"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">53</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130286"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="hs-glyph">-</span><span class="annot"><span class="hs-number">1021</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130285"><span class="hs-identifier hs-var">expMax</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">1024</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Double
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded-hw assumes Double is IEEE binary64&quot;</span></span><span>
+</span><span id="line-244"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Double -&gt; Word64
+</span><span class="hs-identifier hs-var">castDoubleToWord64</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130288"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-245"></span><span>                  </span><span id="local-6989586621679130284"><span class="annot"><span class="annottext">w :: Word64
+</span><a href="#local-6989586621679130284"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679130284"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
+forall a. Bits a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="annot"><span class="hs-number">0x7ff0_0000_0000_0000</span></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0x7ff0_0000_0000_0000</span></span><span>
+</span><span id="line-246"></span><span>                    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679130284"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">0x7ff0_0000_0000_0000</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130288"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- NaN or negative infinity -&gt; itself</span><span>
+</span><span id="line-247"></span><span>                  </span><span class="hs-number">0x0000_0000_0000_0000</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; Double
+forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">-</span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130286"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130287"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- +0 -&gt; max negative</span><span>
+</span><span id="line-248"></span><span>                  </span><span id="local-6989586621679130283"><span class="annot"><span class="annottext">w :: Word64
+</span><a href="#local-6989586621679130283"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Int -&gt; Bool
+forall a. Bits a =&gt; a -&gt; Int -&gt; Bool
+</span><span class="hs-identifier hs-var">testBit</span></span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679130283"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="hs-number">63</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Double
+</span><span class="hs-identifier hs-var">castWord64ToDouble</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679130283"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- negative</span><span>
+</span><span id="line-249"></span><span>                    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Double
+</span><span class="hs-identifier hs-var">castWord64ToDouble</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679130283"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- positive</span><span>
+</span><span id="line-250"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-251"></span><span>    </span><span class="annot"><a href="#local-6989586621679130287"><span class="hs-identifier hs-type">d</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679130286"><span class="hs-identifier hs-type">expMin</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-252"></span><span>    </span><span id="local-6989586621679130287"><span class="annot"><span class="annottext">d :: Int
+</span><a href="#local-6989586621679130287"><span class="hs-identifier hs-var hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; Int
+forall a. RealFloat a =&gt; a -&gt; Int
+</span><span class="hs-identifier hs-var">floatDigits</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130288"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- 53 for Double</span><span>
+</span><span id="line-253"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679130286"><span class="annot"><span class="annottext">expMin :: Int
+</span><a href="#local-6989586621679130286"><span class="hs-identifier hs-var">expMin</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679130285"><span class="annot"><span class="annottext">expMax :: Int
+</span><a href="#local-6989586621679130285"><span class="hs-identifier hs-var">expMax</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; (Int, Int)
+forall a. RealFloat a =&gt; a -&gt; (Int, Int)
+</span><span class="hs-identifier hs-var">floatRange</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130288"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- (-1021,1024) for Double</span><span>
+</span><span id="line-254"></span><span>
+</span><span id="line-255"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-256"></span><span class="hs-comment">-- prop&gt; nextTowardZeroFloat 1 == 0x1.fffffep-1</span><span>
+</span><span id="line-257"></span><span class="hs-comment">-- prop&gt; nextTowardZeroFloat (-1) == -0x1.fffffep-1</span><span>
+</span><span id="line-258"></span><span class="hs-comment">-- prop&gt; nextTowardZeroFloat (1/0) == maxFinite_ieee</span><span>
+</span><span id="line-259"></span><span class="hs-comment">-- prop&gt; nextTowardZeroFloat (-1/0) == -maxFinite_ieee</span><span>
+</span><span id="line-260"></span><span class="hs-comment">-- prop&gt; nextTowardZeroFloat 0 == 0</span><span>
+</span><span id="line-261"></span><span class="hs-comment">-- prop&gt; isNegativeZero (nextTowardZeroFloat (-0))</span><span>
+</span><span id="line-262"></span><span class="hs-comment">-- prop&gt; nextTowardZeroFloat 0x1p-149 == 0</span><span>
+</span><span id="line-263"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextTowardZeroFloat"><span class="hs-identifier hs-type">nextTowardZeroFloat</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
+</span><span id="line-264"></span><span id="nextTowardZeroFloat"><span class="annot"><span class="annottext">nextTowardZeroFloat :: Float -&gt; Float
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextTowardZeroFloat"><span class="hs-identifier hs-var hs-var">nextTowardZeroFloat</span></a></span></span><span> </span><span id="local-6989586621679130282"><span class="annot"><span class="annottext">x :: Float
+</span><a href="#local-6989586621679130282"><span class="hs-identifier hs-var">x</span></a></span></span><span>
+</span><span id="line-265"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Float -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isIEEE</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130282"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Float -&gt; Integer
+forall a. RealFloat a =&gt; a -&gt; Integer
+</span><span class="hs-identifier hs-var">floatRadix</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130282"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">2</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130281"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">24</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130280"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="hs-glyph">-</span><span class="annot"><span class="hs-number">125</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130279"><span class="hs-identifier hs-var">expMax</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">128</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Float
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded-hw assumes Float is IEEE binary32&quot;</span></span><span>
+</span><span id="line-266"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Float -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130282"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130282"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Float -&gt; Float -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130282"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- NaN or zero -&gt; itself</span><span>
+</span><span id="line-267"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Float
+</span><span class="hs-identifier hs-var">castWord32ToFloat</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Float -&gt; Word32
+</span><span class="hs-identifier hs-var">castFloatToWord32</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130282"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Word32
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- positive / negative</span><span>
+</span><span id="line-268"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-269"></span><span>    </span><span class="annot"><a href="#local-6989586621679130281"><span class="hs-identifier hs-type">d</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679130280"><span class="hs-identifier hs-type">expMin</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-270"></span><span>    </span><span id="local-6989586621679130281"><span class="annot"><span class="annottext">d :: Int
+</span><a href="#local-6989586621679130281"><span class="hs-identifier hs-var hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Float -&gt; Int
+forall a. RealFloat a =&gt; a -&gt; Int
+</span><span class="hs-identifier hs-var">floatDigits</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130282"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- 53 for Double</span><span>
+</span><span id="line-271"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679130280"><span class="annot"><span class="annottext">expMin :: Int
+</span><a href="#local-6989586621679130280"><span class="hs-identifier hs-var">expMin</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679130279"><span class="annot"><span class="annottext">expMax :: Int
+</span><a href="#local-6989586621679130279"><span class="hs-identifier hs-var">expMax</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Float -&gt; (Int, Int)
+forall a. RealFloat a =&gt; a -&gt; (Int, Int)
+</span><span class="hs-identifier hs-var">floatRange</span></span><span> </span><span class="annot"><span class="annottext">Float
+</span><a href="#local-6989586621679130282"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- (-1021,1024) for Double</span><span>
+</span><span id="line-272"></span><span>    </span><span class="hs-comment">-- Note: castFloatToWord32 is buggy on GHC &lt;= 8.8 on x86_64, so we can't use it to test for NaN or negative number</span><span>
+</span><span id="line-273"></span><span>    </span><span class="hs-comment">--   https://gitlab.haskell.org/ghc/ghc/issues/16617</span><span>
+</span><span id="line-274"></span><span>
+</span><span id="line-275"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-276"></span><span class="hs-comment">-- prop&gt; nextTowardZeroDouble 1 == 0x1.ffff_ffff_ffff_fp-1</span><span>
+</span><span id="line-277"></span><span class="hs-comment">-- prop&gt; nextTowardZeroDouble (-1) == -0x1.ffff_ffff_ffff_fp-1</span><span>
+</span><span id="line-278"></span><span class="hs-comment">-- prop&gt; nextTowardZeroDouble (1/0) == maxFinite_ieee</span><span>
+</span><span id="line-279"></span><span class="hs-comment">-- prop&gt; nextTowardZeroDouble (-1/0) == -maxFinite_ieee</span><span>
+</span><span id="line-280"></span><span class="hs-comment">-- prop&gt; nextTowardZeroDouble 0 == 0</span><span>
+</span><span id="line-281"></span><span class="hs-comment">-- prop&gt; isNegativeZero (nextTowardZeroDouble (-0))</span><span>
+</span><span id="line-282"></span><span class="hs-comment">-- prop&gt; nextTowardZeroDouble 0x1p-1074 == 0</span><span>
+</span><span id="line-283"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextTowardZeroDouble"><span class="hs-identifier hs-type">nextTowardZeroDouble</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span>
+</span><span id="line-284"></span><span id="nextTowardZeroDouble"><span class="annot"><span class="annottext">nextTowardZeroDouble :: Double -&gt; Double
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextTowardZeroDouble"><span class="hs-identifier hs-var hs-var">nextTowardZeroDouble</span></a></span></span><span> </span><span id="local-6989586621679130278"><span class="annot"><span class="annottext">x :: Double
+</span><a href="#local-6989586621679130278"><span class="hs-identifier hs-var">x</span></a></span></span><span>
+</span><span id="line-285"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Double -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isIEEE</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130278"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Double -&gt; Integer
+forall a. RealFloat a =&gt; a -&gt; Integer
+</span><span class="hs-identifier hs-var">floatRadix</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130278"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">2</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130277"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">53</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130276"><span class="hs-identifier hs-var">expMin</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="hs-glyph">-</span><span class="annot"><span class="hs-number">1021</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679130275"><span class="hs-identifier hs-var">expMax</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">1024</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Double
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded-hw assumes Double is IEEE binary64&quot;</span></span><span>
+</span><span id="line-286"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Double -&gt; Word64
+</span><span class="hs-identifier hs-var">castDoubleToWord64</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130278"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-287"></span><span>                  </span><span id="local-6989586621679130274"><span class="annot"><span class="annottext">w :: Word64
+</span><a href="#local-6989586621679130274"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679130274"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
+forall a. Bits a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="annot"><span class="hs-number">0x7ff0_0000_0000_0000</span></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0x7ff0_0000_0000_0000</span></span><span>
+</span><span id="line-288"></span><span>                    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679130274"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
+forall a. Bits a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="annot"><span class="hs-number">0x000f_ffff_ffff_ffff</span></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130278"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- NaN -&gt; itself</span><span>
+</span><span id="line-289"></span><span>                  </span><span class="hs-number">0x8000_0000_0000_0000</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130278"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- -0 -&gt; itself</span><span>
+</span><span id="line-290"></span><span>                  </span><span class="hs-number">0x0000_0000_0000_0000</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130278"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- +0 -&gt; itself</span><span>
+</span><span id="line-291"></span><span>                  </span><span id="local-6989586621679130273"><span class="annot"><span class="annottext">w :: Word64
+</span><a href="#local-6989586621679130273"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Double
+</span><span class="hs-identifier hs-var">castWord64ToDouble</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679130273"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- positive / negative</span><span>
+</span><span id="line-292"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-293"></span><span>    </span><span class="annot"><a href="#local-6989586621679130277"><span class="hs-identifier hs-type">d</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679130276"><span class="hs-identifier hs-type">expMin</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-294"></span><span>    </span><span id="local-6989586621679130277"><span class="annot"><span class="annottext">d :: Int
+</span><a href="#local-6989586621679130277"><span class="hs-identifier hs-var hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; Int
+forall a. RealFloat a =&gt; a -&gt; Int
+</span><span class="hs-identifier hs-var">floatDigits</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130278"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- 53 for Double</span><span>
+</span><span id="line-295"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679130276"><span class="annot"><span class="annottext">expMin :: Int
+</span><a href="#local-6989586621679130276"><span class="hs-identifier hs-var">expMin</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679130275"><span class="annot"><span class="annottext">expMax :: Int
+</span><a href="#local-6989586621679130275"><span class="hs-identifier hs-var">expMax</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; (Int, Int)
+forall a. RealFloat a =&gt; a -&gt; (Int, Int)
+</span><span class="hs-identifier hs-var">floatRange</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679130278"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-comment">-- (-1021,1024) for Double</span><span>
+</span><span id="line-296"></span><span>
+</span><span id="line-297"></span><span id="local-6989586621679130272"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#fusedMultiplyAdd"><span class="hs-identifier hs-type">fusedMultiplyAdd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679130272"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130272"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130272"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130272"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130272"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-298"></span><span id="fusedMultiplyAdd"><span class="annot"><span class="annottext">fusedMultiplyAdd :: a -&gt; a -&gt; a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#fusedMultiplyAdd"><span class="hs-identifier hs-var hs-var">fusedMultiplyAdd</span></a></span></span><span> </span><span id="local-6989586621679130271"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679130271"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679130270"><span class="annot"><span class="annottext">y :: a
+</span><a href="#local-6989586621679130270"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span id="local-6989586621679130269"><span class="annot"><span class="annottext">z :: a
+</span><a href="#local-6989586621679130269"><span class="hs-identifier hs-var">z</span></a></span></span><span>
+</span><span id="line-299"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130271"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130270"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130269"><span class="hs-identifier hs-var">z</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130271"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130270"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130269"><span class="hs-identifier hs-var">z</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130271"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130270"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130269"><span class="hs-identifier hs-var">z</span></a></span><span>
+</span><span id="line-300"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">a -&gt; Rational
+forall a. Real a =&gt; a -&gt; Rational
+</span><span class="hs-identifier hs-var">toRational</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130271"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Rational -&gt; Rational
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Rational
+forall a. Real a =&gt; a -&gt; Rational
+</span><span class="hs-identifier hs-var">toRational</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130270"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Rational -&gt; Rational
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Rational
+forall a. Real a =&gt; a -&gt; Rational
+</span><span class="hs-identifier hs-var">toRational</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130269"><span class="hs-identifier hs-var">z</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-301"></span><span>                  </span><span class="hs-number">0</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNegativeZero</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130271"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130270"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130269"><span class="hs-identifier hs-var">z</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-glyph">-</span><span class="annot"><span class="hs-number">0</span></span><span>
+</span><span id="line-302"></span><span>                  </span><span id="local-6989586621679130268"><span class="annot"><span class="annottext">r :: Rational
+</span><a href="#local-6989586621679130268"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Rational -&gt; a
+forall a. Fractional a =&gt; Rational -&gt; a
+</span><span class="hs-identifier hs-var">fromRational</span></span><span> </span><span class="annot"><span class="annottext">Rational
+</span><a href="#local-6989586621679130268"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><span id="line-303"></span><span class="hs-pragma">{-# NOINLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#fusedMultiplyAdd"><span class="hs-pragma hs-type">fusedMultiplyAdd</span></a></span><span> </span><span class="hs-pragma">#-}</span><span class="hs-cpp">
+
+#ifdef USE_FFI
+</span><span>
+</span><span id="line-307"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;fmaf&quot;</span></span><span>
+</span><span id="line-308"></span><span>  </span><span id="fusedMultiplyAddFloat"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#fusedMultiplyAddFloat"><span class="hs-identifier hs-var">fusedMultiplyAddFloat</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
+</span><span id="line-309"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;fma&quot;</span></span><span>
+</span><span id="line-310"></span><span>  </span><span id="fusedMultiplyAddDouble"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#fusedMultiplyAddDouble"><span class="hs-identifier hs-var">fusedMultiplyAddDouble</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span>
+</span><span id="line-311"></span><span>
+</span><span id="line-312"></span><span class="hs-pragma">{-# RULES</span><span>
+</span><span id="line-313"></span><span class="annot"><span class="hs-pragma">&quot;fusedMultiplyAdd/Float&quot;</span></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#fusedMultiplyAdd"><span class="hs-pragma hs-type">fusedMultiplyAdd</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#fusedMultiplyAddFloat"><span class="hs-pragma hs-type">fusedMultiplyAddFloat</span></a></span><span>
+</span><span id="line-314"></span><span class="annot"><span class="hs-pragma">&quot;fusedMultiplyAdd/Double&quot;</span></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#fusedMultiplyAdd"><span class="hs-pragma hs-type">fusedMultiplyAdd</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#fusedMultiplyAddDouble"><span class="hs-pragma hs-type">fusedMultiplyAddDouble</span></a></span><span>
+</span><span id="line-315"></span><span>  </span><span class="hs-pragma">#-}</span><span class="hs-cpp">
+
+#endif
+</span><span>
+</span><span id="line-319"></span><span id="local-6989586621679130265"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#distanceUlp"><span class="hs-identifier hs-type">distanceUlp</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679130265"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130265"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679130265"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span></span><span>
+</span><span id="line-320"></span><span id="distanceUlp"><span class="annot"><span class="annottext">distanceUlp :: a -&gt; a -&gt; Maybe Integer
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#distanceUlp"><span class="hs-identifier hs-var hs-var">distanceUlp</span></a></span></span><span> </span><span id="local-6989586621679130264"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679130264"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679130263"><span class="annot"><span class="annottext">y :: a
+</span><a href="#local-6989586621679130263"><span class="hs-identifier hs-var">y</span></a></span></span><span>
+</span><span id="line-321"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130264"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130263"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130264"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130263"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Integer
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-322"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679130262"><span class="annot"><span class="annottext">m :: a
+</span><a href="#local-6989586621679130262"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Ord a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">min</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a
+forall a. Num a =&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">abs</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130264"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a
+forall a. Num a =&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">abs</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130263"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-323"></span><span>                    </span><span id="local-6989586621679130259"><span class="annot"><span class="annottext">m' :: a
+</span><a href="#local-6989586621679130259"><span class="hs-identifier hs-var hs-var">m'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; a
+forall a. RealFloat a =&gt; a -&gt; a
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#nextUp"><span class="hs-identifier hs-var">nextUp</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130262"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-324"></span><span>                    </span><span id="local-6989586621679130258"><span class="annot"><span class="annottext">v :: Rational
+</span><a href="#local-6989586621679130258"><span class="hs-identifier hs-var hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Rational
+forall a. Real a =&gt; a -&gt; Rational
+</span><span class="hs-identifier hs-var">toRational</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130263"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Rational -&gt; Rational
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Rational
+forall a. Real a =&gt; a -&gt; Rational
+</span><span class="hs-identifier hs-var">toRational</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130264"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Rational -&gt; Rational
+forall a. Fractional a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">/</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Rational
+forall a. Real a =&gt; a -&gt; Rational
+</span><span class="hs-identifier hs-var">toRational</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130259"><span class="hs-identifier hs-var">m'</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679130262"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-325"></span><span>                </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Integer
+forall a. Ratio a -&gt; a
+</span><span class="hs-identifier hs-var">denominator</span></span><span> </span><span class="annot"><span class="annottext">Rational
+</span><a href="#local-6989586621679130258"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span>
+</span><span id="line-326"></span><span>                   </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Maybe Integer
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Integer -&gt; Integer
+forall a. Num a =&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">abs</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Rational -&gt; Integer
+forall a. Ratio a -&gt; a
+</span><span class="hs-identifier hs-var">numerator</span></span><span> </span><span class="annot"><span class="annottext">Rational
+</span><a href="#local-6989586621679130258"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-327"></span><span>                   </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Maybe Integer
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;distanceUlp&quot;</span></span><span>
+</span><span id="line-328"></span></pre></body></html>
