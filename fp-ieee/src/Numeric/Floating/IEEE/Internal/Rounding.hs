@@ -30,7 +30,7 @@ class Functor f => RoundingStrategy f where
           -> f a
 
 newtype RoundTiesToEven a = RoundTiesToEven { roundTiesToEven :: a }
-  deriving (Eq,Show,Functor)
+  deriving (Functor)
 
 instance RoundingStrategy RoundTiesToEven where
   exact = RoundTiesToEven
@@ -43,7 +43,7 @@ instance RoundingStrategy RoundTiesToEven where
   {-# INLINE inexact #-}
 
 newtype RoundTiesToAway a = RoundTiesToAway { roundTiesToAway :: a }
-  deriving (Eq,Show,Functor)
+  deriving (Functor)
 
 instance RoundingStrategy RoundTiesToAway where
   exact = RoundTiesToAway
@@ -55,7 +55,7 @@ instance RoundingStrategy RoundTiesToAway where
   {-# INLINE inexact #-}
 
 newtype RoundTowardPositive a = RoundTowardPositive { roundTowardPositive :: a }
-  deriving (Eq,Show,Functor)
+  deriving (Functor)
 
 instance RoundingStrategy RoundTowardPositive where
   exact = RoundTowardPositive
@@ -65,7 +65,7 @@ instance RoundingStrategy RoundTowardPositive where
   {-# INLINE inexact #-}
 
 newtype RoundTowardNegative a = RoundTowardNegative { roundTowardNegative :: a }
-  deriving (Eq,Show,Functor)
+  deriving (Functor)
 
 instance RoundingStrategy RoundTowardNegative where
   exact = RoundTowardNegative
@@ -75,7 +75,7 @@ instance RoundingStrategy RoundTowardNegative where
   {-# INLINE inexact #-}
 
 newtype RoundTowardZero a = RoundTowardZero { roundTowardZero :: a }
-  deriving (Eq,Show,Functor)
+  deriving (Functor)
 
 instance RoundingStrategy RoundTowardZero where
   exact = RoundTowardZero
@@ -84,7 +84,7 @@ instance RoundingStrategy RoundTowardZero where
   {-# INLINE inexact #-}
 
 newtype RoundTiesTowardZero a = RoundTiesTowardZero { roundTiesTowardZero :: a }
-  deriving (Eq,Show,Functor)
+  deriving (Functor)
 
 instance RoundingStrategy RoundTiesTowardZero where
   exact = RoundTiesTowardZero
@@ -94,7 +94,7 @@ instance RoundingStrategy RoundTiesTowardZero where
                                                              GT -> away
 
 newtype RoundToOdd a = RoundToOdd { roundToOdd :: a }
-  deriving (Eq,Show,Functor)
+  deriving (Functor)
 
 instance RoundingStrategy RoundToOdd where
   exact = RoundToOdd
@@ -102,7 +102,7 @@ instance RoundingStrategy RoundToOdd where
                                    | otherwise = RoundToOdd zero
 
 newtype Exactness a = Exactness { isExact :: Bool }
-  deriving (Eq,Show,Functor)
+  deriving (Functor)
 
 instance RoundingStrategy Exactness where
   exact _ = Exactness True
