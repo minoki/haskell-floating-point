@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE MagicHash #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_GHC -Wno-orphans -Wno-unused-imports #-}
 module Numeric.Floating.IEEE.Internal.Half where
@@ -6,6 +7,7 @@ import           Data.Bits
 import           Data.Coerce
 import           Data.Word
 import           Foreign.C.Types
+import           GHC.Exts
 import           MyPrelude
 import           Numeric.Floating.IEEE.Internal.Base
 import           Numeric.Floating.IEEE.Internal.Classify
@@ -154,12 +156,12 @@ compareByTotalOrderHalfNaNAware x y =
 {-# SPECIALIZE minPositiveNormal :: Half #-}
 {-# SPECIALIZE maxFinite :: Half #-}
 {-# SPECIALIZE
-  positiveWordToBinaryFloatR :: RoundingStrategy f => Bool -> Word -> f Half
-                              , Bool -> Word -> RoundTiesToEven Half
-                              , Bool -> Word -> RoundTiesToAway Half
-                              , Bool -> Word -> RoundTowardPositive Half
-                              , Bool -> Word -> RoundTowardNegative Half
-                              , Bool -> Word -> RoundTowardZero Half
+  positiveWordToBinaryFloatR# :: RoundingStrategy f => Bool -> Word# -> f Half
+                               , Bool -> Word# -> RoundTiesToEven Half
+                               , Bool -> Word# -> RoundTiesToAway Half
+                               , Bool -> Word# -> RoundTowardPositive Half
+                               , Bool -> Word# -> RoundTowardNegative Half
+                               , Bool -> Word# -> RoundTowardZero Half
   #-}
 {-# SPECIALIZE
   fromPositiveIntegerR :: RoundingStrategy f => Bool -> Integer -> f Half
@@ -176,6 +178,14 @@ compareByTotalOrderHalfNaNAware x y =
                       , Bool -> Integer -> Integer -> RoundTowardPositive Half
                       , Bool -> Integer -> Integer -> RoundTowardNegative Half
                       , Bool -> Integer -> Integer -> RoundTowardZero Half
+  #-}
+{-# SPECIALIZE
+  encodePositiveFloatR# :: RoundingStrategy f => Bool -> Integer -> Int# -> f Half
+                         , Bool -> Integer -> Int# -> RoundTiesToEven Half
+                         , Bool -> Integer -> Int# -> RoundTiesToAway Half
+                         , Bool -> Integer -> Int# -> RoundTowardPositive Half
+                         , Bool -> Integer -> Int# -> RoundTowardNegative Half
+                         , Bool -> Integer -> Int# -> RoundTowardZero Half
   #-}
 
 #if defined(HAS_FAST_HALF_CONVERSION)

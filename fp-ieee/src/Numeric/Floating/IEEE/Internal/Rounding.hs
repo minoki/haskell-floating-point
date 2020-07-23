@@ -1,5 +1,6 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE MagicHash #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 module Numeric.Floating.IEEE.Internal.Rounding where
 import           Control.Exception (assert)
@@ -9,6 +10,7 @@ import           Data.Int
 import           Data.Proxy
 import           Data.Ratio
 import           Data.Word
+import           GHC.Exts
 import           GHC.Float (expt)
 import           Math.NumberTheory.Logarithms (integerLog2', integerLogBase',
                                                wordLog2')
@@ -168,19 +170,6 @@ fromIntegerTowardZero = roundTowardZero . fromIntegerR
 fromIntegralR :: (Integral i, RealFloat a, RoundingStrategy f) => i -> f a
 fromIntegralR x = fromIntegerR (toInteger x)
 {-# INLINE [0] fromIntegralR #-}
-
-fromIntegralTiesToEven, fromIntegralTiesToAway, fromIntegralTowardPositive, fromIntegralTowardNegative, fromIntegralTowardZero :: (Integral i, RealFloat a) => i -> a
-fromIntegralTiesToEven = roundTiesToEven . fromIntegralR
-fromIntegralTiesToAway = roundTiesToAway . fromIntegralR
-fromIntegralTowardPositive = roundTowardPositive . fromIntegralR
-fromIntegralTowardNegative = roundTowardNegative . fromIntegralR
-fromIntegralTowardZero = roundTowardZero . fromIntegralR
-{-# INLINE fromIntegralTiesToEven #-}
-{-# INLINE fromIntegralTiesToAway #-}
-{-# INLINE fromIntegralTowardPositive #-}
-{-# INLINE fromIntegralTowardNegative #-}
-{-# INLINE fromIntegralTowardZero #-}
-
 {-# RULES
 "fromIntegralR/Integer->a" fromIntegralR = fromIntegerR
 "fromIntegralR/Int->a" forall (x :: Int). fromIntegralR x = fromIntegralRBits x
@@ -194,6 +183,18 @@ fromIntegralTowardZero = roundTowardZero . fromIntegralR
 "fromIntegralR/Word32->a" forall (x :: Word32). fromIntegralR x = fromIntegralRBits x
 "fromIntegralR/Word64->a" forall (x :: Word64). fromIntegralR x = fromIntegralRBits x
   #-}
+
+fromIntegralTiesToEven, fromIntegralTiesToAway, fromIntegralTowardPositive, fromIntegralTowardNegative, fromIntegralTowardZero :: (Integral i, RealFloat a) => i -> a
+fromIntegralTiesToEven = roundTiesToEven . fromIntegralR
+fromIntegralTiesToAway = roundTiesToAway . fromIntegralR
+fromIntegralTowardPositive = roundTowardPositive . fromIntegralR
+fromIntegralTowardNegative = roundTowardNegative . fromIntegralR
+fromIntegralTowardZero = roundTowardZero . fromIntegralR
+{-# INLINE fromIntegralTiesToEven #-}
+{-# INLINE fromIntegralTiesToAway #-}
+{-# INLINE fromIntegralTowardPositive #-}
+{-# INLINE fromIntegralTowardNegative #-}
+{-# INLINE fromIntegralTowardZero #-}
 
 fromIntegralRBits :: (Integral i, Bits i, RealFloat a, RoundingStrategy f) => i -> f a
 fromIntegralRBits x
@@ -311,9 +312,15 @@ pureIfThenElse cond x y = if cond then
 "pureIfThenElse" forall cond x. pureIfThenElse cond x x = x
   #-}
 
+-- Avoid cross-module specialization issue with worker/wrapper transformations
 positiveWordToBinaryFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Word -> f a
-positiveWordToBinaryFloatR !neg !n = result
+positiveWordToBinaryFloatR neg (W# n#) = positiveWordToBinaryFloatR# neg n#
+{-# INLINE positiveWordToBinaryFloatR #-}
+
+positiveWordToBinaryFloatR# :: (RealFloat a, RoundingStrategy f) => Bool -> Word# -> f a
+positiveWordToBinaryFloatR# !neg n# = result
   where
+    n = W# n#
     result = let k = wordLog2' n -- floor (log2 n)
                  -- 2^k <= n < 2^(k+1) <= 2^(finiteBitSize n)
                  -- k <= finiteBitSize n - 1
@@ -348,25 +355,25 @@ positiveWordToBinaryFloatR !neg !n = result
 
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
     (_expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
-{-# INLINABLE positiveWordToBinaryFloatR #-}
+{-# INLINABLE positiveWordToBinaryFloatR# #-}
 {-# SPECIALIZE
-  positiveWordToBinaryFloatR :: RoundingStrategy f => Bool -> Word -> f Float
-                              , RoundingStrategy f => Bool -> Word -> f Double
-                              , RealFloat a => Bool -> Word -> RoundTiesToEven a
-                              , RealFloat a => Bool -> Word -> RoundTiesToAway a
-                              , RealFloat a => Bool -> Word -> RoundTowardPositive a
-                              , RealFloat a => Bool -> Word -> RoundTowardNegative a
-                              , RealFloat a => Bool -> Word -> RoundTowardZero a
-                              , Bool -> Word -> RoundTiesToEven Float
-                              , Bool -> Word -> RoundTiesToAway Float
-                              , Bool -> Word -> RoundTowardPositive Float
-                              , Bool -> Word -> RoundTowardNegative Float
-                              , Bool -> Word -> RoundTowardZero Float
-                              , Bool -> Word -> RoundTiesToEven Double
-                              , Bool -> Word -> RoundTiesToAway Double
-                              , Bool -> Word -> RoundTowardPositive Double
-                              , Bool -> Word -> RoundTowardNegative Double
-                              , Bool -> Word -> RoundTowardZero Double
+  positiveWordToBinaryFloatR# :: RoundingStrategy f => Bool -> Word# -> f Float
+                               , RoundingStrategy f => Bool -> Word# -> f Double
+                               , RealFloat a => Bool -> Word# -> RoundTiesToEven a
+                               , RealFloat a => Bool -> Word# -> RoundTiesToAway a
+                               , RealFloat a => Bool -> Word# -> RoundTowardPositive a
+                               , RealFloat a => Bool -> Word# -> RoundTowardNegative a
+                               , RealFloat a => Bool -> Word# -> RoundTowardZero a
+                               , Bool -> Word# -> RoundTiesToEven Float
+                               , Bool -> Word# -> RoundTiesToAway Float
+                               , Bool -> Word# -> RoundTowardPositive Float
+                               , Bool -> Word# -> RoundTowardNegative Float
+                               , Bool -> Word# -> RoundTowardZero Float
+                               , Bool -> Word# -> RoundTiesToEven Double
+                               , Bool -> Word# -> RoundTiesToAway Double
+                               , Bool -> Word# -> RoundTowardPositive Double
+                               , Bool -> Word# -> RoundTowardNegative Double
+                               , Bool -> Word# -> RoundTowardZero Double
   #-}
 
 -- n > 0
@@ -581,9 +588,15 @@ encodeFloatTowardZero m = roundTowardZero . encodeFloatR m
 {-# INLINE encodeFloatTowardNegative #-}
 {-# INLINE encodeFloatTowardZero #-}
 
+-- Avoid cross-module specialization issue with worker/wrapper transformations
 encodePositiveFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Int -> f a
-encodePositiveFloatR !neg !m !n = assert (m > 0) result
+encodePositiveFloatR neg m (I# n#) = encodePositiveFloatR# neg m n#
+{-# INLINE encodePositiveFloatR #-}
+
+encodePositiveFloatR# :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Int# -> f a
+encodePositiveFloatR# !neg !m n# = assert (m > 0) result
   where
+    n = I# n#
     result = let k = if base == 2 then
                        integerLog2' m
                      else
@@ -649,23 +662,23 @@ encodePositiveFloatR !neg !m !n = assert (m > 0) result
     !base = floatRadix (undefined `asProxyTypeOf` result)
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
     (!expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
-{-# INLINABLE encodePositiveFloatR #-}
+{-# INLINABLE encodePositiveFloatR# #-}
 {-# SPECIALIZE
-  encodePositiveFloatR :: RealFloat a => Bool -> Integer -> Int -> RoundTiesToEven a
-                        , RealFloat a => Bool -> Integer -> Int -> RoundTiesToAway a
-                        , RealFloat a => Bool -> Integer -> Int -> RoundTowardPositive a
-                        , RealFloat a => Bool -> Integer -> Int -> RoundTowardNegative a
-                        , RealFloat a => Bool -> Integer -> Int -> RoundTowardZero a
-                        , RoundingStrategy f => Bool -> Integer -> Int -> f Double
-                        , RoundingStrategy f => Bool -> Integer -> Int -> f Float
-                        , Bool -> Integer -> Int -> RoundTiesToEven Double
-                        , Bool -> Integer -> Int -> RoundTiesToAway Double
-                        , Bool -> Integer -> Int -> RoundTowardPositive Double
-                        , Bool -> Integer -> Int -> RoundTowardNegative Double
-                        , Bool -> Integer -> Int -> RoundTowardZero Double
-                        , Bool -> Integer -> Int -> RoundTiesToEven Float
-                        , Bool -> Integer -> Int -> RoundTiesToAway Float
-                        , Bool -> Integer -> Int -> RoundTowardPositive Float
-                        , Bool -> Integer -> Int -> RoundTowardNegative Float
-                        , Bool -> Integer -> Int -> RoundTowardZero Float
+  encodePositiveFloatR# :: RealFloat a => Bool -> Integer -> Int# -> RoundTiesToEven a
+                         , RealFloat a => Bool -> Integer -> Int# -> RoundTiesToAway a
+                         , RealFloat a => Bool -> Integer -> Int# -> RoundTowardPositive a
+                         , RealFloat a => Bool -> Integer -> Int# -> RoundTowardNegative a
+                         , RealFloat a => Bool -> Integer -> Int# -> RoundTowardZero a
+                         , RoundingStrategy f => Bool -> Integer -> Int# -> f Double
+                         , RoundingStrategy f => Bool -> Integer -> Int# -> f Float
+                         , Bool -> Integer -> Int# -> RoundTiesToEven Double
+                         , Bool -> Integer -> Int# -> RoundTiesToAway Double
+                         , Bool -> Integer -> Int# -> RoundTowardPositive Double
+                         , Bool -> Integer -> Int# -> RoundTowardNegative Double
+                         , Bool -> Integer -> Int# -> RoundTowardZero Double
+                         , Bool -> Integer -> Int# -> RoundTiesToEven Float
+                         , Bool -> Integer -> Int# -> RoundTiesToAway Float
+                         , Bool -> Integer -> Int# -> RoundTowardPositive Float
+                         , Bool -> Integer -> Int# -> RoundTowardNegative Float
+                         , Bool -> Integer -> Int# -> RoundTowardZero Float
   #-}
