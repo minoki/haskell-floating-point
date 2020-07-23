@@ -167,9 +167,11 @@ library:
   - Numeric.Floating.IEEE.Internal.Conversion
   - Numeric.Floating.IEEE.Internal.FMA
   - Numeric.Floating.IEEE.Internal.GenericArith
+  - Numeric.Floating.IEEE.Internal.IntegerInternals
   - Numeric.Floating.IEEE.Internal.MinMax
   - Numeric.Floating.IEEE.Internal.NaN
   - Numeric.Floating.IEEE.Internal.NextFloat
+  - Numeric.Floating.IEEE.Internal.Remainder
   - Numeric.Floating.IEEE.Internal.RoundToIntegral
   - Numeric.Floating.IEEE.Internal.Rounding
   dependencies:
