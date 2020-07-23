@@ -9,6 +9,7 @@ import           Control.Monad
 import           Data.Functor.Identity
 import           Data.Int
 import           Data.Proxy
+import           Data.Ratio
 import qualified FMASpec
 import qualified NaNSpec
 import qualified NextFloatSpec
@@ -31,11 +32,15 @@ instance Arbitrary Half where
   shrink = shrinkDecimal
 
 instance Random Half where
+  -- Half:
+  --   emin = -14, emax = 15
+  --   precision = 11 bits
+  --   maxFinite = 0xffe0 (65504)
   randomR (lo,hi) g = let (x,g') = random g
                       in (lo + x * (hi - lo), g') -- TODO: avoid overflow
-  random g = let x :: Int64
+  random g = let x :: Int32
                  (x,g') = random g
-             in (fromIntegral x / 2^(32 :: Int), g') -- TODO: do better
+             in (fromRational (toInteger x % 2^(16 :: Int)), g')
 
 isInfiniteWorkaround :: (Half -> Property) -> (Half -> Property)
 isInfiniteIsKnownToBeBuggy :: Bool
