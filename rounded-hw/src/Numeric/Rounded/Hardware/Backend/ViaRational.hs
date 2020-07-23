@@ -8,7 +8,6 @@ module Numeric.Rounded.Hardware.Backend.ViaRational where
 import           Control.DeepSeq (NFData (..))
 import           Control.Exception (assert)
 import           Data.Coerce
-import           Data.Functor.Product
 import           Data.Ratio
 import           Data.Tagged
 import qualified Data.Vector.Generic as VG
@@ -21,7 +20,7 @@ import           GHC.Generics (Generic)
 import           Numeric.Rounded.Hardware.Internal.Class
 import           Numeric.Rounded.Hardware.Internal.Constants
 import           Numeric.Rounded.Hardware.Internal.Conversion
-import           Numeric.Rounded.Hardware.Internal.FloatUtil (nextDown, nextUp)
+import           Numeric.Floating.IEEE (nextDown, nextUp)
 
 newtype ViaRational a = ViaRational a
   deriving (Eq,Ord,Show,Generic,Num,Storable)
@@ -71,8 +70,8 @@ instance (RealFloat a, Num a, RealFloatConstants a) => RoundedRing (ViaRational 
               TowardInf    ->  0
               TowardZero   ->  0
   roundedFromInteger r x = ViaRational (fromInt r x)
-  intervalFromInteger x = case fromIntF x :: Product (Rounded 'TowardNegInf) (Rounded 'TowardInf) a of
-    Pair a b -> (ViaRational <$> a, ViaRational <$> b)
+  intervalFromInteger x = case intervalFromInteger_default x of
+    (a, b) -> (ViaRational <$> a, ViaRational <$> b)
   backendNameT = Tagged "via Rational"
   {-# INLINE roundedFromInteger #-}
   {-# INLINE intervalFromInteger #-}
@@ -88,8 +87,8 @@ instance (RealFloat a, Num a, RealFloatConstants a) => RoundedFractional (ViaRat
                            | isInfinite x = ViaRational (if x > 0 then 1/0 else -1/0)
                            | isNegativeZero x = ViaRational (-0)
                            | otherwise = roundedFromRational r (toRational x)
-  intervalFromRational x = case fromRatioF (numerator x) (denominator x) :: Product (Rounded 'TowardNegInf) (Rounded 'TowardInf) a of
-    Pair a b -> (ViaRational <$> a, ViaRational <$> b)
+  intervalFromRational x = case intervalFromRational_default x of
+    (a, b) -> (ViaRational <$> a, ViaRational <$> b)
   {-# INLINE roundedFromRational #-}
   {-# INLINE intervalFromRational #-}
   {-# SPECIALIZE instance RoundedFractional (ViaRational Float) #-}

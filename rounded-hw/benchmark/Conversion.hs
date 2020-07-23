@@ -8,6 +8,7 @@ import           Data.Int
 import           Data.Ratio
 import           Data.Word
 import           Gauge.Benchmark
+import           Numeric.Floating.IEEE.Internal
 import           Numeric.Rounded.Hardware
 import           Numeric.Rounded.Hardware.Class
 import           Numeric.Rounded.Hardware.Interval
@@ -57,6 +58,12 @@ benchmark = bgroup "Conversion"
        , bench "roundedFromInteger/Double/TowardInf/small" $ nf (roundedFromInteger TowardInf :: Integer -> Double) smallInteger
        , bench "roundedFromInteger/Double/TowardInf/medium" $ nf (roundedFromInteger TowardInf :: Integer -> Double) mediumInteger
        , bench "roundedFromInteger/Double/TowardInf/large" $ nf (roundedFromInteger TowardInf :: Integer -> Double) largeInteger
+       , bench "fp-ieee/ToNearest/small" $ nf (fromIntegerTiesToEven :: Integer -> Double) smallInteger
+       , bench "fp-ieee/ToNearest/medium" $ nf (fromIntegerTiesToEven :: Integer -> Double) mediumInteger
+       , bench "fp-ieee/ToNearest/large" $ nf (fromIntegerTiesToEven :: Integer -> Double) largeInteger
+       , bench "fp-ieee/TowardInf/small" $ nf (fromIntegerTowardPositive :: Integer -> Double) smallInteger
+       , bench "fp-ieee/TowardInf/medium" $ nf (fromIntegerTowardPositive :: Integer -> Double) mediumInteger
+       , bench "fp-ieee/TowardInf/large" $ nf (fromIntegerTowardPositive :: Integer -> Double) largeInteger
        , bench "IntervalDouble/small" $ nf (fromInteger :: Integer -> Interval Double) smallInteger
        , bench "IntervalDouble/medium" $ nf (fromInteger :: Integer -> Interval Double) mediumInteger
        , bench "IntervalDouble/large" $ nf (fromInteger :: Integer -> Interval Double) largeInteger
@@ -74,6 +81,10 @@ benchmark = bgroup "Conversion"
        , bench "roundedFromInteger/Double/ToNearest/medium" $ nf (roundedFromInteger ToNearest . fromIntegral :: Int64 -> Double) mediumInteger
        , bench "roundedFromInteger/Double/TowardInf/small" $ nf (roundedFromInteger TowardInf . fromIntegral :: Int64 -> Double) smallInteger
        , bench "roundedFromInteger/Double/TowardInf/medium" $ nf (roundedFromInteger TowardInf . fromIntegral :: Int64 -> Double) mediumInteger
+       , bench "fp-ieee/Double/ToNearest/small" $ nf (fromIntegralTiesToEven :: Int64 -> Double) smallInteger
+       , bench "fp-ieee/Double/ToNearest/medium" $ nf (fromIntegralTiesToEven :: Int64 -> Double) mediumInteger
+       , bench "fp-ieee/Double/TowardInf/small" $ nf (fromIntegralTowardPositive :: Int64 -> Double) smallInteger
+       , bench "fp-ieee/Double/TowardInf/medium" $ nf (fromIntegralTowardPositive :: Int64 -> Double) mediumInteger
        , bench "int64ToDouble/Double/ToNearest/small" $ nf (int64ToDouble ToNearest :: Int64 -> Double) smallInteger
        , bench "int64ToDouble/Double/ToNearest/medium" $ nf (int64ToDouble ToNearest :: Int64 -> Double) mediumInteger
        , bench "int64ToDouble/Double/TowardInf/small" $ nf (int64ToDouble TowardInf :: Int64 -> Double) smallInteger
@@ -92,6 +103,12 @@ benchmark = bgroup "Conversion"
        , bench "RoundedDouble/TowardInf/decimal" $ nf (fromRational :: Rational -> Rounded 'TowardInf Double) pi'
        , bench "RoundedDouble/TowardInf/small" $ nf (fromRational :: Rational -> Rounded 'TowardInf Double) smallRational
        , bench "RoundedDouble/TowardInf/large" $ nf (fromRational :: Rational -> Rounded 'TowardInf Double) largeRational
+       , bench "fp-ieee/ToNearest/decimal" $ nf (fromRationalTiesToEven :: Rational -> Double) pi'
+       , bench "fp-ieee/ToNearest/small" $ nf (fromRationalTiesToEven :: Rational -> Double) smallRational
+       , bench "fp-ieee/ToNearest/large" $ nf (fromRationalTiesToEven :: Rational -> Double) largeRational
+       , bench "fp-ieee/TowardInf/decimal" $ nf (fromRationalTowardPositive :: Rational -> Double) pi'
+       , bench "fp-ieee/TowardInf/small" $ nf (fromRationalTowardPositive :: Rational -> Double) smallRational
+       , bench "fp-ieee/TowardInf/large" $ nf (fromRationalTowardPositive :: Rational -> Double) largeRational
        , bench "IntervalDouble/decimal" $ nf (fromRational :: Rational -> Interval Double) pi'
        , bench "IntervalDouble/small" $ nf (fromRational :: Rational -> Interval Double) smallRational
        , bench "IntervalDouble/large" $ nf (fromRational :: Rational -> Interval Double) largeRational
