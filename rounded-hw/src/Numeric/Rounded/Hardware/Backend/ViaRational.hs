@@ -19,7 +19,7 @@ import           GHC.Generics (Generic)
 import           Numeric.Rounded.Hardware.Internal.Class
 import           Numeric.Rounded.Hardware.Internal.Constants
 import           Numeric.Rounded.Hardware.Internal.Conversion
-import           Numeric.Floating.IEEE (nextDown, nextUp)
+import           Numeric.Floating.IEEE (isFinite, nextDown, nextUp)
 
 newtype ViaRational a = ViaRational a
   deriving (Eq,Ord,Show,Generic,Num,Storable)
@@ -57,12 +57,13 @@ instance (RealFloat a, Num a, RealFloatConstants a) => RoundedRing (ViaRational 
     | isNaN x || isNaN y || isInfinite x || isInfinite y || isNegativeZero x || isNegativeZero y = ViaRational (x * y)
     | otherwise = roundedFromRational r (toRational x * toRational y)
   roundedFusedMultiplyAdd r (ViaRational x) (ViaRational y) (ViaRational z)
-    | isNaN x || isNaN y || isNaN z || isInfinite x || isInfinite y || isInfinite z = ViaRational (x * y + z)
-    | otherwise = case toRational x * toRational y + toRational z of
+    | isFinite x && isFinite y && isFinite z = case toRational x * toRational y + toRational z of
                     0 -> if z == 0 && isNegativeZero (x * y) == isNegativeZero z
                          then ViaRational z
                          else ViaRational roundedZero
                     w -> roundedFromRational r w
+    | isFinite x && isFinite y = ViaRational z -- Infinity or NaN
+    | otherwise = ViaRational (x * y + z)
       where roundedZero = case r of
               ToNearest    ->  0
               TowardNegInf -> -0
