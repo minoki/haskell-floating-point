@@ -12,17 +12,19 @@ module Numeric.Floating.IEEE.Internal.IntegerInternals
   , naturalToWord64Maybe
   , unsafeShiftLInteger
   , unsafeShiftRInteger
+  , roundingMode
   ) where
 import           Data.Bits
 import           GHC.Exts
 import           GHC.Int (Int (I#), Int64 (I64#))
 import           GHC.Word (Word (W#), Word64 (W64#))
 import           MyPrelude
-import           Numeric.Natural
 import           Numeric.Floating.IEEE.Internal.Base
+import           Numeric.Natural
 #if defined(MIN_VERSION_integer_gmp)
 import qualified GHC.Integer
 import           GHC.Integer.GMP.Internals (Integer (S#))
+import qualified GHC.Integer.Logarithms.Internals
 import           GHC.Natural (Natural (NatS#))
 #endif
 
@@ -46,7 +48,7 @@ integerToIntMaybe x = staticIf
   (Just (fromIntegral x))
   (case x of
      S# x# -> Just (I# x#)
-     _ -> Nothing -- relies on Integer's invariant
+     _     -> Nothing -- relies on Integer's invariant
   )
 {-
 integerToIntMaybe (S# x#) = Just (I# x#)
@@ -108,3 +110,18 @@ unsafeShiftRInteger = unsafeShiftR
 
 {-# INLINE unsafeShiftLInteger #-}
 {-# INLINE unsafeShiftRInteger #-}
+
+roundingMode :: Integer -- ^ must be positive
+             -> Int -- ^ must be positive
+             -> Ordering
+#if defined(MIN_VERSION_integer_gmp)
+roundingMode x (I# t#) = case GHC.Integer.Logarithms.Internals.roundingMode# x t# of
+                           0# -> LT -- round toward zero
+                           1# -> EQ -- half
+                           _  -> GT -- 2#: round away from zero
+#else
+roundingMode x t = compare (x .&. (bit (t + 1) - 1)) (bit t)
+#endif
+{-# INLINE roundingMode #-}
+
+-- TODO: integerIsPowerOf2
