@@ -106,10 +106,18 @@ multiplyByExpt x 2 n    = assert (n >= 0) (x `unsafeShiftLInteger` n)
 multiplyByExpt x base n = x * expt base n
 {-# INLINE multiplyByExpt #-}
 
-divideByExpt :: Integer -> Integer -> Int -> Integer
-divideByExpt x 2 n    = assert (n >= 0) (x `unsafeShiftRInteger` n)
-divideByExpt x base n = x `quot` expt base n
-{-# INLINE divideByExpt #-}
+-- |
+-- Assumption: @r == n `rem` (base^e)@
+--
+-- Property: @compareWithExpt base n r e == compare r (base ^ e)@
+compareWithExpt :: Integer -- ^ base
+                  -> Integer -- ^ the number
+                  -> Integer -- ^ the remainder (@n `rem` (base ^ (e + 1))@)
+                  -> Int -- ^ exponent (@>= 0@)
+                  -> Ordering
+compareWithExpt 2 n r e = assert (r == n `rem` expt 2 (e+1)) $ Numeric.Floating.IEEE.Internal.IntegerInternals.roundingMode n e
+compareWithExpt base n r e = assert (r == n `rem` expt base (e+1)) $ compare r (expt base e)
+{-# INLINE compareWithExpt #-}
 
 fromIntegerR :: (RealFloat a, RoundingStrategy f) => Integer -> f a
 fromIntegerR n = case integerToIntMaybe n of
@@ -367,7 +375,8 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
                             awayfromzero = encodeFloat (q + 1) e
                             parity = fromInteger q :: Int
                         in inexact
-                             (compare r (expt base (e - 1)))
+                             (compareWithExpt base n r (e - 1))
+                             -- (compare r (expt base (e - 1)))
                              neg
                              parity
                              towardzero
@@ -480,7 +489,7 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                   else
                     -- subnormal: 0 < n/d < base^^(expMin-1)
                     -- e + fDigits < expMin
-                    let (!q', !r') = quotRemByExpt q base (expMin - fDigits - e)
+                    let (q', r') = quotRemByExpt q base (expMin - fDigits - e)
                         -- q = q' * base^(expMin-fDigits-e) + r', 0 <= r' < base^(expMin-fDigits-e)
                         -- n / d * base^^(-e) = q' * base^(expMin-fDigits-e) + r' + r / d'
                         -- n / d = q' * base^^(expMin - fDigits) + (r' + r / d') * base^^e
@@ -493,7 +502,8 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                             awayfromzero = encodeFloat (q' + 1) (expMin - fDigits)
                             parity = fromInteger q' :: Int
                         in inexact
-                             (compare r' (expt base (expMin - fDigits - e - 1)) <> if r == 0 then EQ else GT)
+                             (compareWithExpt base q r' (expMin - fDigits - e - 1) <> if r == 0 then EQ else GT)
+                             -- (compare r' (expt base (expMin - fDigits - e - 1)) <> if r == 0 then EQ else GT)
                              neg
                              parity
                              towardzero
@@ -569,7 +579,8 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                             awayfromzero = encodeFloat (q + 1) (n + k - fDigits + 1)
                             parity = fromInteger q :: Int
                         in inexact
-                             (compare r (expt base (k - fDigits)))
+                             (compareWithExpt base m r (k - fDigits))
+                             -- (compare r (expt base (k - fDigits)))
                              neg
                              parity
                              towardzero
@@ -598,7 +609,9 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                          (let towardzero = encodeFloat q (expMin - fDigits)
                               awayfromzero = encodeFloat (q + 1) (expMin - fDigits)
                               parity = fromInteger q :: Int
-                          in inexact (compare r (expt base (expMin - fDigits - n - 1)))
+                          in inexact
+                               (compareWithExpt base m r (expMin - fDigits - n - 1))
+                               -- (compare r (expt base (expMin - fDigits - n - 1)))
                                neg
                                parity
                                towardzero
