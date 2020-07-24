@@ -201,8 +201,8 @@ fromIntegralRBits x
 -- (Just (-9007199254740992),Just 9007199254740992)
 -- >>> boundsForExactConversion (Proxy :: Proxy Double) :: (Maybe Int32, Maybe Int32) -- the conversion is always exact
 -- (Nothing,Nothing)
--- >>> boundForExactConversion (Proxy :: Proxy Float) :: (Maybe Word, Maybe Word) -- (Nothing,Just (2^23))
--- (Nothing,Just 8388608)
+-- >>> boundsForExactConversion (Proxy :: Proxy Float) :: (Maybe Word, Maybe Word) -- (Nothing,Just (2^24))
+-- (Nothing,Just 16777216)
 boundsForExactConversion :: (Integral i, Bits i, RealFloat a) => Proxy a -> (Maybe i, Maybe i)
 boundsForExactConversion proxyR = assert ieee (minI, maxI)
   where
