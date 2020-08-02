@@ -51,10 +51,10 @@ isMantissaEven x = let !_ = assert (isFinite x) ()
                         even m
 {-# NOINLINE [1] isMantissaEven #-}
 {-# RULES
-"isMantissaEven/Double" forall (x :: Double).
-  isMantissaEven x = even (castDoubleToWord64 x)
-"isMantissaEven/Float" forall (x :: Float).
-  isMantissaEven x = even (castFloatToWord32 x)
+"isMantissaEven/Double"
+  isMantissaEven = \x -> even (castDoubleToWord64 x)
+"isMantissaEven/Float"
+  isMantissaEven = \x -> even (castFloatToWord32 x)
   #-}
 
 -- |

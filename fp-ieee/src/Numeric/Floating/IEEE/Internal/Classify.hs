@@ -32,10 +32,10 @@ isFinite :: RealFloat a => a -> Bool
 isFinite x = not (isNaN x) && not (isInfinite x)
 {-# NOINLINE [1] isFinite #-}
 {-# RULES
-"isFinite/Float" forall (x :: Float).
-  isFinite x = isFloatFinite x /= 0
-"isFinite/Double" forall (x :: Double).
-  isFinite x = isDoubleFinite x /= 0
+"isFinite/Float"
+  isFinite = \x -> isFloatFinite x /= 0
+"isFinite/Double"
+  isFinite = \x -> isDoubleFinite x /= 0
   #-}
 
 -- |

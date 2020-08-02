@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE TypeApplications #-}
 module Numeric.Floating.IEEE.Internal.Rounding where
 import           Control.Exception (assert)
 import           Data.Bits
@@ -122,16 +123,16 @@ fromIntegralR x = fromIntegerR (toInteger x)
 {-# INLINE [0] fromIntegralR #-}
 {-# RULES
 "fromIntegralR/Integer->a" fromIntegralR = fromIntegerR
-"fromIntegralR/Int->a" forall (x :: Int). fromIntegralR x = fromIntegralRBits x
-"fromIntegralR/Int8->a" forall (x :: Int8). fromIntegralR x = fromIntegralRBits x
-"fromIntegralR/Int16->a" forall (x :: Int16). fromIntegralR x = fromIntegralRBits x
-"fromIntegralR/Int32->a" forall (x :: Int32). fromIntegralR x = fromIntegralRBits x
-"fromIntegralR/Int64->a" forall (x :: Int64). fromIntegralR x = fromIntegralRBits x
-"fromIntegralR/Word->a" forall (x :: Word). fromIntegralR x = fromIntegralRBits x
-"fromIntegralR/Word8->a" forall (x :: Word8). fromIntegralR x = fromIntegralRBits x
-"fromIntegralR/Word16->a" forall (x :: Word16). fromIntegralR x = fromIntegralRBits x
-"fromIntegralR/Word32->a" forall (x :: Word32). fromIntegralR x = fromIntegralRBits x
-"fromIntegralR/Word64->a" forall (x :: Word64). fromIntegralR x = fromIntegralRBits x
+"fromIntegralR/Int->a" fromIntegralR = fromIntegralRBits @Int
+"fromIntegralR/Int8->a" fromIntegralR = fromIntegralRBits @Int8
+"fromIntegralR/Int16->a" fromIntegralR = fromIntegralRBits @Int16
+"fromIntegralR/Int32->a" fromIntegralR = fromIntegralRBits @Int32
+"fromIntegralR/Int64->a" fromIntegralR = fromIntegralRBits @Int64
+"fromIntegralR/Word->a" fromIntegralR = fromIntegralRBits @Word
+"fromIntegralR/Word8->a" fromIntegralR = fromIntegralRBits @Word8
+"fromIntegralR/Word16->a" fromIntegralR = fromIntegralRBits @Word16
+"fromIntegralR/Word32->a" fromIntegralR = fromIntegralRBits @Word32
+"fromIntegralR/Word64->a" fromIntegralR = fromIntegralRBits @Word64
   #-}
 
 fromIntegralRBits :: (Integral i, Bits i, RealFloat a, RoundingStrategy f) => i -> f a
@@ -333,8 +334,8 @@ positiveWordToBinaryFloatR# !neg n# = result
                                , Bool -> Word# -> Product RoundTowardNegative RoundTowardPositive Double
   #-}
 {-# RULES
-"positiveWordToBinaryFloatR#/RoundTowardNegative" forall neg x.
-  positiveWordToBinaryFloatR# neg x = RoundTowardNegative (roundTowardPositive (positiveWordToBinaryFloatR# (not neg) x))
+"positiveWordToBinaryFloatR#/RoundTowardNegative"
+  positiveWordToBinaryFloatR# = \neg x -> RoundTowardNegative (roundTowardPositive (positiveWordToBinaryFloatR# (not neg) x))
   #-}
 
 -- n > 0
@@ -397,8 +398,8 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
                         , Bool -> Integer -> Product RoundTowardNegative RoundTowardPositive Float
   #-}
 {-# RULES
-"fromPositiveIntegerR/RoundTowardNegative" forall neg x.
-  fromPositiveIntegerR neg x = RoundTowardNegative (roundTowardPositive (fromPositiveIntegerR (not neg) x))
+"fromPositiveIntegerR/RoundTowardNegative"
+  fromPositiveIntegerR = \neg x -> RoundTowardNegative (roundTowardPositive (fromPositiveIntegerR (not neg) x))
   #-}
 
 fromRationalR :: (RealFloat a, RoundingStrategy f) => Rational -> f a
@@ -523,8 +524,8 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                       , Bool -> Integer -> Integer -> Product RoundTowardNegative RoundTowardPositive Float
   #-}
 {-# RULES
-"fromPositiveRatioR/RoundTowardNegative" forall neg x y.
-  fromPositiveRatioR neg x y = RoundTowardNegative (roundTowardPositive (fromPositiveRatioR (not neg) x y))
+"fromPositiveRatioR/RoundTowardNegative"
+  fromPositiveRatioR = \neg x y -> RoundTowardNegative (roundTowardPositive (fromPositiveRatioR (not neg) x y))
   #-}
 
 encodeFloatR :: (RealFloat a, RoundingStrategy f) => Integer -> Int -> f a
@@ -628,6 +629,6 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                          , Bool -> Integer -> Int# -> Product RoundTowardNegative RoundTowardPositive Float
   #-}
 {-# RULES
-"encodePositiveFloatR#/RoundTowardNegative" forall neg x y.
-  encodePositiveFloatR# neg x y = RoundTowardNegative (roundTowardPositive (encodePositiveFloatR# (not neg) x y))
+"encodePositiveFloatR#/RoundTowardNegative"
+  encodePositiveFloatR# = \neg x y -> RoundTowardNegative (roundTowardPositive (encodePositiveFloatR# (not neg) x y))
   #-}

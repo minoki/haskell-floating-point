@@ -16,7 +16,7 @@ realFloatToFrac x | isNaN x = 0/0
                   | otherwise = realToFrac x
 {-# NOINLINE [1] realFloatToFrac #-}
 {-# RULES
-"realFloatToFrac/a->a" forall x. realFloatToFrac x = x * 1.0 -- trying to make signaling NaNs quiet. Unfortunately, GHC optimizes away '* 1.0' when the type is 'Float' or 'Double'.
+"realFloatToFrac/a->a" realFloatToFrac = \x -> x * 1.0 -- trying to make signaling NaNs quiet. Unfortunately, GHC optimizes away '* 1.0' when the type is 'Float' or 'Double'.
 "realFloatToFrac/Float->Double" realFloatToFrac = float2Double
 "realFloatToFrac/Double->Float" realFloatToFrac = double2Float
   #-}
