@@ -12,6 +12,9 @@ import           Numeric.Floating.IEEE.Internal
 import           Numeric.Half hiding (isZero)
 import qualified Numeric.Half
 #endif
+#if defined(USE_FLOAT128)
+import           Numeric.Float128 (Float128)
+#endif
 
 foreign import ccall unsafe "fma"
   c_fma_double :: Double -> Double -> Double -> Double
@@ -330,6 +333,50 @@ main = defaultMain
               , bench "generic" $ nf (isZero . Identity) arg
               , bench "Numeric.Half.isZero" $ nf Numeric.Half.isZero arg
               ]
+         ]
+#endif
+#if defined(USE_FLOAT128)
+       , bgroup "Float128"
+         [ bgroup "nextUp"
+           [ bench "default" $ whnf nextUp (1.23 :: Float128)
+           , bench "generic" $ whnf (nextUp . Identity) (1.23 :: Float128)
+           ]
+         , bgroup "nextDown"
+           [ bench "default" $ whnf nextDown (1.23 :: Float128)
+           , bench "generic" $ whnf (nextDown . Identity) (1.23 :: Float128)
+           ]
+         , bgroup "nextTowardZero"
+           [ bench "default" $ whnf nextTowardZero (1.23 :: Float128)
+           , bench "generic" $ whnf (nextTowardZero . Identity) (1.23 :: Float128)
+           ]
+         , bgroup "isNormal"
+           [ bench "default" $ whnf isNormal (1.23 :: Float128)
+           , bench "generic" $ whnf (isNormal . Identity) (1.23 :: Float128)
+           ]
+         , bgroup "isFinite"
+           [ bench "default" $ whnf isFinite (1.23 :: Float128)
+           , bench "generic" $ whnf (isFinite . Identity) (1.23 :: Float128)
+           ]
+         , bgroup "classify"
+           [ bench "default" $ whnf classify (1.23 :: Float128)
+           , bench "generic" $ whnf (classify . Identity) (1.23 :: Float128)
+           ]
+         , bgroup "isMantissaEven"
+           [ bench "default" $ whnf isMantissaEven (1.23 :: Float128)
+           , bench "generic" $ whnf (isMantissaEven . Identity) (1.23 :: Float128)
+           ]
+         , bgroup "roundAway"
+           [ bench "default" $ whnf roundAway' (1.23 :: Float128)
+           , bench "generic" $ whnf (roundAway' . Identity) (1.23 :: Float128)
+           , bench "default (as Integer)" $ whnf (roundAway :: Float128 -> Integer) (1.23 :: Float128)
+           , bench "generic (as Integer)" $ whnf ((roundAway :: Identity Float128 -> Integer) . Identity) (1.23 :: Float128)
+           ]
+         , bgroup "floor"
+           [ bench "default" $ whnf floor' (1.23 :: Float128)
+           , bench "generic" $ whnf (floor' . Identity) (1.23 :: Float128)
+           , bench "default (as Integer)" $ whnf (floor :: Float128 -> Integer) (1.23 :: Float128)
+           , bench "generic (as Integer)" $ whnf ((floor :: Identity Float128 -> Integer) . Identity) (1.23 :: Float128)
+           ]
          ]
 #endif
        ]
