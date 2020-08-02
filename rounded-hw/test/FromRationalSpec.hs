@@ -17,23 +17,23 @@ prop_fromRational_nearest_stock _proxy x
 
 prop_roundedFromRational_check :: forall a. (RealFloat a, RoundedFractional a) => Proxy a -> RoundingMode -> Rational -> Property
 prop_roundedFromRational_check _proxy r x
-  = (fromRatio r (numerator x) (denominator x) :: a) -- the standard implementation
+  = (roundedFromRational_default r x :: a) -- the standard implementation
     `sameFloatP` (roundedFromRational r x :: a) -- may be optimized
 
 prop_fromRatio_order :: forall a. RealFloat a => Proxy a -> Rational -> Property
 prop_fromRatio_order _proxy x
-  = let ne   = fromRatio ToNearest    (numerator x) (denominator x) :: a
-        ze   = fromRatio TowardZero   (numerator x) (denominator x) :: a
-        inf  = fromRatio TowardInf    (numerator x) (denominator x) :: a
-        ninf = fromRatio TowardNegInf (numerator x) (denominator x) :: a
+  = let ne   = roundedFromRational_default ToNearest    x :: a
+        ze   = roundedFromRational_default TowardZero   x :: a
+        inf  = roundedFromRational_default TowardInf    x :: a
+        ninf = roundedFromRational_default TowardNegInf x :: a
     in ninf <= inf
        .&&. (ne == ninf || ne == inf)
        .&&. (if x < 0 then ze == inf else ze == ninf)
 
 prop_fromRatio_exact :: forall a. RealFloat a => Proxy a -> Rational -> Property
 prop_fromRatio_exact _proxy x
-  = let inf  = fromRatio TowardInf    (numerator x) (denominator x) :: a
-        ninf = fromRatio TowardNegInf (numerator x) (denominator x) :: a
+  = let inf  = roundedFromRational_default TowardInf    x :: a
+        ninf = roundedFromRational_default TowardNegInf x :: a
     in if ninf == inf
        then not (isInfinite inf) .&&. toRational inf === x
        else if isInfinite inf
@@ -47,7 +47,7 @@ prop_fromRatio_exact _proxy x
                  else toRational inf =/= x
                       .&&. toRational ninf =/= x
 
-specT :: forall a. (RealFloat a, RoundedFractional a) => Proxy a -> Bool -> Spec
+specT :: (RealFloat a, RoundedFractional a) => Proxy a -> Bool -> Spec
 specT proxy checkAgainstStock = do
   when checkAgainstStock $ do
     -- Although fromRational for Double/Float correctly round to nearest, other types may not.
