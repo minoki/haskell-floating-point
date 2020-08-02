@@ -26,7 +26,6 @@ default ()
 -- prop> isNegativeZero (nextUp (-0x1p-1074) :: Double)
 nextUp :: RealFloat a => a -> a
 nextUp x | not (isIEEE x) = error "non-IEEE numbers are not supported"
-         | floatRadix x /= 2 = error "non-binary types are not supported" -- TODO
          | isNaN x || (isInfinite x && x > 0) = x + x -- NaN or positive infinity
          | x >= 0 = nextUp_positive x
          | otherwise = - nextDown_positive (- x)
@@ -45,7 +44,6 @@ nextUp x | not (isIEEE x) = error "non-IEEE numbers are not supported"
 -- prop> nextDown 0x1p-1022 == (0x0.ffff_ffff_ffff_fp-1022 ::Double)
 nextDown :: RealFloat a => a -> a
 nextDown x | not (isIEEE x) = error "non-IEEE numbers are not supported"
-           | floatRadix x /= 2 = error "non-binary types are not supported" -- TODO
            | isNaN x || (isInfinite x && x < 0) = x + x -- NaN or negative infinity
            | x >= 0 = nextDown_positive x
            | otherwise = - nextUp_positive (- x)
@@ -61,7 +59,6 @@ nextDown x | not (isIEEE x) = error "non-IEEE numbers are not supported"
 -- prop> nextTowardZero 0x1p-1074 == (0 :: Double)
 nextTowardZero :: RealFloat a => a -> a
 nextTowardZero x | not (isIEEE x) = error "non-IEEE numbers are not supported"
-                 | floatRadix x /= 2 = error "non-binary types are not supported" -- TODO
                  | isNaN x || x == 0 = x + x -- NaN or zero
                  | x >= 0 = nextDown_positive x
                  | otherwise = - nextDown_positive (- x)
@@ -80,12 +77,19 @@ nextUp_positive x
                     -- 2^(expMin-d): min positive
                     -- 2^(expMin - 1): min normal 0x1p-1022
                     -- expMin - d <= e <= expMax - d (-1074 .. 971)
-                in if expMin - d <= e
-                   then encodeFloat (m + 1) e -- normal
-                   else let m' = m `shiftR` (expMin - d - e)
-                        in encodeFloat (m' + 1) (expMin - d) -- subnormal
+                in if expMin - d <= e then
+                     -- normal
+                     encodeFloat (m + 1) e
+                   else
+                     -- subnormal
+                     let m' = if base == 2 then
+                                m `unsafeShiftR` (expMin - d - e)
+                              else
+                                m `quot` (base ^ (expMin - d - e))
+                     in encodeFloat (m' + 1) (expMin - d)
   where
     d, expMin :: Int
+    base = floatRadix x
     d = floatDigits x -- 53 for Double
     (expMin,_expMax) = floatRange x -- (-1021,1024) for Double
 {-# INLINE nextUp_positive #-}
@@ -93,7 +97,7 @@ nextUp_positive x
 nextDown_positive :: RealFloat a => a -> a
 nextDown_positive x
   | isNaN x || x < 0 = error "nextDown_positive"
-  | isInfinite x = encodeFloat ((1 `unsafeShiftL` d) - 1) (expMax - d) -- max finite
+  | isInfinite x = maxFinite
   | x == 0 = encodeFloat (-1) (expMin - d) -- max negative
   | otherwise = let m :: Integer
                     e :: Int
@@ -103,17 +107,27 @@ nextDown_positive x
                     -- 2^(expMin-d): min positive
                     -- 2^(expMin - 1): min normal 0x1p-1022
                     -- expMin - d <= e <= expMax - d (-1074 .. 971)
-                in if expMin - d <= e
-                   then -- normal
+                in if expMin - d <= e then
+                     -- normal
                      let m1 = m - 1
-                     in if m .&. m1 == 0 && expMin - d /= e
-                        then encodeFloat (2 * m - 1) (e - 1)
-                        else encodeFloat m1 e
-                   else -- subnormal
-                     let m' = m `shiftR` (expMin - d - e)
+                         mIsPowerOfBase = if base == 2 then
+                                            m .&. m1 == 0
+                                          else
+                                            m == base ^! (d - 1)
+                     in if mIsPowerOfBase && expMin - d /= e then
+                          encodeFloat (base * m - 1) (e - 1)
+                        else
+                          encodeFloat m1 e
+                   else
+                     -- subnormal
+                     let m' = if base == 2 then
+                                m `unsafeShiftR` (expMin - d - e)
+                              else
+                                m `quot` (base ^ (expMin - d - e))
                      in encodeFloat (m' - 1) (expMin - d)
   where
     d, expMin :: Int
+    base = floatRadix x
     d = floatDigits x -- 53 for Double
     (expMin,expMax) = floatRange x -- (-1021,1024) for Double
 {-# INLINE nextDown_positive #-}
