@@ -18,6 +18,9 @@ import           Numeric.Floating.IEEE.Internal.RoundToIntegral as Internal
 #if defined(USE_HALF)
 import           Numeric.Floating.IEEE.Internal.Half as Internal
 #endif
+#if defined(USE_FLOAT128)
+import           Numeric.Floating.IEEE.Internal.Float128 as Internal
+#endif
 
 -- |
 -- IEEE 754 @convertFromInt@ operation, with each rounding attributes.
