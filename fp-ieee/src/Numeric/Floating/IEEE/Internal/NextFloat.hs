@@ -79,7 +79,10 @@ nextUp_positive x
                     -- expMin - d <= e <= expMax - d (-1074 .. 971)
                 in if expMin - d <= e then
                      -- normal
-                     encodeFloat (m + 1) e
+                     if m + 1 == base ^! d && e == expMax - d then
+                       1 / 0 -- max finite -> infinity
+                     else
+                       encodeFloat (m + 1) e
                    else
                      -- subnormal
                      let m' = if base == 2 then
@@ -91,7 +94,7 @@ nextUp_positive x
     d, expMin :: Int
     base = floatRadix x
     d = floatDigits x -- 53 for Double
-    (expMin,_expMax) = floatRange x -- (-1021,1024) for Double
+    (expMin,expMax) = floatRange x -- (-1021,1024) for Double
 {-# INLINE nextUp_positive #-}
 
 nextDown_positive :: RealFloat a => a -> a
@@ -110,11 +113,7 @@ nextDown_positive x
                 in if expMin - d <= e then
                      -- normal
                      let m1 = m - 1
-                         mIsPowerOfBase = if base == 2 then
-                                            m .&. m1 == 0
-                                          else
-                                            m == base ^! (d - 1)
-                     in if mIsPowerOfBase && expMin - d /= e then
+                     in if m == base ^! (d - 1) && expMin - d /= e then
                           encodeFloat (base * m - 1) (e - 1)
                         else
                           encodeFloat m1 e
@@ -129,7 +128,7 @@ nextDown_positive x
     d, expMin :: Int
     base = floatRadix x
     d = floatDigits x -- 53 for Double
-    (expMin,expMax) = floatRange x -- (-1021,1024) for Double
+    (expMin,_expMax) = floatRange x -- (-1021,1024) for Double
 {-# INLINE nextDown_positive #-}
 
 {-# RULES
