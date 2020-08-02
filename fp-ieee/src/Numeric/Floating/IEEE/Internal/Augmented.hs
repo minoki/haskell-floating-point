@@ -135,6 +135,10 @@ instance RoundingStrategy RoundTiesTowardZero where
                                                              LT -> zero
                                                              EQ -> zero
                                                              GT -> away
+  doRound _exact o _neg _parity zero away = RoundTiesTowardZero $ case o of
+    LT -> zero
+    EQ -> zero
+    GT -> away
 
 augmentedAddition_viaRational :: (RealFloat a, Show a) => a -> a -> (a, a)
 augmentedAddition_viaRational x y

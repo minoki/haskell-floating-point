@@ -29,6 +29,15 @@ class Functor f => RoundingStrategy f where
           -> a -- ^ toward zero
           -> a -- ^ away from zero
           -> f a
+  doRound :: Bool -- ^ exactness; if True, the Ordering must be LT
+          -> Ordering -- ^ LT -> toward-zero is the nearest, EQ -> midpoint, GT -> away-from-zero is the nearest
+          -> Bool -- ^ negative (True -> negative, False -> positive)
+          -> Int -- ^ parity (even -> toward-zero is even, odd -> toward-zero is odd)
+          -> a -- ^ toward zero
+          -> a -- ^ away from zero
+          -> f a
+  exact x = doRound True LT False 0 x x
+  inexact o neg parity zero away = doRound False o neg parity zero away
 
 newtype RoundTiesToEven a = RoundTiesToEven { roundTiesToEven :: a }
   deriving (Functor)
@@ -40,8 +49,14 @@ instance RoundingStrategy RoundTiesToEven where
                                                         EQ | even parity -> zero
                                                            | otherwise -> away
                                                         GT -> away
+  doRound _exact o _neg parity zero away = RoundTiesToEven $ case o of
+    LT -> zero
+    EQ | even parity -> zero
+       | otherwise -> away
+    GT -> away
   {-# INLINE exact #-}
   {-# INLINE inexact #-}
+  {-# INLINE doRound #-}
 
 newtype RoundTiesToAway a = RoundTiesToAway { roundTiesToAway :: a }
   deriving (Functor)
@@ -52,8 +67,13 @@ instance RoundingStrategy RoundTiesToAway where
                                                          LT -> zero
                                                          EQ -> away
                                                          GT -> away
+  doRound _exact o _neg _parity zero away = RoundTiesToAway $ case o of
+    LT -> zero
+    EQ -> away
+    GT -> away
   {-# INLINE exact #-}
   {-# INLINE inexact #-}
+  {-# INLINE doRound #-}
 
 newtype RoundTowardPositive a = RoundTowardPositive { roundTowardPositive :: a }
   deriving (Functor)
@@ -62,8 +82,11 @@ instance RoundingStrategy RoundTowardPositive where
   exact = RoundTowardPositive
   inexact _o neg _parity zero away | neg = RoundTowardPositive zero
                                    | otherwise = RoundTowardPositive away
+  doRound exact _o neg _parity zero away | exact || neg = RoundTowardPositive zero
+                                         | otherwise = RoundTowardPositive away
   {-# INLINE exact #-}
   {-# INLINE inexact #-}
+  {-# INLINE doRound #-}
 
 newtype RoundTowardNegative a = RoundTowardNegative { roundTowardNegative :: a }
   deriving (Functor)
@@ -72,8 +95,11 @@ instance RoundingStrategy RoundTowardNegative where
   exact = RoundTowardNegative
   inexact _o neg _parity zero away | neg = RoundTowardNegative away
                                    | otherwise = RoundTowardNegative zero
+  doRound exact _o neg _parity zero away | not exact && neg = RoundTowardNegative away
+                                         | otherwise = RoundTowardNegative zero
   {-# INLINE exact #-}
   {-# INLINE inexact #-}
+  {-# INLINE doRound #-}
 
 newtype RoundTowardZero a = RoundTowardZero { roundTowardZero :: a }
   deriving (Functor)
@@ -81,14 +107,18 @@ newtype RoundTowardZero a = RoundTowardZero { roundTowardZero :: a }
 instance RoundingStrategy RoundTowardZero where
   exact = RoundTowardZero
   inexact _o _neg _parity zero _away = RoundTowardZero zero
+  doRound _exact _o _neg _parity zero _away = RoundTowardZero zero
   {-# INLINE exact #-}
   {-# INLINE inexact #-}
+  {-# INLINE doRound #-}
 
 instance (RoundingStrategy f, RoundingStrategy g) => RoundingStrategy (Product f g) where
   exact x = Pair (exact x) (exact x)
   inexact o neg parity zero away = Pair (inexact o neg parity zero away) (inexact o neg parity zero away)
+  doRound exact o neg parity zero away = Pair (doRound exact o neg parity zero away) (doRound exact o neg parity zero away)
   {-# INLINE exact #-}
   {-# INLINE inexact #-}
+  {-# INLINE doRound #-}
 
 {-
 from GHC.Float:
@@ -267,17 +297,6 @@ maxBoundAsInteger dummyI = case bitSizeMaybe dummyI of
                      , Word64 -> Maybe Integer
   #-}
 
--- Like 'if-then-else', but the condition will not be computed if the branches are same
-pureIfThenElse :: Bool -> a -> a -> a
-pureIfThenElse cond x y = if cond then
-                            x
-                          else
-                            y
-{-# INLINE [0] pureIfThenElse #-}
-{-# RULES
-"pureIfThenElse" forall cond x. pureIfThenElse cond x x = x
-  #-}
-
 -- Avoid cross-module specialization issue with worker/wrapper transformations
 positiveWordToBinaryFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Word -> f a
 positiveWordToBinaryFloatR neg (W# n#) = positiveWordToBinaryFloatR# neg n#
@@ -304,20 +323,16 @@ positiveWordToBinaryFloatR# !neg n# = result
                         r = n .&. (bit e - 1)
                         -- (q, r) = n `quotRem` (base^e)
                         -- base^(fDigits - 1) <= q < base^fDigits, 0 <= r < base^(k-fDigits+1)
-                    in pureIfThenElse (r == 0) -- The computation of 'r' should be avoided if possible
-                       -- then
-                       (exact $ fromIntegral (q `unsafeShiftL` e))
-                       -- else: inexact case
-                       (let towardzero = fromIntegral (q `unsafeShiftL` e)
-                            awayfromzero = fromIntegral ((q + 1) `unsafeShiftL` e)
-                            parity = fromIntegral q :: Int
-                        in inexact
-                             (compare r (bit (e - 1)))
-                             neg
-                             parity
-                             towardzero
-                             awayfromzero
-                       )
+                        towardzero_or_exact = fromIntegral (q `unsafeShiftL` e)
+                        awayfromzero = fromIntegral ((q + 1) `unsafeShiftL` e)
+                        parity = fromIntegral q :: Int
+                    in doRound
+                         (r == 0) -- exactness
+                         (compare r (bit (e - 1)))
+                         neg
+                         parity
+                         towardzero_or_exact
+                         awayfromzero
 
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
     (_expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
@@ -367,21 +382,17 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
                     let e = k - fDigits + 1
                         (q, r) = quotRemByExpt n base e -- n `quotRem` (base^e)
                         -- base^(fDigits - 1) <= q < base^fDigits, 0 <= r < base^(k-fDigits+1)
-                    in pureIfThenElse (r == 0) -- The computation of 'r' should be avoided if possible
-                       -- then
-                       (exact $ encodeFloat q e)
-                       -- else: inexact case
-                       (let towardzero = encodeFloat q e
-                            awayfromzero = encodeFloat (q + 1) e
-                            parity = fromInteger q :: Int
-                        in inexact
-                             (compareWithExpt base n r (e - 1))
-                             -- (compare r (expt base (e - 1)))
-                             neg
-                             parity
-                             towardzero
-                             awayfromzero
-                       )
+                        towardzero_or_exact = encodeFloat q e
+                        awayfromzero = encodeFloat (q + 1) e
+                        parity = fromInteger q :: Int
+                    in doRound
+                         (r == 0) -- exactness
+                         (compareWithExpt base n r (e - 1))
+                         -- (compare r (expt base (e - 1)))
+                         neg
+                         parity
+                         towardzero_or_exact
+                         awayfromzero
 
     !base = floatRadix (undefined `asProxyTypeOf` result) -- 2 or 10
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
@@ -467,20 +478,16 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                  -- base^(e+fDigits-1) <= q * base^^e <= n/d < (q+1) * base^^e <= base^(e+fDigits)
              in if expMin <= e + fDigits && e + fDigits <= expMax then
                   -- normal: base^^(expMin-1) <= n/d < base^expMax
-                  pureIfThenElse (r == 0)
-                  -- then
-                  (exact $ encodeFloat q e)
-                  -- else: inexact case
-                  (let towardzero = encodeFloat q e
-                       awayfromzero = encodeFloat (q + 1) e -- may be infinity
-                       parity = fromInteger q :: Int
-                   in inexact
-                        (compare (base * r) d')
-                        neg
-                        parity
-                        towardzero
-                        awayfromzero
-                  )
+                  let towardzero_or_exact = encodeFloat q e
+                      awayfromzero = encodeFloat (q + 1) e -- may be infinity
+                      parity = fromInteger q :: Int
+                  in doRound
+                       (r == 0)
+                       (compare (base * r) d')
+                       neg
+                       parity
+                       towardzero_or_exact
+                       awayfromzero
                 else
                   if expMax < e + fDigits then
                     -- overflow
@@ -493,22 +500,18 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                         -- q = q' * base^(expMin-fDigits-e) + r', 0 <= r' < base^(expMin-fDigits-e)
                         -- n / d * base^^(-e) = q' * base^(expMin-fDigits-e) + r' + r / d'
                         -- n / d = q' * base^^(expMin - fDigits) + (r' + r / d') * base^^e
-                    in pureIfThenElse (r == 0 && r' == 0)
-                       -- then
-                       (exact $ encodeFloat q' (expMin - fDigits))
-                       -- else
-                       -- (r' + r / d') * base^^e vs. base^^(expMin-fDigits-1)
-                       (let towardzero = encodeFloat q' (expMin - fDigits)
-                            awayfromzero = encodeFloat (q' + 1) (expMin - fDigits)
-                            parity = fromInteger q' :: Int
-                        in inexact
-                             (compareWithExpt base q r' (expMin - fDigits - e - 1) <> if r == 0 then EQ else GT)
-                             -- (compare r' (expt base (expMin - fDigits - e - 1)) <> if r == 0 then EQ else GT)
-                             neg
-                             parity
-                             towardzero
-                             awayfromzero
-                       )
+                        -- rounding direction: (r' + r / d') * base^^e vs. base^^(expMin-fDigits-1)
+                        towardzero = encodeFloat q' (expMin - fDigits)
+                        awayfromzero = encodeFloat (q' + 1) (expMin - fDigits)
+                        parity = fromInteger q' :: Int
+                    in doRound
+                         (r == 0 && r' == 0)
+                         (compareWithExpt base q r' (expMin - fDigits - e - 1) <> if r == 0 then EQ else GT)
+                         -- (compare r' (expt base (expMin - fDigits - e - 1)) <> if r == 0 then EQ else GT)
+                         neg
+                         parity
+                         towardzero
+                         awayfromzero
 
     !base = floatRadix (undefined `asProxyTypeOf` result)
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
@@ -571,21 +574,17 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                         -- m = q * base^^(k-fDigits+1) + r
                         -- base^(fDigits-1) <= q = m `quot` (base^^(k-fDigits+1)) < base^fDigits
                         -- m * base^^n = q * base^^(n+k-fDigits+1) + r * base^^n
-                    in pureIfThenElse (r == 0)
-                       -- then
-                       (exact $ encodeFloat q (n + k - fDigits + 1))
-                       -- else: inexact case
-                       (let towardzero = encodeFloat q (n + k - fDigits + 1)
-                            awayfromzero = encodeFloat (q + 1) (n + k - fDigits + 1)
-                            parity = fromInteger q :: Int
-                        in inexact
-                             (compareWithExpt base m r (k - fDigits))
-                             -- (compare r (expt base (k - fDigits)))
-                             neg
-                             parity
-                             towardzero
-                             awayfromzero
-                       )
+                        towardzero_or_exact = encodeFloat q (n + k - fDigits + 1)
+                        awayfromzero = encodeFloat (q + 1) (n + k - fDigits + 1)
+                        parity = fromInteger q :: Int
+                    in doRound
+                         (r == 0) -- exactness
+                         (compareWithExpt base m r (k - fDigits))
+                         -- (compare r (expt base (k - fDigits)))
+                         neg
+                         parity
+                         towardzero_or_exact
+                         awayfromzero
                 else
                   if expMax <= k + n then
                     -- overflow
@@ -602,21 +601,17 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                           -- m = q * base^(expMin-fDigits-n) + r
                           -- q <= m * base^^(n-expMin+fDigits) < q+1
                           -- q * base^^(expMin-fDigits) <= m * base^^n < (q+1) * base^^(expMin-fDigits)
-                      in pureIfThenElse (r == 0)
-                         -- then
-                         (exact $ encodeFloat q (expMin - fDigits))
-                         -- else: inexact case
-                         (let towardzero = encodeFloat q (expMin - fDigits)
-                              awayfromzero = encodeFloat (q + 1) (expMin - fDigits)
-                              parity = fromInteger q :: Int
-                          in inexact
-                               (compareWithExpt base m r (expMin - fDigits - n - 1))
-                               -- (compare r (expt base (expMin - fDigits - n - 1)))
-                               neg
-                               parity
-                               towardzero
-                               awayfromzero
-                         )
+                          towardzero_or_exact = encodeFloat q (expMin - fDigits)
+                          awayfromzero = encodeFloat (q + 1) (expMin - fDigits)
+                          parity = fromInteger q :: Int
+                      in doRound
+                           (r == 0) -- exactness
+                           (compareWithExpt base m r (expMin - fDigits - n - 1))
+                           -- (compare r (expt base (expMin - fDigits - n - 1)))
+                           neg
+                           parity
+                           towardzero_or_exact
+                           awayfromzero
 
     !base = floatRadix (undefined `asProxyTypeOf` result)
     !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
