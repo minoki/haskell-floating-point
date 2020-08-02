@@ -16,7 +16,7 @@ import           Numeric.Floating.IEEE.Internal.Remainder as Internal
 import           Numeric.Floating.IEEE.Internal.Rounding as Internal
 import           Numeric.Floating.IEEE.Internal.RoundToIntegral as Internal
 #if defined(USE_HALF)
-import           Numeric.Floating.IEEE.Internal.Half ()
+import           Numeric.Floating.IEEE.Internal.Half as Internal
 #endif
 
 -- |

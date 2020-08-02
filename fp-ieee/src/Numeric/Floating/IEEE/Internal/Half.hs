@@ -8,6 +8,7 @@ import           Data.Coerce
 import           Data.Word
 import           Foreign.C.Types
 import           GHC.Exts
+import           GHC.Float.Compat (float2Double)
 import           MyPrelude
 import           Numeric.Floating.IEEE.Internal.Base
 import           Numeric.Floating.IEEE.Internal.Classify
@@ -188,6 +189,12 @@ compareByTotalOrderHalfNaNAware x y =
                          , Bool -> Integer -> Int# -> RoundTowardZero Half
   #-}
 
+-- Monomorphic conversion functions
+halfToFloat :: Half -> Float
+halfToDouble :: Half -> Double
+floatToHalf :: Float -> Half
+doubleToHalf :: Double -> Half
+
 #if defined(HAS_FAST_HALF_CONVERSION)
 
 foreign import ccall unsafe "hs_fastHalfToFloat"
@@ -199,30 +206,38 @@ foreign import ccall unsafe "hs_fastFloatToHalf"
 foreign import ccall unsafe "hs_fastDoubleToHalf"
   c_fastDoubleToHalf :: Double -> Word16
 
-fastHalfToFloat :: Half -> Float
-fastHalfToFloat = coerce c_fastHalfToFloat
-{-# INLINE fastHalfToFloat #-}
+halfToFloat = coerce c_fastHalfToFloat
+{-# INLINE halfToFloat #-}
 
-fastHalfToDouble :: Half -> Double
-fastHalfToDouble = coerce c_fastHalfToDouble
-{-# INLINE fastHalfToDouble #-}
+halfToDouble = coerce c_fastHalfToDouble
+{-# INLINE halfToDouble #-}
 
-fastFloatToHalf :: Float -> Half
-fastFloatToHalf = coerce c_fastFloatToHalf
-{-# INLINE fastFloatToHalf #-}
+floatToHalf = coerce c_fastFloatToHalf
+{-# INLINE floatToHalf #-}
 
-fastDoubleToHalf :: Double -> Half
-fastDoubleToHalf = coerce c_fastDoubleToHalf
-{-# INLINE fastDoubleToHalf #-}
+doubleToHalf = coerce c_fastDoubleToHalf
+{-# INLINE doubleToHalf #-}
 
 {-# RULES
-"realFloatToFrac/Half->Float" realFloatToFrac = fastHalfToFloat
-"realFloatToFrac/Half->Double" realFloatToFrac = fastHalfToDouble
-"realFloatToFrac/Float->Half" realFloatToFrac = fastFloatToHalf
-"realFloatToFrac/Double->Half" realFloatToFrac = fastDoubleToHalf
+"realFloatToFrac/Half->Float" realFloatToFrac = halfToFloat
+"realFloatToFrac/Half->Double" realFloatToFrac = halfToDouble
+"realFloatToFrac/Float->Half" realFloatToFrac = floatToHalf
+"realFloatToFrac/Double->Half" realFloatToFrac = doubleToHalf
   #-}
 
 #else
+
+halfToFloat = fromHalf
+{-# INLINE halfToFloat #-}
+
+halfToDouble = float2Double . fromHalf
+{-# INLINE halfToDouble #-}
+
+floatToHalf = toHalf
+{-# INLINE floatToHalf #-}
+
+doubleToHalf = realFloatToFrac -- generic implementation
+{-# INLINE doubleToHalf #-}
 
 {-# RULES
 "realFloatToFrac/Half->Float" realFloatToFrac = fromHalf

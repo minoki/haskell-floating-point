@@ -10,15 +10,15 @@ module Numeric.Floating.IEEE.Internal.FMA
   , twoProductFloat_viaDouble
   , twoProduct
   , twoProduct_nonscaling
-#if defined(HAS_FAST_FMA)
-  , fastTwoProductFloat
-  , fastTwoProductDouble
-#endif
+  , twoProductFloat
+  , twoProductDouble
   , fusedMultiplyAdd_twoProduct
   , fusedMultiplyAddFloat_viaDouble
   , fusedMultiplyAdd_viaInteger
   , fusedMultiplyAdd_viaRational
   , fusedMultiplyAdd
+  , fusedMultiplyAddFloat
+  , fusedMultiplyAddDouble
   ) where
 import           Control.Exception (assert)
 import           Data.Bits
@@ -130,26 +130,32 @@ twoProduct_nonscaling a b =
   in (x, y)
 {-# NOINLINE [1] twoProduct_nonscaling #-}
 
+twoProductFloat :: Float -> Float -> (Float, Float)
+twoProductDouble :: Double -> Double -> (Double, Double)
+
 #if defined(HAS_FAST_FMA)
 
-fastTwoProductFloat :: Float -> Float -> (Float, Float)
-fastTwoProductFloat x y = let !r = x * y
-                              !s = c_fusedMultiplyAddFloat x y (-r)
-                          in (r, s)
+twoProductFloat x y = let !r = x * y
+                          !s = fusedMultiplyAddFloat x y (-r)
+                      in (r, s)
 
-fastTwoProductDouble :: Double -> Double -> (Double, Double)
-fastTwoProductDouble x y = let !r = x * y
-                               !s = c_fusedMultiplyAddDouble x y (-r)
-                           in (r, s)
+twoProductDouble x y = let !r = x * y
+                           !s = fusedMultiplyAddDouble x y (-r)
+                       in (r, s)
 
 {-# RULES
-"twoProduct/Float" twoProduct = fastTwoProductFloat
-"twoProduct/Double" twoProduct = fastTwoProductDouble
-"twoProduct_nonscaling/Float" twoProduct_nonscaling = fastTwoProductFloat
-"twoProduct_nonscaling/Double" twoProduct_nonscaling = fastTwoProductDouble
+"twoProduct/Float" twoProduct = twoProductFloat
+"twoProduct/Double" twoProduct = twoProductDouble
+"twoProduct_nonscaling/Float" twoProduct_nonscaling = twoProductFloat
+"twoProduct_nonscaling/Double" twoProduct_nonscaling = twoProductDouble
   #-}
 
 #else
+
+twoProductFloat = twoProductFloat_viaDouble
+{-# INLINE twoProductFloat #-}
+
+twoProductDouble = twoProduct_generic
 
 {-# RULES
 "twoProduct/Float" twoProduct = twoProductFloat_viaDouble
@@ -259,29 +265,37 @@ fusedMultiplyAdd = fusedMultiplyAdd_twoProduct
 #if defined(HAS_FAST_FMA)
 
 foreign import ccall unsafe "hs_fusedMultiplyAddFloat"
-  c_fusedMultiplyAddFloat :: Float -> Float -> Float -> Float
+  fusedMultiplyAddFloat :: Float -> Float -> Float -> Float
 foreign import ccall unsafe "hs_fusedMultiplyAddDouble"
-  c_fusedMultiplyAddDouble :: Double -> Double -> Double -> Double
+  fusedMultiplyAddDouble :: Double -> Double -> Double -> Double
 
 {-# RULES
-"fusedMultiplyAdd/Float" fusedMultiplyAdd = c_fusedMultiplyAddFloat
-"fusedMultiplyAdd/Double" fusedMultiplyAdd = c_fusedMultiplyAddDouble
+"fusedMultiplyAdd/Float" fusedMultiplyAdd = fusedMultiplyAddFloat
+"fusedMultiplyAdd/Double" fusedMultiplyAdd = fusedMultiplyAddDouble
   #-}
 
 #elif defined(USE_C99_FMA)
 
 -- libm's fma might be implemented with hardware
 foreign import ccall unsafe "fmaf"
-  c_fusedMultiplyAddFloat :: Float -> Float -> Float -> Float
+  fusedMultiplyAddFloat :: Float -> Float -> Float -> Float
 foreign import ccall unsafe "fma"
-  c_fusedMultiplyAddDouble :: Double -> Double -> Double -> Double
+  fusedMultiplyAddDouble :: Double -> Double -> Double -> Double
 
 {-# RULES
-"fusedMultiplyAdd/Float" fusedMultiplyAdd = c_fusedMultiplyAddFloat
-"fusedMultiplyAdd/Double" fusedMultiplyAdd = c_fusedMultiplyAddDouble
+"fusedMultiplyAdd/Float" fusedMultiplyAdd = fusedMultiplyAddFloat
+"fusedMultiplyAdd/Double" fusedMultiplyAdd = fusedMultiplyAddDouble
   #-}
 
 #else
+
+fusedMultiplyAddFloat :: Float -> Float -> Float -> Float
+fusedMultiplyAddFloat = fusedMultiplyAddFloat_viaDouble
+{-# INLINE fusedMultiplyAddFloat #-}
+
+fusedMultiplyAddDouble :: Double -> Double -> Double -> Double
+fusedMultiplyAddDouble = fusedMultiplyAdd_twoProduct
+{-# INLINE fusedMultiplyAddDouble #-}
 
 {-# RULES
 "fusedMultiplyAdd/Float" fusedMultiplyAdd = fusedMultiplyAddFloat_viaDouble

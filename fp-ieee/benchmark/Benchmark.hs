@@ -97,7 +97,7 @@ main = defaultMain
               [ bench "Haskell (default)" $ nf (uncurry twoProduct) arg
               , bench "Haskell (nonscaling)" $ nf (uncurry twoProduct_nonscaling) arg
 #if defined(HAS_FAST_FMA)
-              , bench "FMA" $ nf (uncurry fastTwoProductDouble) arg
+              , bench "FMA" $ nf (uncurry twoProductDouble) arg
 #endif
               ]
          , let arg :: (Float, Float)
@@ -107,7 +107,7 @@ main = defaultMain
               , bench "Haskell (nonscaling)" $ nf (uncurry twoProduct_nonscaling) arg
               , bench "Haskell (via Double)" $ nf (uncurry twoProductFloat_viaDouble) arg
 #if defined(HAS_FAST_FMA)
-              , bench "FMA" $ nf (uncurry fastTwoProductFloat) arg
+              , bench "FMA" $ nf (uncurry twoProductFloat) arg
 #endif
               ]
          ]
@@ -279,7 +279,7 @@ main = defaultMain
              in bgroup "to Float"
                 [ bench "half" $ nf fromHalf x
 #if defined(HAS_FAST_HALF_CONVERSION)
-                , bench "C impl" $ nf fastHalfToFloat x
+                , bench "C impl" $ nf halfToFloat x
 #endif
                 , bench "realToFrac" $ nf (realToFrac :: Half -> Float) x
                 , bench "realFloatToFrac" $ nf (realFloatToFrac :: Half -> Float) x
@@ -288,7 +288,7 @@ main = defaultMain
              in bgroup "to Double"
                 [
 #if defined(HAS_FAST_HALF_CONVERSION)
-                  bench "C impl" $ nf fastHalfToDouble x ,
+                  bench "C impl" $ nf halfToDouble x ,
 #endif
                   bench "realToFrac" $ nf (realToFrac :: Half -> Double) x
                 , bench "realFloatToFrac" $ nf (realFloatToFrac :: Half -> Double) x
@@ -299,7 +299,7 @@ main = defaultMain
              in bgroup "from Float"
                 [ bench "half" $ nf toHalf x
 #if defined(HAS_FAST_HALF_CONVERSION)
-                , bench "C impl" $ nf fastFloatToHalf x
+                , bench "C impl" $ nf floatToHalf x
 #endif
                 , bench "realToFrac" $ nf (realToFrac :: Float -> Half) x
                 , bench "realFloatToFrac" $ nf (realFloatToFrac :: Float -> Half) x
@@ -308,7 +308,7 @@ main = defaultMain
              in bgroup "from Double"
                 [
 #if defined(HAS_FAST_HALF_CONVERSION)
-                  bench "C impl" $ nf fastDoubleToHalf x ,
+                  bench "C impl" $ nf doubleToHalf x ,
 #endif
                   bench "realToFrac" $ nf (realToFrac :: Double -> Half) x
                 , bench "realFloatToFrac" $ nf (realFloatToFrac :: Double -> Half) x
