@@ -207,6 +207,22 @@ tests:
       other-modules:
       - HalfSpec
 
+  fp-ieee-decimal-test:
+    main:                Spec.hs
+    source-dirs:         decimal-test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -fno-ignore-asserts
+    dependencies:
+    - fp-ieee
+    - QuickCheck
+    - hspec
+    - hspec-core
+    - random
+    - decimal-arithmetic
+
   fp-ieee-doctests:
     main: doctests.hs
     dependencies:
