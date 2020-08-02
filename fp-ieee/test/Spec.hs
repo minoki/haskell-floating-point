@@ -13,6 +13,9 @@ import qualified TwoSumSpec
 #if defined(USE_HALF)
 import qualified HalfSpec
 #endif
+#if defined(USE_FLOAT128)
+import qualified Float128Spec
+#endif
 
 -- "Extra" tests are not run by default; set --skip "***" to run them.
 myFilter :: Path -> Bool
@@ -41,4 +44,7 @@ main = hspec $ do
   describe "NaN" NaNSpec.spec
 #if defined(USE_HALF)
   describe "Half" HalfSpec.spec
+#endif
+#if defined(USE_FLOAT128)
+  describe "Float128" Float128Spec.spec
 #endif

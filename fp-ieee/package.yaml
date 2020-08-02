@@ -206,6 +206,9 @@ tests:
     - condition: flag(half)
       other-modules:
       - HalfSpec
+    - condition: flag(float128)
+      other-modules:
+      - Float128Spec
 
   fp-ieee-decimal-test:
     main:                Spec.hs
