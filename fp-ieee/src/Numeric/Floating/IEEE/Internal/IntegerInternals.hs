@@ -2,6 +2,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE UnboxedSums #-}
 {-# LANGUAGE UnboxedTuples #-}
 {-# OPTIONS_GHC -Wno-unused-imports #-}
 
@@ -14,6 +15,8 @@ module Numeric.Floating.IEEE.Internal.IntegerInternals
   , unsafeShiftRInteger
   , roundingMode
   , countTrailingZerosInteger
+  , integerIsPowerOf2
+  , integerLog2IsPowerOf2
   ) where
 import           Data.Bits
 import           GHC.Exts
@@ -33,6 +36,8 @@ import           GHC.Integer.GMP.Internals (Integer (Jn#, Jp#, S#),
                                             indexBigNat#)
 import qualified GHC.Integer.Logarithms.Internals
 import           GHC.Natural (Natural (NatS#))
+#else
+import           Math.NumberTheory.Logarithms (integerLog2')
 #endif
 
 integerToIntMaybe :: Integer -> Maybe Int
@@ -50,6 +55,12 @@ roundingMode :: Integer -- ^ must be positive
 -- 'Integer' version of 'countTrailingZeros'.
 -- The argument must not be zero.
 countTrailingZerosInteger :: Integer -> Int
+
+integerIsPowerOf2 :: Integer -> Maybe Int
+
+-- |
+-- The argument must be positive.
+integerLog2IsPowerOf2 :: Integer -> (Int, Bool)
 
 #if defined(MIN_VERSION_ghc_bignum)
 
@@ -185,6 +196,16 @@ countTrailingZerosInteger 0 = error "countTrailingZerosInteger: zero"
 countTrailingZerosInteger x = I# (word2Int# (countTrailingZerosInteger# x))
 {-# INLINE countTrailingZerosInteger #-}
 
+integerIsPowerOf2 x = case GHC.Num.Integer.integerIsPowerOf2# x of
+                        (# _ | #) -> Nothing
+                        (# | w #) -> Just (I# (word2Int# w))
+{-# INLINE integerIsPowerOf2 #-}
+
+integerLog2IsPowerOf2 x = case GHC.Num.Integer.integerIsPowerOf2# x of
+                            (# _ | #) -> (I# (word2Int# (GHC.Num.Integer.integerLog2# x)), False)
+                            (# | w #) -> (I# (word2Int# w), True)
+{-# INLINE integerLog2IsPowerOf2 #-}
+
 #elif defined(MIN_VERSION_integer_gmp)
 
 roundingMode x (I# t#) = case GHC.Integer.Logarithms.Internals.roundingMode# x t# of
@@ -206,6 +227,16 @@ countTrailingZerosInteger 0 = error "countTrailingZerosInteger: zero"
 countTrailingZerosInteger x = I# (word2Int# (countTrailingZerosInteger# x))
 {-# INLINE countTrailingZerosInteger #-}
 
+integerIsPowerOf2 x = case GHC.Integer.Logarithms.Internals.integerLog2IsPowerOf2# x of
+                        (# l, 0# #) -> Just (I# l)
+                        (# _, _ #)  -> Nothing
+{-# INLINE integerIsPowerOf2 #-}
+
+integerLog2IsPowerOf2 x = case GHC.Integer.Logarithms.Internals.integerLog2IsPowerOf2# x of
+                        (# l, 0# #) -> (I# l, True)
+                        (# l, _ #)  -> (I# l, False)
+{-# INLINE integerLog2IsPowerOf2 #-}
+
 #else
 
 roundingMode x t = compare (x .&. (bit (t + 1) - 1)) (bit t)
@@ -214,6 +245,11 @@ roundingMode x t = compare (x .&. (bit (t + 1) - 1)) (bit t)
 countTrailingZerosInteger 0 = error "countTrailingZerosInteger: zero"
 countTrailingZerosInteger x = integerLog2' (x `xor` (x - 1))
 {-# INLINE countTrailingZerosInteger #-}
+
+integerIsPowerOf2 x = x .&. (x - 1) == 0
+
+integerLog2IsPowerOf2 x = (integerLog2' x, integerIsPowerOf2 x)
+{-# INLINE integerLog2IsPowerOf2 #-}
 
 #endif
 
