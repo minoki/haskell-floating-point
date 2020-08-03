@@ -19,14 +19,15 @@ module Numeric.Floating.IEEE.Internal.IntegerInternals
   , integerLog2IsPowerOf2
   ) where
 import           Data.Bits
-import           GHC.Exts
+import           GHC.Exts (Int#, Word#, ctz#, int2Word#, plusWord#, quotRemInt#,
+                           uncheckedShiftL#, word2Int#, (+#), (-#))
 import           GHC.Int (Int (I#))
 import           GHC.Word (Word (W#))
 import           MyPrelude
 import           Numeric.Floating.IEEE.Internal.Base
 import           Numeric.Natural
 #if defined(MIN_VERSION_ghc_bignum)
-import           GHC.Num.BigNat
+import qualified GHC.Num.BigNat
 import           GHC.Num.Integer (Integer (IN, IP, IS))
 import qualified GHC.Num.Integer
 import           GHC.Num.Natural (Natural (NS))
@@ -146,12 +147,12 @@ roundingMode# (IS x) t = let !w = int2Word# x
 roundingMode# (IN bn) t = roundingMode# (IP bn) t -- unexpected
 roundingMode# (IP bn) t = case t `quotRemInt#` WORD_SIZE_IN_BITS# of
                             -- 0 <= r < WORD_SIZE_IN_BITS
-                            (# s, r #) -> let !w = bigNatIndex# bn s
+                            (# s, r #) -> let !w = GHC.Num.BigNat.bigNatIndex# bn s
                                               -- w `shiftL` (WORD_SIZE_IN_BITS - r - 1) vs. 1 `shiftL` (WORD_SIZE_IN_BITS - 1)
                                           in compare (W# (w `uncheckedShiftL#` (WORD_SIZE_IN_BITS# -# 1# -# r))) (W# (1## `uncheckedShiftL#` (WORD_SIZE_IN_BITS# -# 1#)))
                                              <> loop s
   where
-    loop i = case bigNatIndex# bn i of
+    loop i = case GHC.Num.BigNat.bigNatIndex# bn i of
                0## -> case i of
                         0# -> EQ
                         _  -> loop (i -# 1#)
@@ -160,35 +161,12 @@ roundingMode# (IP bn) t = case t `quotRemInt#` WORD_SIZE_IN_BITS# of
 roundingMode x (I# t) = roundingMode# x t
 {-# INLINE roundingMode #-}
 
-{-
-isDivisibleByPowerOf2# :: Integer -> Int# -> Bool
-isDivisibleByPowerOf2# (IS 0#) t = True
-isDivisibleByPowerOf2# (IS x) t = isTrue# (t <# WORD_SIZE_IN_BITS#)
-                                  && case int2Word# x `uncheckedShiftL#` (WORD_SIZE_IN_BITS# -# 1# -# t) of
-                                       0## -> True
-                                       _ -> False
-isDivisibleByPowerOf2# (IN bn) t = isDivisibleByPowerOf2 (IP bn) t
-isDivisibleByPowerOf2# (IP bn) t = case t `quotRemInt#` WORD_SIZE_IN_BITS# of
-                                     (# s, r #) -> isTrue# (s <# bigNatSize# bn)
-                                                   && case bigNatIndex# bn s `uncheckedShiftL#` (WORD_SIZE_IN_BITS# -# 1# -# r) of
-                                                        0## -> loop s
-                                                        _ -> False
-  where loop i = case bigNatIndex# bn i of
-                   0## -> case i of
-                            0# -> True
-                            _ -> loop (i -# 1#)
-                   _ -> False
-
-isDivisibleByPowerOf2 x (I# t) = isDivisibleByPowerOf2# x t
-{-# INLINE isDivisibleByPowerOf2 #-}
--}
-
 countTrailingZerosInteger# :: Integer -> Word#
 countTrailingZerosInteger# (IS x) = ctz# (int2Word# x)
 countTrailingZerosInteger# (IN bn) = countTrailingZerosInteger# (IP bn)
 countTrailingZerosInteger# (IP bn) = loop 0# 0##
   where
-    loop i acc = case bigNatIndex# bn i of -- `i < bigNatSize# bn` must hold
+    loop i acc = case GHC.Num.BigNat.bigNatIndex# bn i of -- `i < bigNatSize# bn` must hold
                    0## -> loop (i +# 1#) (acc `plusWord#` WORD_SIZE_IN_BITS##)
                    w -> acc `plusWord#` ctz# w
 
