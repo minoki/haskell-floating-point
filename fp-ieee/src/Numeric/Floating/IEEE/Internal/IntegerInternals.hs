@@ -9,9 +9,7 @@
 
 module Numeric.Floating.IEEE.Internal.IntegerInternals
   ( integerToIntMaybe
-  , integerToInt64Maybe
   , naturalToWordMaybe
-  , naturalToWord64Maybe
   , unsafeShiftLInteger
   , unsafeShiftRInteger
   , roundingMode
@@ -19,8 +17,8 @@ module Numeric.Floating.IEEE.Internal.IntegerInternals
   ) where
 import           Data.Bits
 import           GHC.Exts
-import           GHC.Int (Int (I#), Int64 (I64#))
-import           GHC.Word (Word (W#), Word64 (W64#))
+import           GHC.Int (Int (I#))
+import           GHC.Word (Word (W#))
 import           MyPrelude
 import           Numeric.Floating.IEEE.Internal.Base
 import           Numeric.Natural
@@ -38,9 +36,7 @@ import           GHC.Natural (Natural (NatS#))
 #endif
 
 integerToIntMaybe :: Integer -> Maybe Int
-integerToInt64Maybe :: Integer -> Maybe Int64
 naturalToWordMaybe :: Natural -> Maybe Word
-naturalToWord64Maybe :: Natural -> Maybe Word64
 
 -- The instance 'Bits Integer' is not very optimized...
 unsafeShiftLInteger :: Integer -> Int -> Integer
@@ -71,27 +67,6 @@ integerToIntMaybe x = staticIf
 
 naturalToWordMaybe (NS x#) = Just (W# x#)
 naturalToWordMaybe _       = Nothing
-
-#if WORD_SIZE_IN_BITS == 64
-
-integerToInt64Maybe  (IS x#) = Just (I64# x#)
-integerToInt64Maybe  _       = Nothing
-naturalToWord64Maybe (NS x#) = Just (W64# x#)
-naturalToWord64Maybe _       = Nothing -- relies on Natural's invariant
-
-#elif WORD_SIZE_IN_BITS < 64
-
-integerToInt64Maybe  (IS x#) = Just (fromIntegral (I# x#))
-integerToInt64Maybe  x       = toIntegralSized x
-naturalToWord64Maybe (NS x#) = Just (fromIntegral (W# x#))
-naturalToWord64Maybe x       = toIntegralSized x
-
-#else
-
-integerToInt64Maybe = toIntegralSized
-naturalToWord64Maybe = toIntegralSized
-
-#endif
 
 unsafeShiftLInteger x (I# i#) = GHC.Num.Integer.integerShiftL# x (int2Word# i#)
 unsafeShiftRInteger x (I# i#) = GHC.Num.Integer.integerShiftR# x (int2Word# i#)
@@ -126,27 +101,6 @@ integerToIntMaybe _       = Nothing -- relies on Integer's invariant
 naturalToWordMaybe (NatS# x#) = Just (W# x#)
 naturalToWordMaybe _          = Nothing
 
-#if WORD_SIZE_IN_BITS == 64
-
-integerToInt64Maybe  (S# x#) = Just (I64# x#)
-integerToInt64Maybe  _       = Nothing
-naturalToWord64Maybe (NatS# x#) = Just (W64# x#)
-naturalToWord64Maybe _          = Nothing -- relies on Natural's invariant
-
-#elif WORD_SIZE_IN_BITS < 64
-
-integerToInt64Maybe  (S# x#) = Just (fromIntegral (I# x#))
-integerToInt64Maybe  x       = toIntegralSized x
-naturalToWord64Maybe (NatS# x#) = Just (fromIntegral (W# x#))
-naturalToWord64Maybe x          = toIntegralSized x
-
-#else
-
-integerToInt64Maybe = toIntegralSized
-naturalToWord64Maybe = toIntegralSized
-
-#endif
-
 unsafeShiftLInteger x (I# i#) = GHC.Integer.shiftLInteger x i#
 unsafeShiftRInteger x (I# i#) = GHC.Integer.shiftRInteger x i#
 
@@ -162,9 +116,7 @@ staticIf _ _ y = y
 #else
 
 integerToIntMaybe = toIntegralSized
-integerToInt64Maybe = toIntegralSized
 naturalToWordMaybe = toIntegralSized
-naturalToWord64Maybe = toIntegralSized
 
 unsafeShiftLInteger = unsafeShiftL
 unsafeShiftRInteger = unsafeShiftR
@@ -172,9 +124,7 @@ unsafeShiftRInteger = unsafeShiftR
 #endif
 
 {-# INLINE integerToIntMaybe #-}
-{-# INLINE integerToInt64Maybe #-}
 {-# INLINE naturalToWordMaybe #-}
-{-# INLINE naturalToWord64Maybe #-}
 
 {-# INLINE unsafeShiftLInteger #-}
 {-# INLINE unsafeShiftRInteger #-}
