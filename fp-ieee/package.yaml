@@ -68,6 +68,11 @@ flags:
     manual: false
     default: true
 
+  ghc-bignum:
+    description: "Use ghc-bignum package"
+    manual: false
+    default: true
+
 when:
 # Always enable SSE2 on i386
 - condition: arch(i386)
@@ -189,6 +194,9 @@ library:
     dependencies:
     # integer-gmp-1.1 is based on ghc-bignum, which is not what we want
     - integer-gmp >=1.0 && <1.1
+  - condition: flag(ghc-bignum)
+    dependencies:
+    - ghc-bignum >=1.0 && <1.1
 
 tests:
   fp-ieee-test:

@@ -126,25 +126,40 @@ expt :: Integer -> Int -> Integer
 expt base n = base ^ n
 -}
 
-quotRemByExpt :: Integer -> Integer -> Int -> (Integer, Integer)
+quotRemByExpt :: Integer -- ^ the dividend @x@
+              -> Integer -- ^ base
+              -> Int -- ^ the exponent @e@ (must be @>= 0@)
+              -> (Integer, Integer) -- ^ @x `quotRem` (base ^ e)@
 quotRemByExpt x 2 n    = assert (n >= 0) (x `unsafeShiftRInteger` n, x .&. (bit n - 1))
 quotRemByExpt x base n = x `quotRem` expt base n
 {-# INLINE quotRemByExpt #-}
 
-multiplyByExpt :: Integer -> Integer -> Int -> Integer
+multiplyByExpt :: Integer -- ^ the multiplicand @x@
+               -> Integer -- ^ base
+               -> Int -- ^ the exponent @e@ (must be @>= 0@)
+               -> Integer -- ^ @x * base ^ e@
 multiplyByExpt x 2 n    = assert (n >= 0) (x `unsafeShiftLInteger` n)
 multiplyByExpt x base n = x * expt base n
 {-# INLINE multiplyByExpt #-}
 
+isDivisibleByExpt :: Integer -- ^ the dividend @x@
+                  -> Integer -- ^ the base
+                  -> Int -- ^ the exponent @e@ (must be @>= 0@)
+                  -> Integer -- ^ the remainder @r@ (must be @x `rem` (base ^ e)@)
+                  -> Bool -- ^ r == 0
+isDivisibleByExpt x 2 e r = assert (r == x `rem` (2 ^ e)) $ x == 0 || Numeric.Floating.IEEE.Internal.IntegerInternals.countTrailingZerosInteger x >= e
+isDivisibleByExpt x base e r = assert (r == x `rem` (base ^ e)) (r == 0)
+{-# INLINE isDivisibleByExpt #-}
+
 -- |
--- Assumption: @r == n `rem` (base^e)@
+-- Assumption: @r == n `rem` (base ^ e)@
 --
 -- Property: @compareWithExpt base n r e == compare r (base ^ e)@
 compareWithExpt :: Integer -- ^ base
-                  -> Integer -- ^ the number
-                  -> Integer -- ^ the remainder (@n `rem` (base ^ (e + 1))@)
-                  -> Int -- ^ exponent (@>= 0@)
-                  -> Ordering
+                -> Integer -- ^ the number @n@
+                -> Integer -- ^ the remainder (@n `rem` (base ^ (e + 1))@)
+                -> Int -- ^ the exponent @e@ (must be @>= 0@)
+                -> Ordering
 compareWithExpt 2 n r e = assert (r == n `rem` expt 2 (e+1)) $ Numeric.Floating.IEEE.Internal.IntegerInternals.roundingMode n e
 compareWithExpt base n r e = assert (r == n `rem` expt base (e+1)) $ compare r (expt base e)
 {-# INLINE compareWithExpt #-}
@@ -380,13 +395,15 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
                   else
                     -- k >= fDigits
                     let e = k - fDigits + 1
+                        -- k >= e (assuming fDigits >= 1)
+                        -- Therefore, base^e <= n
                         (q, r) = quotRemByExpt n base e -- n `quotRem` (base^e)
                         -- base^(fDigits - 1) <= q < base^fDigits, 0 <= r < base^(k-fDigits+1)
                         towardzero_or_exact = encodeFloat q e
                         awayfromzero = encodeFloat (q + 1) e
                         parity = fromInteger q :: Int
                     in doRound
-                         (r == 0) -- exactness
+                         (isDivisibleByExpt n base e r) -- exactness (r == 0)
                          (compareWithExpt base n r (e - 1))
                          -- (compare r (expt base (e - 1)))
                          neg
@@ -476,6 +493,7 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                  -- Invariant: n / d * 2^^(-e) = q + r / d', base^(fDigits-1) <= q < base^fDigits, 0 <= r < d'
                  !_ = assert (n % d * fromInteger base^^(-e) == fromInteger q + r % d') ()
                  -- base^(e+fDigits-1) <= q * base^^e <= n/d < (q+1) * base^^e <= base^(e+fDigits)
+                 -- In particular, base^(fDigits-1) <= q < base^fDigits
              in if expMin <= e + fDigits && e + fDigits <= expMax then
                   -- normal: base^^(expMin-1) <= n/d < base^expMax
                   let towardzero_or_exact = encodeFloat q e
@@ -578,7 +596,7 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                         awayfromzero = encodeFloat (q + 1) (n + k - fDigits + 1)
                         parity = fromInteger q :: Int
                     in doRound
-                         (r == 0) -- exactness
+                         (isDivisibleByExpt m base (k - fDigits + 1) r) -- exactness (r == 0)
                          (compareWithExpt base m r (k - fDigits))
                          -- (compare r (expt base (k - fDigits)))
                          neg
@@ -605,7 +623,7 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                           awayfromzero = encodeFloat (q + 1) (expMin - fDigits)
                           parity = fromInteger q :: Int
                       in doRound
-                           (r == 0) -- exactness
+                           (isDivisibleByExpt m base (expMin - fDigits - n) r) -- exactness (r == 0)
                            (compareWithExpt base m r (expMin - fDigits - n - 1))
                            -- (compare r (expt base (expMin - fDigits - n - 1)))
                            neg
