@@ -53,65 +53,25 @@ countTrailingZerosInteger :: Integer -> Int
 
 #if defined(MIN_VERSION_ghc_bignum)
 
-maxBoundIntAsInteger :: Integer
-maxBoundIntAsInteger = 2 ^! (finiteBitSize (0 :: Int) - 1) - 1
+integerToIntMaybe (IS x) = Just (I# x)
+integerToIntMaybe _      = Nothing -- relies on Integer's invariant
 
--- Enable constant folding
-integerToIntMaybe x = staticIf
-  (- maxBoundIntAsInteger - 1 <= x && x <= maxBoundIntAsInteger)
-  (Just (fromIntegral x))
-  (case x of
-     IS x# -> Just (I# x#)
-     _     -> Nothing -- relies on Integer's invariant
-  )
+naturalToWordMaybe (NS x) = Just (W# x)
+naturalToWordMaybe _      = Nothing -- relies on Natural's invariant
 
-naturalToWordMaybe (NS x#) = Just (W# x#)
-naturalToWordMaybe _       = Nothing
-
-unsafeShiftLInteger x (I# i#) = GHC.Num.Integer.integerShiftL# x (int2Word# i#)
-unsafeShiftRInteger x (I# i#) = GHC.Num.Integer.integerShiftR# x (int2Word# i#)
-
-staticIf :: Bool -> a -> a -> a
-staticIf _ _ y = y
-{-# INLINE [0] staticIf #-}
-
-{-# RULES
-"staticIf/True" forall x y. staticIf True x y = x
-"staticIf/False" forall x y. staticIf False x y = y
-  #-}
+unsafeShiftLInteger x (I# i) = GHC.Num.Integer.integerShiftL# x (int2Word# i)
+unsafeShiftRInteger x (I# i) = GHC.Num.Integer.integerShiftR# x (int2Word# i)
 
 #elif defined(MIN_VERSION_integer_gmp)
 
-maxBoundIntAsInteger :: Integer
-maxBoundIntAsInteger = 2 ^! (finiteBitSize (0 :: Int) - 1) - 1
+integerToIntMaybe (S# x) = Just (I# x)
+integerToIntMaybe _      = Nothing -- relies on Integer's invariant
 
--- Enable constant folding
-integerToIntMaybe x = staticIf
-  (- maxBoundIntAsInteger - 1 <= x && x <= maxBoundIntAsInteger)
-  (Just (fromIntegral x))
-  (case x of
-     S# x# -> Just (I# x#)
-     _     -> Nothing -- relies on Integer's invariant
-  )
-{-
-integerToIntMaybe (S# x#) = Just (I# x#)
-integerToIntMaybe _       = Nothing -- relies on Integer's invariant
--}
+naturalToWordMaybe (NatS# x) = Just (W# x)
+naturalToWordMaybe _         = Nothing -- relies on Natural's invariant
 
-naturalToWordMaybe (NatS# x#) = Just (W# x#)
-naturalToWordMaybe _          = Nothing
-
-unsafeShiftLInteger x (I# i#) = GHC.Integer.shiftLInteger x i#
-unsafeShiftRInteger x (I# i#) = GHC.Integer.shiftRInteger x i#
-
-staticIf :: Bool -> a -> a -> a
-staticIf _ _ y = y
-{-# INLINE [0] staticIf #-}
-
-{-# RULES
-"staticIf/True" forall x y. staticIf True x y = x
-"staticIf/False" forall x y. staticIf False x y = y
-  #-}
+unsafeShiftLInteger x (I# i) = GHC.Integer.shiftLInteger x i
+unsafeShiftRInteger x (I# i) = GHC.Integer.shiftRInteger x i
 
 #else
 
@@ -123,8 +83,46 @@ unsafeShiftRInteger = unsafeShiftR
 
 #endif
 
-{-# INLINE integerToIntMaybe #-}
-{-# INLINE naturalToWordMaybe #-}
+{-# INLINE [0] integerToIntMaybe #-}
+{-# INLINE [0] naturalToWordMaybe #-}
+
+-- Allow constant folding of integerToIntMaybe and naturalToWordMaybe
+-- NB: https://gitlab.haskell.org/ghc/ghc/-/issues/18526 needs to be worked around.
+
+minBoundIntAsInteger :: Integer
+minBoundIntAsInteger = fromIntegral (minBound :: Int)
+{-# INLINE minBoundIntAsInteger #-}
+
+maxBoundIntAsInteger :: Integer
+maxBoundIntAsInteger = fromIntegral (maxBound :: Int)
+{-# INLINE maxBoundIntAsInteger #-}
+
+maxBoundWordAsNatural :: Natural
+maxBoundWordAsNatural = fromIntegral (maxBound :: Word)
+{-# INLINE maxBoundWordAsNatural #-}
+
+integerToIntMaybe2 :: Bool -> Integer -> Maybe Int
+integerToIntMaybe2 _ = integerToIntMaybe
+{-# INLINE [0] integerToIntMaybe2 #-}
+
+naturalToWordMaybe2 :: Bool -> Natural -> Maybe Word
+naturalToWordMaybe2 _ = naturalToWordMaybe
+{-# INLINE [0] naturalToWordMaybe2 #-}
+
+{-# RULES
+"integerToIntMaybe" [~0] forall x.
+  integerToIntMaybe x = integerToIntMaybe2 (minBoundIntAsInteger <= x && x <= maxBoundIntAsInteger) x
+"integerToIntMaybe2/small" forall x.
+  integerToIntMaybe2 True x = Just (fromIntegral x)
+"integerToIntMaybe2/large" forall x.
+  integerToIntMaybe2 False x = Nothing
+"naturalToWordMaybe" [~0] forall x.
+  naturalToWordMaybe x = naturalToWordMaybe2 (x <= maxBoundWordAsNatural) x
+"naturalToWordIntMaybe2/small" forall x.
+  naturalToWordMaybe2 True x = Just (fromIntegral x)
+"naturalToWordIntMaybe2/large" forall x.
+  naturalToWordMaybe2 False x = Nothing
+  #-}
 
 {-# INLINE unsafeShiftLInteger #-}
 {-# INLINE unsafeShiftRInteger #-}
