@@ -20,7 +20,7 @@ augmentedAddition !x !y
   | isNaN x || isInfinite x || isNaN y || isInfinite y = let !result = x + y in (result, result)
   | otherwise = let (u1, u2) = twoSum x y
                     ulpTowardZero = u1 - nextTowardZero u1
-                in if isInfinite u1 then
+                in if isNaN u2 then
                      -- Handle undue overflow: e.g. 0x1.ffff_ffff_ffff_f8p1023
                      handleUndueOverflow
                    else
@@ -33,6 +33,7 @@ augmentedAddition !x !y
                          (u1, u2)
   where
     handleUndueOverflow =
+      -- The exponents of inputs should be close enough so that neither x' nor y' underflow.
       let e = max (exponent x) (exponent y)
           x' = scaleFloat (- e) x
           y' = scaleFloat (- e) y

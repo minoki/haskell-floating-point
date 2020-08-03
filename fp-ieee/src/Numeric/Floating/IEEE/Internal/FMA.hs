@@ -58,17 +58,36 @@ isMantissaEven x = let !_ = assert (isFinite x) ()
   #-}
 
 -- |
--- prop> \(a :: Double) (b :: Double) -> let (x, y) = twoSum a b in a + b == x && toRational a + toRational b == toRational x + toRational y
-twoSum :: Num a => a -> a -> (a, a)
+-- Returns @x := a + b@ and @x - <the exact value of (a + b)>@.
+--
+-- This function does not avoid undue overflow;
+-- For example, the second component of
+-- @twoSum (0x1.017bd555b0b1fp1022) (-0x1.fffffffffffffp1023)@
+-- is a NaN.
+--
+-- prop> :{
+--         \(a :: Double) (b :: Double) ->
+--         let (_,expMax) = floatRange a in exponent x < expMax && exponent y < expMax ==>
+--         let (x, y) = twoSum a b in a + b == x && toRational a + toRational b == toRational x + toRational y
+--       :}
+twoSum :: RealFloat a => a -> a -> (a, a)
 twoSum a b =
   let x = a + b
       t = x - a
       y = (a - (x - t)) + (b - t)
+      {-
+        Alternative:
+         y = if abs b <= abs a then
+               b - (x - a)
+             else
+               a - (x - b)
+      -}
   in (x, y)
 {-# SPECIALIZE twoSum :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
 
+-- |
 -- Addition, with round to nearest odd floating-point number.
--- Does not handle undue overflow.
+-- Like 'twoSum', this function does not handle undue overflow.
 add_roundToOdd :: RealFloat a => a -> a -> a
 add_roundToOdd x y = let (u, v) = twoSum x y
                          result | v < 0 && isMantissaEven u = nextDown u
