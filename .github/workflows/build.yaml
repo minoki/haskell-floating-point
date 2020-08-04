@@ -31,3 +31,34 @@ jobs:
 
       - name: Test
         run: stack test fp-ieee
+
+  rounded-hw:
+    name: rounded-hw
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        ghc: ['8.6.5', '8.8.3', '8.10.1']
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-haskell@v1.1
+        name: Setup Haskell
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          enable-stack: true
+          stack-version: 'latest'
+          stack-no-global: true
+          stack-setup-ghc: true
+
+      - uses: actions/cache@v1
+        name: Cache ~/.stack
+        with:
+          path: ~/.stack
+          key: ${{ runner.os }}-${{ matrix.ghc }}-stack
+
+      - name: Build
+        run: stack build rounded-hw --test --no-run-tests --bench --no-run-benchmarks
+
+      - name: Test
+        run: stack test rounded-hw
