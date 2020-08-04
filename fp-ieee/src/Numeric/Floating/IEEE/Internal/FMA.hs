@@ -65,11 +65,7 @@ isMantissaEven x = let !_ = assert (isFinite x) ()
 -- @twoSum (0x1.017bd555b0b1fp1022) (-0x1.fffffffffffffp1023)@
 -- is a NaN.
 --
--- prop> :{
---         \(a :: Double) (b :: Double) ->
---         let (_,expMax) = floatRange a in exponent x < expMax && exponent y < expMax ==>
---         let (x, y) = twoSum a b in a + b == x && toRational a + toRational b == toRational x + toRational y
---       :}
+-- prop> \(a :: Double) (b :: Double) -> let (_,expMax) = floatRange a in max (exponent a) (exponent b) < expMax ==> let (x, y) = twoSum a b in a + b == x && toRational a + toRational b == toRational x + toRational y
 twoSum :: RealFloat a => a -> a -> (a, a)
 twoSum a b =
   let x = a + b
