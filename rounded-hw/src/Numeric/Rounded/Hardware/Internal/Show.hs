@@ -1,25 +1,14 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Numeric.Rounded.Hardware.Internal.Show where
-import Numeric.Rounded.Hardware.Internal.Rounding
-import Data.Char (intToDigit)
-import Data.Bifunctor (first)
-import Data.Bits
-import Math.NumberTheory.Logarithms
+import           Data.Bifunctor (first)
+import           Data.Bits
+import           Data.Char (intToDigit)
+import           Numeric.Floating.IEEE.Internal (countTrailingZerosInteger)
+import           Numeric.Rounded.Hardware.Internal.Rounding
 
 -- $setup
 -- >>> import Data.Int
-
--- |
--- prop> \x -> x == 0 || countTrailingZerosInteger (fromIntegral x) == countTrailingZeros (x :: Int64)
--- >>> countTrailingZerosInteger 7
--- 0
--- >>> countTrailingZerosInteger 8
--- 3
-countTrailingZerosInteger :: Integer -> Int
-countTrailingZerosInteger x
-  | x == 0 = error "countTrailingZerosInteger: zero"
-  | otherwise = integerLog2 (x `xor` (x - 1))
 
 -- ratToDigitsRn :: RoundingMode -> Int -> Int -> Rational -> ([Int], Int)
 
@@ -221,8 +210,8 @@ showEFloatRn r mprec x
                      (d:ds) -> showString $ (intToDigit d : '.' : map intToDigit ds) ++ ('e' : show e')
   where
     padRight0 :: Int -> [Int] -> [Int]
-    padRight0 0 ys = ys
-    padRight0 !n [] = replicate n 0
+    padRight0 0 ys      = ys
+    padRight0 !n []     = replicate n 0
     padRight0 !n (y:ys) = y : padRight0 (n - 1) ys
 {-# SPECIALIZE showEFloatRn :: RoundingMode -> Maybe Int -> Double -> ShowS #-}
 
