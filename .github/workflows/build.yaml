@@ -8,6 +8,7 @@ jobs:
       matrix:
         ghc: ['8.6.5', '8.8.3', '8.10.1']
         os: [ubuntu-latest]
+        flags: ['', '--flag fp-ieee:fma3 --flag fp-ieee:f16c', '--flag fp-ieee:float128']
     steps:
       - uses: actions/checkout@v2
 
@@ -27,10 +28,10 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.ghc }}-stack
 
       - name: Build
-        run: stack build fp-ieee --test --no-run-tests --bench --no-run-benchmarks
+        run: stack build fp-ieee --test --no-run-tests --bench --no-run-benchmarks ${{ matrix.flags }}
 
       - name: Test
-        run: stack test fp-ieee
+        run: stack test fp-ieee ${{ matrix.flags }}
 
   rounded-hw:
     name: rounded-hw
