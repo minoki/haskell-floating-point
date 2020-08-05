@@ -49,7 +49,7 @@ instance RoundingStrategy RoundTiesToEven where
                                                         EQ | even parity -> zero
                                                            | otherwise -> away
                                                         GT -> away
-  doRound _exact o _neg parity zero away = RoundTiesToEven $ case o of
+  doRound _ex o _neg parity zero away = RoundTiesToEven $ case o of
     LT -> zero
     EQ | even parity -> zero
        | otherwise -> away
@@ -67,7 +67,7 @@ instance RoundingStrategy RoundTiesToAway where
                                                          LT -> zero
                                                          EQ -> away
                                                          GT -> away
-  doRound _exact o _neg _parity zero away = RoundTiesToAway $ case o of
+  doRound _ex o _neg _parity zero away = RoundTiesToAway $ case o of
     LT -> zero
     EQ -> away
     GT -> away
@@ -82,8 +82,8 @@ instance RoundingStrategy RoundTowardPositive where
   exact = RoundTowardPositive
   inexact _o neg _parity zero away | neg = RoundTowardPositive zero
                                    | otherwise = RoundTowardPositive away
-  doRound exact _o neg _parity zero away | exact || neg = RoundTowardPositive zero
-                                         | otherwise = RoundTowardPositive away
+  doRound ex _o neg _parity zero away | ex || neg = RoundTowardPositive zero
+                                      | otherwise = RoundTowardPositive away
   {-# INLINE exact #-}
   {-# INLINE inexact #-}
   {-# INLINE doRound #-}
@@ -95,8 +95,8 @@ instance RoundingStrategy RoundTowardNegative where
   exact = RoundTowardNegative
   inexact _o neg _parity zero away | neg = RoundTowardNegative away
                                    | otherwise = RoundTowardNegative zero
-  doRound exact _o neg _parity zero away | not exact && neg = RoundTowardNegative away
-                                         | otherwise = RoundTowardNegative zero
+  doRound ex _o neg _parity zero away | not ex && neg = RoundTowardNegative away
+                                      | otherwise = RoundTowardNegative zero
   {-# INLINE exact #-}
   {-# INLINE inexact #-}
   {-# INLINE doRound #-}
@@ -107,7 +107,7 @@ newtype RoundTowardZero a = RoundTowardZero { roundTowardZero :: a }
 instance RoundingStrategy RoundTowardZero where
   exact = RoundTowardZero
   inexact _o _neg _parity zero _away = RoundTowardZero zero
-  doRound _exact _o _neg _parity zero _away = RoundTowardZero zero
+  doRound _ex _o _neg _parity zero _away = RoundTowardZero zero
   {-# INLINE exact #-}
   {-# INLINE inexact #-}
   {-# INLINE doRound #-}
@@ -115,7 +115,7 @@ instance RoundingStrategy RoundTowardZero where
 instance (RoundingStrategy f, RoundingStrategy g) => RoundingStrategy (Product f g) where
   exact x = Pair (exact x) (exact x)
   inexact o neg parity zero away = Pair (inexact o neg parity zero away) (inexact o neg parity zero away)
-  doRound exact o neg parity zero away = Pair (doRound exact o neg parity zero away) (doRound exact o neg parity zero away)
+  doRound ex o neg parity zero away = Pair (doRound ex o neg parity zero away) (doRound ex o neg parity zero away)
   {-# INLINE exact #-}
   {-# INLINE inexact #-}
   {-# INLINE doRound #-}
