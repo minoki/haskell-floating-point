@@ -27,6 +27,7 @@ This module may not be available depending on the platform or package flags.
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UnboxedTuples #-}
 {-# LANGUAGE UnliftedFFITypes #-}
+{-# OPTIONS_GHC -fobject-code #-}
 module Numeric.Rounded.Hardware.Backend.FastFFI
   ( CDouble(..)
   , fastIntervalAdd
