@@ -194,7 +194,7 @@ library:
     dependencies:
     # integer-gmp-1.1 is based on ghc-bignum, which is not what we want
     - integer-gmp >=1.0 && <1.1
-  - condition: flag(ghc-bignum)
+  - condition: flag(ghc-bignum) && impl(ghc >= 8.11.0)
     dependencies:
     - ghc-bignum >=1.0 && <1.1
 
