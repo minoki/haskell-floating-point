@@ -59,6 +59,12 @@ roundingMode :: Integer -- ^ @n@
 -- |
 -- 'Integer' version of 'countTrailingZeros'.
 -- The argument must not be zero.
+--
+-- prop> \x -> x == 0 || countTrailingZerosInteger (fromIntegral x) == countTrailingZeros (x :: Int64)
+-- >>> countTrailingZerosInteger 7
+-- 0
+-- >>> countTrailingZerosInteger 8
+-- 3
 countTrailingZerosInteger :: Integer -> Int
 
 integerIsPowerOf2 :: Integer -> Maybe Int

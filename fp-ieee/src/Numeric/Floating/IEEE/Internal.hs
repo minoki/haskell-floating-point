@@ -10,6 +10,7 @@ import           Numeric.Floating.IEEE.Internal.Classify as Internal
 import           Numeric.Floating.IEEE.Internal.Conversion as Internal
 import           Numeric.Floating.IEEE.Internal.FMA as Internal
 import           Numeric.Floating.IEEE.Internal.GenericArith as Internal
+import           Numeric.Floating.IEEE.Internal.IntegerInternals as Internal
 import           Numeric.Floating.IEEE.Internal.MinMax as Internal
 import           Numeric.Floating.IEEE.Internal.NextFloat as Internal
 import           Numeric.Floating.IEEE.Internal.Remainder as Internal
