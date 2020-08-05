@@ -152,15 +152,21 @@ isDivisibleByExpt x base e r = assert (r == x `rem` (base ^ e)) (r == 0)
 {-# INLINE isDivisibleByExpt #-}
 
 -- |
--- Assumption: @r == n `rem` (base ^ e)@
+-- Assumption: @n == 0@, @e >= 0@, and @r == n `rem` base^(e+1)@
 --
--- Property: @compareWithExpt base n r e == compare r (base ^ e)@
+-- Returns @compare r (base^e)@.
 compareWithExpt :: Integer -- ^ base
                 -> Integer -- ^ the number @n@
-                -> Integer -- ^ the remainder (@n `rem` (base ^ (e + 1))@)
-                -> Int -- ^ the exponent @e@ (must be @>= 0@)
+                -> Integer -- ^ the remainder @r@
+                -> Int -- ^ the exponent @e@
                 -> Ordering
-compareWithExpt 2 n r e = assert (r == n `rem` expt 2 (e+1)) $ Numeric.Floating.IEEE.Internal.IntegerInternals.roundingMode n e
+compareWithExpt 2 n r e = assert (r == n `rem` expt 2 (e+1)) $
+  if n == 0 || integerLog2' n < e then
+    -- If integerLog2 n < e (i.e. n < 2^e), it is trivial
+    LT
+  else
+    -- In this branch, n > 0 && integerLog2' n >= e
+    Numeric.Floating.IEEE.Internal.IntegerInternals.roundingMode n e
 compareWithExpt base n r e = assert (r == n `rem` expt base (e+1)) $ compare r (expt base e)
 {-# INLINE compareWithExpt #-}
 
@@ -515,9 +521,11 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                     -- subnormal: 0 < n/d < base^^(expMin-1)
                     -- e + fDigits < expMin
                     let (q', r') = quotRemByExpt q base (expMin - fDigits - e)
+                        !_ = assert (q == q' * base^(expMin-fDigits-e) + r' && 0 <= r' && r' < base^(expMin-fDigits-e)) ()
                         -- q = q' * base^(expMin-fDigits-e) + r', 0 <= r' < base^(expMin-fDigits-e)
                         -- n / d * base^^(-e) = q' * base^(expMin-fDigits-e) + r' + r / d'
                         -- n / d = q' * base^^(expMin - fDigits) + (r' + r / d') * base^^e
+                        !_ = assert (n % d == fromInteger q' * fromInteger base^^(expMin - fDigits) + (fromInteger r' + r % d') * fromInteger base^^e) ()
                         -- rounding direction: (r' + r / d') * base^^e vs. base^^(expMin-fDigits-1)
                         towardzero = encodeFloat q' (expMin - fDigits)
                         awayfromzero = encodeFloat (q' + 1) (expMin - fDigits)
