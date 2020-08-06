@@ -20,7 +20,7 @@ allowFailure message item@(Item { itemExample = origExample }) = item { itemExam
 
 main :: IO ()
 main = hspec $ do
-  mapSpecItem_ (allowFailure "decimal-arithmetic's floatRange is incorrect") $ do
+  mapSpecItem_ (allowFailure "decimal-arithmetic's floatRange may be incorrect") $ do
     it "maxFinite :: Decimal32" $ (maxFinite :: Decimal32) == 9.999_999e96 -- 7 digits
     it "maxFinite :: Decimal64" $ (maxFinite :: Decimal64) == 9.999_999_999_999_999e384 -- 16 digits
     it "maxFinite :: Decimal128" $ (maxFinite :: Decimal128) == 9.999_999_999_999_999_999_999_999_999_999_999e6144 -- 34 digits

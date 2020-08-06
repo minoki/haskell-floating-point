@@ -54,7 +54,7 @@ isInfiniteIsKnownToBeBuggy = True
 #endif
 
 spec :: Spec
-spec = do
+spec = mapSpecItem_ (allowFailure "Half's fromRational may be incorrect") $ do
   let proxy :: Proxy Half
       proxy = Proxy
   prop "classify" $ forAllFloats $ isInfiniteWorkaround $ ClassificationSpec.prop_classify proxy
@@ -86,7 +86,7 @@ spec = do
   prop "fromIntegerR vs fromRationalR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_fromIntegerR_vs_fromRationalR proxy)
   prop "fromIntegerR vs encodeFloatR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_fromIntegerR_vs_encodeFloatR proxy)
   prop "fromRationalR vs encodeFloatR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_fromRationalR_vs_encodeFloatR proxy)
-  -- prop "fromRationalR vs fromRational" $ RoundingSpec.prop_fromRationalR_vs_fromRational proxy
+  prop "fromRationalR vs fromRational" $ RoundingSpec.prop_fromRationalR_vs_fromRational proxy
   prop "result of fromIntegerR" $ \x -> RoundingSpec.prop_order proxy (fromIntegerR x)
   prop "result of fromRationalR" $ \x -> RoundingSpec.prop_order proxy (fromRationalR x)
   prop "result of encodeFloatR" $ \m k -> RoundingSpec.prop_order proxy (encodeFloatR m k)

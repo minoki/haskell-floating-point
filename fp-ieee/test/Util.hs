@@ -1,12 +1,16 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wno-orphans -Wno-type-defaults #-}
-module Util where
+module Util
+  ( module Util
+  , mapSpecItem_ -- from Test.Hspec.Core.Spec
+  ) where
 import           Control.Applicative
 import           Data.Ratio
 import           Numeric
 import           Numeric.Floating.IEEE
 import           System.Random
+import           Test.Hspec.Core.Spec
 import           Test.QuickCheck
 
 newtype ShowHexFloat a = ShowHexFloat a deriving (Eq,Ord,Arbitrary)
@@ -85,3 +89,16 @@ forAllFloats2 f = forAllFloats $ \x -> forAllFloats $ \y -> f x y
 
 forAllFloats3 :: (RealFloat a, Arbitrary a, Random a, Show a, Testable prop) => (a -> a -> a -> prop) -> Property
 forAllFloats3 f = forAllFloats $ \x -> forAllFloats $ \y -> forAllFloats $ \z -> f x y z
+
+allowFailure :: String -> Item a -> Item a
+allowFailure message item@(Item { itemExample = origExample }) = item { itemExample = newExample }
+  where
+    newExample params around callback = do
+      result <- origExample params around callback
+      case result of
+        Result { resultStatus = Test.Hspec.Core.Spec.Failure loc reason } -> do
+          let message' = case reason of
+                           NoReason -> message
+                           _        -> message ++ ": " ++ show reason
+          return result { resultStatus = Pending loc (Just message') }
+        _ -> return result
