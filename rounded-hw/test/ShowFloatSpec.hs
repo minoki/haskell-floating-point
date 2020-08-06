@@ -69,15 +69,31 @@ specT proxy = do
   prop "showGFloat" $ prop_showGFloat proxy
 
   -- 0.5 should be exactly representable in the type...
-  prop "showFFloatRn Nothing 0.5"  $ \r -> showFFloatRn r Nothing  (0.5 :: a) "" === "0.5"
-  prop "showFFloatRn (Just 0) 0.5" $ \r -> showFFloatRn r (Just 0) (0.5 :: a) "" === (if r == TowardInf then "1" else "0")
-  prop "showFFloatRn (Just 3) 0.5" $ \r -> showFFloatRn r (Just 3) (0.5 :: a) "" === "0.500"
-  prop "showGFloatRn Nothing 0.5"  $ \r -> showGFloatRn r Nothing  (0.5 :: a) "" === "0.5"
-  prop "showGFloatRn (Just 0) 0.5" $ \r -> showGFloatRn r (Just 0) (0.5 :: a) "" === (if r == TowardInf then "1" else "0")
-  prop "showGFloatRn (Just 3) 0.5" $ \r -> showGFloatRn r (Just 3) (0.5 :: a) "" === "0.500"
-  prop "showEFloatRn Nothing 0.5"  $ \r -> showEFloatRn r Nothing  (0.5 :: a) "" === "5.0e-1"
-  prop "showEFloatRn (Just 0) 0.5" $ \r -> showEFloatRn r (Just 0) (0.5 :: a) "" === "5e-1"
-  prop "showEFloatRn (Just 3) 0.5" $ \r -> showEFloatRn r (Just 3) (0.5 :: a) "" === "5.000e-1"
+  do let x = 0.5 `asProxyTypeOf` proxy
+     prop "showFFloatRn Nothing 0.5"  $ \r -> showFFloatRn r Nothing  x "" === "0.5"
+     prop "showFFloatRn (Just 0) 0.5" $ \r -> showFFloatRn r (Just 0) x "" === (if r == TowardInf then "1" else "0")
+     prop "showFFloatRn (Just 3) 0.5" $ \r -> showFFloatRn r (Just 3) x "" === "0.500"
+     prop "showGFloatRn Nothing 0.5"  $ \r -> showGFloatRn r Nothing  x "" === "0.5"
+     prop "showGFloatRn (Just 0) 0.5" $ \r -> showGFloatRn r (Just 0) x "" === (if r == TowardInf then "1" else "0")
+     prop "showGFloatRn (Just 3) 0.5" $ \r -> showGFloatRn r (Just 3) x "" === "0.500"
+     prop "showEFloatRn Nothing 0.5"  $ \r -> showEFloatRn r Nothing  x "" === "5.0e-1"
+     prop "showEFloatRn (Just 0) 0.5" $ \r -> showEFloatRn r (Just 0) x "" === "5e-1"
+     prop "showEFloatRn (Just 3) 0.5" $ \r -> showEFloatRn r (Just 3) x "" === "5.000e-1"
+
+  -- -17.5625 should be exactly representable in the type...
+  do let x = (-17.5625) `asProxyTypeOf` proxy
+     prop "showFFloatRn Nothing -17.5625"  $ \r -> showFFloatRn r Nothing  x "" === "-17.5625"
+     prop "showFFloatRn (Just 0) -17.5625" $ \r -> showFFloatRn r (Just 0) x "" === (if r == TowardInf || r == TowardZero then "-17" else "-18")
+     prop "showFFloatRn (Just 3) -17.5625" $ \r -> showFFloatRn r (Just 3) x "" === (if r == TowardNegInf then "-17.563" else "-17.562")
+     prop "showFFloatRn (Just 6) -17.5625" $ \r -> showFFloatRn r (Just 6) x "" === "-17.562500"
+     prop "showGFloatRn Nothing -17.5625"  $ \r -> showGFloatRn r Nothing  x "" === "-17.5625"
+     prop "showGFloatRn (Just 0) -17.5625" $ \r -> showGFloatRn r (Just 0) x "" === (if r == TowardInf || r == TowardZero then "-17" else "-18")
+     prop "showGFloatRn (Just 3) -17.5625" $ \r -> showGFloatRn r (Just 3) x "" === (if r == TowardNegInf then "-17.563" else "-17.562")
+     prop "showGFloatRn (Just 6) -17.5625" $ \r -> showGFloatRn r (Just 6) x "" === "-17.562500"
+     prop "showEFloatRn Nothing -17.5625"  $ \r -> showEFloatRn r Nothing  x "" === "-1.75625e1"
+     prop "showEFloatRn (Just 0) -17.5625" $ \r -> showEFloatRn r (Just 0) x "" === (if r == TowardInf || r == TowardZero then "-1e1" else "-2e1")
+     prop "showEFloatRn (Just 3) -17.5625" $ \r -> showEFloatRn r (Just 3) x "" === (if r == TowardNegInf then "-1.757e1" else "-1.756e1")
+     prop "showEFloatRn (Just 6) -17.5625" $ \r -> showEFloatRn r (Just 6) x "" === "-1.756250e1"
 
 spec :: Spec
 spec = do
