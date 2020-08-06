@@ -232,32 +232,49 @@ showFFloatRn r mprec x
   | otherwise = case mprec of
                   Nothing -> let (xs,e) = binaryFloatToDecimalDigits x
                                  l = length xs
-                             in if e >= l
-                                then if null xs
-                                     then showString "0.0"
-                                     else showString (map intToDigit xs ++ replicate (e - l) '0' ++ ".0")
-                                else if e > 0 -- 0 < e < l
-                                     then if l == e -- null zs
-                                          then showString (map intToDigit xs ++ ".0")
-                                          else let (ys,zs) = splitAt (l - e) xs
-                                                   ys' | null ys = [0]
-                                                       | otherwise = ys
-                                               in showString (map intToDigit ys' ++ "." ++ map intToDigit zs)
-                                     else -- e < 0
-                                       showString ("0." ++ replicate (-e) '0' ++ map intToDigit xs)
+                                 -- binaryFloatToDecimalDigits x = ([d1,d2,...,dl], e)
+                                 -- x = 0.d1d2...dl * (10^^e)
+                                 -- 0 <= di < 10
+                             in if e >= l then
+                                  -- d1d2...dl<replicate (e-l) '0'>.0
+                                  if null xs then
+                                    showString "0.0"
+                                  else
+                                    showString (map intToDigit xs ++ replicate (e - l) '0' ++ ".0")
+                                else
+                                  if e > 0 then -- 0 < e < l
+                                    -- d1d2...d<e>.d<e+1>...dl
+                                    if l == e then-- null zs
+                                      showString (map intToDigit xs ++ ".0")
+                                    else
+                                      let (ys,zs) = splitAt e xs
+                                          ys' = if null ys then [0] else ys
+                                      in showString (map intToDigit ys' ++ "." ++ map intToDigit zs)
+                                  else -- e < 0
+                                    -- 0.<replicate (-e) '0'>d1d2...dl
+                                    showString ("0." ++ replicate (-e) '0' ++ map intToDigit xs)
                   Just prec -> let prec' = max prec 0
                                    xs = binaryFloatToFixedDecimalDigitsRn r prec' x
                                    l = length xs
-                               in if prec' == 0
-                                  then if null xs
-                                       then showString "0"
-                                       else showString $ map intToDigit xs
-                                  else if l <= prec'
-                                       then showString $ "0." ++ replicate (prec' - l) '0' ++ map intToDigit xs
-                                       else let (ys,zs) = splitAt (l - prec') xs
-                                                ys' | null ys = [0]
-                                                    | otherwise = ys
-                                            in showString $ map intToDigit ys' ++ "." ++ map intToDigit zs
+                                   -- binaryFloatToFixedDecimalDigitsRn _ prec' x = [d1,d2,...,dl]
+                                   -- x = d1d2...dl * (10^^(-prec')) up to rounding
+                                   -- 0 <= di < 10
+                               in if prec' == 0 then
+                                    -- d1d2...dl or "0"
+                                    if null xs then
+                                      showString "0"
+                                    else
+                                      showString $ map intToDigit xs
+                                  else
+                                    if l <= prec' then
+                                      -- 0.<replicate (prec'-l) '0'>d1d2...dl
+                                      showString $ "0." ++ replicate (prec' - l) '0' ++ map intToDigit xs
+                                    else
+                                      -- l > prec'
+                                      -- d1d2...d<l-prec'>.d<l-prec'+1>...dl
+                                      let (ys,zs) = splitAt (l - prec') xs
+                                          ys' = if null ys then [0] else ys
+                                      in showString $ map intToDigit ys' ++ "." ++ map intToDigit zs
 {-# SPECIALIZE showFFloatRn :: RoundingMode -> Maybe Int -> Double -> ShowS #-}
 
 showGFloatRn :: RealFloat a => RoundingMode -> Maybe Int -> a -> ShowS
