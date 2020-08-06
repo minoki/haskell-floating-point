@@ -233,28 +233,6 @@ fromIntegralRBits x
     ieee = isIEEE (undefined `asProxyTypeOf` result)
     base = floatRadix (undefined `asProxyTypeOf` result)
 {-# INLINE fromIntegralRBits #-}
-{-# SPECIALIZE INLINE
-  fromIntegralRBits :: RoundingStrategy f => Int -> f Float
-                     , RoundingStrategy f => Int8 -> f Float
-                     , RoundingStrategy f => Int16 -> f Float
-                     , RoundingStrategy f => Int32 -> f Float
-                     , RoundingStrategy f => Int64 -> f Float
-                     , RoundingStrategy f => Word -> f Float
-                     , RoundingStrategy f => Word8 -> f Float
-                     , RoundingStrategy f => Word16 -> f Float
-                     , RoundingStrategy f => Word32 -> f Float
-                     , RoundingStrategy f => Word64 -> f Float
-                     , RoundingStrategy f => Int -> f Double
-                     , RoundingStrategy f => Int8 -> f Double
-                     , RoundingStrategy f => Int16 -> f Double
-                     , RoundingStrategy f => Int32 -> f Double
-                     , RoundingStrategy f => Int64 -> f Double
-                     , RoundingStrategy f => Word -> f Double
-                     , RoundingStrategy f => Word8 -> f Double
-                     , RoundingStrategy f => Word16 -> f Double
-                     , RoundingStrategy f => Word32 -> f Double
-                     , RoundingStrategy f => Word64 -> f Double
-  #-}
 
 -- |
 -- >>> boundsForExactConversion (Proxy :: Proxy Double) :: (Maybe Integer, Maybe Integer) -- (Just (-2^53),Just (2^53))
@@ -286,39 +264,40 @@ minBoundAsInteger dummyI = if isSigned dummyI then
                                Nothing -> Nothing
                            else
                              Just 0
-{-# INLINE minBoundAsInteger #-}
-{-# SPECIALIZE INLINE
-  minBoundAsInteger :: Int -> Maybe Integer
-                     , Int8 -> Maybe Integer
-                     , Int16 -> Maybe Integer
-                     , Int32 -> Maybe Integer
-                     , Int64 -> Maybe Integer
-                     , Word -> Maybe Integer
-                     , Word8 -> Maybe Integer
-                     , Word16 -> Maybe Integer
-                     , Word32 -> Maybe Integer
-                     , Word64 -> Maybe Integer
+{-# INLINE [1] minBoundAsInteger #-}
+{-# RULES
+"minBoundAsInteger/Int" minBoundAsInteger = (\_ -> Just (fromIntegral (minBound :: Int))) :: Int -> Maybe Integer
+"minBoundAsInteger/Int8" minBoundAsInteger = (\_ -> Just (fromIntegral (minBound :: Int8))) :: Int8 -> Maybe Integer
+"minBoundAsInteger/Int16" minBoundAsInteger = (\_ -> Just (fromIntegral (minBound :: Int16))) :: Int16 -> Maybe Integer
+"minBoundAsInteger/Int32" minBoundAsInteger = (\_ -> Just (fromIntegral (minBound :: Int32))) :: Int32 -> Maybe Integer
+"minBoundAsInteger/Int64" minBoundAsInteger = (\_ -> Just (fromIntegral (minBound :: Int64))) :: Int64 -> Maybe Integer
+"minBoundAsInteger/Word" minBoundAsInteger = (\_ -> Just 0) :: Word -> Maybe Integer
+"minBoundAsInteger/Word8" minBoundAsInteger = (\_ -> Just 0) :: Word8 -> Maybe Integer
+"minBoundAsInteger/Word16" minBoundAsInteger = (\_ -> Just 0) :: Word16 -> Maybe Integer
+"minBoundAsInteger/Word32" minBoundAsInteger = (\_ -> Just 0) :: Word32 -> Maybe Integer
+"minBoundAsInteger/Word64" minBoundAsInteger = (\_ -> Just 0) :: Word64 -> Maybe Integer
   #-}
+
 maxBoundAsInteger :: Bits i => i -> Maybe Integer
 maxBoundAsInteger dummyI = case bitSizeMaybe dummyI of
                              Just bits | isSigned dummyI -> Just (bit (bits-1) - 1)
                                        | otherwise -> Just (bit bits - 1)
                              Nothing -> Nothing
-{-# INLINE maxBoundAsInteger #-}
-{-# SPECIALIZE INLINE
-  maxBoundAsInteger :: Int -> Maybe Integer
-                     , Int8 -> Maybe Integer
-                     , Int16 -> Maybe Integer
-                     , Int32 -> Maybe Integer
-                     , Int64 -> Maybe Integer
-                     , Word -> Maybe Integer
-                     , Word8 -> Maybe Integer
-                     , Word16 -> Maybe Integer
-                     , Word32 -> Maybe Integer
-                     , Word64 -> Maybe Integer
+{-# INLINE [1] maxBoundAsInteger #-}
+{-# RULES
+"maxBoundAsInteger/Int" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Int))) :: Int -> Maybe Integer
+"maxBoundAsInteger/Int8" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Int8))) :: Int8 -> Maybe Integer
+"maxBoundAsInteger/Int16" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Int16))) :: Int16 -> Maybe Integer
+"maxBoundAsInteger/Int32" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Int32))) :: Int32 -> Maybe Integer
+"maxBoundAsInteger/Int64" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Int64))) :: Int64 -> Maybe Integer
+"maxBoundAsInteger/Word" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Word))) :: Word -> Maybe Integer
+"maxBoundAsInteger/Word8" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Word8))) :: Word8 -> Maybe Integer
+"maxBoundAsInteger/Word16" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Word16))) :: Word16 -> Maybe Integer
+"maxBoundAsInteger/Word32" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Word32))) :: Word32 -> Maybe Integer
+"maxBoundAsInteger/Word64" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Word64))) :: Word64 -> Maybe Integer
   #-}
 
--- Avoid cross-module specialization issue with worker/wrapper transformations
+-- Avoid cross-module specialization issue with manual worker/wrapper transformation
 positiveWordToBinaryFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Word -> f a
 positiveWordToBinaryFloatR neg (W# n#) = positiveWordToBinaryFloatR# neg n#
 {-# INLINE positiveWordToBinaryFloatR #-}
@@ -573,7 +552,7 @@ encodeFloatR m n | m < 0 = negate <$> encodePositiveFloatR True (- m) n
                  | otherwise = encodePositiveFloatR False m n
 {-# INLINE encodeFloatR #-}
 
--- Avoid cross-module specialization issue with worker/wrapper transformations
+-- Avoid cross-module specialization issue with manual worker/wrapper transformation
 encodePositiveFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Int -> f a
 encodePositiveFloatR neg m (I# n#) = encodePositiveFloatR# neg m n#
 {-# INLINE encodePositiveFloatR #-}
