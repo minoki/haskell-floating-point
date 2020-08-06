@@ -580,7 +580,7 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                        integerLogBase' base m
                  -- base^k <= m < base^(k+1)
                  -- base^^(k+n) <= m * base^^n < base^^(k+n+1)
-             in if expMin < k + n && k + n < expMax then
+             in if expMin <= k + n + 1 && k + n + 1 <= expMax then
                   -- normal
                   -- base^(fDigits-1) <= m / base^(k-fDigits+1) < base^fDigits
                   if k < fDigits then
@@ -608,7 +608,7 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                     -- overflow
                     let inf = 1 / 0
                     in inexact GT neg 1 maxFinite inf
-                  else -- k + n <= expMin
+                  else -- k + n + 1 < expMin
                     -- subnormal
                     if expMin - fDigits <= n then
                       -- k <= expMin - n <= fDigits
@@ -619,6 +619,8 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                           -- m = q * base^(expMin-fDigits-n) + r
                           -- q <= m * base^^(n-expMin+fDigits) < q+1
                           -- q * base^^(expMin-fDigits) <= m * base^^n < (q+1) * base^^(expMin-fDigits)
+                          !_ = assert (toRational q * toRational base^^(expMin-fDigits) <= toRational m * toRational base^^n) ()
+                          !_ = assert (toRational m * toRational base^^n < toRational (q+1) * toRational base^^(expMin-fDigits)) ()
                           towardzero_or_exact = encodeFloat q (expMin - fDigits)
                           awayfromzero = encodeFloat (q + 1) (expMin - fDigits)
                           parity = fromInteger q :: Int
