@@ -52,12 +52,12 @@
 </span><span id="line-52"></span><span>
 </span><span id="line-53"></span><span class="annot"><a href="FFIWrapper.Float.html#roundedAdd"><span class="hs-identifier hs-type">roundedAdd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
 </span><span id="line-54"></span><span id="roundedAdd"><span class="annot"><span class="annottext">roundedAdd :: RoundingMode -&gt; Float -&gt; Float -&gt; Float
-</span><a href="FFIWrapper.Float.html#roundedAdd"><span class="hs-identifier hs-var hs-var">roundedAdd</span></a></span></span><span> </span><span id="local-6989586621679132598"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132598"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float -&gt; Float
+</span><a href="FFIWrapper.Float.html#roundedAdd"><span class="hs-identifier hs-var hs-var">roundedAdd</span></a></span></span><span> </span><span id="local-6989586621679146080"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146080"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float -&gt; Float
 </span><a href="FFIWrapper.Float.html#c_rounded_add"><span class="hs-identifier hs-var">c_rounded_add</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132598"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146080"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-55"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedAdd"><span class="hs-pragma hs-type">roundedAdd</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-56"></span><span class="hs-pragma">{-# RULES</span><span>
 </span><span id="line-57"></span><span class="annot"><span class="hs-pragma">&quot;roundedAdd/TowardNegInf&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedAdd"><span class="hs-pragma hs-type">roundedAdd</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-pragma hs-type">TowardNegInf</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#c_rounded_add_down"><span class="hs-pragma hs-type">c_rounded_add_down</span></a></span><span>
@@ -76,12 +76,12 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><span id="line-70"></span><span>
 </span><span id="line-71"></span><span class="annot"><a href="FFIWrapper.Float.html#roundedSub"><span class="hs-identifier hs-type">roundedSub</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
 </span><span id="line-72"></span><span id="roundedSub"><span class="annot"><span class="annottext">roundedSub :: RoundingMode -&gt; Float -&gt; Float -&gt; Float
-</span><a href="FFIWrapper.Float.html#roundedSub"><span class="hs-identifier hs-var hs-var">roundedSub</span></a></span></span><span> </span><span id="local-6989586621679132589"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132589"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float -&gt; Float
+</span><a href="FFIWrapper.Float.html#roundedSub"><span class="hs-identifier hs-var hs-var">roundedSub</span></a></span></span><span> </span><span id="local-6989586621679146071"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146071"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float -&gt; Float
 </span><a href="FFIWrapper.Float.html#c_rounded_sub"><span class="hs-identifier hs-var">c_rounded_sub</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132589"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146071"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-73"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedSub"><span class="hs-pragma hs-type">roundedSub</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-74"></span><span class="hs-pragma">{-# RULES</span><span>
 </span><span id="line-75"></span><span class="annot"><span class="hs-pragma">&quot;roundedSub/TowardNegInf&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedSub"><span class="hs-pragma hs-type">roundedSub</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-pragma hs-type">TowardNegInf</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#c_rounded_sub_down"><span class="hs-pragma hs-type">c_rounded_sub_down</span></a></span><span>
@@ -100,12 +100,12 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><span id="line-88"></span><span>
 </span><span id="line-89"></span><span class="annot"><a href="FFIWrapper.Float.html#roundedMul"><span class="hs-identifier hs-type">roundedMul</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
 </span><span id="line-90"></span><span id="roundedMul"><span class="annot"><span class="annottext">roundedMul :: RoundingMode -&gt; Float -&gt; Float -&gt; Float
-</span><a href="FFIWrapper.Float.html#roundedMul"><span class="hs-identifier hs-var hs-var">roundedMul</span></a></span></span><span> </span><span id="local-6989586621679132584"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132584"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float -&gt; Float
+</span><a href="FFIWrapper.Float.html#roundedMul"><span class="hs-identifier hs-var hs-var">roundedMul</span></a></span></span><span> </span><span id="local-6989586621679146066"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146066"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float -&gt; Float
 </span><a href="FFIWrapper.Float.html#c_rounded_mul"><span class="hs-identifier hs-var">c_rounded_mul</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132584"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146066"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-91"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedMul"><span class="hs-pragma hs-type">roundedMul</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-92"></span><span class="hs-pragma">{-# RULES</span><span>
 </span><span id="line-93"></span><span class="annot"><span class="hs-pragma">&quot;roundedMul/TowardNegInf&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedMul"><span class="hs-pragma hs-type">roundedMul</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-pragma hs-type">TowardNegInf</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#c_rounded_mul_down"><span class="hs-pragma hs-type">c_rounded_mul_down</span></a></span><span>
@@ -124,12 +124,12 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><span id="line-106"></span><span>
 </span><span id="line-107"></span><span class="annot"><a href="FFIWrapper.Float.html#roundedDiv"><span class="hs-identifier hs-type">roundedDiv</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
 </span><span id="line-108"></span><span id="roundedDiv"><span class="annot"><span class="annottext">roundedDiv :: RoundingMode -&gt; Float -&gt; Float -&gt; Float
-</span><a href="FFIWrapper.Float.html#roundedDiv"><span class="hs-identifier hs-var hs-var">roundedDiv</span></a></span></span><span> </span><span id="local-6989586621679132579"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132579"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float -&gt; Float
+</span><a href="FFIWrapper.Float.html#roundedDiv"><span class="hs-identifier hs-var hs-var">roundedDiv</span></a></span></span><span> </span><span id="local-6989586621679146061"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146061"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float -&gt; Float
 </span><a href="FFIWrapper.Float.html#c_rounded_div"><span class="hs-identifier hs-var">c_rounded_div</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132579"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146061"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-109"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedDiv"><span class="hs-pragma hs-type">roundedDiv</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-110"></span><span class="hs-pragma">{-# RULES</span><span>
 </span><span id="line-111"></span><span class="annot"><span class="hs-pragma">&quot;roundedDiv/TowardNegInf&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedDiv"><span class="hs-pragma hs-type">roundedDiv</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-pragma hs-type">TowardNegInf</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#c_rounded_div_down"><span class="hs-pragma hs-type">c_rounded_div_down</span></a></span><span>
@@ -148,12 +148,12 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><span id="line-124"></span><span>
 </span><span id="line-125"></span><span class="annot"><a href="FFIWrapper.Float.html#roundedSqrt"><span class="hs-identifier hs-type">roundedSqrt</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
 </span><span id="line-126"></span><span id="roundedSqrt"><span class="annot"><span class="annottext">roundedSqrt :: RoundingMode -&gt; Float -&gt; Float
-</span><a href="FFIWrapper.Float.html#roundedSqrt"><span class="hs-identifier hs-var hs-var">roundedSqrt</span></a></span></span><span> </span><span id="local-6989586621679132574"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132574"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float
+</span><a href="FFIWrapper.Float.html#roundedSqrt"><span class="hs-identifier hs-var hs-var">roundedSqrt</span></a></span></span><span> </span><span id="local-6989586621679146056"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146056"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float
 </span><a href="FFIWrapper.Float.html#c_rounded_sqrt"><span class="hs-identifier hs-var">c_rounded_sqrt</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132574"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146056"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-127"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedSqrt"><span class="hs-pragma hs-type">roundedSqrt</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-128"></span><span class="hs-pragma">{-# RULES</span><span>
 </span><span id="line-129"></span><span class="annot"><span class="hs-pragma">&quot;roundedSqrt/TowardNegInf&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedSqrt"><span class="hs-pragma hs-type">roundedSqrt</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-pragma hs-type">TowardNegInf</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#c_rounded_sqrt_down"><span class="hs-pragma hs-type">c_rounded_sqrt_down</span></a></span><span>
@@ -172,12 +172,12 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><span id="line-142"></span><span>
 </span><span id="line-143"></span><span class="annot"><a href="FFIWrapper.Float.html#roundedFMA"><span class="hs-identifier hs-type">roundedFMA</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
 </span><span id="line-144"></span><span id="roundedFMA"><span class="annot"><span class="annottext">roundedFMA :: RoundingMode -&gt; Float -&gt; Float -&gt; Float -&gt; Float
-</span><a href="FFIWrapper.Float.html#roundedFMA"><span class="hs-identifier hs-var hs-var">roundedFMA</span></a></span></span><span> </span><span id="local-6989586621679132569"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132569"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float -&gt; Float -&gt; Float
+</span><a href="FFIWrapper.Float.html#roundedFMA"><span class="hs-identifier hs-var hs-var">roundedFMA</span></a></span></span><span> </span><span id="local-6989586621679146051"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146051"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float -&gt; Float -&gt; Float
 </span><a href="FFIWrapper.Float.html#c_rounded_fma"><span class="hs-identifier hs-var">c_rounded_fma</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132569"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146051"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-145"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedFMA"><span class="hs-pragma hs-type">roundedFMA</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-146"></span><span class="hs-pragma">{-# RULES</span><span>
 </span><span id="line-147"></span><span class="annot"><span class="hs-pragma">&quot;roundedFMA/TowardNegInf&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedFMA"><span class="hs-pragma hs-type">roundedFMA</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-pragma hs-type">TowardNegInf</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#c_rounded_fma_down"><span class="hs-pragma hs-type">c_rounded_fma_down</span></a></span><span>
@@ -196,12 +196,12 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><span id="line-160"></span><span>
 </span><span id="line-161"></span><span class="annot"><a href="FFIWrapper.Float.html#roundedFMAIfFast"><span class="hs-identifier hs-type">roundedFMAIfFast</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
 </span><span id="line-162"></span><span id="roundedFMAIfFast"><span class="annot"><span class="annottext">roundedFMAIfFast :: RoundingMode -&gt; Float -&gt; Float -&gt; Float -&gt; Float
-</span><a href="FFIWrapper.Float.html#roundedFMAIfFast"><span class="hs-identifier hs-var hs-var">roundedFMAIfFast</span></a></span></span><span> </span><span id="local-6989586621679132564"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132564"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float -&gt; Float -&gt; Float
+</span><a href="FFIWrapper.Float.html#roundedFMAIfFast"><span class="hs-identifier hs-var hs-var">roundedFMAIfFast</span></a></span></span><span> </span><span id="local-6989586621679146046"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146046"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Float -&gt; Float -&gt; Float -&gt; Float
 </span><a href="FFIWrapper.Float.html#c_rounded_fma_if_fast"><span class="hs-identifier hs-var">c_rounded_fma_if_fast</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132564"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146046"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-163"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedFMAIfFast"><span class="hs-pragma hs-type">roundedFMAIfFast</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-164"></span><span class="hs-pragma">{-# RULES</span><span>
 </span><span id="line-165"></span><span class="annot"><span class="hs-pragma">&quot;roundedFMAIfFast/TowardNegInf&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedFMAIfFast"><span class="hs-pragma hs-type">roundedFMAIfFast</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-pragma hs-type">TowardNegInf</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#c_rounded_fma_if_fast_down"><span class="hs-pragma hs-type">c_rounded_fma_if_fast_down</span></a></span><span>
@@ -220,12 +220,12 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><span id="line-178"></span><span>
 </span><span id="line-179"></span><span class="annot"><a href="FFIWrapper.Float.html#roundedFromInt64"><span class="hs-identifier hs-type">roundedFromInt64</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int64</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
 </span><span id="line-180"></span><span id="roundedFromInt64"><span class="annot"><span class="annottext">roundedFromInt64 :: RoundingMode -&gt; Int64 -&gt; Float
-</span><a href="FFIWrapper.Float.html#roundedFromInt64"><span class="hs-identifier hs-var hs-var">roundedFromInt64</span></a></span></span><span> </span><span id="local-6989586621679132559"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132559"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int64 -&gt; Float
+</span><a href="FFIWrapper.Float.html#roundedFromInt64"><span class="hs-identifier hs-var hs-var">roundedFromInt64</span></a></span></span><span> </span><span id="local-6989586621679146041"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146041"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int64 -&gt; Float
 </span><a href="FFIWrapper.Float.html#c_rounded_from_int64"><span class="hs-identifier hs-var">c_rounded_from_int64</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132559"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146041"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-181"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedFromInt64"><span class="hs-pragma hs-type">roundedFromInt64</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-182"></span><span class="hs-pragma">{-# RULES</span><span>
 </span><span id="line-183"></span><span class="annot"><span class="hs-pragma">&quot;roundedFromInt64/TowardNegInf&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedFromInt64"><span class="hs-pragma hs-type">roundedFromInt64</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-pragma hs-type">TowardNegInf</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#c_rounded_from_int64_down"><span class="hs-pragma hs-type">c_rounded_from_int64_down</span></a></span><span>
@@ -244,12 +244,12 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><span id="line-196"></span><span>
 </span><span id="line-197"></span><span class="annot"><a href="FFIWrapper.Float.html#roundedFromWord64"><span class="hs-identifier hs-type">roundedFromWord64</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
 </span><span id="line-198"></span><span id="roundedFromWord64"><span class="annot"><span class="annottext">roundedFromWord64 :: RoundingMode -&gt; Word64 -&gt; Float
-</span><a href="FFIWrapper.Float.html#roundedFromWord64"><span class="hs-identifier hs-var hs-var">roundedFromWord64</span></a></span></span><span> </span><span id="local-6989586621679132554"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132554"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Word64 -&gt; Float
+</span><a href="FFIWrapper.Float.html#roundedFromWord64"><span class="hs-identifier hs-var hs-var">roundedFromWord64</span></a></span></span><span> </span><span id="local-6989586621679146036"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146036"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Word64 -&gt; Float
 </span><a href="FFIWrapper.Float.html#c_rounded_from_word64"><span class="hs-identifier hs-var">c_rounded_from_word64</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132554"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146036"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-199"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedFromWord64"><span class="hs-pragma hs-type">roundedFromWord64</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-200"></span><span class="hs-pragma">{-# RULES</span><span>
 </span><span id="line-201"></span><span class="annot"><span class="hs-pragma">&quot;roundedFromWord64/TowardNegInf&quot;</span></span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">~</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#roundedFromWord64"><span class="hs-pragma hs-type">roundedFromWord64</span></a></span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#TowardNegInf"><span class="hs-pragma hs-type">TowardNegInf</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#c_rounded_from_word64_down"><span class="hs-pragma hs-type">c_rounded_from_word64_down</span></a></span><span>
@@ -282,12 +282,12 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><span id="line-228"></span><span>
 </span><span id="line-229"></span><span class="annot"><a href="FFIWrapper.Float.html#vectorSumPtr"><span class="hs-identifier hs-type">vectorSumPtr</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ptr</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
 </span><span id="line-230"></span><span id="vectorSumPtr"><span class="annot"><span class="annottext">vectorSumPtr :: RoundingMode -&gt; Int -&gt; Int -&gt; Ptr Float -&gt; IO Float
-</span><a href="FFIWrapper.Float.html#vectorSumPtr"><span class="hs-identifier hs-var hs-var">vectorSumPtr</span></a></span></span><span> </span><span id="local-6989586621679132552"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132552"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int -&gt; Ptr Float -&gt; IO Float
+</span><a href="FFIWrapper.Float.html#vectorSumPtr"><span class="hs-identifier hs-var hs-var">vectorSumPtr</span></a></span></span><span> </span><span id="local-6989586621679146034"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146034"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int -&gt; Ptr Float -&gt; IO Float
 </span><a href="FFIWrapper.Float.html#c_vectorSumPtr"><span class="hs-identifier hs-var">c_vectorSumPtr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132552"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146034"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-231"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorSumPtr"><span class="hs-pragma hs-type">vectorSumPtr</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-232"></span><span>
 </span><span id="line-233"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded_hw_vector_sum_float&quot;</span></span><span>
@@ -295,12 +295,12 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><span id="line-235"></span><span>
 </span><span id="line-236"></span><span class="annot"><a href="FFIWrapper.Float.html#vectorSumByteArray"><span class="hs-identifier hs-type">vectorSumByteArray</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteArray#</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
 </span><span id="line-237"></span><span id="vectorSumByteArray"><span class="annot"><span class="annottext">vectorSumByteArray :: RoundingMode -&gt; Int -&gt; Int -&gt; ByteArray# -&gt; Float
-</span><a href="FFIWrapper.Float.html#vectorSumByteArray"><span class="hs-identifier hs-var hs-var">vectorSumByteArray</span></a></span></span><span> </span><span id="local-6989586621679132550"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132550"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int -&gt; ByteArray# -&gt; Float
+</span><a href="FFIWrapper.Float.html#vectorSumByteArray"><span class="hs-identifier hs-var hs-var">vectorSumByteArray</span></a></span></span><span> </span><span id="local-6989586621679146032"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146032"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int -&gt; ByteArray# -&gt; Float
 </span><a href="FFIWrapper.Float.html#c_vectorSumByteArray"><span class="hs-identifier hs-var">c_vectorSumByteArray</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132550"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146032"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-238"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorSumByteArray"><span class="hs-pragma hs-type">vectorSumByteArray</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-239"></span><span>
 </span><span id="line-240"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded_hw_vector_add_float&quot;</span></span><span>
@@ -316,8 +316,8 @@ forall a. Enum a =&gt; a -&gt; Int
 -&gt; Int
 -&gt; Ptr Float
 -&gt; IO ()
-</span><a href="FFIWrapper.Float.html#vectorAddPtr"><span class="hs-identifier hs-var hs-var">vectorAddPtr</span></a></span></span><span> </span><span id="local-6989586621679132548"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132548"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="FFIWrapper.Float.html#vectorAddPtr"><span class="hs-identifier hs-var hs-var">vectorAddPtr</span></a></span></span><span> </span><span id="local-6989586621679146030"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146030"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 -&gt; Int
 -&gt; Int
 -&gt; Ptr Float
@@ -329,7 +329,7 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><a href="FFIWrapper.Float.html#c_vectorAddPtr"><span class="hs-identifier hs-var">c_vectorAddPtr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132548"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146030"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-245"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorAddPtr"><span class="hs-pragma hs-type">vectorAddPtr</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-246"></span><span>
 </span><span id="line-247"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded_hw_vector_add_float&quot;</span></span><span>
@@ -345,8 +345,8 @@ forall a. Enum a =&gt; a -&gt; Int
 -&gt; Int
 -&gt; ByteArray#
 -&gt; IO ()
-</span><a href="FFIWrapper.Float.html#vectorAddByteArray"><span class="hs-identifier hs-var hs-var">vectorAddByteArray</span></a></span></span><span> </span><span id="local-6989586621679132546"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132546"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="FFIWrapper.Float.html#vectorAddByteArray"><span class="hs-identifier hs-var hs-var">vectorAddByteArray</span></a></span></span><span> </span><span id="local-6989586621679146028"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146028"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 -&gt; Int
 -&gt; Int
 -&gt; MutableByteArray# RealWorld
@@ -358,7 +358,7 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><a href="FFIWrapper.Float.html#c_vectorAddByteArray"><span class="hs-identifier hs-var">c_vectorAddByteArray</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132546"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146028"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-252"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorAddByteArray"><span class="hs-pragma hs-type">vectorAddByteArray</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-253"></span><span>
 </span><span id="line-254"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded_hw_vector_sub_float&quot;</span></span><span>
@@ -374,8 +374,8 @@ forall a. Enum a =&gt; a -&gt; Int
 -&gt; Int
 -&gt; Ptr Float
 -&gt; IO ()
-</span><a href="FFIWrapper.Float.html#vectorSubPtr"><span class="hs-identifier hs-var hs-var">vectorSubPtr</span></a></span></span><span> </span><span id="local-6989586621679132544"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132544"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="FFIWrapper.Float.html#vectorSubPtr"><span class="hs-identifier hs-var hs-var">vectorSubPtr</span></a></span></span><span> </span><span id="local-6989586621679146026"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146026"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 -&gt; Int
 -&gt; Int
 -&gt; Ptr Float
@@ -387,7 +387,7 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><a href="FFIWrapper.Float.html#c_vectorSubPtr"><span class="hs-identifier hs-var">c_vectorSubPtr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132544"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146026"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-259"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorSubPtr"><span class="hs-pragma hs-type">vectorSubPtr</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-260"></span><span>
 </span><span id="line-261"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded_hw_vector_sub_float&quot;</span></span><span>
@@ -403,8 +403,8 @@ forall a. Enum a =&gt; a -&gt; Int
 -&gt; Int
 -&gt; ByteArray#
 -&gt; IO ()
-</span><a href="FFIWrapper.Float.html#vectorSubByteArray"><span class="hs-identifier hs-var hs-var">vectorSubByteArray</span></a></span></span><span> </span><span id="local-6989586621679132542"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132542"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="FFIWrapper.Float.html#vectorSubByteArray"><span class="hs-identifier hs-var hs-var">vectorSubByteArray</span></a></span></span><span> </span><span id="local-6989586621679146024"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146024"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 -&gt; Int
 -&gt; Int
 -&gt; MutableByteArray# RealWorld
@@ -416,7 +416,7 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><a href="FFIWrapper.Float.html#c_vectorSubByteArray"><span class="hs-identifier hs-var">c_vectorSubByteArray</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132542"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146024"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-266"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorSubByteArray"><span class="hs-pragma hs-type">vectorSubByteArray</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-267"></span><span>
 </span><span id="line-268"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded_hw_vector_mul_float&quot;</span></span><span>
@@ -432,8 +432,8 @@ forall a. Enum a =&gt; a -&gt; Int
 -&gt; Int
 -&gt; Ptr Float
 -&gt; IO ()
-</span><a href="FFIWrapper.Float.html#vectorMulPtr"><span class="hs-identifier hs-var hs-var">vectorMulPtr</span></a></span></span><span> </span><span id="local-6989586621679132540"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132540"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="FFIWrapper.Float.html#vectorMulPtr"><span class="hs-identifier hs-var hs-var">vectorMulPtr</span></a></span></span><span> </span><span id="local-6989586621679146022"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146022"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 -&gt; Int
 -&gt; Int
 -&gt; Ptr Float
@@ -445,7 +445,7 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><a href="FFIWrapper.Float.html#c_vectorMulPtr"><span class="hs-identifier hs-var">c_vectorMulPtr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132540"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146022"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-273"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorMulPtr"><span class="hs-pragma hs-type">vectorMulPtr</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-274"></span><span>
 </span><span id="line-275"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded_hw_vector_mul_float&quot;</span></span><span>
@@ -461,8 +461,8 @@ forall a. Enum a =&gt; a -&gt; Int
 -&gt; Int
 -&gt; ByteArray#
 -&gt; IO ()
-</span><a href="FFIWrapper.Float.html#vectorMulByteArray"><span class="hs-identifier hs-var hs-var">vectorMulByteArray</span></a></span></span><span> </span><span id="local-6989586621679132538"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132538"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="FFIWrapper.Float.html#vectorMulByteArray"><span class="hs-identifier hs-var hs-var">vectorMulByteArray</span></a></span></span><span> </span><span id="local-6989586621679146020"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146020"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 -&gt; Int
 -&gt; Int
 -&gt; MutableByteArray# RealWorld
@@ -474,7 +474,7 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><a href="FFIWrapper.Float.html#c_vectorMulByteArray"><span class="hs-identifier hs-var">c_vectorMulByteArray</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132538"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146020"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-280"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorMulByteArray"><span class="hs-pragma hs-type">vectorMulByteArray</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-281"></span><span>
 </span><span id="line-282"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded_hw_vector_fma_float&quot;</span></span><span>
@@ -492,8 +492,8 @@ forall a. Enum a =&gt; a -&gt; Int
 -&gt; Int
 -&gt; Ptr Float
 -&gt; IO ()
-</span><a href="FFIWrapper.Float.html#vectorFMAPtr"><span class="hs-identifier hs-var hs-var">vectorFMAPtr</span></a></span></span><span> </span><span id="local-6989586621679132536"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132536"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="FFIWrapper.Float.html#vectorFMAPtr"><span class="hs-identifier hs-var hs-var">vectorFMAPtr</span></a></span></span><span> </span><span id="local-6989586621679146018"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146018"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 -&gt; Int
 -&gt; Int
 -&gt; Ptr Float
@@ -507,7 +507,7 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><a href="FFIWrapper.Float.html#c_vectorFMAPtr"><span class="hs-identifier hs-var">c_vectorFMAPtr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132536"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146018"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-287"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorFMAPtr"><span class="hs-pragma hs-type">vectorFMAPtr</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-288"></span><span>
 </span><span id="line-289"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded_hw_vector_fma_float&quot;</span></span><span>
@@ -525,8 +525,8 @@ forall a. Enum a =&gt; a -&gt; Int
 -&gt; Int
 -&gt; ByteArray#
 -&gt; IO ()
-</span><a href="FFIWrapper.Float.html#vectorFMAByteArray"><span class="hs-identifier hs-var hs-var">vectorFMAByteArray</span></a></span></span><span> </span><span id="local-6989586621679132534"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132534"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="FFIWrapper.Float.html#vectorFMAByteArray"><span class="hs-identifier hs-var hs-var">vectorFMAByteArray</span></a></span></span><span> </span><span id="local-6989586621679146016"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146016"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 -&gt; Int
 -&gt; Int
 -&gt; MutableByteArray# RealWorld
@@ -540,7 +540,7 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><a href="FFIWrapper.Float.html#c_vectorFMAByteArray"><span class="hs-identifier hs-var">c_vectorFMAByteArray</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132534"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146016"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-294"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorFMAByteArray"><span class="hs-pragma hs-type">vectorFMAByteArray</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-295"></span><span>
 </span><span id="line-296"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded_hw_vector_div_float&quot;</span></span><span>
@@ -556,8 +556,8 @@ forall a. Enum a =&gt; a -&gt; Int
 -&gt; Int
 -&gt; Ptr Float
 -&gt; IO ()
-</span><a href="FFIWrapper.Float.html#vectorDivPtr"><span class="hs-identifier hs-var hs-var">vectorDivPtr</span></a></span></span><span> </span><span id="local-6989586621679132532"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132532"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="FFIWrapper.Float.html#vectorDivPtr"><span class="hs-identifier hs-var hs-var">vectorDivPtr</span></a></span></span><span> </span><span id="local-6989586621679146014"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146014"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 -&gt; Int
 -&gt; Int
 -&gt; Ptr Float
@@ -569,7 +569,7 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><a href="FFIWrapper.Float.html#c_vectorDivPtr"><span class="hs-identifier hs-var">c_vectorDivPtr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132532"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146014"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-301"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorDivPtr"><span class="hs-pragma hs-type">vectorDivPtr</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-302"></span><span>
 </span><span id="line-303"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded_hw_vector_div_float&quot;</span></span><span>
@@ -585,8 +585,8 @@ forall a. Enum a =&gt; a -&gt; Int
 -&gt; Int
 -&gt; ByteArray#
 -&gt; IO ()
-</span><a href="FFIWrapper.Float.html#vectorDivByteArray"><span class="hs-identifier hs-var hs-var">vectorDivByteArray</span></a></span></span><span> </span><span id="local-6989586621679132530"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132530"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="FFIWrapper.Float.html#vectorDivByteArray"><span class="hs-identifier hs-var hs-var">vectorDivByteArray</span></a></span></span><span> </span><span id="local-6989586621679146012"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146012"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 -&gt; Int
 -&gt; Int
 -&gt; MutableByteArray# RealWorld
@@ -598,7 +598,7 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><a href="FFIWrapper.Float.html#c_vectorDivByteArray"><span class="hs-identifier hs-var">c_vectorDivByteArray</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132530"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146012"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-308"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorDivByteArray"><span class="hs-pragma hs-type">vectorDivByteArray</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-309"></span><span>
 </span><span id="line-310"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded_hw_vector_sqrt_float&quot;</span></span><span>
@@ -607,12 +607,12 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><span id="line-313"></span><span class="annot"><a href="FFIWrapper.Float.html#vectorSqrtPtr"><span class="hs-identifier hs-type">vectorSqrtPtr</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ptr</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ptr</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-314"></span><span id="vectorSqrtPtr"><span class="annot"><span class="annottext">vectorSqrtPtr :: RoundingMode
 -&gt; Int -&gt; Int -&gt; Ptr Float -&gt; Int -&gt; Ptr Float -&gt; IO ()
-</span><a href="FFIWrapper.Float.html#vectorSqrtPtr"><span class="hs-identifier hs-var hs-var">vectorSqrtPtr</span></a></span></span><span> </span><span id="local-6989586621679132528"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132528"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int -&gt; Ptr Float -&gt; Int -&gt; Ptr Float -&gt; IO ()
+</span><a href="FFIWrapper.Float.html#vectorSqrtPtr"><span class="hs-identifier hs-var hs-var">vectorSqrtPtr</span></a></span></span><span> </span><span id="local-6989586621679146010"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146010"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int -&gt; Ptr Float -&gt; Int -&gt; Ptr Float -&gt; IO ()
 </span><a href="FFIWrapper.Float.html#c_vectorSqrtPtr"><span class="hs-identifier hs-var">c_vectorSqrtPtr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132528"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146010"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-315"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorSqrtPtr"><span class="hs-pragma hs-type">vectorSqrtPtr</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-316"></span><span>
 </span><span id="line-317"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;rounded_hw_vector_sqrt_float&quot;</span></span><span>
@@ -626,8 +626,8 @@ forall a. Enum a =&gt; a -&gt; Int
 -&gt; Int
 -&gt; ByteArray#
 -&gt; IO ()
-</span><a href="FFIWrapper.Float.html#vectorSqrtByteArray"><span class="hs-identifier hs-var hs-var">vectorSqrtByteArray</span></a></span></span><span> </span><span id="local-6989586621679132526"><span class="annot"><span class="annottext">r :: RoundingMode
-</span><a href="#local-6989586621679132526"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="FFIWrapper.Float.html#vectorSqrtByteArray"><span class="hs-identifier hs-var hs-var">vectorSqrtByteArray</span></a></span></span><span> </span><span id="local-6989586621679146008"><span class="annot"><span class="annottext">r :: RoundingMode
+</span><a href="#local-6989586621679146008"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 -&gt; Int
 -&gt; Int
 -&gt; MutableByteArray# RealWorld
@@ -637,6 +637,6 @@ forall a. Enum a =&gt; a -&gt; Int
 </span><a href="FFIWrapper.Float.html#c_vectorSqrtByteArray"><span class="hs-identifier hs-var">c_vectorSqrtByteArray</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679132526"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679146008"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-322"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="FFIWrapper.Float.html#vectorSqrtByteArray"><span class="hs-pragma hs-type">vectorSqrtByteArray</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-323"></span></pre></body></html>

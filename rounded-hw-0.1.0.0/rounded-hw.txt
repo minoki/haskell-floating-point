@@ -159,19 +159,6 @@ instance Data.Vector.Unboxed.Base.Unbox Numeric.Rounded.Hardware.Backend.FastFFI
 module Numeric.Rounded.Hardware.Internal
 
 -- | <pre>
---   \x -&gt; x == 0 || countTrailingZerosInteger (fromIntegral x) == countTrailingZeros (x :: Int64)
---   </pre>
---   
---   <pre>
---   &gt;&gt;&gt; countTrailingZerosInteger 7
---   0
---   
---   &gt;&gt;&gt; countTrailingZerosInteger 8
---   3
---   </pre>
-countTrailingZerosInteger :: Integer -> Int
-
--- | <pre>
 --   &gt;&gt;&gt; binaryFloatToDecimalDigitsRn ToNearest 3 (0.125 :: Double)
 --   ([1,2,5],0)
 --   
@@ -274,25 +261,15 @@ Rounded :: a -> Rounded (r :: RoundingMode) a
 [getRounded] :: Rounded (r :: RoundingMode) a -> a
 data family MVector s a
 data family Vector a
-class Functor f => Result f
-exact :: Result f => a -> f a
-inexact :: Result f => a -> a -> a -> a -> f a
-newtype Exactness a
-Exactness :: Bool -> Exactness a
-[getExactness] :: Exactness a -> Bool
-newtype DynamicRoundingMode a
-DynamicRoundingMode :: (RoundingMode -> a) -> DynamicRoundingMode a
-[withRoundingMode] :: DynamicRoundingMode a -> RoundingMode -> a
-newtype OppositeRoundingMode f a
-OppositeRoundingMode :: f a -> OppositeRoundingMode f a
-[withOppositeRoundingMode] :: OppositeRoundingMode f a -> f a
 
--- | <pre>
---   nextUp 1 == (0x1.0000_0000_0000_1p0 :: Double)
---   </pre>
+-- | IEEE 754 <tt>nextUp</tt> operation.
 --   
 --   <pre>
 --   nextUp 1 == (0x1.000002p0 :: Float)
+--   </pre>
+--   
+--   <pre>
+--   nextUp 1 == (0x1.0000_0000_0000_1p0 :: Double)
 --   </pre>
 --   
 --   <pre>
@@ -300,7 +277,7 @@ OppositeRoundingMode :: f a -> OppositeRoundingMode f a
 --   </pre>
 --   
 --   <pre>
---   nextUp (-1/0) == (- maxFinite_ieee :: Double)
+--   nextUp (-1/0) == (- maxFinite :: Double)
 --   </pre>
 --   
 --   <pre>
@@ -320,7 +297,9 @@ OppositeRoundingMode :: f a -> OppositeRoundingMode f a
 --   </pre>
 nextUp :: RealFloat a => a -> a
 
--- | <pre>
+-- | IEEE 754 <tt>nextDown</tt> operation.
+--   
+--   <pre>
 --   nextDown 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
 --   </pre>
 --   
@@ -329,7 +308,7 @@ nextUp :: RealFloat a => a -> a
 --   </pre>
 --   
 --   <pre>
---   nextDown (1/0) == (maxFinite_ieee :: Double)
+--   nextDown (1/0) == (maxFinite :: Double)
 --   </pre>
 --   
 --   <pre>
@@ -347,6 +326,10 @@ nextUp :: RealFloat a => a -> a
 --   <pre>
 --   nextDown 0x1p-1074 == (0 :: Double)
 --   </pre>
+--   
+--   <pre>
+--   nextDown 0x1p-1022 == (0x0.ffff_ffff_ffff_fp-1022 ::Double)
+--   </pre>
 nextDown :: RealFloat a => a -> a
 
 -- | <pre>
@@ -358,11 +341,11 @@ nextDown :: RealFloat a => a -> a
 --   </pre>
 --   
 --   <pre>
---   nextTowardZero (1/0) == (maxFinite_ieee :: Double)
+--   nextTowardZero (1/0) == (maxFinite :: Double)
 --   </pre>
 --   
 --   <pre>
---   nextTowardZero (-1/0) == (-maxFinite_ieee :: Double)
+--   nextTowardZero (-1/0) == (-maxFinite :: Double)
 --   </pre>
 --   
 --   <pre>
@@ -377,31 +360,20 @@ nextDown :: RealFloat a => a -> a
 --   nextTowardZero 0x1p-1074 == (0 :: Double)
 --   </pre>
 nextTowardZero :: RealFloat a => a -> a
-
--- | <pre>
---   (minPositive_ieee :: Double) == 0x1p-1074
---   </pre>
---   
---   <pre>
---   (minPositive_ieee :: Float) == 0x1p-149
---   </pre>
-minPositive_ieee :: RealFloat a => a
-
--- | <pre>
---   (maxFinite_ieee :: Double) == 0x1.ffff_ffff_ffff_fp+1023
---   </pre>
---   
---   <pre>
---   (maxFinite_ieee :: Float) == 0x1.fffffep+127
---   </pre>
-maxFinite_ieee :: RealFloat a => a
 distanceUlp :: RealFloat a => a -> a -> Maybe Integer
+
+-- | IEEE 754 <tt>fusedMultiplyAdd</tt> operation.
+--   
+--   May make use of hardware FMA instructions if the target architecture
+--   has it; set <tt>fma3</tt> package flag on x86 systems.
+--   
+--   <pre>
+--   \(a :: Double) (b :: Double) (c :: Double) -&gt; fusedMultiplyAdd a b c == fromRational (toRational a * toRational b + toRational c)
+--   </pre>
 fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a
-fromInt :: RealFloat a => RoundingMode -> Integer -> a
-fromIntF :: forall a f. (RealFloat a, Result f) => Integer -> f a
+roundedFromInteger_default :: RealFloat a => RoundingMode -> Integer -> a
+roundedFromRational_default :: RealFloat a => RoundingMode -> Rational -> a
 intervalFromInteger_default :: RealFloat a => Integer -> (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
-fromRatio :: RealFloat a => RoundingMode -> Integer -> Integer -> a
-fromRatioF :: forall a f. (RealFloat a, Result f) => Integer -> Integer -> f a
 intervalFromRational_default :: RealFloat a => Rational -> (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
 class RealFloatConstants a
 
