@@ -58,7 +58,7 @@ unsafeShiftRInteger :: Integer -> Int -> Integer
 -- |
 -- Assumption: @n > 0@, @e >= 0@, and @integerLog2 n >= e@
 --
--- Returns @compare (n `rem` 2^(e+1)) (2^e)@.
+-- Returns @compare (n \`'rem'\` 2^(e+1)) (2^e)@.
 roundingMode :: Integer -- ^ @n@
              -> Int -- ^ @e@
              -> Ordering

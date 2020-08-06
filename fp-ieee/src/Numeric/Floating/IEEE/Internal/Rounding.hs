@@ -128,15 +128,15 @@ expt base n = base ^ n
 
 quotRemByExpt :: Integer -- ^ the dividend @x@
               -> Integer -- ^ base
-              -> Int -- ^ the exponent @e@ (must be @>= 0@)
-              -> (Integer, Integer) -- ^ @x `quotRem` (base ^ e)@
+              -> Int -- ^ the exponent @e@ (must be non-negative)
+              -> (Integer, Integer) -- ^ @x \`'quotRem'\` (base ^ e)@
 quotRemByExpt x 2 n    = assert (n >= 0) (x `unsafeShiftRInteger` n, x .&. (bit n - 1))
 quotRemByExpt x base n = x `quotRem` expt base n
 {-# INLINE quotRemByExpt #-}
 
 multiplyByExpt :: Integer -- ^ the multiplicand @x@
                -> Integer -- ^ base
-               -> Int -- ^ the exponent @e@ (must be @>= 0@)
+               -> Int -- ^ the exponent @e@ (must be non-negative)
                -> Integer -- ^ @x * base ^ e@
 multiplyByExpt x 2 n    = assert (n >= 0) (x `unsafeShiftLInteger` n)
 multiplyByExpt x base n = x * expt base n
@@ -144,21 +144,21 @@ multiplyByExpt x base n = x * expt base n
 
 isDivisibleByExpt :: Integer -- ^ the dividend @x@
                   -> Integer -- ^ the base
-                  -> Int -- ^ the exponent @e@ (must be @>= 0@)
-                  -> Integer -- ^ the remainder @r@ (must be @x `rem` (base ^ e)@)
-                  -> Bool -- ^ r == 0
+                  -> Int -- ^ the exponent @e@ (must be non-negative)
+                  -> Integer -- ^ the remainder @r@ (must be @x \`'rem'\` (base ^ e)@)
+                  -> Bool -- ^ @r == 0@
 isDivisibleByExpt x 2 e r = assert (r == x `rem` (2 ^ e)) $ x == 0 || Numeric.Floating.IEEE.Internal.IntegerInternals.countTrailingZerosInteger x >= e
 isDivisibleByExpt x base e r = assert (r == x `rem` (base ^ e)) (r == 0)
 {-# INLINE isDivisibleByExpt #-}
 
 -- |
--- Assumption: @n == 0@, @e >= 0@, and @r == n `rem` base^(e+1)@
+-- Assumption: @n >= 0@, @e >= 0@, and @r == n \`'rem'\` base^(e+1)@
 --
 -- Returns @compare r (base^e)@.
 compareWithExpt :: Integer -- ^ base
-                -> Integer -- ^ the number @n@
-                -> Integer -- ^ the remainder @r@
-                -> Int -- ^ the exponent @e@
+                -> Integer -- ^ the number @n@ (must be non-negative)
+                -> Integer -- ^ the remainder @r@ (must be @n \`'rem'\' base^(e+1)@)
+                -> Int -- ^ the exponent @e@ (must be non-negative)
                 -> Ordering
 compareWithExpt 2 n r e = assert (r == n `rem` expt 2 (e+1)) $
   if n == 0 || integerLog2' n < e then

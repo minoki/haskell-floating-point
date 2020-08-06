@@ -71,7 +71,7 @@ genericFusedMultiplyAdd a b c
 "genericFusedMultiplyAdd/a->a" genericFusedMultiplyAdd = fusedMultiplyAdd
   #-}
 
--- | Returns True if 'a' is a subtype of 'b'
+-- | Returns True if @a@ is a subtype of @b@
 --
 -- >>> isSubFloatingType (undefined :: Float) (undefined :: Double)
 -- True
@@ -91,7 +91,7 @@ isSubFloatingType a b = ieeeA && ieeeB && baseA == baseB && eminB <= eminA && em
     digitsA = floatDigits a
     digitsB = floatDigits b
 
--- | Returns True if 'a' is a subtype of 'b'
+-- | Returns True if @a@ is a subtype of @b@
 --
 -- >>> isSubFloatingTypeProxy (Proxy :: Proxy Float) (Proxy :: Proxy Double)
 -- True

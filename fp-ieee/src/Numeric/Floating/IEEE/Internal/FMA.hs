@@ -58,7 +58,7 @@ isMantissaEven x = let !_ = assert (isFinite x) ()
   #-}
 
 -- |
--- Returns @x := a + b@ and @x - <the exact value of (a + b)>@.
+-- Returns @x := a + b@ and @x - \<the exact value of (a + b)\>@.
 --
 -- This function does not avoid undue overflow;
 -- For example, the second component of
@@ -271,6 +271,8 @@ fusedMultiplyAdd_viaRational x y z
 
 -- |
 -- IEEE 754 @fusedMultiplyAdd@ operation.
+--
+-- May make use of hardware FMA instructions if the target architecture has it; set @fma3@ package flag on x86 systems.
 --
 -- prop> \(a :: Double) (b :: Double) (c :: Double) -> fusedMultiplyAdd a b c == fromRational (toRational a * toRational b + toRational c)
 fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a

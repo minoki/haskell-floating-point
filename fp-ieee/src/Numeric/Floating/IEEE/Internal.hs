@@ -37,6 +37,8 @@ fromIntegerTowardZero = roundTowardZero . fromIntegerR
 {-# INLINE fromIntegerTowardNegative #-}
 {-# INLINE fromIntegerTowardZero #-}
 
+-- |
+-- IEEE 754 @convertFromInt@ operation, with each rounding attributes.
 fromIntegralTiesToEven, fromIntegralTiesToAway, fromIntegralTowardPositive, fromIntegralTowardNegative, fromIntegralTowardZero :: (Integral i, RealFloat a) => i -> a
 fromIntegralTiesToEven = roundTiesToEven . fromIntegralR
 fromIntegralTiesToAway = roundTiesToAway . fromIntegralR
