@@ -318,13 +318,26 @@ positiveWordToBinaryFloatR# !neg n# = result
                     let inf = 1 / 0
                     in inexact GT neg 1 maxFinite inf
                   else
-                    let e = k - fDigits + 1
-                        q = n `unsafeShiftR` e
+                    -- k >= fDigits
+                    let e = k - fDigits + 1 -- 1 <= e <= finiteBitSize n - fDigits
+                        q = n `unsafeShiftR` e -- q <= n / 2^e = 2^(log2 n - (floor (log2 n) - fDigits + 1)) < 2^fDigits
                         r = n .&. (bit e - 1)
                         -- (q, r) = n `quotRem` (base^e)
                         -- base^(fDigits - 1) <= q < base^fDigits, 0 <= r < base^(k-fDigits+1)
                         towardzero_or_exact = fromIntegral (q `unsafeShiftL` e)
-                        awayfromzero = fromIntegral ((q + 1) `unsafeShiftL` e)
+                        -- Although (q `unsafeShiftL` e) fits in Word, ((q + 1) `unsafeShiftL` e) may overflow.
+                        -- fDigits + e = k + 1 <= WORD_SIZE_IN_BITS
+                        -- Equality holds when wordLog2' n == WORD_SIZE_IN_BITS - 1, i.e. 2^(WORD_SIZE_IN_BITS - 1) <= n.
+                        -- In particular,
+                        -- * When q + 1 < 2^fDigits, (q + 1) * 2^e < 2^(fDigits + e) = 2^(k + 1) <= 2^WORD_SIZE_IN_BITS, so (q + 1) * 2^e does not overflow.
+                        -- * When k + 1 < WORD_SIZE_IN_BITS, (q + 1) * 2^e <= 2^(fDigits + e) = 2^(k+1) < 2^WORD_SIZE_IN_BITS, so (q + 1) * 2^e does not overflow.
+                        -- * q + 1 <= 2^fDigits and k + 1 <= WORD_SIZE_IN_BITS always hold.
+                        -- * Therefore, ((q + 1) `unsafeShiftL` e) overflows only if q + 1 == 2^fDigits && k + 1 == WORD_SIZE_IN_BITS
+                        awayfromzero = if q + 1 == bit fDigits && k == finiteBitSize n - 1 then
+                                         -- (q + 1) `shiftL` e = 2^(fDigits + e) = 2^(k+1) = 2^(finiteBitSize n)
+                                         encodeFloat 1 (finiteBitSize n)
+                                       else
+                                         fromIntegral ((q + 1) `unsafeShiftL` e)
                         parity = fromIntegral q :: Int
                     in doRound
                          (r == 0) -- exactness
