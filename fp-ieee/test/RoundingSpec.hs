@@ -78,6 +78,11 @@ prop_fromRationalR_vs_fromRational proxy q =
       y = fromRational q `asProxyTypeOf` proxy
   in x `sameFloatP` y
 
+prop_encodeFloatR_roundtrip :: (RealFloat a, RoundingStrategy f) => Proxy a -> a -> (f a -> a) -> Property
+prop_encodeFloatR_roundtrip proxy x rounding = isFinite x && not (isNegativeZero x) ==>
+  let (m,n) = decodeFloat x
+  in rounding (encodeFloatR m n) `sameFloatP` x
+
 prop_order :: RealFloat a => Proxy a -> (forall f. RoundingStrategy f => f a) -> Property
 prop_order _ result =
   let tiesToEven = roundTiesToEven result
@@ -156,6 +161,7 @@ spec = do
     prop "result of fromIntegerR" $ \x -> prop_order proxy (fromIntegerR x)
     prop "result of fromRationalR" $ \x -> prop_order proxy (fromRationalR x)
     prop "result of encodeFloatR" $ \m k -> prop_order proxy (encodeFloatR m k)
+    prop "encodeFloatR/decodeFloat" $ forAllFloats $ \x -> eachStrategy (prop_encodeFloatR_roundtrip proxy x)
     prop "addToOdd" $ forAllFloats2 $ prop_addToOdd proxy
     it "fromIntegralR/(maxBound :: Int64)" $ fromIntegralTiesToEven (maxBound :: Int64) `sameFloatP` (0x1p63 :: Double)
     it "fromIntegralR/(maxBound :: Word64)" $ fromIntegralTiesToEven (maxBound :: Word64) `sameFloatP` (0x1p64 :: Double)
@@ -189,6 +195,7 @@ spec = do
     prop "result of fromIntegerR" $ \x -> prop_order proxy (fromIntegerR x)
     prop "result of fromRationalR" $ \x -> prop_order proxy (fromRationalR x)
     prop "result of encodeFloatR" $ \m k -> prop_order proxy (encodeFloatR m k)
+    prop "encodeFloatR/decodeFloat" $ forAllFloats $ \x -> eachStrategy (prop_encodeFloatR_roundtrip proxy x)
     prop "addToOdd" $ forAllFloats2 $ prop_addToOdd proxy
     it "fromIntegralR/(maxBound :: Int32)" $ fromIntegralTiesToEven (maxBound :: Int32) `sameFloatP` (0x1p31 :: Float)
     it "fromIntegralR/(maxBound :: Word32)" $ fromIntegralTiesToEven (maxBound :: Word32) `sameFloatP` (0x1p32 :: Float)

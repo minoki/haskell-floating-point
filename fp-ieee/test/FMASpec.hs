@@ -59,6 +59,7 @@ casesForDouble =
   , (0x1.0000000000001p500,    0x1.8p500,            -0x1p-1074,  0x1.8000000000001p1000)
   , (0x1.ffffffc000000p512,    0x1.0000002p511,      -0x1p-1074,  0x1.fffffffffffffp1023) -- 0x1.ffffffc000000p512 * 0x1.0000002p511 == 0x1.fffffffffffff8p1023 (in Rational)
   , (-0x1.032ede48bbb28p-1022, 0x1.3cbc999ae14a8p-1, -0x1p-1074, -0x1.40accc50d63d2p-1023)
+  , (0x1.ca903c622e5a6p-1022, 0x1.414a00c886a44p-1, 0x1.f1a8235fd56fep-1022, 0x1.88b4ec63db4f5p-1021)
   ]
 
 casesForFloat :: [(Float, Float, Float, Float)]
@@ -69,6 +70,7 @@ casesForFloat =
   , (0x1.000002p50,  0x1.8p50,     -0x1p-149,       0x1.800002p100)
   , (0x1.83bd78p4,  -0x1.cp118,    -0x1.344108p-2, -0x1.5345cap123)
   , (0x1p-149,       0x1.88dd0cp-1, 0x1.081ffp-127, 0x1.081ff4p-127)
+  , (0x1.d1a9dp-126, 0x1.594da4p-1, 0x1.343de4p-126, 0x1.3725b6p-125)
   ]
 
 testSpecialValues :: (RealFloat a, Show a) => String -> (a -> a -> a -> a) -> [(a, a, a, a)] -> Spec
