@@ -40,9 +40,16 @@ module Numeric.Floating.IEEE
 
   -- ** 5.3.3 logBFormat operations
   --
-  -- | Not supported.
-  , scaleFloat -- scaleB
-  -- logB x = exponent x - 1
+  , scaleFloatTiesToEven
+  , scaleFloatTiesToAway
+  , scaleFloatTowardPositive
+  , scaleFloatTowardNegative
+  , scaleFloatTowardZero
+  -- |
+  -- The Haskell counterpart for @logB@ operation is 'exponent'.
+  -- Note that @logB@ and 'exponent' are different by one:
+  -- @logB x = 'exponent' x - 1@
+  , exponent
 
   -- * 5.4 formatOf general-computational operations
   --

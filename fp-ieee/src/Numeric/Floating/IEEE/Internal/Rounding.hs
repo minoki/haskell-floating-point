@@ -17,6 +17,7 @@ import           Math.NumberTheory.Logarithms (integerLog2', integerLogBase',
                                                wordLog2')
 import           MyPrelude
 import           Numeric.Floating.IEEE.Internal.Base
+import           Numeric.Floating.IEEE.Internal.Classify (isFinite)
 import           Numeric.Floating.IEEE.Internal.IntegerInternals
 
 default ()
@@ -659,4 +660,64 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
 {-# RULES
 "encodePositiveFloatR#/RoundTowardNegative"
   encodePositiveFloatR# = \neg x y -> RoundTowardNegative (roundTowardPositive (encodePositiveFloatR# (not neg) x y))
+  #-}
+
+scaleFloatR :: (RealFloat a, RoundingStrategy f) => Int -> a -> f a
+scaleFloatR (I# e#) x = scaleFloatR# e# x
+{-# INLINE scaleFloatR #-}
+
+scaleFloatR# :: (RealFloat a, RoundingStrategy f) => Int# -> a -> f a
+scaleFloatR# e# x
+  | x /= 0, isFinite x =
+      let e = I# e#
+          (m,n) = decodeFloat x
+          -- x = m * base^^n, expMin <= n <= expMax
+          -- base^(fDigits-1) <= abs m < base^fDigits
+          -- base^(fDigits+n+e-1) <= abs x * base^^e < base^(fDigits+n+e)
+      in if expMin - fDigits <= n + e && n + e <= expMax - fDigits then
+           -- normal
+           exact $ encodeFloat m (n + e)
+         else
+           if expMax - fDigits < n + e then
+             -- infinity
+             (signum x *) <$> inexact GT (x < 0) 1 maxFinite (1 / 0)
+           else
+             -- subnormal
+             let !_ = assert (e + n < expMin - fDigits) ()
+                 m' = abs m
+                 (q,r) = quotRemByExpt m' base (expMin - fDigits - (e + n))
+                 towardzero_or_exact = encodeFloat q (expMin - fDigits)
+                 awayfromzero = encodeFloat (q + 1) (expMin - fDigits)
+                 parity = fromInteger q :: Int
+             in (signum x *) <$> doRound
+                  (isDivisibleByExpt m' base (expMin - fDigits - (e + n)) r)
+                  (compareWithExpt base m' r (expMin - fDigits - (e + n) - 1))
+                  (x < 0)
+                  parity
+                  towardzero_or_exact
+                  awayfromzero
+  | otherwise = exact (x + x) -- +-0, +-Infinity, NaN
+  where
+    base = floatRadix x
+    (expMin,expMax) = floatRange x
+    fDigits = floatDigits x
+{-# INLINABLE [0] scaleFloatR# #-}
+{-# SPECIALIZE
+  scaleFloatR# :: RealFloat a => Int# -> a -> RoundTiesToEven a
+                , RealFloat a => Int# -> a -> RoundTiesToAway a
+                , RealFloat a => Int# -> a -> RoundTowardPositive a
+                , RealFloat a => Int# -> a -> RoundTowardNegative a
+                , RealFloat a => Int# -> a -> RoundTowardZero a
+                , RoundingStrategy f => Int# -> Double -> f Double
+                , RoundingStrategy f => Int# -> Float -> f Float
+                , Int# -> Double -> RoundTiesToEven Double
+                , Int# -> Double -> RoundTiesToAway Double
+                , Int# -> Double -> RoundTowardPositive Double
+                , Int# -> Double -> RoundTowardNegative Double
+                , Int# -> Double -> RoundTowardZero Double
+                , Int# -> Float -> RoundTiesToEven Float
+                , Int# -> Float -> RoundTiesToAway Float
+                , Int# -> Float -> RoundTowardPositive Float
+                , Int# -> Float -> RoundTowardNegative Float
+                , Int# -> Float -> RoundTowardZero Float
   #-}

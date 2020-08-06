@@ -188,6 +188,14 @@ compareByTotalOrderHalfNaNAware x y =
                          , Bool -> Integer -> Int# -> RoundTowardNegative Half
                          , Bool -> Integer -> Int# -> RoundTowardZero Half
   #-}
+{-# SPECIALIZE
+  scaleFloatR# :: RoundingStrategy f => Int# -> Half -> f Half
+                , Int# -> Half -> RoundTiesToEven Half
+                , Int# -> Half -> RoundTiesToAway Half
+                , Int# -> Half -> RoundTowardPositive Half
+                , Int# -> Half -> RoundTowardNegative Half
+                , Int# -> Half -> RoundTowardZero Half
+  #-}
 
 -- Monomorphic conversion functions
 halfToFloat :: Half -> Float

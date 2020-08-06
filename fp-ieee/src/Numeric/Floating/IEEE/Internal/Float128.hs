@@ -183,3 +183,11 @@ classifyF128 x =
                          , Bool -> Integer -> Int# -> RoundTowardNegative Float128
                          , Bool -> Integer -> Int# -> RoundTowardZero Float128
   #-}
+{-# SPECIALIZE
+  scaleFloatR# :: RoundingStrategy f => Int# -> Float128 -> f Float128
+                , Int# -> Float128 -> RoundTiesToEven Float128
+                , Int# -> Float128 -> RoundTiesToAway Float128
+                , Int# -> Float128 -> RoundTowardPositive Float128
+                , Int# -> Float128 -> RoundTowardNegative Float128
+                , Int# -> Float128 -> RoundTowardZero Float128
+  #-}

@@ -74,3 +74,17 @@ encodeFloatTowardZero m = roundTowardZero . encodeFloatR m
 {-# INLINE encodeFloatTowardPositive #-}
 {-# INLINE encodeFloatTowardNegative #-}
 {-# INLINE encodeFloatTowardZero #-}
+
+-- |
+-- IEEE 754 @scaleB@ operation, with each rounding attributes.
+scaleFloatTiesToEven, scaleFloatTiesToAway, scaleFloatTowardPositive, scaleFloatTowardNegative, scaleFloatTowardZero :: RealFloat a => Int -> a -> a
+scaleFloatTiesToEven e = roundTiesToEven . scaleFloatR e
+scaleFloatTiesToAway e = roundTiesToAway . scaleFloatR e
+scaleFloatTowardPositive e = roundTowardPositive . scaleFloatR e
+scaleFloatTowardNegative e = roundTowardNegative . scaleFloatR e
+scaleFloatTowardZero e = roundTowardZero . scaleFloatR e
+{-# INLINE scaleFloatTiesToEven #-}
+{-# INLINE scaleFloatTiesToAway #-}
+{-# INLINE scaleFloatTowardPositive #-}
+{-# INLINE scaleFloatTowardNegative #-}
+{-# INLINE scaleFloatTowardZero #-}

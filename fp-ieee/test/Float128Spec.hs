@@ -79,6 +79,8 @@ spec = mapSpecItem_ (allowFailure "Float128's fromRational and round may be inco
   prop "fromIntegerR vs encodeFloatR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_fromIntegerR_vs_encodeFloatR proxy)
   prop "fromRationalR vs encodeFloatR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_fromRationalR_vs_encodeFloatR proxy)
   prop "fromRationalR vs fromRational" $ RoundingSpec.prop_fromRationalR_vs_fromRational proxy
+  prop "scaleFloatR vs fromRationalR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_scaleFloatR_vs_fromRationalR proxy)
+  prop "scaleFloatR vs encodeFloatR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_scaleFloatR_vs_encodeFloatR proxy)
   prop "result of fromIntegerR" $ \x -> RoundingSpec.prop_order proxy (fromIntegerR x)
   prop "result of fromRationalR" $ \x -> RoundingSpec.prop_order proxy (fromRationalR x)
   prop "result of encodeFloatR" $ \m k -> RoundingSpec.prop_order proxy (encodeFloatR m k)

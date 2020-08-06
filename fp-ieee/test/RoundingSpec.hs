@@ -78,6 +78,21 @@ prop_fromRationalR_vs_fromRational proxy q =
       y = fromRational q `asProxyTypeOf` proxy
   in x `sameFloatP` y
 
+prop_scaleFloatR_vs_fromRationalR :: (RealFloat a, RoundingStrategy f) => Proxy a -> (f a -> a) -> Int -> a -> Property
+prop_scaleFloatR_vs_fromRationalR proxy f e x = isFinite x && not (isNegativeZero x) ==>
+  let base = floatRadix x
+      y = f (scaleFloatR e x)
+      z = f (fromRationalR (toRational x * fromInteger base^^e))
+  in y `sameFloatP` z
+
+prop_scaleFloatR_vs_encodeFloatR :: (RealFloat a, RoundingStrategy f) => Proxy a -> (f a -> a) -> Int -> a -> Property
+prop_scaleFloatR_vs_encodeFloatR proxy f e x = isFinite x && not (isNegativeZero x) ==>
+  let base = floatRadix x
+      (m,n) = decodeFloat x
+      y = f (scaleFloatR e x)
+      z = f (encodeFloatR m (n + e))
+  in y `sameFloatP` z
+
 prop_encodeFloatR_roundtrip :: (RealFloat a, RoundingStrategy f) => Proxy a -> a -> (f a -> a) -> Property
 prop_encodeFloatR_roundtrip proxy x rounding = isFinite x && not (isNegativeZero x) ==>
   let (m,n) = decodeFloat x
@@ -158,6 +173,8 @@ spec = do
     prop "fromIntegerR vs encodeFloatR" $ eachStrategy (prop_fromIntegerR_vs_encodeFloatR proxy)
     prop "fromRationalR vs encodeFloatR" $ eachStrategy (prop_fromRationalR_vs_encodeFloatR proxy)
     prop "fromRationalR vs fromRational" $ prop_fromRationalR_vs_fromRational proxy
+    prop "scaleFloatR vs fromRationalR" $ eachStrategy (prop_scaleFloatR_vs_fromRationalR proxy)
+    prop "scaleFloatR vs encodeFloatR" $ eachStrategy (prop_scaleFloatR_vs_encodeFloatR proxy)
     prop "result of fromIntegerR" $ \x -> prop_order proxy (fromIntegerR x)
     prop "result of fromRationalR" $ \x -> prop_order proxy (fromRationalR x)
     prop "result of encodeFloatR" $ \m k -> prop_order proxy (encodeFloatR m k)
@@ -192,6 +209,8 @@ spec = do
     prop "fromIntegerR vs encodeFloatR" $ eachStrategy (prop_fromIntegerR_vs_encodeFloatR proxy)
     prop "fromRationalR vs encodeFloatR" $ eachStrategy (prop_fromRationalR_vs_encodeFloatR proxy)
     prop "fromRationalR vs fromRational" $ prop_fromRationalR_vs_fromRational proxy
+    prop "scaleFloatR vs fromRationalR" $ eachStrategy (prop_scaleFloatR_vs_fromRationalR proxy)
+    prop "scaleFloatR vs encodeFloatR" $ eachStrategy (prop_scaleFloatR_vs_encodeFloatR proxy)
     prop "result of fromIntegerR" $ \x -> prop_order proxy (fromIntegerR x)
     prop "result of fromRationalR" $ \x -> prop_order proxy (fromRationalR x)
     prop "result of encodeFloatR" $ \m k -> prop_order proxy (encodeFloatR m k)
