@@ -213,6 +213,7 @@ tests:
     - hspec
     - hspec-core
     - random
+    - integer-logarithms
     when:
     - condition: flag(half)
       other-modules:

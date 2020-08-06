@@ -41,6 +41,13 @@ import           GHC.Natural (Natural (NatS#))
 import           Math.NumberTheory.Logarithms (integerLog2')
 #endif
 
+-- $setup
+-- >>> :m + Data.Int Test.QuickCheck
+-- >>> :{
+--   -- Workaround for https://github.com/sol/doctest/issues/160:
+--   import Numeric.Floating.IEEE.Internal.IntegerInternals
+-- :}
+
 integerToIntMaybe :: Integer -> Maybe Int
 naturalToWordMaybe :: Natural -> Maybe Word
 
@@ -60,17 +67,21 @@ roundingMode :: Integer -- ^ @n@
 -- 'Integer' version of 'countTrailingZeros'.
 -- The argument must not be zero.
 --
--- prop> \x -> x == 0 || countTrailingZerosInteger (fromIntegral x) == countTrailingZeros (x :: Int64)
+-- prop> \(NonZero x) -> countTrailingZerosInteger (toInteger x) === countTrailingZeros (x :: Int64)
 -- >>> countTrailingZerosInteger 7
 -- 0
 -- >>> countTrailingZerosInteger 8
 -- 3
 countTrailingZerosInteger :: Integer -> Int
 
+-- |
+-- Returns @Just (integerLog2 x)@ if the argument @x@ is a power of 2, and @Nothing@ otherwise.
+-- The argument @x@ must be strictly positive.
 integerIsPowerOf2 :: Integer -> Maybe Int
 
 -- |
--- The argument must be positive.
+-- Returns @(integerLog2 x, isJust (integerIsPowerOf2 x))@.
+-- The argument @x@ must be strictly positive.
 integerLog2IsPowerOf2 :: Integer -> (Int, Bool)
 
 #if defined(MIN_VERSION_ghc_bignum)
@@ -240,5 +251,3 @@ integerLog2IsPowerOf2 x = (integerLog2' x, integerIsPowerOf2 x)
 {-# INLINE integerLog2IsPowerOf2 #-}
 
 #endif
-
--- TODO: integerIsPowerOf2

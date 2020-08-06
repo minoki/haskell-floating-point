@@ -2,6 +2,7 @@
 import qualified AugmentedArithSpec
 import qualified ClassificationSpec
 import qualified FMASpec
+import qualified IntegerInternalsSpec
 import qualified NaNSpec
 import qualified NextFloatSpec
 import qualified RoundingSpec
@@ -37,6 +38,7 @@ main = hspec $ do
   describe "Classification" ClassificationSpec.spec
   describe "TwoSum" TwoSumSpec.spec
   describe "FMA" FMASpec.spec
+  describe "IntegerInternals" IntegerInternalsSpec.spec
   describe "NextFloat" NextFloatSpec.spec
   describe "AugmentedArith" AugmentedArithSpec.spec
   describe "Rounding" RoundingSpec.spec
