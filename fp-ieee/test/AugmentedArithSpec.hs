@@ -5,10 +5,49 @@ import           Control.Monad
 import           Numeric
 import           Numeric.Floating.IEEE
 import           Numeric.Floating.IEEE.Internal
+import           RoundingSpec (RoundTiesTowardZero (..))
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck hiding (classify)
 import           Util
+
+augmentedAddition_viaRational :: (RealFloat a, Show a) => a -> a -> (a, a)
+augmentedAddition_viaRational x y
+  | isFinite x && isFinite y && (x /= 0 || y /= 0) =
+    let z :: Rational
+        z = toRational x + toRational y
+        z' = roundTiesTowardZero (fromRationalR z) `asTypeOf` x
+    in if isInfinite z' then
+         (z', z')
+       else
+         let w :: Rational
+             w = z - toRational z'
+             w' = roundTiesTowardZero (fromRationalR w) `asTypeOf` x
+         in if w == 0 then
+              (z', 0 * z')
+            else
+              (z', w')
+  | otherwise = let z = x + y
+                in (z, z)
+
+augmentedMultiplication_viaRational :: (RealFloat a, Show a) => a -> a -> (a, a)
+augmentedMultiplication_viaRational x y
+  | isFinite x && isFinite y && x * y /= 0 =
+    let z :: Rational
+        z = toRational x * toRational y
+        z' = roundTiesTowardZero (fromRationalR z) `asTypeOf` x
+    in if isInfinite z' then
+         (z', z')
+       else
+         let w :: Rational
+             w = z - toRational z'
+             w' = roundTiesTowardZero (fromRationalR w) `asTypeOf` x
+         in if w == 0 then
+              (z', 0 * z')
+            else
+              (z', w')
+  | otherwise = let z = x * y
+                in (z, z)
 
 testAugmented :: (RealFloat a, Show a) => (a -> a -> (a, a)) -> [(a, a, a, a)] -> Property
 testAugmented f cases = conjoin

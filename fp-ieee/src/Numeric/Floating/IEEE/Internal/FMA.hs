@@ -4,18 +4,14 @@
 module Numeric.Floating.IEEE.Internal.FMA
   ( isMantissaEven
   , twoSum
-  , add_roundToOdd
+  , addToOdd
   , split
-  , twoProduct_generic
   , twoProductFloat_viaDouble
   , twoProduct
   , twoProduct_nonscaling
   , twoProductFloat
   , twoProductDouble
-  , fusedMultiplyAdd_twoProduct
   , fusedMultiplyAddFloat_viaDouble
-  , fusedMultiplyAdd_viaInteger
-  , fusedMultiplyAdd_viaRational
   , fusedMultiplyAdd
   , fusedMultiplyAddFloat
   , fusedMultiplyAddDouble
@@ -25,10 +21,10 @@ import           Data.Bits
 import           GHC.Float.Compat (castDoubleToWord64, castFloatToWord32,
                                    double2Float, float2Double)
 import           MyPrelude
-import           Numeric.Floating.IEEE.Internal.Base
-import           Numeric.Floating.IEEE.Internal.Classify
-import           Numeric.Floating.IEEE.Internal.NextFloat
-import           Numeric.Floating.IEEE.Internal.Rounding (encodeFloatR, roundTiesToEven)
+import           Numeric.Floating.IEEE.Internal.Base (isDoubleBinary64,
+                                                      isFloatBinary32, (^!))
+import           Numeric.Floating.IEEE.Internal.Classify (isFinite)
+import           Numeric.Floating.IEEE.Internal.NextFloat (nextDown, nextUp)
 
 default ()
 
@@ -84,14 +80,14 @@ twoSum a b =
 -- |
 -- Addition, with round to nearest odd floating-point number.
 -- Like 'twoSum', this function does not handle undue overflow.
-add_roundToOdd :: RealFloat a => a -> a -> a
-add_roundToOdd x y = let (u, v) = twoSum x y
-                         result | v < 0 && isMantissaEven u = nextDown u
-                                | v > 0 && isMantissaEven u = nextUp u
-                                | otherwise = u
-                         !_ = assert (toRational u == toRational x + toRational y || not (isMantissaEven result)) ()
-                     in result
-{-# SPECIALIZE add_roundToOdd :: Float -> Float -> Float, Double -> Double -> Double #-}
+addToOdd :: RealFloat a => a -> a -> a
+addToOdd x y = let (u, v) = twoSum x y
+                   result | v < 0 && isMantissaEven u = nextDown u
+                          | v > 0 && isMantissaEven u = nextUp u
+                          | otherwise = u
+                   !_ = assert (toRational u == toRational x + toRational y || not (isMantissaEven result)) ()
+               in result
+{-# SPECIALIZE addToOdd :: Float -> Float -> Float, Double -> Double -> Double #-}
 
 -- This function doesn't handle overflow or underflow
 split :: RealFloat a => a -> (a, a)
@@ -104,8 +100,12 @@ split a =
   -- factor == 134217729 for Double, 4097 for Float
 {-# SPECIALIZE split :: Float -> (Float, Float), Double -> (Double, Double) #-}
 
-twoProduct_generic :: RealFloat a => a -> a -> (a, a)
-twoProduct_generic a b =
+-- This function will be rewritten into fastTwoProduct{Float,Double} if fast FMA is available; the rewriting may change behavior regarding overflow.
+-- TODO: subnormal behavior?
+-- |
+-- prop> \(a :: Double) (b :: Double) -> let (x, y) = twoProduct a b in a * b == x && fromRational (toRational a * toRational b - toRational x) == y
+twoProduct :: RealFloat a => a -> a -> (a, a)
+twoProduct a b =
   let eab = exponent a + exponent b
       a' = significand a
       b' = significand b
@@ -114,7 +114,7 @@ twoProduct_generic a b =
       x = a * b -- Since 'significand' doesn't honor the sign of zero, we can't use @a' * b'@
       y' = al * bl - (scaleFloat (-eab) x - ah * bh - al * bh - ah * bl)
   in (x, scaleFloat eab y')
-{-# SPECIALIZE twoProduct_generic :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
+{-# INLINABLE [1] twoProduct #-}
 
 twoProductFloat_viaDouble :: Float -> Float -> (Float, Float)
 twoProductFloat_viaDouble a b =
@@ -126,14 +126,6 @@ twoProductFloat_viaDouble a b =
       x = double2Float x'
       y = double2Float (x' - float2Double x)
   in (x, y)
-
--- This function will be rewritten into fastTwoProduct{Float,Double} if fast FMA is available; the rewriting may change behavior regarding overflow.
--- TODO: subnormal behavior?
--- |
--- prop> \(a :: Double) (b :: Double) -> let (x, y) = twoProduct a b in a * b == x && fromRational (toRational a * toRational b - toRational x) == y
-twoProduct :: RealFloat a => a -> a -> (a, a)
-twoProduct = twoProduct_generic
-{-# INLINE [1] twoProduct #-}
 
 -- This function will be rewritten into fastTwoProduct{Float,Double} if fast FMA is available; the rewriting may change behavior regarding overflow.
 twoProduct_nonscaling :: RealFloat a => a -> a -> (a, a)
@@ -170,18 +162,26 @@ twoProductDouble x y = let !r = x * y
 twoProductFloat = twoProductFloat_viaDouble
 {-# INLINE twoProductFloat #-}
 
-twoProductDouble = twoProduct_generic
+twoProductDouble = twoProduct
+{-# INLINE twoProductDouble #-}
 
 {-# RULES
 "twoProduct/Float" twoProduct = twoProductFloat_viaDouble
 "twoProduct_nonscaling/Float" twoProduct_nonscaling = twoProductFloat_viaDouble
   #-}
+{-# SPECIALIZE twoProduct :: Double -> Double -> (Double, Double) #-}
 {-# SPECIALIZE twoProduct_nonscaling :: Double -> Double -> (Double, Double) #-}
 
 #endif
 
-fusedMultiplyAdd_twoProduct :: RealFloat a => a -> a -> a -> a
-fusedMultiplyAdd_twoProduct a b c
+-- |
+-- IEEE 754 @fusedMultiplyAdd@ operation.
+--
+-- May make use of hardware FMA instructions if the target architecture has it; set @fma3@ package flag on x86 systems.
+--
+-- prop> \(a :: Double) (b :: Double) (c :: Double) -> fusedMultiplyAdd a b c == fromRational (toRational a * toRational b + toRational c)
+fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a
+fusedMultiplyAdd a b c
   | isFinite a && isFinite b && isFinite c =
     let eab | a == 0 || b == 0 = fst (floatRange a) - floatDigits a -- reasonably small
             | otherwise = exponent a + exponent b
@@ -202,7 +202,7 @@ fusedMultiplyAdd_twoProduct a b c
 
         (u1,u2) = twoSum y c''
         (v1,v2) = twoSum u1 x
-        w = add_roundToOdd u2 v2
+        w = addToOdd u2 v2
         result0 = v1 + w
         !_ = assert (result0 == fromRational (toRational x + toRational y + toRational c'')) ()
         result = scaleFloat e result0
@@ -224,7 +224,7 @@ fusedMultiplyAdd_twoProduct a b c
            result
   | isFinite a && isFinite b = c -- c is +-Infinity or NaN
   | otherwise = a * b + c -- Infinity or NaN
-{-# SPECIALIZE fusedMultiplyAdd_twoProduct :: Float -> Float -> Float -> Float, Double -> Double -> Double -> Double #-}
+{-# INLINABLE [1] fusedMultiplyAdd #-} -- May be rewritten into a more efficient one
 
 fusedMultiplyAddFloat_viaDouble :: Float -> Float -> Float -> Float
 fusedMultiplyAddFloat_viaDouble a b c
@@ -235,7 +235,7 @@ fusedMultiplyAddFloat_viaDouble a b c
         c' = float2Double c
         ab = a' * b' -- exact
         !_ = assert (toRational ab == toRational a' * toRational b') ()
-        result = double2Float (add_roundToOdd ab c')
+        result = double2Float (addToOdd ab c')
         !_ = assert (result == fromRational (toRational a * toRational b + toRational c)) ()
     in result
   | isFinite a && isFinite b = c -- a * b is finite, but c is Infinity or NaN
@@ -243,41 +243,6 @@ fusedMultiplyAddFloat_viaDouble a b c
   where
     !True = isFloatBinary32 || error "fusedMultiplyAdd/Float: Float must be IEEE binary32"
     !True = isDoubleBinary64 || error "fusedMultiplyAdd/Float: Double must be IEEE binary64"
-
-fusedMultiplyAdd_viaInteger :: RealFloat a => a -> a -> a -> a
-fusedMultiplyAdd_viaInteger x y z
-  | isFinite x && isFinite y && isFinite z =
-      let (mx,ex) = decodeFloat x -- x == mx * b^ex, mx==0 || b^(d-1) <= abs mx < b^d
-          (my,ey) = decodeFloat y -- y == my * b^ey, my==0 || b^(d-1) <= abs my < b^d
-          (mz,ez) = decodeFloat z -- z == mz * b^ez, mz==0 || b^(d-1) <= abs mz < b^d
-          exy = ex + ey
-          ee = min ez exy
-          !2 = floatRadix x
-      in case mx * my `shiftL` (exy - ee) + mz `shiftL` (ez - ee) of
-           0 -> x * y + z
-           m -> roundTiesToEven (encodeFloatR m ee)
-  | isFinite x && isFinite y = z -- x * y is finite, but z is Infinity or NaN
-  | otherwise = x * y + z -- either x or y is Infinity or NaN
-{-# NOINLINE [1] fusedMultiplyAdd_viaInteger #-}
-
-fusedMultiplyAdd_viaRational :: RealFloat a => a -> a -> a -> a
-fusedMultiplyAdd_viaRational x y z
-  | isFinite x && isFinite y && isFinite z =
-      case toRational x * toRational y + toRational z of
-        0 -> x * y + z
-        r -> fromRational r
-  | isFinite x && isFinite y = z -- x * is finite, but z is Infinity or NaN
-  | otherwise = x * y + z -- either x or y is Infinity or NaN
-
--- |
--- IEEE 754 @fusedMultiplyAdd@ operation.
---
--- May make use of hardware FMA instructions if the target architecture has it; set @fma3@ package flag on x86 systems.
---
--- prop> \(a :: Double) (b :: Double) (c :: Double) -> fusedMultiplyAdd a b c == fromRational (toRational a * toRational b + toRational c)
-fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a
-fusedMultiplyAdd = fusedMultiplyAdd_twoProduct
-{-# INLINE [1] fusedMultiplyAdd #-}
 
 #if defined(HAS_FAST_FMA)
 
@@ -311,12 +276,12 @@ fusedMultiplyAddFloat = fusedMultiplyAddFloat_viaDouble
 {-# INLINE fusedMultiplyAddFloat #-}
 
 fusedMultiplyAddDouble :: Double -> Double -> Double -> Double
-fusedMultiplyAddDouble = fusedMultiplyAdd_twoProduct
+fusedMultiplyAddDouble = fusedMultiplyAdd -- generic implementation
 {-# INLINE fusedMultiplyAddDouble #-}
 
 {-# RULES
 "fusedMultiplyAdd/Float" fusedMultiplyAdd = fusedMultiplyAddFloat_viaDouble
-"fusedMultiplyAdd/Double" fusedMultiplyAdd = fusedMultiplyAdd_twoProduct :: Double -> Double -> Double -> Double
   #-}
+{-# SPECIALIZE fusedMultiplyAdd :: Double -> Double -> Double -> Double #-}
 
 #endif

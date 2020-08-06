@@ -3,6 +3,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 module HalfSpec where
+import           AugmentedArithSpec (augmentedAddition_viaRational,
+                                     augmentedMultiplication_viaRational)
 import qualified AugmentedArithSpec
 import qualified ClassificationSpec
 import           Control.Monad
@@ -10,6 +12,8 @@ import           Data.Functor.Identity
 import           Data.Int
 import           Data.Proxy
 import           Data.Ratio
+import           FMASpec (fusedMultiplyAdd_generic,
+                          fusedMultiplyAdd_viaRational)
 import qualified FMASpec
 import qualified NaNSpec
 import qualified NextFloatSpec
@@ -23,6 +27,7 @@ import           System.Random
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck hiding (classify)
+import           TwoSumSpec (twoProduct_generic)
 import qualified TwoSumSpec
 import           Util
 
@@ -67,11 +72,9 @@ spec = mapSpecItem_ (allowFailure "Half's fromRational may be incorrect") $ do
                      , (-0, -0, -0, 0)
                        -- TODO: Add more
                      ]
-  FMASpec.checkFMA         "fusedMultiplyAdd (default)"             fusedMultiplyAdd             casesForHalf
-  FMASpec.checkFMA_generic "fusedMultiplyAdd (default, generic)"    fusedMultiplyAdd             casesForHalf
-  FMASpec.checkFMA         "fusedMultiplyAdd (twoProduct)"          fusedMultiplyAdd_twoProduct  casesForHalf
-  FMASpec.checkFMA_generic "fusedMultiplyAdd (twoProduct, generic)" fusedMultiplyAdd_twoProduct  casesForHalf
-  FMASpec.checkFMA         "fusedMultiplyAdd (via Rational)"        fusedMultiplyAdd_viaRational casesForHalf
+  FMASpec.checkFMA "fusedMultiplyAdd (default)"      fusedMultiplyAdd             casesForHalf
+  FMASpec.checkFMA "fusedMultiplyAdd (generic)"      fusedMultiplyAdd_generic     casesForHalf
+  FMASpec.checkFMA "fusedMultiplyAdd (via Rational)" fusedMultiplyAdd_viaRational casesForHalf
   prop "nextUp . nextDown == id (unless -inf)" $ forAllFloats $ NextFloatSpec.prop_nextUp_nextDown proxy
   prop "nextDown . nextUp == id (unless inf)" $ forAllFloats $ NextFloatSpec.prop_nextDown_nextUp proxy
   prop "augmentedAddition/equality" $ forAllFloats2 $ \(x :: Half) y ->
@@ -90,7 +93,7 @@ spec = mapSpecItem_ (allowFailure "Half's fromRational may be incorrect") $ do
   prop "result of fromIntegerR" $ \x -> RoundingSpec.prop_order proxy (fromIntegerR x)
   prop "result of fromRationalR" $ \x -> RoundingSpec.prop_order proxy (fromRationalR x)
   prop "result of encodeFloatR" $ \m k -> RoundingSpec.prop_order proxy (encodeFloatR m k)
-  prop "add_roundToOdd" $ forAllFloats2 $ RoundingSpec.prop_add_roundToOdd proxy
+  prop "addToOdd" $ forAllFloats2 $ RoundingSpec.prop_addToOdd proxy
 
   prop "roundToIntegral" $ RoundToIntegralSpec.prop_roundToIntegral proxy
   RoundToIntegralSpec.checkCases proxy

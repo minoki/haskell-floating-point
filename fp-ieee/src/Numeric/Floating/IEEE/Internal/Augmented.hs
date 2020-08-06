@@ -1,15 +1,14 @@
 {-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 module Numeric.Floating.IEEE.Internal.Augmented where
 import           Control.Exception (assert)
-import           Data.Ratio
 import           MyPrelude
-import           Numeric.Floating.IEEE.Internal.Classify
-import           Numeric.Floating.IEEE.Internal.FMA
-import           Numeric.Floating.IEEE.Internal.NextFloat
-import           Numeric.Floating.IEEE.Internal.Rounding
+import           Numeric.Floating.IEEE.Internal.FMA (isMantissaEven,
+                                                     twoProduct_nonscaling,
+                                                     twoSum)
+import           Numeric.Floating.IEEE.Internal.NextFloat (nextDown,
+                                                           nextTowardZero,
+                                                           nextUp)
 
 default ()
 
@@ -76,7 +75,7 @@ augmentedMultiplication !x !y
                                       (u1, u2)
                          !_ = assert (v1 + v2 == u1 + u2) ()
                          r1 = scaleFloat exy v1
-                         !_ = assert (r1 == roundTiesTowardZero (fromRationalR (toRational x * toRational y))) ()
+                         -- !_ = assert (r1 == roundTiesTowardZero (fromRationalR (toRational x * toRational y))) ()
                      in if isInfinite r1 then
                           (r1, r1)
                         else
@@ -91,7 +90,7 @@ augmentedMultiplication !x !y
                               -- The upper part is normal, the lower is subnormal (and inexact)
                               -- Compute 'scaleFloat exy v2' with roundTiesTowardZero
                               let !r2 = scaleFloatIntoSubnormalTiesTowardZero exy v2
-                                  !_ = assert (r2 == roundTiesTowardZero (fromRationalR (toRational x * toRational y - toRational r1))) ()
+                                  -- !_ = assert (r2 == roundTiesTowardZero (fromRationalR (toRational x * toRational y - toRational r1))) ()
                               in (r1, r2)
                    else
                      -- The upper part is subnormal (possibly inexact), and the lower is signed zero (possibly inexact)
@@ -126,55 +125,3 @@ augmentedMultiplication !x !y
          else
            w'
 {-# SPECIALIZE augmentedMultiplication :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
-
-newtype RoundTiesTowardZero a = RoundTiesTowardZero { roundTiesTowardZero :: a }
-  deriving (Functor)
-
-instance RoundingStrategy RoundTiesTowardZero where
-  exact = RoundTiesTowardZero
-  inexact o _neg _parity zero away = RoundTiesTowardZero $ case o of
-                                                             LT -> zero
-                                                             EQ -> zero
-                                                             GT -> away
-  doRound _exact o _neg _parity zero away = RoundTiesTowardZero $ case o of
-    LT -> zero
-    EQ -> zero
-    GT -> away
-
-augmentedAddition_viaRational :: (RealFloat a, Show a) => a -> a -> (a, a)
-augmentedAddition_viaRational x y
-  | isFinite x && isFinite y && (x /= 0 || y /= 0) =
-    let z :: Rational
-        z = toRational x + toRational y
-        z' = roundTiesTowardZero (fromRationalR z) `asTypeOf` x
-    in if isInfinite z' then
-         (z', z')
-       else
-         let w :: Rational
-             w = z - toRational z'
-             w' = roundTiesTowardZero (fromRationalR w) `asTypeOf` x
-         in if w == 0 then
-              (z', 0 * z')
-            else
-              (z', w')
-  | otherwise = let z = x + y
-                in (z, z)
-
-augmentedMultiplication_viaRational :: (RealFloat a, Show a) => a -> a -> (a, a)
-augmentedMultiplication_viaRational x y
-  | isFinite x && isFinite y && x * y /= 0 =
-    let z :: Rational
-        z = toRational x * toRational y
-        z' = roundTiesTowardZero (fromRationalR z) `asTypeOf` x
-    in if isInfinite z' then
-         (z', z')
-       else
-         let w :: Rational
-             w = z - toRational z'
-             w' = roundTiesTowardZero (fromRationalR w) `asTypeOf` x
-         in if w == 0 then
-              (z', 0 * z')
-            else
-              (z', w')
-  | otherwise = let z = x * y
-                in (z, z)

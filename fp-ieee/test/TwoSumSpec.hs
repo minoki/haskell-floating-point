@@ -1,4 +1,6 @@
 module TwoSumSpec where
+import           Data.Coerce
+import           Data.Functor.Identity
 import           Data.Proxy
 import           Numeric.Floating.IEEE
 import           Numeric.Floating.IEEE.Internal
@@ -6,6 +8,9 @@ import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck
 import           Util (forAllFloats2, sameFloatP)
+
+twoProduct_generic :: RealFloat a => a -> a -> (a, a)
+twoProduct_generic x y = coerce (twoProduct (Identity x) (Identity y))
 
 prop_twoSum :: (RealFloat a, Show a) => Proxy a -> a -> a -> Property
 prop_twoSum _ x y = exponent x < expMax && exponent y < expMax ==> case twoSum x y of

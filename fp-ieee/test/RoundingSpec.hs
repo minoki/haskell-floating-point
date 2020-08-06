@@ -16,6 +16,20 @@ import           Test.Hspec.QuickCheck
 import           Test.QuickCheck hiding (classify)
 import           Util
 
+newtype RoundTiesTowardZero a = RoundTiesTowardZero { roundTiesTowardZero :: a }
+  deriving (Functor)
+
+instance RoundingStrategy RoundTiesTowardZero where
+  exact = RoundTiesTowardZero
+  inexact o _neg _parity zero away = RoundTiesTowardZero $ case o of
+                                                             LT -> zero
+                                                             EQ -> zero
+                                                             GT -> away
+  doRound _exact o _neg _parity zero away = RoundTiesTowardZero $ case o of
+    LT -> zero
+    EQ -> zero
+    GT -> away
+
 newtype RoundToOdd a = RoundToOdd { roundToOdd :: a }
   deriving (Functor)
 
@@ -101,9 +115,9 @@ prop_order _ result =
        , counterexample "not (isMantissaEven toOdd)" $ not (isMantissaEven toOdd)
        ]
 
-prop_add_roundToOdd :: RealFloat a => Proxy a -> a -> a -> Property
-prop_add_roundToOdd _ x y = isFinite x && isFinite y && isFinite (x + y) ==>
-  let z = add_roundToOdd x y
+prop_addToOdd :: RealFloat a => Proxy a -> a -> a -> Property
+prop_addToOdd _ x y = isFinite x && isFinite y && isFinite (x + y) ==>
+  let z = addToOdd x y
       w = if x == 0 && y == 0 then
             x + y
           else
@@ -142,7 +156,7 @@ spec = do
     prop "result of fromIntegerR" $ \x -> prop_order proxy (fromIntegerR x)
     prop "result of fromRationalR" $ \x -> prop_order proxy (fromRationalR x)
     prop "result of encodeFloatR" $ \m k -> prop_order proxy (encodeFloatR m k)
-    prop "add_roundToOdd" $ forAllFloats2 $ prop_add_roundToOdd proxy
+    prop "addToOdd" $ forAllFloats2 $ prop_addToOdd proxy
     it "fromIntegralR/(maxBound :: Int64)" $ fromIntegralTiesToEven (maxBound :: Int64) `sameFloatP` (0x1p63 :: Double)
     it "fromIntegralR/(maxBound :: Word64)" $ fromIntegralTiesToEven (maxBound :: Word64) `sameFloatP` (0x1p64 :: Double)
     it "fromIntegralR/(0xffff_ffff_ffff_fc00 :: Word64)" $ fromIntegralTiesToEven (0xffff_ffff_ffff_fc00 :: Word64) `sameFloatP` (0x1p64 :: Double)
@@ -175,7 +189,7 @@ spec = do
     prop "result of fromIntegerR" $ \x -> prop_order proxy (fromIntegerR x)
     prop "result of fromRationalR" $ \x -> prop_order proxy (fromRationalR x)
     prop "result of encodeFloatR" $ \m k -> prop_order proxy (encodeFloatR m k)
-    prop "add_roundToOdd" $ forAllFloats2 $ prop_add_roundToOdd proxy
+    prop "addToOdd" $ forAllFloats2 $ prop_addToOdd proxy
     it "fromIntegralR/(maxBound :: Int32)" $ fromIntegralTiesToEven (maxBound :: Int32) `sameFloatP` (0x1p31 :: Float)
     it "fromIntegralR/(maxBound :: Word32)" $ fromIntegralTiesToEven (maxBound :: Word32) `sameFloatP` (0x1p32 :: Float)
     it "fromIntegralR/(maxBound :: Int64)" $ fromIntegralTiesToEven (maxBound :: Int64) `sameFloatP` (0x1p63 :: Float)

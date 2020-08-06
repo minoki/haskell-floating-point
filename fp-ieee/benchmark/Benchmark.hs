@@ -1,6 +1,8 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE HexFloatLiterals #-}
 {-# LANGUAGE NumericUnderscores #-}
+import           Data.Bits
 import           Data.Coerce
 import           Data.Functor.Identity
 import           Data.Word
@@ -30,15 +32,35 @@ instance CFloat Double where
 instance CFloat Float where
   c_fma = c_fma_float
 
-fusedMultiplyAddDouble_generic :: Double -> Double -> Double -> Double
-fusedMultiplyAddDouble_generic = coerce (fusedMultiplyAdd :: Identity Double -> Identity Double -> Identity Double -> Identity Double)
-fusedMultiplyAddFloat_generic :: Float -> Float -> Float -> Float
-fusedMultiplyAddFloat_generic = coerce (fusedMultiplyAdd :: Identity Float -> Identity Float -> Identity Float -> Identity Float)
+twoProduct_generic :: RealFloat a => a -> a -> (a, a)
+twoProduct_generic x y = coerce (twoProduct (Identity x) (Identity y))
 
-fusedMultiplyAddDouble_twoProduct_generic :: Double -> Double -> Double -> Double
-fusedMultiplyAddDouble_twoProduct_generic = coerce (fusedMultiplyAdd_twoProduct :: Identity Double -> Identity Double -> Identity Double -> Identity Double)
-fusedMultiplyAddFloat_twoProduct_generic :: Float -> Float -> Float -> Float
-fusedMultiplyAddFloat_twoProduct_generic = coerce (fusedMultiplyAdd_twoProduct :: Identity Float -> Identity Float -> Identity Float -> Identity Float)
+fusedMultiplyAdd_generic :: RealFloat a => a -> a -> a -> a
+fusedMultiplyAdd_generic x y z = runIdentity (fusedMultiplyAdd (Identity x) (Identity y) (Identity z))
+
+fusedMultiplyAdd_viaInteger :: RealFloat a => a -> a -> a -> a
+fusedMultiplyAdd_viaInteger x y z
+  | isFinite x && isFinite y && isFinite z =
+      let (mx,ex) = decodeFloat x -- x == mx * b^ex, mx==0 || b^(d-1) <= abs mx < b^d
+          (my,ey) = decodeFloat y -- y == my * b^ey, my==0 || b^(d-1) <= abs my < b^d
+          (mz,ez) = decodeFloat z -- z == mz * b^ez, mz==0 || b^(d-1) <= abs mz < b^d
+          exy = ex + ey
+          ee = min ez exy
+          !2 = floatRadix x
+      in case mx * my `shiftL` (exy - ee) + mz `shiftL` (ez - ee) of
+           0 -> x * y + z
+           m -> roundTiesToEven (encodeFloatR m ee)
+  | isFinite x && isFinite y = z + z -- x * y is finite, but z is Infinity or NaN
+  | otherwise = x * y + z -- either x or y is Infinity or NaN
+
+fusedMultiplyAdd_viaRational :: RealFloat a => a -> a -> a -> a
+fusedMultiplyAdd_viaRational x y z
+  | isFinite x && isFinite y && isFinite z =
+      case toRational x * toRational y + toRational z of
+        0 -> x * y + z
+        r -> fromRational r
+  | isFinite x && isFinite y = z + z -- x * is finite, but z is Infinity or NaN
+  | otherwise = x * y + z -- either x or y is Infinity or NaN
 
 main :: IO ()
 main = defaultMain
@@ -47,22 +69,18 @@ main = defaultMain
            in bgroup "Double"
            [ bench "C" $ nf (\(x,y,z) -> c_fma x y z) arg
            , bench "Haskell (default)" $ nf (\(x,y,z) -> fusedMultiplyAdd x y z) arg
-           , bench "Haskell (default, generic)" $ nf (\(x,y,z) -> fusedMultiplyAddDouble_generic x y z) arg
+           , bench "Haskell (generic)" $ nf (\(x,y,z) -> fusedMultiplyAdd_generic x y z) arg
            , bench "Haskell (via Rational)" $ nf (\(x,y,z) -> fusedMultiplyAdd_viaRational x y z) arg
            , bench "Haskell (via Integer)" $ nf (\(x,y,z) -> fusedMultiplyAdd_viaInteger x y z) arg
-           , bench "Haskell (TwoProduct)" $ nf (\(x,y,z) -> fusedMultiplyAdd_twoProduct x y z) arg
-           , bench "Haskell (TwoProduct, generic)" $ nf (\(x,y,z) -> fusedMultiplyAddDouble_twoProduct_generic x y z) arg
            , bench "non-fused" $ nf (\(x,y,z) -> x * y + z) arg
            ]
          , let arg = (1.0, 2.0, 3.0) :: (Float, Float, Float)
            in bgroup "Float"
            [ bench "C" $ nf (\(x,y,z) -> c_fma x y z) arg
            , bench "Haskell (default)" $ nf (\(x,y,z) -> fusedMultiplyAdd x y z) arg
-           , bench "Haskell (default, generic)" $ nf (\(x,y,z) -> fusedMultiplyAddFloat_generic x y z) arg
+           , bench "Haskell (generic)" $ nf (\(x,y,z) -> fusedMultiplyAdd_generic x y z) arg
            , bench "Haskell (via Rational)" $ nf (\(x,y,z) -> fusedMultiplyAdd_viaRational x y z) arg
            , bench "Haskell (via Integer)" $ nf (\(x,y,z) -> fusedMultiplyAdd_viaInteger x y z) arg
-           , bench "Haskell (TwoProduct)" $ nf (\(x,y,z) -> fusedMultiplyAdd_twoProduct x y z) arg
-           , bench "Haskell (TwoProduct, generic)" $ nf (\(x,y,z) -> fusedMultiplyAddFloat_twoProduct_generic x y z) arg
            , bench "Haskell (via Double)" $ nf (\(x,y,z) -> fusedMultiplyAddFloat_viaDouble x y z) arg
            , bench "non-fused" $ nf (\(x,y,z) -> x * y + z) arg
            ]
@@ -98,6 +116,7 @@ main = defaultMain
                arg = (1.3 * 2^500, pi / 2^500)
            in bgroup "Double"
               [ bench "Haskell (default)" $ nf (uncurry twoProduct) arg
+              , bench "Haskell (generic)" $ nf (uncurry twoProduct_generic) arg
               , bench "Haskell (nonscaling)" $ nf (uncurry twoProduct_nonscaling) arg
 #if defined(HAS_FAST_FMA)
               , bench "FMA" $ nf (uncurry twoProductDouble) arg
@@ -107,6 +126,7 @@ main = defaultMain
                arg = (1.3 * 2^50, pi / 2^50)
            in bgroup "Float"
               [ bench "Haskell (default)" $ nf (uncurry twoProduct) arg
+              , bench "Haskell (generic)" $ nf (uncurry twoProduct_generic) arg
               , bench "Haskell (nonscaling)" $ nf (uncurry twoProduct_nonscaling) arg
               , bench "Haskell (via Double)" $ nf (uncurry twoProductFloat_viaDouble) arg
 #if defined(HAS_FAST_FMA)

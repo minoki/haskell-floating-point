@@ -3,6 +3,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 module Float128Spec where
+import           AugmentedArithSpec (augmentedAddition_viaRational,
+                                     augmentedMultiplication_viaRational)
 import qualified AugmentedArithSpec
 import qualified ClassificationSpec
 import           Control.Monad
@@ -10,6 +12,8 @@ import           Data.Functor.Identity
 import           Data.Int
 import           Data.Proxy
 import           Data.Ratio
+import           FMASpec (fusedMultiplyAdd_generic,
+                          fusedMultiplyAdd_viaRational)
 import qualified FMASpec
 import qualified NaNSpec
 import qualified NextFloatSpec
@@ -23,6 +27,7 @@ import           System.Random
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck hiding (classify)
+import           TwoSumSpec (twoProduct_generic)
 import qualified TwoSumSpec
 import           Util
 
@@ -53,14 +58,12 @@ spec = mapSpecItem_ (allowFailure "Float128's fromRational and round may be inco
   prop "twoProduct_generic" $ forAllFloats2 $ TwoSumSpec.prop_twoProduct proxy twoProduct_generic
   let casesForFloat128 :: [(Float128, Float128, Float128, Float128)]
       casesForFloat128 = [ (-0, 0, -0, -0)
-                     , (-0, -0, -0, 0)
-                       -- TODO: Add more
-                     ]
-  FMASpec.checkFMA         "fusedMultiplyAdd (default)"             fusedMultiplyAdd             casesForFloat128
-  FMASpec.checkFMA_generic "fusedMultiplyAdd (default, generic)"    fusedMultiplyAdd             casesForFloat128
-  FMASpec.checkFMA         "fusedMultiplyAdd (twoProduct)"          fusedMultiplyAdd_twoProduct  casesForFloat128
-  FMASpec.checkFMA_generic "fusedMultiplyAdd (twoProduct, generic)" fusedMultiplyAdd_twoProduct  casesForFloat128
-  FMASpec.checkFMA         "fusedMultiplyAdd (via Rational)"        fusedMultiplyAdd_viaRational casesForFloat128
+                         , (-0, -0, -0, 0)
+                         -- TODO: Add more
+                         ]
+  FMASpec.checkFMA "fusedMultiplyAdd (default)"      fusedMultiplyAdd             casesForFloat128
+  FMASpec.checkFMA "fusedMultiplyAdd (generic)"      fusedMultiplyAdd_generic     casesForFloat128
+  FMASpec.checkFMA "fusedMultiplyAdd (via Rational)" fusedMultiplyAdd_viaRational casesForFloat128
   prop "nextUp . nextDown == id (unless -inf)" $ forAllFloats $ NextFloatSpec.prop_nextUp_nextDown proxy
   prop "nextDown . nextUp == id (unless inf)" $ forAllFloats $ NextFloatSpec.prop_nextDown_nextUp proxy
   prop "augmentedAddition/equality" $ forAllFloats2 $ \(x :: Float128) y ->
@@ -79,7 +82,7 @@ spec = mapSpecItem_ (allowFailure "Float128's fromRational and round may be inco
   prop "result of fromIntegerR" $ \x -> RoundingSpec.prop_order proxy (fromIntegerR x)
   prop "result of fromRationalR" $ \x -> RoundingSpec.prop_order proxy (fromRationalR x)
   prop "result of encodeFloatR" $ \m k -> RoundingSpec.prop_order proxy (encodeFloatR m k)
-  prop "add_roundToOdd" $ forAllFloats2 $ RoundingSpec.prop_add_roundToOdd proxy
+  prop "addToOdd" $ forAllFloats2 $ RoundingSpec.prop_addToOdd proxy
 
   prop "roundToIntegral" $ RoundToIntegralSpec.prop_roundToIntegral proxy
   RoundToIntegralSpec.checkCases proxy

@@ -1,7 +1,9 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE HexFloatLiterals #-}
 module FMASpec where
 import           Control.Monad
+import           Data.Bits
 import           Data.Coerce
 import           Data.Functor.Identity
 import           Numeric
@@ -21,6 +23,33 @@ foreign import ccall unsafe "fmaf"
   c_fma_float :: Float -> Float -> Float -> Float
 
 #endif
+
+fusedMultiplyAdd_generic :: RealFloat a => a -> a -> a -> a
+fusedMultiplyAdd_generic x y z = runIdentity (fusedMultiplyAdd (Identity x) (Identity y) (Identity z))
+
+fusedMultiplyAdd_viaInteger :: RealFloat a => a -> a -> a -> a
+fusedMultiplyAdd_viaInteger x y z
+  | isFinite x && isFinite y && isFinite z =
+      let (mx,ex) = decodeFloat x -- x == mx * b^ex, mx==0 || b^(d-1) <= abs mx < b^d
+          (my,ey) = decodeFloat y -- y == my * b^ey, my==0 || b^(d-1) <= abs my < b^d
+          (mz,ez) = decodeFloat z -- z == mz * b^ez, mz==0 || b^(d-1) <= abs mz < b^d
+          exy = ex + ey
+          ee = min ez exy
+          !2 = floatRadix x
+      in case mx * my `shiftL` (exy - ee) + mz `shiftL` (ez - ee) of
+           0 -> x * y + z
+           m -> roundTiesToEven (encodeFloatR m ee)
+  | isFinite x && isFinite y = z + z -- x * y is finite, but z is Infinity or NaN
+  | otherwise = x * y + z -- either x or y is Infinity or NaN
+
+fusedMultiplyAdd_viaRational :: RealFloat a => a -> a -> a -> a
+fusedMultiplyAdd_viaRational x y z
+  | isFinite x && isFinite y && isFinite z =
+      case toRational x * toRational y + toRational z of
+        0 -> x * y + z
+        r -> fromRational r
+  | isFinite x && isFinite y = z + z -- x * is finite, but z is Infinity or NaN
+  | otherwise = x * y + z -- either x or y is Infinity or NaN
 
 casesForDouble :: [(Double, Double, Double, Double)]
 casesForDouble =
@@ -53,25 +82,19 @@ checkFMA name f cases = do
     f a b c `sameFloatP` fusedMultiplyAdd_viaRational a b c
   testSpecialValues name f cases
 
--- Test "generic" implementation (i.e. without rewrite rules)
-checkFMA_generic :: (RealFloat a, Show a, Arbitrary a, Random a) => String -> (Identity a -> Identity a -> Identity a -> Identity a) -> [(a, a, a, a)] -> Spec
-checkFMA_generic name f cases = checkFMA name (coerce f) cases
-
 spec :: Spec
 spec = modifyMaxSuccess (* 100) $ do
   describe "Double" $ do
-    checkFMA         "fusedMultiplyAdd (default)"             fusedMultiplyAdd             casesForDouble
-    checkFMA_generic "fusedMultiplyAdd (default, generic)"    fusedMultiplyAdd             casesForDouble
-    checkFMA         "fusedMultiplyAdd (twoProduct)"          fusedMultiplyAdd_twoProduct  casesForDouble
-    checkFMA_generic "fusedMultiplyAdd (twoProduct, generic)" fusedMultiplyAdd_twoProduct  casesForDouble
-    checkFMA         "fusedMultiplyAdd (via Rational)"        fusedMultiplyAdd_viaRational casesForDouble
+    checkFMA "fusedMultiplyAdd (default)"      fusedMultiplyAdd             casesForDouble
+    checkFMA "fusedMultiplyAdd (generic)"      fusedMultiplyAdd_generic     casesForDouble
+    checkFMA "fusedMultiplyAdd (via Rational)" fusedMultiplyAdd_viaRational casesForDouble
+    checkFMA "fusedMultiplyAdd (via Integer)"  fusedMultiplyAdd_viaInteger  casesForDouble
   describe "Float" $ do
-    checkFMA         "fusedMultiplyAdd (default)"             fusedMultiplyAdd                casesForFloat
-    checkFMA_generic "fusedMultiplyAdd (default, generic)"    fusedMultiplyAdd                casesForFloat
-    checkFMA         "fusedMultiplyAdd (twoProduct)"          fusedMultiplyAdd_twoProduct     casesForFloat
-    checkFMA_generic "fusedMultiplyAdd (twoProduct, generic)" fusedMultiplyAdd_twoProduct     casesForFloat
-    checkFMA         "fusedMultiplyAdd (via Rational)"        fusedMultiplyAdd_viaRational    casesForFloat
-    checkFMA         "fusedMultiplyAdd (via Double)"          fusedMultiplyAddFloat_viaDouble casesForFloat
+    checkFMA "fusedMultiplyAdd (default)"      fusedMultiplyAdd                casesForFloat
+    checkFMA "fusedMultiplyAdd (generic)"      fusedMultiplyAdd_generic        casesForFloat
+    checkFMA "fusedMultiplyAdd (via Rational)" fusedMultiplyAdd_viaRational    casesForFloat
+    checkFMA "fusedMultiplyAdd (via Integer)"  fusedMultiplyAdd_viaInteger     casesForFloat
+    checkFMA "fusedMultiplyAdd (via Double)"   fusedMultiplyAddFloat_viaDouble casesForFloat
 #if defined(USE_FFI)
   describe "Extra" $ do
     describe "Double" $ do
