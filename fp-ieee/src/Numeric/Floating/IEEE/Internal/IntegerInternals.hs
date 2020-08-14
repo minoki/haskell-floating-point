@@ -37,6 +37,10 @@ import           GHC.Integer.GMP.Internals (Integer (Jn#, Jp#, S#),
                                             indexBigNat#)
 import qualified GHC.Integer.Logarithms.Internals
 import           GHC.Natural (Natural (NatS#))
+#define IN Jn#
+#define IP Jp#
+#define IS S#
+#define NS NatS#
 #else
 import           Math.NumberTheory.Logarithms (integerLog2')
 #endif
@@ -84,43 +88,25 @@ integerIsPowerOf2 :: Integer -> Maybe Int
 -- The argument @x@ must be strictly positive.
 integerLog2IsPowerOf2 :: Integer -> (Int, Bool)
 
-#if defined(MIN_VERSION_ghc_bignum)
+#if defined(MIN_VERSION_ghc_bignum) || defined(MIN_VERSION_integer_gmp)
 
 integerToIntMaybe (IS x) = Just (I# x)
 integerToIntMaybe _      = Nothing -- relies on Integer's invariant
+{-# INLINE [0] integerToIntMaybe #-}
 
 naturalToWordMaybe (NS x) = Just (W# x)
 naturalToWordMaybe _      = Nothing -- relies on Natural's invariant
-
-unsafeShiftLInteger x (I# i) = GHC.Num.Integer.integerShiftL# x (int2Word# i)
-unsafeShiftRInteger x (I# i) = GHC.Num.Integer.integerShiftR# x (int2Word# i)
-
-#elif defined(MIN_VERSION_integer_gmp)
-
-integerToIntMaybe (S# x) = Just (I# x)
-integerToIntMaybe _      = Nothing -- relies on Integer's invariant
-
-naturalToWordMaybe (NatS# x) = Just (W# x)
-naturalToWordMaybe _         = Nothing -- relies on Natural's invariant
-
-unsafeShiftLInteger x (I# i) = GHC.Integer.shiftLInteger x i
-unsafeShiftRInteger x (I# i) = GHC.Integer.shiftRInteger x i
-
-#else
-
-integerToIntMaybe = toIntegralSized
-naturalToWordMaybe = toIntegralSized
-
-unsafeShiftLInteger = unsafeShiftL
-unsafeShiftRInteger = unsafeShiftR
-
-#endif
-
-{-# INLINE [0] integerToIntMaybe #-}
 {-# INLINE [0] naturalToWordMaybe #-}
 
--- Allow constant folding of integerToIntMaybe and naturalToWordMaybe
--- NB: https://gitlab.haskell.org/ghc/ghc/-/issues/18526 needs to be worked around.
+integerToIntMaybe2 :: Bool -> Integer -> Maybe Int
+integerToIntMaybe2 _ (IS x) = Just (I# x)
+integerToIntMaybe2 _ _ = Nothing
+{-# INLINE [0] integerToIntMaybe2 #-}
+
+naturalToWordMaybe2 :: Bool -> Natural -> Maybe Word
+naturalToWordMaybe2 _ (NS x) = Just (W# x)
+naturalToWordMaybe2 _ _ = Nothing
+{-# INLINE [0] naturalToWordMaybe2 #-}
 
 minBoundIntAsInteger :: Integer
 minBoundIntAsInteger = fromIntegral (minBound :: Int)
@@ -133,14 +119,6 @@ maxBoundIntAsInteger = fromIntegral (maxBound :: Int)
 maxBoundWordAsNatural :: Natural
 maxBoundWordAsNatural = fromIntegral (maxBound :: Word)
 {-# INLINE maxBoundWordAsNatural #-}
-
-integerToIntMaybe2 :: Bool -> Integer -> Maybe Int
-integerToIntMaybe2 _ = integerToIntMaybe
-{-# INLINE [0] integerToIntMaybe2 #-}
-
-naturalToWordMaybe2 :: Bool -> Natural -> Maybe Word
-naturalToWordMaybe2 _ = naturalToWordMaybe
-{-# INLINE [0] naturalToWordMaybe2 #-}
 
 {-# RULES
 "integerToIntMaybe" [~0] forall x.
@@ -157,8 +135,64 @@ naturalToWordMaybe2 _ = naturalToWordMaybe
   naturalToWordMaybe2 False x = Nothing
   #-}
 
+#else
+
+integerToIntMaybe = toIntegralSized
+naturalToWordMaybe = toIntegralSized
+{-# INLINE integerToIntMaybe #-}
+{-# INLINE naturalToWordMaybe #-}
+
+#endif
+
+#if defined(MIN_VERSION_ghc_bignum)
+
+unsafeShiftLInteger x (I# i) = GHC.Num.Integer.integerShiftL# x (int2Word# i)
+unsafeShiftRInteger x (I# i) = GHC.Num.Integer.integerShiftR# x (int2Word# i)
+
+#elif defined(MIN_VERSION_integer_gmp)
+
+unsafeShiftLInteger x (I# i) = GHC.Integer.shiftLInteger x i
+unsafeShiftRInteger x (I# i) = GHC.Integer.shiftRInteger x i
+
+#else
+
+unsafeShiftLInteger = unsafeShiftL
+unsafeShiftRInteger = unsafeShiftR
+
+#endif
+
 {-# INLINE unsafeShiftLInteger #-}
 {-# INLINE unsafeShiftRInteger #-}
+
+#if defined(MIN_VERSION_ghc_bignum) || defined(MIN_VERSION_integer_gmp)
+
+countTrailingZerosInteger# :: Integer -> Word#
+countTrailingZerosInteger# (IS x) = ctz# (int2Word# x)
+countTrailingZerosInteger# (IN bn) = countTrailingZerosInteger# (IP bn)
+countTrailingZerosInteger# (IP bn) = loop 0# 0##
+  where
+    loop i acc =
+      let
+#if defined(MIN_VERSION_ghc_bignum)
+        !bn_i = GHC.Num.BigNat.bigNatIndex# bn i -- `i < bigNatSize# bn` must hold
+#else
+        !bn_i = indexBigNat# bn i -- `i < sizeOfBigNat# bn` must hold
+#endif
+      in case bn_i of
+           0## -> loop (i +# 1#) (acc `plusWord#` WORD_SIZE_IN_BITS##)
+           w -> acc `plusWord#` ctz# w
+
+countTrailingZerosInteger 0 = error "countTrailingZerosInteger: zero"
+countTrailingZerosInteger x = I# (word2Int# (countTrailingZerosInteger# x))
+{-# INLINE countTrailingZerosInteger #-}
+
+#else
+
+countTrailingZerosInteger 0 = error "countTrailingZerosInteger: zero"
+countTrailingZerosInteger x = integerLog2' (x `xor` (x - 1))
+{-# INLINE countTrailingZerosInteger #-}
+
+#endif
 
 #if defined(MIN_VERSION_ghc_bignum)
 
@@ -182,19 +216,6 @@ roundingMode# (IP bn) t = case t `quotRemInt#` WORD_SIZE_IN_BITS# of
 roundingMode x (I# t) = roundingMode# x t
 {-# INLINE roundingMode #-}
 
-countTrailingZerosInteger# :: Integer -> Word#
-countTrailingZerosInteger# (IS x) = ctz# (int2Word# x)
-countTrailingZerosInteger# (IN bn) = countTrailingZerosInteger# (IP bn)
-countTrailingZerosInteger# (IP bn) = loop 0# 0##
-  where
-    loop i acc = case GHC.Num.BigNat.bigNatIndex# bn i of -- `i < bigNatSize# bn` must hold
-                   0## -> loop (i +# 1#) (acc `plusWord#` WORD_SIZE_IN_BITS##)
-                   w -> acc `plusWord#` ctz# w
-
-countTrailingZerosInteger 0 = error "countTrailingZerosInteger: zero"
-countTrailingZerosInteger x = I# (word2Int# (countTrailingZerosInteger# x))
-{-# INLINE countTrailingZerosInteger #-}
-
 integerIsPowerOf2 x = case GHC.Num.Integer.integerIsPowerOf2# x of
                         (# _ | #) -> Nothing
                         (# | w #) -> Just (I# (word2Int# w))
@@ -213,19 +234,6 @@ roundingMode x (I# t#) = case GHC.Integer.Logarithms.Internals.roundingMode# x t
                            _  -> GT -- 2#: round away from zero
 {-# INLINE roundingMode #-}
 
-countTrailingZerosInteger# :: Integer -> Word#
-countTrailingZerosInteger# (S# x) = ctz# (int2Word# x)
-countTrailingZerosInteger# (Jn# bn) = countTrailingZerosInteger# (Jp# bn)
-countTrailingZerosInteger# (Jp# bn) = loop 0# 0##
-  where
-    loop i acc = case indexBigNat# bn i of -- `i < sizeOfBigNat# bn` must hold
-                   0## -> loop (i +# 1#) (acc `plusWord#` WORD_SIZE_IN_BITS##)
-                   w -> acc `plusWord#` ctz# w
-
-countTrailingZerosInteger 0 = error "countTrailingZerosInteger: zero"
-countTrailingZerosInteger x = I# (word2Int# (countTrailingZerosInteger# x))
-{-# INLINE countTrailingZerosInteger #-}
-
 integerIsPowerOf2 x = case GHC.Integer.Logarithms.Internals.integerLog2IsPowerOf2# x of
                         (# l, 0# #) -> Just (I# l)
                         (# _, _ #)  -> Nothing
@@ -240,10 +248,6 @@ integerLog2IsPowerOf2 x = case GHC.Integer.Logarithms.Internals.integerLog2IsPow
 
 roundingMode x t = compare (x .&. (bit (t + 1) - 1)) (bit t)
 {-# INLINE roundingMode #-}
-
-countTrailingZerosInteger 0 = error "countTrailingZerosInteger: zero"
-countTrailingZerosInteger x = integerLog2' (x `xor` (x - 1))
-{-# INLINE countTrailingZerosInteger #-}
 
 integerIsPowerOf2 x = x .&. (x - 1) == 0
 
