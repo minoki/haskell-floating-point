@@ -14,7 +14,7 @@ import           Numeric.Floating.IEEE.Internal.Base
 import           Numeric.Floating.IEEE.Internal.Classify
 import           Numeric.Floating.IEEE.Internal.Conversion
 import           Numeric.Floating.IEEE.Internal.FMA
-import           Numeric.Floating.IEEE.Internal.NaN (SupportsNaN)
+import           Numeric.Floating.IEEE.Internal.NaN (RealFloatNaN)
 import qualified Numeric.Floating.IEEE.Internal.NaN as NaN
 import           Numeric.Floating.IEEE.Internal.NextFloat
 import           Numeric.Floating.IEEE.Internal.Rounding
@@ -86,7 +86,7 @@ classifyHalf x = let w = castHalfToWord16 x
                       (True,  _,    _) -> NegativeNormal
                       (False, _,    _) -> PositiveNormal
 
-instance SupportsNaN Half where
+instance RealFloatNaN Half where
   copySign x y = castWord16ToHalf ((x' .&. 0x7fff) .|. (y' .&. 0x8000))
     where x' = castHalfToWord16 x
           y' = castHalfToWord16 y
@@ -108,35 +108,33 @@ instance SupportsNaN Half where
     | 0 < x && x <= 0x01ff = castWord16ToHalf $ round x .|. 0x7c00
     | otherwise = 0
 
-classifyHalfNaNAware :: Half -> Class
-classifyHalfNaNAware x =
-  let w = castHalfToWord16 x
-      s = testBit w 15
-      e = (w `unsafeShiftR` 10) .&. 0x1f -- exponent (5 bits)
-      m = w .&. 0x3ff -- mantissa (10 bits without leading 1)
-  in case (s, e, m) of
-       (True,  0,    0) -> NegativeZero
-       (False, 0,    0) -> PositiveZero
-       (True,  0,    _) -> NegativeSubnormal
-       (False, 0,    _) -> PositiveSubnormal
-       (True,  0x1f, 0) -> NegativeInfinity
-       (False, 0x1f, 0) -> PositiveInfinity
-       (_,     0x1f, _) -> if testBit w 9 then
-                             QuietNaN
-                           else
-                             SignalingNaN
-       (True,  _,    _) -> NegativeNormal
-       (False, _,    _) -> PositiveNormal
+  classify x =
+    let w = castHalfToWord16 x
+        s = testBit w 15
+        e = (w `unsafeShiftR` 10) .&. 0x1f -- exponent (5 bits)
+        m = w .&. 0x3ff -- mantissa (10 bits without leading 1)
+    in case (s, e, m) of
+         (True,  0,    0) -> NegativeZero
+         (False, 0,    0) -> PositiveZero
+         (True,  0,    _) -> NegativeSubnormal
+         (False, 0,    _) -> PositiveSubnormal
+         (True,  0x1f, 0) -> NegativeInfinity
+         (False, 0x1f, 0) -> PositiveInfinity
+         (_,     0x1f, _) -> if testBit w 9 then
+                               QuietNaN
+                             else
+                               SignalingNaN
+         (True,  _,    _) -> NegativeNormal
+         (False, _,    _) -> PositiveNormal
 
-compareByTotalOrderHalfNaNAware :: Half -> Half -> Ordering
-compareByTotalOrderHalfNaNAware x y =
-  let x' = castHalfToWord16 x
-      y' = castHalfToWord16 y
-  in compare (x' .&. 0x8000) (y' .&. 0x8000) -- sign bit
-     <> if testBit x' 15 then
-          compare y' x' -- negative
-        else
-          compare x' y' -- positive
+  compareByTotalOrder x y =
+    let x' = castHalfToWord16 x
+        y' = castHalfToWord16 y
+    in compare (x' .&. 0x8000) (y' .&. 0x8000) -- sign bit
+       <> if testBit x' 15 then
+            compare y' x' -- negative
+          else
+            compare x' y' -- positive
 
 {-# RULES
 "nextUp/Half" nextUp = nextUpHalf
@@ -149,8 +147,6 @@ compareByTotalOrderHalfNaNAware x y =
 "classify/Half" classify = classifyHalf
 "isMantissaEven/Half" forall (x :: Half).
   isMantissaEven x = even (castHalfToWord16 x)
-"NaN.classify/Half" NaN.classify = classifyHalfNaNAware
-"NaN.compareByTotalOrder/Half" NaN.compareByTotalOrder = compareByTotalOrderHalfNaNAware
   #-}
 
 {-# SPECIALIZE minPositive :: Half #-}

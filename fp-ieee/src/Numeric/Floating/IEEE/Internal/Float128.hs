@@ -14,7 +14,7 @@ import           Numeric.Floating.IEEE.Internal.Base
 import           Numeric.Floating.IEEE.Internal.Classify
 import           Numeric.Floating.IEEE.Internal.Conversion
 import           Numeric.Floating.IEEE.Internal.FMA
-import           Numeric.Floating.IEEE.Internal.NaN (SupportsNaN)
+import           Numeric.Floating.IEEE.Internal.NaN (RealFloatNaN)
 import qualified Numeric.Floating.IEEE.Internal.NaN as NaN
 import           Numeric.Floating.IEEE.Internal.NextFloat
 import           Numeric.Floating.IEEE.Internal.Rounding

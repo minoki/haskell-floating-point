@@ -1,9 +1,7 @@
 module Numeric.Floating.IEEE.NaN
-  ( SupportsNaN(..)
-  , classify
+  ( RealFloatNaN(..)
   , Class (..)
   , TotallyOrdered(..)
-  , compareByTotalOrder
   ) where
 import           Numeric.Floating.IEEE.Internal () -- orphan instances
 import           Numeric.Floating.IEEE.Internal.NaN

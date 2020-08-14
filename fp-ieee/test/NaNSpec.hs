@@ -11,35 +11,35 @@ import           Util
 
 default ()
 
-prop_copySign :: (RealFloat a, SupportsNaN a) => Proxy a -> a -> a -> Property
+prop_copySign :: (RealFloatNaN a) => Proxy a -> a -> a -> Property
 prop_copySign _ x y = let x' = copySign x y
                       in isSignMinus x' === isSignMinus y
 
-prop_isSignMinus :: (RealFloat a, SupportsNaN a) => Proxy a -> a -> Property
+prop_isSignMinus :: (RealFloatNaN a) => Proxy a -> a -> Property
 prop_isSignMinus _ x = isSignMinus (negate x) === not (isSignMinus x)
 
-prop_isSignaling :: (RealFloat a, SupportsNaN a) => Proxy a -> Bool
+prop_isSignaling :: (RealFloatNaN a) => Proxy a -> Bool
 prop_isSignaling proxy = let nan = (0 / 0) `asProxyTypeOf` proxy
                              -- common floating-point operations should generate a quiet NaN
                          in not (isSignaling nan)
 
-prop_setPayload_getPayload :: (RealFloat a, SupportsNaN a) => Proxy a -> Property
+prop_setPayload_getPayload :: (RealFloatNaN a) => Proxy a -> Property
 prop_setPayload_getPayload proxy =
   let nan = (0 / 0) `asProxyTypeOf` proxy
       nan2 = setPayload (getPayload nan)
   in classify nan2 /= PositiveZero ==> compareByTotalOrder (abs nan) nan2 === EQ
 
-prop_setPayload :: (RealFloat a, SupportsNaN a, Show a) => Proxy a -> a -> Property
+prop_setPayload :: (RealFloatNaN a, Show a) => Proxy a -> a -> Property
 prop_setPayload _ payload =
   let snan = setPayload payload
   in classify snan === PositiveZero .||. (not (isSignaling snan) .&&. classify snan === QuietNaN)
 
-prop_setPayloadSignaling :: (RealFloat a, SupportsNaN a, Show a) => Proxy a -> a -> Property
+prop_setPayloadSignaling :: (RealFloatNaN a, Show a) => Proxy a -> a -> Property
 prop_setPayloadSignaling _ payload =
   let snan = setPayloadSignaling payload
   in classify snan === PositiveZero .||. (isSignaling snan .&&. classify snan === SignalingNaN)
 
-prop_classify :: (RealFloat a, SupportsNaN a, Show a) => Proxy a -> a -> Property
+prop_classify :: (RealFloatNaN a, Show a) => Proxy a -> a -> Property
 prop_classify _ x = conjoin
   [ counterexample "NegativeInfinity" $ (c == NegativeInfinity) === (x < 0 && isInfinite x)
   , counterexample "NegativeNormal" $ (c == NegativeNormal) === (x < 0 && isNormal x)
@@ -61,14 +61,15 @@ prop_classify _ x = conjoin
                                      c `elem` [NegativeInfinity, NegativeNormal, NegativeSubnormal, NegativeZero, QuietNaN, SignalingNaN]
                                    else
                                      c `elem` [PositiveInfinity, PositiveNormal, PositiveSubnormal, PositiveZero, QuietNaN, SignalingNaN]
+  -- , counterexample "class method" $ classify x === classifyDefault x
   ]
   where c = classify x
 {-# SPECIALIZE prop_classify :: Proxy Float -> Float -> Property, Proxy Double -> Double -> Property #-}
 
-isQuietNaN :: (RealFloat a, SupportsNaN a) => a -> Bool
+isQuietNaN :: (RealFloatNaN a) => a -> Bool
 isQuietNaN x = isNaN x && not (isSignaling x)
 
-prop_signalingNaN :: (RealFloat a, SupportsNaN a, Show a) => Proxy a -> Property
+prop_signalingNaN :: (RealFloatNaN a, Show a) => Proxy a -> Property
 prop_signalingNaN proxy =
   let snan = setPayloadSignaling 123 `asProxyTypeOf` proxy -- Assume 123 is a valid payload
   in conjoin
