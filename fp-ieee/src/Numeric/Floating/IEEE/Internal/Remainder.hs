@@ -6,17 +6,21 @@ module Numeric.Floating.IEEE.Internal.Remainder
 import           MyPrelude
 import           Numeric.Floating.IEEE.Internal.Classify
 
+default ()
+
 -- |
 -- IEEE 754 @remainder@ operation.
+--
+-- \(r=x-yn\), where n is the integer nearest the exact number \(n=\mathrm{round}(x/y)\)
 remainder :: RealFloat a => a -> a -> a
 remainder x y | isFinite x && isInfinite y = x
               | y == 0 || isInfinite y || isNaN y || not (isFinite x) = (x - x) / y * y -- return a NaN
               | otherwise = let n = round (toRational x / toRational y) -- TODO: Is round (x / y) okay?
-                                r = x - y * fromInteger n
+                                r = fromRational (toRational x - toRational y * fromInteger n)
                             in r -- if r == 0, the sign of r is the same as x
 {-# NOINLINE [1] remainder #-}
 
-#ifdef USE_FFI
+#if defined(USE_FFI)
 
 foreign import ccall unsafe "remainderf"
   c_remainderFloat :: Float -> Float -> Float
