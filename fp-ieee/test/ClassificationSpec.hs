@@ -1,11 +1,14 @@
 module ClassificationSpec where
+import           Data.Function (on)
 import           Data.Functor.Identity
+import           Data.Proxy
 import           Numeric.Floating.IEEE
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck hiding (classify)
 import           Util
-import Data.Proxy
+
+default ()
 
 prop_classify :: (RealFloat a, Show a) => Proxy a -> a -> Property
 prop_classify _ x = conjoin
@@ -28,13 +31,33 @@ prop_classify _ x = conjoin
   where c = classify x
 {-# SPECIALIZE prop_classify :: Proxy Float -> Float -> Property, Proxy Double -> Double -> Property #-}
 
+prop_totalOrder :: RealFloat a => Proxy a -> a -> a -> Property
+prop_totalOrder proxy x y = let cmp_x_y = compareByTotalOrder x y
+                                cmp_y_x = compareByTotalOrder y x
+                            in cmp_x_y === compare EQ cmp_y_x
+                               .&&. (if x < y then cmp_x_y === LT else property True)
+                               .&&. (if y < x then cmp_x_y === GT else property True)
+{-# SPECIALIZE prop_totalOrder :: Proxy Float -> Float -> Float -> Property, Proxy Double -> Double -> Double -> Property #-}
+
 spec :: Spec
 spec = do
   describe "Double" $ do
-    prop "classify" $ forAllFloats $ prop_classify (Proxy :: Proxy Double)
+    let proxy :: Proxy Double
+        proxy = Proxy
+    prop "classify" $ forAllFloats $ prop_classify proxy
+    prop "totalOrder" $ forAllFloats2 $ prop_totalOrder proxy
   describe "Double (generic)" $ do
-    prop "classify" $ forAllFloats $ prop_classify (Proxy :: Proxy (Identity Double)) . Identity
+    let proxy :: Proxy (Identity Double)
+        proxy = Proxy
+    prop "classify" $ forAllFloats $ prop_classify proxy . Identity
+    prop "totalOrder" $ forAllFloats2 (prop_totalOrder proxy `on` Identity)
   describe "Float" $ do
-    prop "classify" $ forAllFloats $ prop_classify (Proxy :: Proxy Float)
+    let proxy :: Proxy Float
+        proxy = Proxy
+    prop "classify" $ forAllFloats $ prop_classify proxy
+    prop "totalOrder" $ forAllFloats2 $ prop_totalOrder proxy
   describe "Float (generic)" $ do
-    prop "classify" $ forAllFloats $ prop_classify (Proxy :: Proxy (Identity Float)) . Identity
+    let proxy :: Proxy (Identity Float)
+        proxy = Proxy
+    prop "classify" $ forAllFloats $ prop_classify proxy . Identity
+    prop "totalOrder" $ forAllFloats2 (prop_totalOrder proxy `on` Identity)

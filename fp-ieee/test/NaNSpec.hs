@@ -106,6 +106,15 @@ prop_signalingNaN proxy =
      -- , counterexample "realFloatToFrac" $ isQuietNaN (realFloatToFrac snan `asProxyTypeOf` proxy)
      ]
 
+prop_totalOrder :: RealFloatNaN a => Proxy a -> a -> a -> Property
+prop_totalOrder proxy x y = let cmp_x_y = compareByTotalOrder x y
+                                cmp_y_x = compareByTotalOrder y x
+                                -- cmp_reference = compareByTotalOrderDefault x y
+                            in cmp_x_y === compare EQ cmp_y_x
+                               -- .&&. cmp_x_y === cmp_reference
+                               .&&. (if x < y then cmp_x_y === LT else property True)
+                               .&&. (if y < x then cmp_x_y === GT else property True)
+
 {-# NOINLINE spec #-}
 spec :: Spec
 spec = do
@@ -125,6 +134,7 @@ spec = do
     prop "classify" $ forAllFloats $ prop_classify proxy
     prop "classify (signaling NaN)" $ prop_classify proxy (setPayloadSignaling 123)
     prop "signaling NaN propagation" $ prop_signalingNaN proxy
+    prop "totalOrder" $ forAllFloats2 $ prop_totalOrder proxy
   describe "Double" $ do
     let proxy :: Proxy Double
         proxy = Proxy
@@ -141,3 +151,4 @@ spec = do
     prop "classify" $ forAllFloats $ prop_classify proxy
     prop "classify (signaling NaN)" $ prop_classify proxy (setPayloadSignaling 123)
     prop "signaling NaN propagation" $ prop_signalingNaN proxy
+    prop "totalOrder" $ forAllFloats2 $ prop_totalOrder proxy

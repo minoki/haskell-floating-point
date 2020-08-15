@@ -8,6 +8,7 @@ import           AugmentedArithSpec (augmentedAddition_viaRational,
 import qualified AugmentedArithSpec
 import qualified ClassificationSpec
 import           Control.Monad
+import           Data.Function (on)
 import           Data.Functor.Identity
 import           Data.Int
 import           Data.Proxy
@@ -64,6 +65,8 @@ spec = mapSpecItem_ (allowFailure "Half's fromRational may be incorrect") $ do
       proxy = Proxy
   prop "classify" $ forAllFloats $ isInfiniteWorkaround $ ClassificationSpec.prop_classify proxy
   prop "classify (generic)" $ forAllFloats $ isInfiniteWorkaround $ ClassificationSpec.prop_classify (Proxy :: Proxy (Identity Half)) . Identity
+  prop "totalOrder" $ forAllFloats2 $ ClassificationSpec.prop_totalOrder proxy
+  prop "totalOrder (generic)" $ forAllFloats2 (ClassificationSpec.prop_totalOrder (Proxy :: Proxy (Identity Half)) `on` Identity)
   prop "twoSum" $ forAllFloats2 $ TwoSumSpec.prop_twoSum proxy
   prop "twoProduct" $ forAllFloats2 $ TwoSumSpec.prop_twoProduct proxy twoProduct
   prop "twoProduct_generic" $ forAllFloats2 $ TwoSumSpec.prop_twoProduct proxy twoProduct_generic
@@ -114,6 +117,7 @@ spec = mapSpecItem_ (allowFailure "Half's fromRational may be incorrect") $ do
   when (not isInfiniteIsKnownToBeBuggy) $ do
     prop "classify (signaling NaN)" $ NaNSpec.prop_classify proxy (setPayloadSignaling 123)
   prop "signaling NaN propagation" $ NaNSpec.prop_signalingNaN proxy
+  prop "totalOrder" $ forAllFloats2 $ NaNSpec.prop_totalOrder proxy
 
   when isInfiniteIsKnownToBeBuggy $ do
     runIO $ putStrLn "Half's isInfinite is known to be buggy on this version. Some tests were skipped."
