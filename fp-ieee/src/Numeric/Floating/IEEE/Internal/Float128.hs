@@ -117,26 +117,65 @@ classifyF128DiscardingSignalingNaNs x =
        (True,  _,      _, _) -> NegativeNormal
        (False, _,      _, _) -> PositiveNormal
 
-classifyF128 :: Float128 -> Class
-classifyF128 x =
-  let hi = float128ToWord64Hi x
-      s = testBit hi 63
-      e = (hi `unsafeShiftR` 48) .&. 0x7fff -- exponent (15 bits)
-      m_hi = hi .&. 0x0000_ffff_ffff_ffff
-      m_lo = float128ToWord64Lo x
-  in case (s, e, m_hi, m_lo) of
-       (True,  0,      0, 0) -> NegativeZero
-       (False, 0,      0, 0) -> PositiveZero
-       (True,  0,      _, _) -> NegativeSubnormal
-       (False, 0,      _, _) -> PositiveSubnormal
-       (True,  0x7fff, 0, 0) -> NegativeInfinity
-       (False, 0x7fff, 0, 0) -> PositiveInfinity
-       (_,     0x7fff, _, _) -> if testBit m_hi 47 then
-                                  QuietNaN
-                                else
-                                  SignalingNaN
-       (True,  _,      _, _) -> NegativeNormal
-       (False, _,      _, _) -> PositiveNormal
+instance RealFloatNaN Float128 where
+  copySign x y = let (x_hi, x_lo) = float128ToWord64Pair x
+                     y_hi = float128ToWord64Hi y
+                 in float128FromWord64Pair ((x_hi .&. 0x7fff_ffff_ffff_ffff) .|. (y_hi .&. 0x8000_0000_0000_0000)) x_lo
+  isSignMinus x = let hi = float128ToWord64Hi x
+                  in testBit hi 63
+  isSignaling x = let hi = float128ToWord64Hi x
+                  in isNaN x && not (testBit hi 47)
+
+  getPayload x
+    | not (isNaN x) = -1
+    | otherwise = let hi = fromIntegral (float128ToWord64Hi x .&. 0x0000_7fff_ffff_ffff)
+                      lo = fromIntegral (float128ToWord64Lo x)
+                  in hi * 0x1_0000_0000_0000_0000 + lo
+
+  setPayload x
+    | 0 <= x && x <= 0x0000_7fff_ffff_ffff_ffff_ffff_ffff_ffff
+    = let payloadI = round x
+          hi = fromInteger (payloadI `shiftR` 64) .|. 0x7fff_8000_0000_0000
+          lo = fromInteger (payloadI .&. 0xffff_ffff_ffff_ffff)
+      in float128FromWord64Pair hi lo
+    | otherwise = 0
+
+  setPayloadSignaling x
+    | 0 < x && x <= 0x0000_7fff_ffff_ffff_ffff_ffff_ffff_ffff
+    = let payloadI = round x
+          hi = fromInteger (payloadI `shiftR` 64) .|. 0x7fff_0000_0000_0000
+          lo = fromInteger (payloadI .&. 0xffff_ffff_ffff_ffff)
+      in float128FromWord64Pair hi lo
+    | otherwise = 0
+
+  classify x =
+    let hi = float128ToWord64Hi x
+        s = testBit hi 63
+        e = (hi `unsafeShiftR` 48) .&. 0x7fff -- exponent (15 bits)
+        m_hi = hi .&. 0x0000_ffff_ffff_ffff
+        m_lo = float128ToWord64Lo x
+    in case (s, e, m_hi, m_lo) of
+         (True,  0,      0, 0) -> NegativeZero
+         (False, 0,      0, 0) -> PositiveZero
+         (True,  0,      _, _) -> NegativeSubnormal
+         (False, 0,      _, _) -> PositiveSubnormal
+         (True,  0x7fff, 0, 0) -> NegativeInfinity
+         (False, 0x7fff, 0, 0) -> PositiveInfinity
+         (_,     0x7fff, _, _) -> if testBit m_hi 47 then
+                                    QuietNaN
+                                  else
+                                    SignalingNaN
+         (True,  _,      _, _) -> NegativeNormal
+         (False, _,      _, _) -> PositiveNormal
+
+  compareByTotalOrder x y =
+    let (x_hi, x_lo) = float128ToWord64Pair x
+        (y_hi, y_lo) = float128ToWord64Pair y
+    in compare (testBit y_hi 63) (testBit x_hi 63) -- sign bit
+       <> if testBit x_hi 63 then
+            compare y_hi x_hi <> compare y_lo x_lo -- negative
+          else
+            compare x_hi y_hi <> compare x_lo y_lo -- positive
 
 {-# RULES
 "nextUp/Float128" nextUp = nextUpF128

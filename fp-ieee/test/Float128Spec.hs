@@ -8,6 +8,7 @@ import           AugmentedArithSpec (augmentedAddition_viaRational,
 import qualified AugmentedArithSpec
 import qualified ClassificationSpec
 import           Control.Monad
+import           Data.Function (on)
 import           Data.Functor.Identity
 import           Data.Int
 import           Data.Proxy
@@ -53,6 +54,8 @@ spec = mapSpecItem_ (allowFailure "Float128's fromRational and round may be inco
       proxy = Proxy
   prop "classify" $ forAllFloats $ ClassificationSpec.prop_classify proxy
   prop "classify (generic)" $ forAllFloats $ ClassificationSpec.prop_classify (Proxy :: Proxy (Identity Float128)) . Identity
+  prop "totalOrder" $ forAllFloats2 $ ClassificationSpec.prop_totalOrder proxy
+  prop "totalOrder (generic)" $ forAllFloats2 (ClassificationSpec.prop_totalOrder (Proxy :: Proxy (Identity Float128)) `on` Identity)
   prop "twoSum" $ forAllFloats2 $ TwoSumSpec.prop_twoSum proxy
   prop "twoProduct" $ forAllFloats2 $ TwoSumSpec.prop_twoProduct proxy twoProduct
   prop "twoProduct_generic" $ forAllFloats2 $ TwoSumSpec.prop_twoProduct proxy twoProduct_generic
@@ -89,7 +92,6 @@ spec = mapSpecItem_ (allowFailure "Float128's fromRational and round may be inco
   prop "roundToIntegral" $ RoundToIntegralSpec.prop_roundToIntegral proxy
   RoundToIntegralSpec.checkCases proxy
 
-{-
   prop "copySign" $ forAllFloats2 $ NaNSpec.prop_copySign proxy
   prop "isSignMinus" $ forAllFloats $ NaNSpec.prop_isSignMinus proxy
   prop "isSignaling" $ NaNSpec.prop_isSignaling proxy
@@ -103,4 +105,4 @@ spec = mapSpecItem_ (allowFailure "Float128's fromRational and round may be inco
   prop "classify" $ forAllFloats $ NaNSpec.prop_classify proxy
   prop "classify (signaling NaN)" $ NaNSpec.prop_classify proxy (setPayloadSignaling 123)
   prop "signaling NaN propagation" $ NaNSpec.prop_signalingNaN proxy
--}
+  prop "totalOrder" $ forAllFloats2 $ NaNSpec.prop_totalOrder proxy
