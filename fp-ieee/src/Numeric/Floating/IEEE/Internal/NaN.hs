@@ -10,6 +10,8 @@ import           Numeric.Floating.IEEE.Internal.Classify (Class (..))
 
 -- | An instance of this class supports manipulation of NaN.
 class RealFloat a => RealFloatNaN a where
+  {-# MINIMAL copySign, (isSignaling | classify), getPayload, setPayload, setPayloadSignaling #-}
+
   -- 5.5.1 Sign bit operations
   -- |
   -- Returns the first operand, with the sign of the second.
@@ -23,16 +25,21 @@ class RealFloat a => RealFloatNaN a where
   --
   -- IEEE 754 @isSignMinus@ operation.
   isSignMinus :: a -> Bool
+  isSignMinus x = copySign 1.0 x < 0
 
   -- |
   -- Returns @True@ if the operand is a signaling NaN.
   --
   -- IEEE 754 @isSignaling@ operation.
   isSignaling :: a -> Bool
+  isSignaling x = classify x == SignalingNaN
 
   -- 9.7 NaN payload operations
 
   -- |
+  -- Returns the payload of a NaN.
+  -- Returns @-1@ if the operand is not a NaN.
+  --
   -- IEEE 754 @getPayload@ operation.
   getPayload :: a -> a
 
