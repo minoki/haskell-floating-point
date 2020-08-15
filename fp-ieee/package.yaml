@@ -28,11 +28,6 @@ flags:
     manual: True
     default: false
 
-  c99:
-    description: "Restrict use of platform-dependent features and only use C99 features"
-    manual: true
-    default: false
-
   sse4_1:
     description: "Use SSE4.1 instructions on x86"
     manual: true
@@ -85,13 +80,8 @@ when:
   cpp-options:
   - -DUSE_FFI
 
-# flag(c99): Disable platform-dependent techniques and only use C99 features
-- condition: flag(c99)
-  cc-options:
-  - -DUSE_C99
-
 # Fast roundeven: needs SSE4.1 on x86
-- condition: "!flag(pure-hs) && !flag(c99) && (arch(i386) || arch(x86_64)) && flag(sse4_1)"
+- condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(sse4_1)"
   cpp-options:
   - -DHAS_FAST_ROUNDEVEN
   cc-options:
@@ -100,7 +90,7 @@ when:
   - cbits/roundeven.c
 
 # Fast roundeven: available on AArch64
-- condition: "!flag(pure-hs) && !flag(c99) && arch(aarch64)"
+- condition: "!flag(pure-hs) && arch(aarch64)"
   cpp-options:
   - -DHAS_FAST_ROUNDEVEN
   c-sources:
@@ -147,7 +137,7 @@ when:
   cpp-options:
   - -DUSE_HALF
 
-- condition: "!flag(pure-hs) && !flag(c99) && flag(half) && arch(x86_64) && flag(f16c)"
+- condition: "!flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)"
   cpp-options:
   - -DHAS_FAST_HALF_CONVERSION
   cc-options:
@@ -155,7 +145,7 @@ when:
   c-sources:
   - cbits/half.c
 
-- condition: "!flag(pure-hs) && !flag(c99) && flag(half) && arch(aarch64)"
+- condition: "!flag(pure-hs) && flag(half) && arch(aarch64)"
   cpp-options:
   - -DHAS_FAST_HALF_CONVERSION
   c-sources:
