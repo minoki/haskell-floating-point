@@ -130,7 +130,7 @@ instance RealFloatNaN Float where
 
   compareByTotalOrder x y = let x' = castFloatToWord32 x
                                 y' = castFloatToWord32 y
-                            in compare (x' .&. 0x8000_0000) (y' .&. 0x8000_0000) -- sign bit
+                            in compare (testBit y' 31) (testBit x' 31) -- sign bit
                                <> if testBit x' 31 then
                                     compare y' x' -- negative
                                   else
@@ -178,7 +178,7 @@ instance RealFloatNaN Double where
 
   compareByTotalOrder x y = let x' = castDoubleToWord64 x
                                 y' = castDoubleToWord64 y
-                            in compare (x' .&. 0x8000_0000_0000_000) (y' .&. 0x8000_0000_0000_000) -- sign bit
+                            in compare (testBit y' 63) (testBit x' 63) -- sign bit
                                <> if testBit x' 63 then
                                     compare y' x' -- negative
                                   else

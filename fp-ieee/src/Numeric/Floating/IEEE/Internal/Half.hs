@@ -130,7 +130,7 @@ instance RealFloatNaN Half where
   compareByTotalOrder x y =
     let x' = castHalfToWord16 x
         y' = castHalfToWord16 y
-    in compare (x' .&. 0x8000) (y' .&. 0x8000) -- sign bit
+    in compare (testBit y' 15) (testBit x' 15) -- sign bit
        <> if testBit x' 15 then
             compare y' x' -- negative
           else
