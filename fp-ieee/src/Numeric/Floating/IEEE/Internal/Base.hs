@@ -35,10 +35,14 @@ isDoubleBinary64 = isIEEE x
         x = undefined
 
 -- |
--- prop> (minPositive :: Float) == 0x1p-149
--- prop> (minPositive :: Double) == 0x1p-1074
--- prop> nextDown (minPositive :: Float) == 0
--- prop> nextDown (minPositive :: Double) == 0
+-- >>> (minPositive :: Float) == 0x1p-149
+-- True
+-- >>> (minPositive :: Double) == 0x1p-1074
+-- True
+-- >>> nextDown (minPositive :: Float)
+-- 0.0
+-- >>> nextDown (minPositive :: Double)
+-- 0.0
 minPositive :: RealFloat a => a
 minPositive = let d = floatDigits x
                   (expMin,_expMax) = floatRange x
@@ -48,12 +52,18 @@ minPositive = let d = floatDigits x
 {-# SPECIALIZE minPositive :: Float, Double #-}
 
 -- |
--- prop> (minPositiveNormal :: Float) == 0x1p-126
--- prop> (minPositiveNormal :: Double) == 0x1p-1022
--- prop> not (isDenormalized (minPositiveNormal :: Float))
--- prop> not (isDenormalized (minPositiveNormal :: Double))
--- prop> isDenormalized (nextDown (minPositiveNormal :: Float))
--- prop> isDenormalized (nextDown (minPositiveNormal :: Double))
+-- >>> (minPositiveNormal :: Float) == 0x1p-126
+-- True
+-- >>> (minPositiveNormal :: Double) == 0x1p-1022
+-- True
+-- >>> isDenormalized (minPositiveNormal :: Float)
+-- False
+-- >>> isDenormalized (minPositiveNormal :: Double)
+-- False
+-- >>> isDenormalized (nextDown (minPositiveNormal :: Float))
+-- True
+-- >>> isDenormalized (nextDown (minPositiveNormal :: Double))
+-- True
 minPositiveNormal :: RealFloat a => a
 minPositiveNormal = let (expMin,_expMax) = floatRange x
                         x = encodeFloat 1 (expMin - 1)
@@ -62,8 +72,10 @@ minPositiveNormal = let (expMin,_expMax) = floatRange x
 {-# SPECIALIZE minPositiveNormal :: Float, Double #-}
 
 -- |
--- prop> (maxFinite :: Float) == 0x1.fffffep+127
--- prop> (maxFinite :: Double) == 0x1.ffff_ffff_ffff_fp+1023
+-- >>> (maxFinite :: Float) == 0x1.fffffep+127
+-- True
+-- >>> (maxFinite :: Double) == 0x1.ffff_ffff_ffff_fp+1023
+-- True
 maxFinite :: RealFloat a => a
 maxFinite = let d = floatDigits x
                 (_expMin,expMax) = floatRange x
@@ -94,12 +106,14 @@ pow_helper _ x y = x ^ y
   #-}
 
 -- |
--- prop> negateIntAsWord minBound == fromInteger (negate (fromIntegral (minBound :: Int)))
+-- >>> negateIntAsWord minBound == fromInteger (negate (fromIntegral (minBound :: Int)))
+-- True
 negateIntAsWord :: Int -> Word
 negateIntAsWord x = fromIntegral (negate x)
 
 -- |
--- prop> absIntAsWord minBound == fromInteger (abs (fromIntegral (minBound :: Int)))
+-- >>> absIntAsWord minBound == fromInteger (abs (fromIntegral (minBound :: Int)))
+-- True
 absIntAsWord :: Int -> Word
 absIntAsWord x = fromIntegral (abs x)
 

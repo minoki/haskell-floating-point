@@ -1,5 +1,5 @@
 {-|
-Module      : Numeric.Floating.Extra.IEEE
+Module      : Numeric.Floating.IEEE
 Description : IEEE 754-compliant operations for floating-point numbers
 
 This module provides IEEE 754-compliant operations for floating-point numbers.
@@ -90,7 +90,7 @@ module Numeric.Floating.IEEE
   , fromRationalTowardNegative
   , fromRationalTowardZero
   -- |
-  -- For IEEE-compliant floating-point types, 'round', 'truncate', 'ceiling', and 'floor' from 'RealFrac" class should be correct implementation of IEEE 754 @convertToInteger@ operations.
+  -- For IEEE-compliant floating-point types, 'round', 'truncate', 'ceiling', and 'floor' from 'RealFrac' class should be correct implementation of IEEE 754 @convertToInteger@ operations.
   -- To complete them, 'roundAway' is provided by this library.
   -- Note that Haskell's 'round' is specified to be ties-to-even, whereas C's @round@ is ties-to-away.
   , round    -- convertToIntegerTiesToEven: round
@@ -102,8 +102,8 @@ module Numeric.Floating.IEEE
   -- ** 5.4.2 Conversion operations for floating-point formats and decimal character sequences
   --
   -- |
-  -- Unfortunately, the good old 'realToFrac' does not have a good semantics, and changes behavior with rewrite rules (consider @realToFrac (0/0 :: Float) :: Double@).
-  -- This library provides 'realFloatToFrac', with good semantics on signed zeroes, infinities and NaNs.
+  -- Unfortunately, 'realToFrac' does not have a good semantics, and changes behavior with rewrite rules (consider @realToFrac (0/0 :: Float) :: Double@).
+  -- As an alternative, this library provides 'realFloatToFrac', with well-defined semantics on signed zeroes, infinities and NaNs.
   -- Like 'realToFrac', 'realFloatToFrac' comes with some rewrite rules for particular types, but they should not change behavior.
   , realFloatToFrac -- convertFormat
   -- |
