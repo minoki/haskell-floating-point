@@ -127,6 +127,8 @@ instance RealFloatNaN Half where
          (True,  _,    _) -> NegativeNormal
          (False, _,    _) -> PositiveNormal
 
+  equalByTotalOrder x y = castHalfToWord16 x == castHalfToWord16 y
+
   compareByTotalOrder x y =
     let x' = castHalfToWord16 x
         y' = castHalfToWord16 y

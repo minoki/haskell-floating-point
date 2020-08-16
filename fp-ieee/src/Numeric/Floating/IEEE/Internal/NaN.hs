@@ -10,7 +10,7 @@ import           Numeric.Floating.IEEE.Internal.Classify (Class (..))
 
 -- | An instance of this class supports manipulation of NaN.
 class RealFloat a => RealFloatNaN a where
-  {-# MINIMAL copySign, (isSignaling | classify), getPayload, setPayload, setPayloadSignaling #-}
+  {-# MINIMAL (copySign | isSignMinus), (isSignaling | classify), getPayload, setPayload, setPayloadSignaling #-}
 
   -- 5.5.1 Sign bit operations
   -- |
@@ -18,6 +18,10 @@ class RealFloat a => RealFloatNaN a where
   --
   -- IEEE 754 @copySign@ operation.
   copySign :: a -> a -> a
+  copySign x y = if isSignMinus x == isSignMinus y then
+                   x
+                 else
+                   -x
 
   -- 5.7.2 General operations
   -- |
@@ -57,9 +61,18 @@ class RealFloat a => RealFloatNaN a where
   -- IEEE 754 @setPayloadSignaling@ operation.
   setPayloadSignaling :: a -> a
 
+  -- |
+  -- IEEE 754 @class@ operation.
   classify :: a -> Class
   classify = classifyDefault
 
+  -- |
+  -- Equality with IEEE 754 @totalOrder@ operation.
+  equalByTotalOrder :: a -> a -> Bool
+  equalByTotalOrder x y = compareByTotalOrder x y == EQ
+
+  -- |
+  -- Comparison with IEEE 754 @totalOrder@ operation.
   compareByTotalOrder :: a -> a -> Ordering
   compareByTotalOrder = compareByTotalOrderDefault
 
@@ -135,6 +148,8 @@ instance RealFloatNaN Float where
                     (True,  _,    _) -> NegativeNormal
                     (False, _,    _) -> PositiveNormal
 
+  equalByTotalOrder x y = castFloatToWord32 x == castFloatToWord32 y
+
   compareByTotalOrder x y = let x' = castFloatToWord32 x
                                 y' = castFloatToWord32 y
                             in compare (testBit y' 31) (testBit x' 31) -- sign bit
@@ -183,6 +198,8 @@ instance RealFloatNaN Double where
                     (True,  _,     _) -> NegativeNormal
                     (False, _,     _) -> PositiveNormal
 
+  equalByTotalOrder x y = castDoubleToWord64 x == castDoubleToWord64 y
+
   compareByTotalOrder x y = let x' = castDoubleToWord64 x
                                 y' = castDoubleToWord64 y
                             in compare (testBit y' 63) (testBit x' 63) -- sign bit
@@ -196,7 +213,7 @@ newtype TotallyOrdered a = TotallyOrdered a
   deriving (Show)
 
 instance RealFloatNaN a => Eq (TotallyOrdered a) where
-  TotallyOrdered x == TotallyOrdered y = compareByTotalOrder x y == EQ -- TODO: More efficient implementation
+  TotallyOrdered x == TotallyOrdered y = equalByTotalOrder x y
 
 instance RealFloatNaN a => Ord (TotallyOrdered a) where
   compare (TotallyOrdered x) (TotallyOrdered y) = compareByTotalOrder x y

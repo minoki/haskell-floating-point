@@ -109,11 +109,15 @@ prop_signalingNaN proxy =
 prop_totalOrder :: RealFloatNaN a => Proxy a -> a -> a -> Property
 prop_totalOrder proxy x y = let cmp_x_y = compareByTotalOrder x y
                                 cmp_y_x = compareByTotalOrder y x
+                                eq = equalByTotalOrder x y
                                 -- cmp_reference = compareByTotalOrderDefault x y
                             in cmp_x_y === compare EQ cmp_y_x
+                               .&&. (cmp_x_y == EQ) === eq
                                -- .&&. cmp_x_y === cmp_reference
                                .&&. (if x < y then cmp_x_y === LT else property True)
                                .&&. (if y < x then cmp_x_y === GT else property True)
+                               .&&. equalByTotalOrder x x
+                               .&&. equalByTotalOrder y y
 
 {-# NOINLINE spec #-}
 spec :: Spec
