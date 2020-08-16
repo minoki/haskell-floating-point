@@ -16,14 +16,20 @@ default ()
 -- |
 -- IEEE 754 @nextUp@ operation.
 --
--- prop> nextUp 1 == (0x1.000002p0 :: Float)
--- prop> nextUp 1 == (0x1.0000_0000_0000_1p0 :: Double)
--- prop> nextUp (1/0) == (1/0 :: Double)
--- prop> nextUp (-1/0) == (- maxFinite :: Double)
--- prop> nextUp 0 == (0x1p-1074 :: Double)
--- prop> nextUp (-0) == (0x1p-1074 :: Double)
--- prop> nextUp (-0x1p-1074) == (-0 :: Double)
--- prop> isNegativeZero (nextUp (-0x1p-1074) :: Double)
+-- >>> nextUp 1 == (0x1.000002p0 :: Float)
+-- True
+-- >>> nextUp 1 == (0x1.0000_0000_0000_1p0 :: Double)
+-- True
+-- >>> nextUp (1/0) == (1/0 :: Double)
+-- True
+-- >>> nextUp (-1/0) == (- maxFinite :: Double)
+-- True
+-- >>> nextUp 0 == (0x1p-1074 :: Double)
+-- True
+-- >>> nextUp (-0) == (0x1p-1074 :: Double)
+-- True
+-- >>> nextUp (-0x1p-1074) :: Double -- should be negative zero
+-- -0.0
 nextUp :: RealFloat a => a -> a
 nextUp x | not (isIEEE x) = error "non-IEEE numbers are not supported"
          | isNaN x || (isInfinite x && x > 0) = x + x -- NaN or positive infinity
@@ -34,14 +40,22 @@ nextUp x | not (isIEEE x) = error "non-IEEE numbers are not supported"
 -- |
 -- IEEE 754 @nextDown@ operation.
 --
--- prop> nextDown 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
--- prop> nextDown 1 == (0x1.fffffep-1 :: Float)
--- prop> nextDown (1/0) == (maxFinite :: Double)
--- prop> nextDown (-1/0) == (-1/0 :: Double)
--- prop> nextDown 0 == (-0x1p-1074 :: Double)
--- prop> nextDown (-0) == (-0x1p-1074 :: Double)
--- prop> nextDown 0x1p-1074 == (0 :: Double)
--- prop> nextDown 0x1p-1022 == (0x0.ffff_ffff_ffff_fp-1022 ::Double)
+-- >>> nextDown 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
+-- True
+-- >>> nextDown 1 == (0x1.fffffep-1 :: Float)
+-- True
+-- >>> nextDown (1/0) == (maxFinite :: Double)
+-- True
+-- >>> nextDown (-1/0) == (-1/0 :: Double)
+-- True
+-- >>> nextDown 0 == (-0x1p-1074 :: Double)
+-- True
+-- >>> nextDown (-0) == (-0x1p-1074 :: Double)
+-- True
+-- >>> nextDown 0x1p-1074 -- should be positive zero
+-- 0.0
+-- >>> nextDown 0x1p-1022 == (0x0.ffff_ffff_ffff_fp-1022 ::Double)
+-- True
 nextDown :: RealFloat a => a -> a
 nextDown x | not (isIEEE x) = error "non-IEEE numbers are not supported"
            | isNaN x || (isInfinite x && x < 0) = x + x -- NaN or negative infinity
@@ -50,13 +64,20 @@ nextDown x | not (isIEEE x) = error "non-IEEE numbers are not supported"
 {-# INLINE [1] nextDown #-}
 
 -- |
--- prop> nextTowardZero 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
--- prop> nextTowardZero 1 == (0x1.fffffep-1 :: Float)
--- prop> nextTowardZero (1/0) == (maxFinite :: Double)
--- prop> nextTowardZero (-1/0) == (-maxFinite :: Double)
--- prop> nextTowardZero 0 == (0 :: Double)
--- prop> isNegativeZero (nextTowardZero (-0 :: Double))
--- prop> nextTowardZero 0x1p-1074 == (0 :: Double)
+-- >>> nextTowardZero 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
+-- True
+-- >>> nextTowardZero 1 == (0x1.fffffep-1 :: Float)
+-- True
+-- >>> nextTowardZero (1/0) == (maxFinite :: Double)
+-- True
+-- >>> nextTowardZero (-1/0) == (-maxFinite :: Double)
+-- True
+-- >>> nextTowardZero 0 :: Double -- should be positive zero
+-- 0.0
+-- >>> nextTowardZero (-0 :: Double) -- should be negative zero
+-- -0.0
+-- >>> nextTowardZero 0x1p-1074 :: Double
+-- 0.0
 nextTowardZero :: RealFloat a => a -> a
 nextTowardZero x | not (isIEEE x) = error "non-IEEE numbers are not supported"
                  | isNaN x || x == 0 = x + x -- NaN or zero
