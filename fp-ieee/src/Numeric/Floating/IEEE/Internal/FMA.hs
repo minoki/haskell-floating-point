@@ -222,7 +222,7 @@ fusedMultiplyAdd a b c
              r -> fromRational r
          else
            result
-  | isFinite a && isFinite b = c -- c is +-Infinity or NaN
+  | isFinite a && isFinite b = c + c -- c is +-Infinity or NaN
   | otherwise = a * b + c -- Infinity or NaN
 {-# INLINABLE [1] fusedMultiplyAdd #-} -- May be rewritten into a more efficient one
 
@@ -238,7 +238,7 @@ fusedMultiplyAddFloat_viaDouble a b c
         result = double2Float (addToOdd ab c')
         !_ = assert (result == fromRational (toRational a * toRational b + toRational c)) ()
     in result
-  | isFinite a && isFinite b = c -- a * b is finite, but c is Infinity or NaN
+  | isFinite a && isFinite b = c + c -- a * b is finite, but c is Infinity or NaN
   | otherwise = a * b + c
   where
     !True = isFloatBinary32 || error "fusedMultiplyAdd/Float: Float must be IEEE binary32"

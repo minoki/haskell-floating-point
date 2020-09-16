@@ -90,6 +90,7 @@ prop_signalingNaN proxy =
      , counterexample "/" $ isQuietNaN (snan / snan)
      , counterexample "sqrt" $ isQuietNaN (sqrt snan)
      , counterexample "fusedMultiplyAdd" $ isQuietNaN (fusedMultiplyAdd snan snan snan)
+     , counterexample "fusedMultiplyAdd" $ isQuietNaN (fusedMultiplyAdd 0 0 snan)
      , counterexample "negate" $ isSignaling (negate snan)
      , counterexample "abs" $ isSignaling (abs snan)
      , counterexample "augmentedAddition" $ case augmentedAddition snan snan of (x, y) -> isQuietNaN x .&&. isQuietNaN y
@@ -105,6 +106,7 @@ prop_signalingNaN proxy =
      , counterexample "maximumMagnitudeNumber" $ isQuietNaN (maximumMagnitudeNumber snan snan)
      -- , counterexample "realFloatToFrac" $ isQuietNaN (realFloatToFrac snan `asProxyTypeOf` proxy)
      ]
+{-# INLINE prop_signalingNaN #-}
 
 prop_totalOrder :: RealFloatNaN a => Proxy a -> a -> a -> Property
 prop_totalOrder proxy x y = let cmp_x_y = compareByTotalOrder x y

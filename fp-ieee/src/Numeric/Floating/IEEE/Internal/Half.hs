@@ -35,7 +35,7 @@ nextUpHalf :: Half -> Half
 nextUpHalf x =
   case castHalfToWord16 x of
     w | w .&. 0x7c00 == 0x7c00
-      , w /= 0xfc00 -> x -- NaN or negative infinity -> itself
+      , w /= 0xfc00 -> x + x -- NaN or negative infinity -> itself
     0x8000 -> minPositive -- -0 -> min positive
     w | testBit w 15 -> castWord16ToHalf (w - 1) -- negative
       | otherwise -> castWord16ToHalf (w + 1) -- positive
@@ -44,7 +44,7 @@ nextDownHalf :: Half -> Half
 nextDownHalf x =
   case castHalfToWord16 x of
     w | w .&. 0x7c00 == 0x7c00
-      , w /= 0x7c00 -> x -- NaN or positive infinity -> itself
+      , w /= 0x7c00 -> x + x -- NaN or positive infinity -> itself
     0x0000 -> - minPositive -- +0 -> max negative
     w | testBit w 15 -> castWord16ToHalf (w + 1) -- negative
       | otherwise -> castWord16ToHalf (w - 1) -- positive
@@ -53,7 +53,7 @@ nextTowardZeroHalf :: Half -> Half
 nextTowardZeroHalf x =
   case castHalfToWord16 x of
     w | w .&. 0x7c00 == 0x7c00
-      , w /= 0x7fff -> x -- NaN -> itself
+      , w /= 0x7fff -> x + x -- NaN -> itself
     0x8000 -> x -- -0 -> itself
     0x0000 -> x -- +0 -> itself
     w -> castWord16ToHalf (w - 1) -- positive / negative
