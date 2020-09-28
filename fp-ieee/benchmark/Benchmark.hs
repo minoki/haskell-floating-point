@@ -296,14 +296,28 @@ main = defaultMain
               ]
          ]
        , bgroup "minimum"
-         [ let arg = (pi, -2.3) :: (Double, Double)
-           in bgroup "Double"
-              [ bench "stock" $ whnf (uncurry min) arg
-              , bench "minimum" $ whnf (uncurry minimum') arg
-              , bench "minimumNumber" $ whnf (uncurry minimumNumber) arg
-              , bench "minimumMagnitude" $ whnf (uncurry minimumMagnitude) arg
-              , bench "minimumMagnitudeNumber" $ whnf (uncurry minimumMagnitudeNumber) arg
-              ]
+         [ bgroup "Double"
+           [ let arg = (pi, -2.3) :: (Double, Double)
+             in bgroup "(pi, -2.3)"
+                [ bench "stock" $ whnf (uncurry min) arg
+                , bench "minimum" $ whnf (uncurry minimum') arg
+                , bench "minimumNumber" $ whnf (uncurry minimumNumber) arg
+                , bench "minimumMagnitude" $ whnf (uncurry minimumMagnitude) arg
+                , bench "minimumMagnitudeNumber" $ whnf (uncurry minimumMagnitudeNumber) arg
+                , bench "minimum (specialized)" $ whnf (uncurry minimumDouble) arg
+                , bench "minimumNumber (specialized)" $ whnf (uncurry minimumNumberDouble) arg
+                ]
+           , let arg = (0, -0) :: (Double, Double)
+             in bgroup "(0, -0)"
+                [ bench "stock" $ whnf (uncurry min) arg
+                , bench "minimum" $ whnf (uncurry minimum') arg
+                , bench "minimumNumber" $ whnf (uncurry minimumNumber) arg
+                , bench "minimumMagnitude" $ whnf (uncurry minimumMagnitude) arg
+                , bench "minimumMagnitudeNumber" $ whnf (uncurry minimumMagnitudeNumber) arg
+                , bench "minimum (specialized)" $ whnf (uncurry minimumDouble) arg
+                , bench "minimumNumber (specialized)" $ whnf (uncurry minimumNumberDouble) arg
+                ]
+           ]
          ]
 #if defined(USE_HALF)
        , bgroup "Half"

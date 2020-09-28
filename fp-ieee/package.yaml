@@ -118,6 +118,13 @@ when:
   cpp-options:
   - -DUSE_C99_FMA
 
+# Fast min/max: available on AArch64
+- condition: "!flag(pure-hs) && arch(aarch64)"
+  cpp-options:
+  - -DHAS_FAST_MINMAX
+  c-sources:
+  - cbits/minmax.c
+
 # flag(x87-long-double): Support LongDouble on x86
 - condition: "flag(x87-long-double) && (arch(i386) || arch(x86_64))"
   dependencies: long-double
