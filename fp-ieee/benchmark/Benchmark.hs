@@ -295,6 +295,16 @@ main = defaultMain
               , bench "encodeFloatTowardZero" $ nf (uncurry encodeFloatTowardZero :: (Integer, Int) -> Float) arg
               ]
          ]
+       , bgroup "minimum"
+         [ let arg = (pi, -2.3) :: (Double, Double)
+           in bgroup "Double"
+              [ bench "stock" $ whnf (uncurry min) arg
+              , bench "minimum" $ whnf (uncurry minimum') arg
+              , bench "minimumNumber" $ whnf (uncurry minimumNumber) arg
+              , bench "minimumMagnitude" $ whnf (uncurry minimumMagnitude) arg
+              , bench "minimumMagnitudeNumber" $ whnf (uncurry minimumMagnitudeNumber) arg
+              ]
+         ]
 #if defined(USE_HALF)
        , bgroup "Half"
          [ bgroup "from Half"
