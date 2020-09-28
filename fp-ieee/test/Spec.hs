@@ -3,6 +3,7 @@ import qualified AugmentedArithSpec
 import qualified ClassificationSpec
 import qualified FMASpec
 import qualified IntegerInternalsSpec
+import qualified MinMaxSpec
 import qualified NaNSpec
 import qualified NextFloatSpec
 import qualified RoundingSpec
@@ -44,6 +45,7 @@ main = hspec $ do
   describe "Rounding" RoundingSpec.spec
   describe "RoundToIntegral" RoundToIntegralSpec.spec
   describe "NaN" NaNSpec.spec
+  describe "MinMax" MinMaxSpec.spec
 #if defined(USE_HALF)
   describe "Half" HalfSpec.spec
 #endif
