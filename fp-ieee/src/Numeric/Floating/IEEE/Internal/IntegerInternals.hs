@@ -248,9 +248,12 @@ integerLog2IsPowerOf2 x = case GHC.Integer.Logarithms.Internals.integerLog2IsPow
 roundingMode x t = compare (x .&. (bit (t + 1) - 1)) (bit t)
 {-# INLINE roundingMode #-}
 
-integerIsPowerOf2 x = x .&. (x - 1) == 0
+integerIsPowerOf2 x = if x .&. (x - 1) == 0 then
+                        Just (integerLog2' x)
+                      else
+                        Nothing
 
-integerLog2IsPowerOf2 x = (integerLog2' x, integerIsPowerOf2 x)
+integerLog2IsPowerOf2 x = (integerLog2' x, x .&. (x - 1) == 0)
 {-# INLINE integerLog2IsPowerOf2 #-}
 
 #endif
