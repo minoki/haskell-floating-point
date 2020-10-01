@@ -167,7 +167,9 @@ compareWithExpt 2 n r e = assert (r == n `rem` expt 2 (e+1)) $
     LT
   else
     -- In this branch, n > 0 && integerLog2' n >= e
-    Numeric.Floating.IEEE.Internal.IntegerInternals.roundingMode n e
+    let result = Numeric.Floating.IEEE.Internal.IntegerInternals.roundingMode n e
+        !_ = assert (result == compare r (expt 2 e)) ()
+    in result
 compareWithExpt base n r e = assert (r == n `rem` expt base (e+1)) $ compare r (expt base e)
 {-# INLINE compareWithExpt #-}
 

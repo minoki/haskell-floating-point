@@ -207,11 +207,10 @@ roundingMode# (IP bn) t = case t `quotRemInt#` WORD_SIZE_IN_BITS# of
                                           in compare (W# (w `uncheckedShiftL#` (WORD_SIZE_IN_BITS# -# 1# -# r))) (W# (1## `uncheckedShiftL#` (WORD_SIZE_IN_BITS# -# 1#)))
                                              <> loop s
   where
+    loop 0# = EQ
     loop i = case GHC.Num.BigNat.bigNatIndex# bn i of
-               0## -> case i of
-                        0# -> EQ
-                        _  -> loop (i -# 1#)
-               _ -> LT
+               0## -> loop (i -# 1#)
+               _ -> GT
 
 roundingMode x (I# t) = roundingMode# x t
 {-# INLINE roundingMode #-}
