@@ -82,10 +82,21 @@ twoSum a b =
 -- Like 'twoSum', this function does not handle undue overflow.
 addToOdd :: RealFloat a => a -> a -> a
 addToOdd x y = let (u, v) = twoSum x y
-                   result | v < 0 && isMantissaEven u = nextDown u
-                          | v > 0 && isMantissaEven u = nextUp u
+                   result | isMantissaEven u && v < 0 = nextDown u
+                          | isMantissaEven u && v > 0 = nextUp u
+                          | isMantissaEven u && isNaN v && not (isInfinite u) =
+                              let v' = if abs y <= abs x then
+                                         y - (u - x)
+                                       else
+                                         x - (u - y)
+                              in if v' < 0 then
+                                   nextDown u
+                                 else if v' > 0 then
+                                        nextUp u
+                                      else
+                                        u
                           | otherwise = u
-                   !_ = assert (toRational u == toRational x + toRational y || not (isMantissaEven result)) ()
+                   !_ = assert (isInfinite u || toRational u == toRational x + toRational y || not (isMantissaEven result)) ()
                in result
 {-# SPECIALIZE addToOdd :: Float -> Float -> Float, Double -> Double -> Double #-}
 
