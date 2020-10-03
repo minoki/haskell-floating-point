@@ -89,7 +89,7 @@ checkFMA name f cases = do
   testSpecialValues name f cases
 
 spec :: Spec
-spec = modifyMaxSuccess (* 100) $ do
+spec = modifyMaxSuccess (* 1000) $ do
   describe "Double" $ do
     checkFMA "fusedMultiplyAdd (default)"      fusedMultiplyAdd             casesForDouble
     checkFMA "fusedMultiplyAdd (generic)"      fusedMultiplyAdd_generic     casesForDouble
