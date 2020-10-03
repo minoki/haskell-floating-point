@@ -235,10 +235,10 @@ tests:
     - random
     - decimal-arithmetic
 
-  fp-ieee-doctests:
-    main: doctests.hs
-    dependencies:
-    - doctest >= 0.8
+  #fp-ieee-doctests:
+  #  main: doctests.hs
+  #  dependencies:
+  #  - doctest >= 0.8
 
 benchmarks:
   fp-ieee-benchmark:

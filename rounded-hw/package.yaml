@@ -170,10 +170,10 @@ tests:
       cpp-options:
       - -DTEST_FLOAT128
 
-  rounded-hw-doctests:
-    main: doctests.hs
-    dependencies:
-    - doctest >= 0.8
+  #rounded-hw-doctests:
+  #  main: doctests.hs
+  #  dependencies:
+  #  - doctest >= 0.8
 
 benchmarks:
   rounded-hw-benchmark:
