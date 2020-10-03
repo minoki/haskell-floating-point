@@ -71,6 +71,10 @@ casesForFloat =
   , (0x1.83bd78p4,  -0x1.cp118,    -0x1.344108p-2, -0x1.5345cap123)
   , (0x1p-149,       0x1.88dd0cp-1, 0x1.081ffp-127, 0x1.081ff4p-127)
   , (0x1.d1a9dp-126, 0x1.594da4p-1, 0x1.343de4p-126, 0x1.3725b6p-125)
+  , (-0x1.bf874ap4,  0x1.0fd36p3,  -0x1.959312p2,   -0x1.e7de54p7)
+  , (0x1.ba7f24p5,   0x1.873d8p-1, -0x1.43edf4p-1,   0x1.4d1186p5)
+  , (0x1.ce8eep-128, 0x1.9082ep124, -0x1.348fd8p4,  -0x1.31bc2cp4)
+  , (0x1.fb449cp-126, -0x1.6d2ffp125, 0x1.94481p3,   0x1.670e14p3)
   ]
 
 testSpecialValues :: (RealFloat a, Show a) => String -> (a -> a -> a -> a) -> [(a, a, a, a)] -> Spec
