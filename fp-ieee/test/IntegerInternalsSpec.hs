@@ -18,6 +18,8 @@ noinline = id
 {-# NOINLINE spec #-}
 spec :: Spec
 spec = do
+  runIO $ putStrLn $ "The backend for IntegerInternals is " ++ integerInternalsBackend
+
   describe "integerToIntMaybe" $ do
     it "0" $ integerToIntMaybe 0 `shouldBe` Just 0
     it "123" $ integerToIntMaybe 123 `shouldBe` Just 123

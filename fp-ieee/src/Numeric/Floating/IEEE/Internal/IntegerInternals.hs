@@ -17,6 +17,7 @@ module Numeric.Floating.IEEE.Internal.IntegerInternals
   , countTrailingZerosInteger
   , integerIsPowerOf2
   , integerLog2IsPowerOf2
+  , integerInternalsBackend
   ) where
 import           Data.Bits
 import           GHC.Exts (Int#, Word#, ctz#, int2Word#, plusWord#, quotRemInt#,
@@ -256,4 +257,14 @@ integerIsPowerOf2 x = if x .&. (x - 1) == 0 then
 integerLog2IsPowerOf2 x = (integerLog2' x, x .&. (x - 1) == 0)
 {-# INLINE integerLog2IsPowerOf2 #-}
 
+#endif
+
+{-# NOINLINE integerInternalsBackend #-}
+integerInternalsBackend :: String
+#if defined(MIN_VERSION_ghc_bignum)
+integerInternalsBackend = "ghc-bignum"
+#elif defined(MIN_VERSION_integer_gmp)
+integerInternalsBackend = "integer-gmp"
+#else
+integerInternalsBackend = "generic"
 #endif
