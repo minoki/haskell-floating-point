@@ -18,4 +18,3 @@ extra-deps:
 flags:
   fp-ieee:
     half: true
-    ghc-bignum: false
