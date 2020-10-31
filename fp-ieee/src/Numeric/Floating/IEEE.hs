@@ -106,6 +106,7 @@ module Numeric.Floating.IEEE
   -- As an alternative, this library provides 'realFloatToFrac', with well-defined semantics on signed zeroes, infinities and NaNs.
   -- Like 'realToFrac', 'realFloatToFrac' comes with some rewrite rules for particular types, but they should not change behavior.
   , realFloatToFrac -- convertFormat
+  , canonicalize
   -- |
   -- @convertFromDecimalCharacter@: not implemented.
   --

@@ -16,7 +16,17 @@ realFloatToFrac x | isNaN x = 0/0
                   | otherwise = realToFrac x
 {-# NOINLINE [1] realFloatToFrac #-}
 {-# RULES
-"realFloatToFrac/a->a" realFloatToFrac = \x -> x * 1.0 -- trying to make signaling NaNs quiet. Unfortunately, GHC optimizes away '* 1.0' when the type is 'Float' or 'Double'.
+"realFloatToFrac/a->a" realFloatToFrac = canonicalize
 "realFloatToFrac/Float->Double" realFloatToFrac = float2Double
 "realFloatToFrac/Double->Float" realFloatToFrac = double2Float
   #-}
+
+-- Since GHC optimizes away '* 1.0' when the type is 'Float' or 'Double',
+-- we can't canonicalize x by just 'x * 1.0'.
+one :: Num a => a
+one = 1
+{-# NOINLINE one #-}
+
+canonicalize :: RealFloat a => a -> a
+canonicalize x = x * one
+{-# INLINE [1] canonicalize #-}
