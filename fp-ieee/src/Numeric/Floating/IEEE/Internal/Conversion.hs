@@ -27,6 +27,19 @@ one :: Num a => a
 one = 1
 {-# NOINLINE one #-}
 
+oneFloat :: Float
+oneFloat = 1.0
+{-# NOINLINE oneFloat #-}
+
+oneDouble :: Double
+oneDouble = 1.0
+{-# NOINLINE oneDouble #-}
+
+{-# RULES
+"one/Float" one = oneFloat
+"one/Double" one = oneDouble
+  #-}
+
 canonicalize :: RealFloat a => a -> a
 canonicalize x = x * one
 {-# INLINE [1] canonicalize #-}
