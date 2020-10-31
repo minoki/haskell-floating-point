@@ -158,6 +158,12 @@ when:
   c-sources:
   - cbits/half.c
 
+- condition: "!flag(pure-hs) && (arch(aarch64) || arch(x86_64))"
+  cpp-options:
+  - -DHAS_FAST_CANONICALIZE
+  c-sources:
+  - cbits/canonicalize.c
+
 library:
   source-dirs: src
   other-modules:

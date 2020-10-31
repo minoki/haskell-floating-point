@@ -30,3 +30,8 @@ one = 1
 canonicalize :: RealFloat a => a -> a
 canonicalize x = x * one
 {-# INLINE [1] canonicalize #-}
+
+foreign import ccall unsafe "hs_canonicalizeDouble"
+  canonicalizeDouble :: Double -> Double
+foreign import ccall unsafe "hs_canonicalizeFloat"
+  canonicalizeFloat :: Float -> Float

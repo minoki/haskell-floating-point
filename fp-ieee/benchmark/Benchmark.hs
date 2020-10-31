@@ -319,6 +319,20 @@ main = defaultMain
                 ]
            ]
          ]
+       , bgroup "canonicalize"
+         [ let x = 0 / 0 :: Float
+           in bgroup "Float"
+           [ bench "Haskell" $ whnf canonicalize x
+           , bench "Haskell (generic)" $ whnf canonicalize (Identity x)
+           , bench "C" $ whnf canonicalizeFloat x
+           ]
+         , let x = 0 / 0 :: Double
+           in bgroup "Double"
+           [ bench "Haskell" $ whnf canonicalize x
+           , bench "Haskell (generic)" $ whnf canonicalize (Identity x)
+           , bench "C" $ whnf canonicalizeDouble x
+           ]
+         ]
 #if defined(USE_HALF)
        , bgroup "Half"
          [ bgroup "from Half"
