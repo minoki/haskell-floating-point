@@ -52,11 +52,13 @@ double hs_canonicalizeDouble(double x)
 
 float hs_canonicalizeFloat(float x)
 {
-    return x * 1.0f;
+    volatile float one = 1.0f;
+    return x * one;
 }
 double hs_canonicalizeDouble(double x)
 {
-    return x * 1.0;
+    volatile double one = 1.0;
+    return x * one;
 }
 
 #endif

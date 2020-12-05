@@ -1,5 +1,11 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE NoImplicitPrelude #-}
-module Numeric.Floating.IEEE.Internal.Conversion where
+module Numeric.Floating.IEEE.Internal.Conversion
+  ( realFloatToFrac
+  , canonicalize
+  , canonicalizeFloat
+  , canonicalizeDouble
+  ) where
 import           GHC.Float.Compat (double2Float, float2Double)
 import           MyPrelude
 
@@ -7,8 +13,6 @@ default ()
 
 -- |
 -- Similar to 'realToFrac', but treats NaN, infinities, negative zero even if the rewrite rule is off.
---
--- The properties of NaN may or may not be kept.
 realFloatToFrac :: (RealFloat a, Fractional b) => a -> b
 realFloatToFrac x | isNaN x = 0/0
                   | isInfinite x = if x > 0 then 1/0 else -1/0
@@ -27,24 +31,30 @@ one :: Num a => a
 one = 1
 {-# NOINLINE one #-}
 
-oneFloat :: Float
-oneFloat = 1.0
-{-# NOINLINE oneFloat #-}
-
-oneDouble :: Double
-oneDouble = 1.0
-{-# NOINLINE oneDouble #-}
-
-{-# RULES
-"one/Float" one = oneFloat
-"one/Double" one = oneDouble
-  #-}
-
 canonicalize :: RealFloat a => a -> a
 canonicalize x = x * one
 {-# INLINE [1] canonicalize #-}
 
-foreign import ccall unsafe "hs_canonicalizeDouble"
-  canonicalizeDouble :: Double -> Double
+#if defined(HAS_FAST_CANONICALIZE)
+
 foreign import ccall unsafe "hs_canonicalizeFloat"
   canonicalizeFloat :: Float -> Float
+foreign import ccall unsafe "hs_canonicalizeDouble"
+  canonicalizeDouble :: Double -> Double
+
+{-# RULES
+"canonicalize/Float" canonicalize = canonicalizeFloat
+"canonicalize/Double" canonicalize = canonicalizeDouble
+  #-}
+
+#else
+
+{-# SPECIALIZE canonicalize :: Float -> Float, Double -> Double #-}
+
+canonicalizeFloat :: Float -> Float
+canonicalizeFloat = canonicalize
+
+canonicalizeDouble :: Double -> Double
+canonicalizeDouble = canonicalize
+
+#endif
