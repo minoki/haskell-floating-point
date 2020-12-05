@@ -72,6 +72,7 @@ isQuietNaN x = isNaN x && not (isSignaling x)
 prop_signalingNaN :: (RealFloatNaN a, Show a) => Proxy a -> Property
 prop_signalingNaN proxy =
   let snan = setPayloadSignaling 123 `asProxyTypeOf` proxy -- Assume 123 is a valid payload
+      qnan = setPayload 123 `asProxyTypeOf` proxy -- Assume 123 is a valid payload
   in conjoin
      [ counterexample "setPayloadSignaling produces a signaling NaN" $ isSignaling snan
      , counterexample "round'" $ isQuietNaN (round' snan)
@@ -104,7 +105,8 @@ prop_signalingNaN proxy =
      , counterexample "minimumMagnitudeNumber" $ isQuietNaN (minimumMagnitudeNumber snan snan)
      , counterexample "maximumMagnitude" $ isQuietNaN (maximumMagnitude snan snan)
      , counterexample "maximumMagnitudeNumber" $ isQuietNaN (maximumMagnitudeNumber snan snan)
-     -- , counterexample "realFloatToFrac" $ isQuietNaN (realFloatToFrac snan `asProxyTypeOf` proxy)
+     , counterexample "canonicalize" $ isQuietNaN (canonicalize snan)
+     , counterexample "realFloatToFrac" $ isQuietNaN (realFloatToFrac snan `asProxyTypeOf` proxy)
      ]
 {-# INLINE prop_signalingNaN #-}
 
@@ -127,6 +129,7 @@ spec = do
   describe "Float" $ do
     let proxy :: Proxy Float
         proxy = Proxy
+    let snan = setPayloadSignaling 123 `asProxyTypeOf` proxy -- Assume 123 is a valid payload
     prop "copySign" $ forAllFloats2 $ prop_copySign proxy
     prop "isSignMinus" $ forAllFloats $ prop_isSignMinus proxy
     prop "isSignaling" $ prop_isSignaling proxy
@@ -141,9 +144,11 @@ spec = do
     prop "classify (signaling NaN)" $ prop_classify proxy (setPayloadSignaling 123)
     prop "signaling NaN propagation" $ prop_signalingNaN proxy
     prop "totalOrder" $ forAllFloats2 $ prop_totalOrder proxy
+    prop "canonicalize" $ isQuietNaN (canonicalize snan)
   describe "Double" $ do
     let proxy :: Proxy Double
         proxy = Proxy
+    let snan = setPayloadSignaling 123 `asProxyTypeOf` proxy -- Assume 123 is a valid payload
     prop "copySign" $ forAllFloats2 $ prop_copySign proxy
     prop "isSignMinus" $ forAllFloats $ prop_isSignMinus proxy
     prop "isSignaling" $ prop_isSignaling proxy
@@ -158,3 +163,4 @@ spec = do
     prop "classify (signaling NaN)" $ prop_classify proxy (setPayloadSignaling 123)
     prop "signaling NaN propagation" $ prop_signalingNaN proxy
     prop "totalOrder" $ forAllFloats2 $ prop_totalOrder proxy
+    prop "canonicalize" $ isQuietNaN (canonicalize snan)
