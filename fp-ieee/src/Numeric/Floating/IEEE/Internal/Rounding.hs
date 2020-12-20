@@ -269,11 +269,11 @@ minBoundAsInteger dummyI = if isSigned dummyI then
                              Just 0
 {-# INLINE [1] minBoundAsInteger #-}
 {-# RULES
-"minBoundAsInteger/Int" minBoundAsInteger = (\_ -> Just (fromIntegral (minBound :: Int))) :: Int -> Maybe Integer
-"minBoundAsInteger/Int8" minBoundAsInteger = (\_ -> Just (fromIntegral (minBound :: Int8))) :: Int8 -> Maybe Integer
-"minBoundAsInteger/Int16" minBoundAsInteger = (\_ -> Just (fromIntegral (minBound :: Int16))) :: Int16 -> Maybe Integer
-"minBoundAsInteger/Int32" minBoundAsInteger = (\_ -> Just (fromIntegral (minBound :: Int32))) :: Int32 -> Maybe Integer
-"minBoundAsInteger/Int64" minBoundAsInteger = (\_ -> Just (fromIntegral (minBound :: Int64))) :: Int64 -> Maybe Integer
+"minBoundAsInteger/Int" minBoundAsInteger = (\_ -> Just (toInteger (minBound :: Int))) :: Int -> Maybe Integer
+"minBoundAsInteger/Int8" minBoundAsInteger = (\_ -> Just (toInteger (minBound :: Int8))) :: Int8 -> Maybe Integer
+"minBoundAsInteger/Int16" minBoundAsInteger = (\_ -> Just (toInteger (minBound :: Int16))) :: Int16 -> Maybe Integer
+"minBoundAsInteger/Int32" minBoundAsInteger = (\_ -> Just (toInteger (minBound :: Int32))) :: Int32 -> Maybe Integer
+"minBoundAsInteger/Int64" minBoundAsInteger = (\_ -> Just (toInteger (minBound :: Int64))) :: Int64 -> Maybe Integer
 "minBoundAsInteger/Word" minBoundAsInteger = (\_ -> Just 0) :: Word -> Maybe Integer
 "minBoundAsInteger/Word8" minBoundAsInteger = (\_ -> Just 0) :: Word8 -> Maybe Integer
 "minBoundAsInteger/Word16" minBoundAsInteger = (\_ -> Just 0) :: Word16 -> Maybe Integer
@@ -288,16 +288,16 @@ maxBoundAsInteger dummyI = case bitSizeMaybe dummyI of
                              Nothing -> Nothing
 {-# INLINE [1] maxBoundAsInteger #-}
 {-# RULES
-"maxBoundAsInteger/Int" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Int))) :: Int -> Maybe Integer
-"maxBoundAsInteger/Int8" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Int8))) :: Int8 -> Maybe Integer
-"maxBoundAsInteger/Int16" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Int16))) :: Int16 -> Maybe Integer
-"maxBoundAsInteger/Int32" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Int32))) :: Int32 -> Maybe Integer
-"maxBoundAsInteger/Int64" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Int64))) :: Int64 -> Maybe Integer
-"maxBoundAsInteger/Word" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Word))) :: Word -> Maybe Integer
-"maxBoundAsInteger/Word8" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Word8))) :: Word8 -> Maybe Integer
-"maxBoundAsInteger/Word16" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Word16))) :: Word16 -> Maybe Integer
-"maxBoundAsInteger/Word32" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Word32))) :: Word32 -> Maybe Integer
-"maxBoundAsInteger/Word64" maxBoundAsInteger = (\_ -> Just (fromIntegral (maxBound :: Word64))) :: Word64 -> Maybe Integer
+"maxBoundAsInteger/Int" maxBoundAsInteger = (\_ -> Just (toInteger (maxBound :: Int))) :: Int -> Maybe Integer
+"maxBoundAsInteger/Int8" maxBoundAsInteger = (\_ -> Just (toInteger (maxBound :: Int8))) :: Int8 -> Maybe Integer
+"maxBoundAsInteger/Int16" maxBoundAsInteger = (\_ -> Just (toInteger (maxBound :: Int16))) :: Int16 -> Maybe Integer
+"maxBoundAsInteger/Int32" maxBoundAsInteger = (\_ -> Just (toInteger (maxBound :: Int32))) :: Int32 -> Maybe Integer
+"maxBoundAsInteger/Int64" maxBoundAsInteger = (\_ -> Just (toInteger (maxBound :: Int64))) :: Int64 -> Maybe Integer
+"maxBoundAsInteger/Word" maxBoundAsInteger = (\_ -> Just (toInteger (maxBound :: Word))) :: Word -> Maybe Integer
+"maxBoundAsInteger/Word8" maxBoundAsInteger = (\_ -> Just (toInteger (maxBound :: Word8))) :: Word8 -> Maybe Integer
+"maxBoundAsInteger/Word16" maxBoundAsInteger = (\_ -> Just (toInteger (maxBound :: Word16))) :: Word16 -> Maybe Integer
+"maxBoundAsInteger/Word32" maxBoundAsInteger = (\_ -> Just (toInteger (maxBound :: Word32))) :: Word32 -> Maybe Integer
+"maxBoundAsInteger/Word64" maxBoundAsInteger = (\_ -> Just (toInteger (maxBound :: Word64))) :: Word64 -> Maybe Integer
   #-}
 
 -- Avoid cross-module specialization issue with manual worker/wrapper transformation
