@@ -182,6 +182,10 @@ library:
   - Numeric.Floating.IEEE.Internal.Remainder
   - Numeric.Floating.IEEE.Internal.RoundToIntegral
   - Numeric.Floating.IEEE.Internal.Rounding
+  - Numeric.Floating.IEEE.Internal.Rounding.Common
+  - Numeric.Floating.IEEE.Internal.Rounding.Encode
+  - Numeric.Floating.IEEE.Internal.Rounding.Integral
+  - Numeric.Floating.IEEE.Internal.Rounding.Rational
   dependencies:
   - integer-logarithms
   ghc-options:
