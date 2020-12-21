@@ -171,7 +171,7 @@ positiveWordToBinaryFloatR# !neg n# = result
                     -- k >= fDigits
                     let e = k - fDigits + 1 -- 1 <= e <= finiteBitSize n - fDigits
                         q = n `unsafeShiftR` e -- q <= n / 2^e = 2^(log2 n - (floor (log2 n) - fDigits + 1)) < 2^fDigits
-                        r = n .&. (bit e - 1)
+                        r = n .&. ((1 `unsafeShiftL` e) - 1)
                         -- (q, r) = n `quotRem` (base^e)
                         -- base^(fDigits - 1) <= q < base^fDigits, 0 <= r < base^(k-fDigits+1)
                         towardzero_or_exact = fromIntegral (q `unsafeShiftL` e)
@@ -183,7 +183,7 @@ positiveWordToBinaryFloatR# !neg n# = result
                         -- * When k + 1 < WORD_SIZE_IN_BITS, (q + 1) * 2^e <= 2^(fDigits + e) = 2^(k+1) < 2^WORD_SIZE_IN_BITS, so (q + 1) * 2^e does not overflow.
                         -- * q + 1 <= 2^fDigits and k + 1 <= WORD_SIZE_IN_BITS always hold.
                         -- * Therefore, ((q + 1) `unsafeShiftL` e) overflows only if q + 1 == 2^fDigits && k + 1 == WORD_SIZE_IN_BITS
-                        awayfromzero = if q + 1 == bit fDigits && k == finiteBitSize n - 1 then
+                        awayfromzero = if q + 1 == (1 `unsafeShiftL` fDigits) && k == finiteBitSize n - 1 then
                                          -- (q + 1) `shiftL` e = 2^(fDigits + e) = 2^(k+1) = 2^(finiteBitSize n)
                                          encodeFloat 1 (finiteBitSize n)
                                        else
@@ -191,7 +191,7 @@ positiveWordToBinaryFloatR# !neg n# = result
                         parity = fromIntegral q :: Int
                     in doRound
                          (r == 0) -- exactness
-                         (compare r (bit (e - 1)))
+                         (compare r (1 `unsafeShiftL` (e - 1)))
                          neg
                          parity
                          towardzero_or_exact
