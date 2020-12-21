@@ -1,11 +1,11 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Numeric.Floating.IEEE.Internal.Rounding.Encode where
 import           Control.Exception (assert)
 import           Data.Functor.Product
 import           Data.Int
-import           Data.Proxy
 import           GHC.Exts
 import           Math.NumberTheory.Logarithms (integerLog2', integerLogBase')
 import           MyPrelude
@@ -26,7 +26,7 @@ encodePositiveFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> 
 encodePositiveFloatR neg m (I# n#) = encodePositiveFloatR# neg m n#
 {-# INLINE encodePositiveFloatR #-}
 
-encodePositiveFloatR# :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Int# -> f a
+encodePositiveFloatR# :: forall f a. (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Int# -> f a
 encodePositiveFloatR# !neg !m n# = assert (m > 0) result
   where
     n = I# n#
@@ -89,9 +89,9 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
                            towardzero_or_exact
                            awayfromzero
 
-    !base = floatRadix (undefined `asProxyTypeOf` result)
-    !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
-    (!expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
+    !base = floatRadix (undefined :: a)
+    !fDigits = floatDigits (undefined :: a) -- 53 for Double
+    (!expMin, !expMax) = floatRange (undefined :: a) -- (-1021, 1024) for Double
 {-# INLINABLE [0] encodePositiveFloatR# #-}
 {-# SPECIALIZE
   encodePositiveFloatR# :: RealFloat a => Bool -> Integer -> Int# -> RoundTiesToEven a

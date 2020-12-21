@@ -2,6 +2,7 @@
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Numeric.Floating.IEEE.Internal.Rounding.Integral where
 import           Control.Exception (assert)
 import           Data.Bits
@@ -43,12 +44,12 @@ fromIntegralR x = fromIntegerR (toInteger x)
 "fromIntegralR/Word64->a" fromIntegralR = fromIntegralRBits @Word64
   #-}
 
-fromIntegralRBits :: (Integral i, Bits i, RealFloat a, RoundingStrategy f) => i -> f a
+fromIntegralRBits :: forall i f a. (Integral i, Bits i, RealFloat a, RoundingStrategy f) => i -> f a
 fromIntegralRBits x
   -- Small enough: fromIntegral should be sufficient
   | ieee
   , let resultI = fromIntegral x
-  , let (min', max') = boundsForExactConversion (resultI <$ Proxy)
+  , let (min', max') = boundsForExactConversion (Proxy :: Proxy a)
   , maybe True (<= x) min'
   , maybe True (x <=) max'
   = exact resultI
@@ -79,8 +80,8 @@ fromIntegralRBits x
            | x < 0 = negate <$> fromPositiveIntegerR True (- toInteger x)
            | otherwise = fromPositiveIntegerR False (toInteger x)
     signed = isSigned x
-    ieee = isIEEE (undefined `asProxyTypeOf` result)
-    base = floatRadix (undefined `asProxyTypeOf` result)
+    ieee = isIEEE (undefined :: a)
+    base = floatRadix (undefined :: a)
 {-# INLINE fromIntegralRBits #-}
 
 -- |
@@ -90,20 +91,20 @@ fromIntegralRBits x
 -- (Nothing,Nothing)
 -- >>> boundsForExactConversion (Proxy :: Proxy Float) :: (Maybe Word, Maybe Word) -- (Nothing,Just (2^24))
 -- (Nothing,Just 16777216)
-boundsForExactConversion :: (Integral i, Bits i, RealFloat a) => Proxy a -> (Maybe i, Maybe i)
-boundsForExactConversion proxyR = assert ieee (minI, maxI)
+boundsForExactConversion :: forall a i. (Integral i, Bits i, RealFloat a) => Proxy a -> (Maybe i, Maybe i)
+boundsForExactConversion _ = assert ieee (minI, maxI)
   where
     maxInteger = base ^! digits
     minInteger = - maxInteger
-    minI = case minBoundAsInteger (undefined `asProxyTypeOf` minI) of
+    minI = case minBoundAsInteger (undefined :: i) of
              Just minBound' | minInteger <= minBound' -> Nothing -- all negative integers can be expressed in the target floating-type: no check for lower-bound is needed
              _ -> Just (fromInteger minInteger)
-    maxI = case maxBoundAsInteger (undefined `asProxyTypeOf` maxI) of
+    maxI = case maxBoundAsInteger (undefined :: i) of
              Just maxBound' | maxBound' <= maxInteger -> Nothing -- all positive integral values can be expressed in the target floating-type: no check for upper-bound is needed
              _ -> Just (fromInteger maxInteger)
-    ieee = isIEEE (undefined `asProxyTypeOf` proxyR)
-    base = floatRadix (undefined `asProxyTypeOf` proxyR)
-    digits = floatDigits (undefined `asProxyTypeOf` proxyR)
+    ieee = isIEEE (undefined :: a)
+    base = floatRadix (undefined :: a)
+    digits = floatDigits (undefined :: a)
 {-# INLINE boundsForExactConversion #-}
 
 minBoundAsInteger :: Bits i => i -> Maybe Integer
@@ -151,7 +152,7 @@ positiveWordToBinaryFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Word 
 positiveWordToBinaryFloatR neg (W# n#) = positiveWordToBinaryFloatR# neg n#
 {-# INLINE positiveWordToBinaryFloatR #-}
 
-positiveWordToBinaryFloatR# :: (RealFloat a, RoundingStrategy f) => Bool -> Word# -> f a
+positiveWordToBinaryFloatR# :: forall f a. (RealFloat a, RoundingStrategy f) => Bool -> Word# -> f a
 positiveWordToBinaryFloatR# !neg n# = result
   where
     n = W# n#
@@ -196,8 +197,8 @@ positiveWordToBinaryFloatR# !neg n# = result
                          towardzero_or_exact
                          awayfromzero
 
-    !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
-    (_expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
+    !fDigits = floatDigits (undefined :: a) -- 53 for Double
+    (_expMin, !expMax) = floatRange (undefined :: a) -- (-1021, 1024) for Double
 {-# INLINABLE [0] positiveWordToBinaryFloatR# #-}
 {-# SPECIALIZE
   positiveWordToBinaryFloatR# :: RoundingStrategy f => Bool -> Word# -> f Float
@@ -224,7 +225,7 @@ positiveWordToBinaryFloatR# !neg n# = result
   #-}
 
 -- n > 0
-fromPositiveIntegerR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> f a
+fromPositiveIntegerR :: forall f a. (RealFloat a, RoundingStrategy f) => Bool -> Integer -> f a
 fromPositiveIntegerR !neg !n = assert (n > 0) result
   where
     result = let k = if base == 2 then
@@ -258,9 +259,9 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
                          towardzero_or_exact
                          awayfromzero
 
-    !base = floatRadix (undefined `asProxyTypeOf` result) -- 2 or 10
-    !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
-    (_expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
+    !base = floatRadix (undefined :: a) -- 2 or 10
+    !fDigits = floatDigits (undefined :: a) -- 53 for Double
+    (_expMin, !expMax) = floatRange (undefined :: a) -- (-1021, 1024) for Double
 {-# INLINABLE [0] fromPositiveIntegerR #-}
 {-# SPECIALIZE
   fromPositiveIntegerR :: RealFloat a => Bool -> Integer -> RoundTiesToEven a

@@ -1,9 +1,9 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Numeric.Floating.IEEE.Internal.Rounding.Rational where
 import           Control.Exception (assert)
 import           Data.Functor.Product
-import           Data.Proxy
 import           Data.Ratio
 import           GHC.Float (expt)
 import           Math.NumberTheory.Logarithms (integerLog2', integerLogBase')
@@ -29,7 +29,7 @@ fromRatioR n d | d < 0 = error "fromRatio: negative denominator"
                | otherwise = fromPositiveRatioR False n d
 {-# INLINE fromRatioR #-}
 
-fromPositiveRatioR :: (RealFloat a, RoundingStrategy f)
+fromPositiveRatioR :: forall f a. (RealFloat a, RoundingStrategy f)
                    => Bool -- ^ True if the result will be negated
                    -> Integer -- ^ numerator (> 0)
                    -> Integer -- ^ denominator (> 0)
@@ -107,9 +107,9 @@ fromPositiveRatioR !neg !n !d = assert (n > 0 && d > 0) result
                          towardzero
                          awayfromzero
 
-    !base = floatRadix (undefined `asProxyTypeOf` result)
-    !fDigits = floatDigits (undefined `asProxyTypeOf` result) -- 53 for Double
-    (!expMin, !expMax) = floatRange (undefined `asProxyTypeOf` result) -- (-1021, 1024) for Double
+    !base = floatRadix (undefined :: a)
+    !fDigits = floatDigits (undefined :: a) -- 53 for Double
+    (!expMin, !expMax) = floatRange (undefined :: a) -- (-1021, 1024) for Double
 {-# INLINABLE [0] fromPositiveRatioR #-}
 {-# SPECIALIZE
   fromPositiveRatioR :: RealFloat a => Bool -> Integer -> Integer -> RoundTiesToEven a
