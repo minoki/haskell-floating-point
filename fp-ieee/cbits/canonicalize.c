@@ -8,7 +8,7 @@
 
 float hs_canonicalizeFloat(float x)
 {
-    asm volatile("mulss %0, %1" : "+x"(x) : "x"(1.0f));
+    asm volatile("mulss %1, %0" : "+x"(x) : "x"(1.0f));
     return x;
     /*
     Clang optimizes away this:
@@ -22,7 +22,7 @@ float hs_canonicalizeFloat(float x)
 }
 double hs_canonicalizeDouble(double x)
 {
-    asm volatile("mulsd %0, %1" : "+x"(x) : "x"(1.0));
+    asm volatile("mulsd %1, %0" : "+x"(x) : "x"(1.0));
     return x;
     /*
     Clang optimizes away this:
