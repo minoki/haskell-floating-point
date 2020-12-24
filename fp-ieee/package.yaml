@@ -15,11 +15,11 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/minoki/haskell-floating-point/tree/%E4%B8%BB/fp-ieee#readme>
+description:         Please see the README on GitHub at <https://github.com/minoki/haskell-floating-point/tree/master/fp-ieee#readme>
 
 dependencies:
 - base >= 4.12 && < 5
-# We use some post-GHC-8.6 language extensions: HexFloatLiterals, NumericUnderscores
+# We use some post-GHC-8.6 language extensions: NumericUnderscores
 # cast{Word32,Word64}To{Float,Double}, cast{Float,Double}To{Word32,Word64} are since base-4.10.0.0
 
 flags:
@@ -96,7 +96,7 @@ when:
   c-sources:
   - cbits/roundeven.c
 
-# Fast FMA: needs FMA3 (or FMA4) on x86
+# Fast FMA: needs FMA3 on x86 (FMA4 is not supported by this package)
 - condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3)"
   cpp-options:
   - -DHAS_FAST_FMA
