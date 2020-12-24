@@ -15,6 +15,18 @@ import           Numeric.Floating.IEEE.Internal.Rounding.Common
 
 default ()
 
+encodeFloatTiesToEven, encodeFloatTiesToAway, encodeFloatTowardPositive, encodeFloatTowardNegative, encodeFloatTowardZero :: RealFloat a => Integer -> Int -> a
+encodeFloatTiesToEven m = roundTiesToEven . encodeFloatR m
+encodeFloatTiesToAway m = roundTiesToAway . encodeFloatR m
+encodeFloatTowardPositive m = roundTowardPositive . encodeFloatR m
+encodeFloatTowardNegative m = roundTowardNegative . encodeFloatR m
+encodeFloatTowardZero m = roundTowardZero . encodeFloatR m
+{-# INLINE encodeFloatTiesToEven #-}
+{-# INLINE encodeFloatTiesToAway #-}
+{-# INLINE encodeFloatTowardPositive #-}
+{-# INLINE encodeFloatTowardNegative #-}
+{-# INLINE encodeFloatTowardZero #-}
+
 encodeFloatR :: (RealFloat a, RoundingStrategy f) => Integer -> Int -> f a
 encodeFloatR 0 !_ = exact 0
 encodeFloatR m n | m < 0 = negate <$> encodePositiveFloatR True (- m) n
@@ -116,6 +128,20 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
 "encodePositiveFloatR#/RoundTowardNegative"
   encodePositiveFloatR# = \neg x y -> RoundTowardNegative (roundTowardPositive (encodePositiveFloatR# (not neg) x y))
   #-}
+
+-- |
+-- IEEE 754 @scaleB@ operation, with each rounding attributes.
+scaleFloatTiesToEven, scaleFloatTiesToAway, scaleFloatTowardPositive, scaleFloatTowardNegative, scaleFloatTowardZero :: RealFloat a => Int -> a -> a
+scaleFloatTiesToEven e = roundTiesToEven . scaleFloatR e
+scaleFloatTiesToAway e = roundTiesToAway . scaleFloatR e
+scaleFloatTowardPositive e = roundTowardPositive . scaleFloatR e
+scaleFloatTowardNegative e = roundTowardNegative . scaleFloatR e
+scaleFloatTowardZero e = roundTowardZero . scaleFloatR e
+{-# INLINE scaleFloatTiesToEven #-}
+{-# INLINE scaleFloatTiesToAway #-}
+{-# INLINE scaleFloatTowardPositive #-}
+{-# INLINE scaleFloatTowardNegative #-}
+{-# INLINE scaleFloatTowardZero #-}
 
 scaleFloatR :: (RealFloat a, RoundingStrategy f) => Int -> a -> f a
 scaleFloatR (I# e#) x = scaleFloatR# e# x

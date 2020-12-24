@@ -13,6 +13,18 @@ import           Numeric.Floating.IEEE.Internal.Rounding.Common
 
 default ()
 
+fromRationalTiesToEven, fromRationalTiesToAway, fromRationalTowardPositive, fromRationalTowardNegative, fromRationalTowardZero :: RealFloat a => Rational -> a
+fromRationalTiesToEven = roundTiesToEven . fromRationalR
+fromRationalTiesToAway = roundTiesToAway . fromRationalR
+fromRationalTowardPositive = roundTowardPositive . fromRationalR
+fromRationalTowardNegative = roundTowardNegative . fromRationalR
+fromRationalTowardZero = roundTowardZero . fromRationalR
+{-# INLINE fromRationalTiesToEven #-}
+{-# INLINE fromRationalTiesToAway #-}
+{-# INLINE fromRationalTowardPositive #-}
+{-# INLINE fromRationalTowardNegative #-}
+{-# INLINE fromRationalTowardZero #-}
+
 fromRationalR :: (RealFloat a, RoundingStrategy f) => Rational -> f a
 fromRationalR x = fromRatioR (numerator x) (denominator x)
 {-# INLINE fromRationalR #-}

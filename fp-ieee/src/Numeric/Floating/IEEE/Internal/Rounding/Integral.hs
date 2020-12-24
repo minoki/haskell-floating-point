@@ -20,6 +20,34 @@ import           Numeric.Floating.IEEE.Internal.Rounding.Common
 
 default ()
 
+-- |
+-- IEEE 754 @convertFromInt@ operation, with each rounding attributes.
+fromIntegerTiesToEven, fromIntegerTiesToAway, fromIntegerTowardPositive, fromIntegerTowardNegative, fromIntegerTowardZero :: RealFloat a => Integer -> a
+fromIntegerTiesToEven = roundTiesToEven . fromIntegerR
+fromIntegerTiesToAway = roundTiesToAway . fromIntegerR
+fromIntegerTowardPositive = roundTowardPositive . fromIntegerR
+fromIntegerTowardNegative = roundTowardNegative . fromIntegerR
+fromIntegerTowardZero = roundTowardZero . fromIntegerR
+{-# INLINE fromIntegerTiesToEven #-}
+{-# INLINE fromIntegerTiesToAway #-}
+{-# INLINE fromIntegerTowardPositive #-}
+{-# INLINE fromIntegerTowardNegative #-}
+{-# INLINE fromIntegerTowardZero #-}
+
+-- |
+-- IEEE 754 @convertFromInt@ operation, with each rounding attributes.
+fromIntegralTiesToEven, fromIntegralTiesToAway, fromIntegralTowardPositive, fromIntegralTowardNegative, fromIntegralTowardZero :: (Integral i, RealFloat a) => i -> a
+fromIntegralTiesToEven = roundTiesToEven . fromIntegralR
+fromIntegralTiesToAway = roundTiesToAway . fromIntegralR
+fromIntegralTowardPositive = roundTowardPositive . fromIntegralR
+fromIntegralTowardNegative = roundTowardNegative . fromIntegralR
+fromIntegralTowardZero = roundTowardZero . fromIntegralR
+{-# INLINE fromIntegralTiesToEven #-}
+{-# INLINE fromIntegralTiesToAway #-}
+{-# INLINE fromIntegralTowardPositive #-}
+{-# INLINE fromIntegralTowardNegative #-}
+{-# INLINE fromIntegralTowardZero #-}
+
 fromIntegerR :: (RealFloat a, RoundingStrategy f) => Integer -> f a
 fromIntegerR n = case integerToIntMaybe n of
                    Just x -> fromIntegralRBits x
