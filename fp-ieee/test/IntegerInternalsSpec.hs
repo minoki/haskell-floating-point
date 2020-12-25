@@ -1,13 +1,13 @@
 module IntegerInternalsSpec (spec) where
+import           Data.Bits
 import           Data.Int
+import           Data.Maybe
+import           Math.NumberTheory.Logarithms
 import           Numeric.Floating.IEEE.Internal
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck hiding (classify)
 import           Util
-import Data.Bits
-import Data.Maybe
-import Math.NumberTheory.Logarithms
 
 default ()
 

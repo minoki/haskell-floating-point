@@ -100,12 +100,12 @@ naturalToWordMaybe _      = Nothing -- relies on Natural's invariant
 
 integerToIntMaybe2 :: Bool -> Integer -> Maybe Int
 integerToIntMaybe2 _ (IS x) = Just (I# x)
-integerToIntMaybe2 _ _ = Nothing
+integerToIntMaybe2 _ _      = Nothing
 {-# INLINE [0] integerToIntMaybe2 #-}
 
 naturalToWordMaybe2 :: Bool -> Natural -> Maybe Word
 naturalToWordMaybe2 _ (NS x) = Just (W# x)
-naturalToWordMaybe2 _ _ = Nothing
+naturalToWordMaybe2 _ _      = Nothing
 {-# INLINE [0] naturalToWordMaybe2 #-}
 
 minBoundIntAsInteger :: Integer
@@ -180,7 +180,7 @@ countTrailingZerosInteger# (IP bn) = loop 0# 0##
 #endif
       in case bn_i of
            0## -> loop (i +# 1#) (acc `plusWord#` WORD_SIZE_IN_BITS##)
-           w -> acc `plusWord#` ctz# w
+           w   -> acc `plusWord#` ctz# w
 
 countTrailingZerosInteger 0 = error "countTrailingZerosInteger: zero"
 countTrailingZerosInteger x = I# (word2Int# (countTrailingZerosInteger# x))
@@ -210,7 +210,7 @@ roundingMode# (IP bn) t = case t `quotRemInt#` WORD_SIZE_IN_BITS# of
     loop 0# = EQ
     loop i = case GHC.Num.BigNat.bigNatIndex# bn i of
                0## -> loop (i -# 1#)
-               _ -> GT
+               _   -> GT
 
 roundingMode x (I# t) = roundingMode# x t
 {-# INLINE roundingMode #-}
@@ -239,8 +239,8 @@ integerIsPowerOf2 x = case GHC.Integer.Logarithms.Internals.integerLog2IsPowerOf
 {-# INLINE integerIsPowerOf2 #-}
 
 integerLog2IsPowerOf2 x = case GHC.Integer.Logarithms.Internals.integerLog2IsPowerOf2# x of
-                        (# l, 0# #) -> (I# l, True)
-                        (# l, _ #)  -> (I# l, False)
+                            (# l, 0# #) -> (I# l, True)
+                            (# l, _ #)  -> (I# l, False)
 {-# INLINE integerLog2IsPowerOf2 #-}
 
 #else
