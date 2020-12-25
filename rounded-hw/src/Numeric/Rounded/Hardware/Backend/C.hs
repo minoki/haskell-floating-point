@@ -90,23 +90,6 @@ roundedFloatFromWord64 r x = staticIf
   (F.roundedFromWord64 r x)
 {-# INLINE roundedFloatFromWord64 #-}
 
-roundedFloatFromInteger :: RoundingMode -> Integer -> Float
-roundedFloatFromInteger r x
-  | -0x1000000 <= x && x <= 0x1000000 {- abs x <= 2^24 -} = fromInteger x
-  | otherwise = roundedFromInteger_default r x
-{-# NOINLINE [1] roundedFloatFromInteger #-}
-
-{-# RULES
-"roundeFloatFromInteger/Int" forall r (x :: Int).
-  roundedFloatFromInteger r (fromIntegral x) = roundedFloatFromInt64 r (fromIntegral x)
-"roundeFloatFromInteger/Int64" forall r (x :: Int64).
-  roundedFloatFromInteger r (fromIntegral x) = roundedFloatFromInt64 r x
-"roundeFloatFromInteger/Word" forall r (x :: Word).
-  roundedFloatFromInteger r (fromIntegral x) = roundedFloatFromWord64 r (fromIntegral x)
-"roundeFloatFromInteger/Word64" forall r (x :: Word64).
-  roundedFloatFromInteger r (fromIntegral x) = roundedFloatFromWord64 r x
-  #-}
-
 intervalFloatFromInteger :: Integer -> (Rounded 'TowardNegInf Float, Rounded 'TowardInf Float)
 intervalFloatFromInteger x
   | -0x1000000 <= x && x <= 0x1000000 {- abs x <= 2^24 -} = (Rounded (fromInteger x), Rounded (fromInteger x))
@@ -130,8 +113,8 @@ instance RoundedRing CFloat where
   roundedFusedMultiplyAdd = coerce F.roundedFMA
   intervalMul x x' y y' = (coerce F.intervalMul_down x x' y y', coerce F.intervalMul_up x x' y y')
   intervalMulAdd x x' y y' z z' = (coerce F.intervalMulAdd_down x x' y y' z, coerce F.intervalMulAdd_up x x' y y' z')
-  roundedFromInteger r x = CFloat (roundedFloatFromInteger r x)
-  intervalFromInteger = coerce intervalFloatFromInteger
+  roundedFromInteger r x = CFloat (roundedFromInteger_default r x)
+  intervalFromInteger = (coerce `asTypeOf` (bimap (CFloat <$>) (CFloat <$>) .)) intervalFromInteger_default
   backendNameT = Tagged cBackendName
   {-# INLINE roundedAdd #-}
   {-# INLINE roundedSub #-}
@@ -212,28 +195,6 @@ roundedDoubleFromWord64 r x = staticIf
   (D.roundedFromWord64 r x)
 {-# INLINE roundedDoubleFromWord64 #-}
 
-roundedDoubleFromInteger :: RoundingMode -> Integer -> Double
-roundedDoubleFromInteger r x
-  | -0x20000000000000 <= x && x <= 0x20000000000000 {- abs x <= 2^53 -} = fromInteger x
-  | otherwise = roundedFromInteger_default r x
-{-# NOINLINE [1] roundedDoubleFromInteger #-}
-
-{-# RULES
-"roundedDoubleFromInteger/Int" forall r (x :: Int).
-  roundedDoubleFromInteger r (fromIntegral x) = roundedDoubleFromInt64 r (fromIntegral x)
-"roundedDoubleFromInteger/Int64" forall r (x :: Int64).
-  roundedDoubleFromInteger r (fromIntegral x) = roundedDoubleFromInt64 r x
-"roundedDoubleFromInteger/Word" forall r (x :: Word).
-  roundedDoubleFromInteger r (fromIntegral x) = roundedDoubleFromWord64 r (fromIntegral x)
-"roundedDoubleFromInteger/Word64" forall r (x :: Word64).
-  roundedDoubleFromInteger r (fromIntegral x) = roundedDoubleFromWord64 r x
-  #-}
-
-intervalDoubleFromInteger :: Integer -> (Rounded 'TowardNegInf Double, Rounded 'TowardInf Double)
-intervalDoubleFromInteger x
-  | -0x20000000000000 <= x && x <= 0x20000000000000 {- abs x <= 2^53 -} = (Rounded (fromInteger x), Rounded (fromInteger x))
-  | otherwise = intervalFromInteger_default x
-
 roundedDoubleFromRealFloat :: RealFloat a => RoundingMode -> a -> Double
 roundedDoubleFromRealFloat r x | isNaN x = 0/0
                                | isInfinite x = if x > 0 then 1/0 else -1/0
@@ -254,8 +215,8 @@ instance RoundedRing CDouble where
   roundedFusedMultiplyAdd = coerce D.roundedFMA
   intervalMul x x' y y' = (coerce D.intervalMul_down x x' y y', coerce D.intervalMul_up x x' y y')
   intervalMulAdd x x' y y' z z' = (coerce D.intervalMulAdd_down x x' y y' z, coerce D.intervalMulAdd_up x x' y y' z')
-  roundedFromInteger = coerce roundedDoubleFromInteger
-  intervalFromInteger = coerce intervalDoubleFromInteger
+  roundedFromInteger r x = CDouble (roundedFromInteger_default r x)
+  intervalFromInteger = (coerce `asTypeOf` (bimap (CDouble <$>) (CDouble <$>) .)) intervalFromInteger_default
   backendNameT = Tagged cBackendName
   {-# INLINE roundedAdd #-}
   {-# INLINE roundedSub #-}

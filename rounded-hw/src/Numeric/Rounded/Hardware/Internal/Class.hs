@@ -18,6 +18,8 @@ import           Data.Proxy
 import           Data.Ratio
 import           Data.Tagged
 import qualified Data.Vector.Generic as VG
+import           Numeric.Floating.IEEE
+import           Numeric.Rounded.Hardware.Internal.Conversion
 import           Numeric.Rounded.Hardware.Internal.Rounding
 import           Prelude hiding (fromInteger, fromRational, recip, sqrt, (*),
                           (+), (-), (/))
@@ -30,6 +32,8 @@ class Ord a => RoundedRing a where
   roundedMul :: RoundingMode -> a -> a -> a
   roundedFusedMultiplyAdd :: RoundingMode -> a -> a -> a -> a
   roundedFromInteger :: RoundingMode -> Integer -> a
+  default roundedFromInteger :: RealFloat a => RoundingMode -> Integer -> a
+  roundedFromInteger = roundedFromInteger_default
   -- roundedToFloat :: RoundingMode -> a -> Float
   -- roundedToDouble :: RoundingMode -> a -> Double
 
@@ -95,6 +99,8 @@ class RoundedRing a => RoundedFractional a where
   default roundedRecip :: Num a => RoundingMode -> a -> a
   roundedRecip r = roundedDiv r 1
   roundedFromRational :: RoundingMode -> Rational -> a
+  default roundedFromRational :: RealFloat a => RoundingMode -> Rational -> a
+  roundedFromRational = roundedFromRational_default
   roundedFromRealFloat :: RealFloat b => RoundingMode -> b -> a
   default roundedFromRealFloat :: (Fractional a, RealFloat b) => RoundingMode -> b -> a
   roundedFromRealFloat r x | isNaN x = 0 Prelude./ 0

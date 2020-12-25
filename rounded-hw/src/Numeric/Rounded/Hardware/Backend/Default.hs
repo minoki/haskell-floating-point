@@ -1,13 +1,13 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# OPTIONS_GHC -Wno-orphans -Wno-unused-imports #-}
 module Numeric.Rounded.Hardware.Backend.Default
   () where
-import           Numeric.Rounded.Hardware.Internal.Class
 import qualified Numeric.Rounded.Hardware.Backend.ViaRational as VR
+import           Numeric.Rounded.Hardware.Internal.Class
 #ifdef USE_FFI
 import qualified Numeric.Rounded.Hardware.Backend.C as C
 #ifdef USE_GHC_PRIM
@@ -20,10 +20,11 @@ import           Numeric.Rounded.Hardware.Backend.X87LongDouble ()
 import           Numeric.Rounded.Hardware.Backend.Float128 ()
 #endif
 #endif
+import           Data.Coerce
 import qualified Data.Vector.Storable as VS
 import qualified Data.Vector.Unboxed as VU
+import           Numeric.Floating.IEEE
 import           Unsafe.Coerce
-import           Data.Coerce
 
 #ifdef USE_FFI
 #ifdef USE_GHC_PRIM
@@ -91,19 +92,19 @@ instance RoundedSqrt_Vector VS.Vector Double where
 -- orphaned rules
 {-# RULES
 "fromIntegral/a->Rounded ToNearest Float"
-  forall x. fromIntegral x = Rounded (roundedFromInteger ToNearest (fromIntegral x)) :: Rounded 'ToNearest Float
+  fromIntegral = \x -> (Rounded (fromIntegralTiesToEven x) :: Rounded 'ToNearest Float)
 "fromIntegral/a->Rounded TowardInf Float"
-  forall x. fromIntegral x = Rounded (roundedFromInteger TowardInf (fromIntegral x)) :: Rounded 'TowardInf Float
+  fromIntegral = \x -> (Rounded (fromIntegralTowardPositive x) :: Rounded 'TowardInf Float)
 "fromIntegral/a->Rounded TowardNegInf Float"
-  forall x. fromIntegral x = Rounded (roundedFromInteger TowardNegInf (fromIntegral x)) :: Rounded 'TowardNegInf Float
+  fromIntegral = \x -> (Rounded (fromIntegralTowardNegative x) :: Rounded 'TowardNegInf Float)
 "fromIntegral/a->Rounded TowardZero Float"
-  forall x. fromIntegral x = Rounded (roundedFromInteger TowardZero (fromIntegral x)) :: Rounded 'TowardZero Float
+  fromIntegral = \x -> (Rounded (fromIntegralTowardZero x) :: Rounded 'TowardZero Float)
 "fromIntegral/a->Rounded ToNearest Double"
-  forall x. fromIntegral x = Rounded (roundedFromInteger ToNearest (fromIntegral x)) :: Rounded 'ToNearest Double
+  fromIntegral = \x -> (Rounded (fromIntegralTiesToEven x) :: Rounded 'ToNearest Double)
 "fromIntegral/a->Rounded TowardInf Double"
-  forall x. fromIntegral x = Rounded (roundedFromInteger TowardInf (fromIntegral x)) :: Rounded 'TowardInf Double
+  fromIntegral = \x -> (Rounded (fromIntegralTowardPositive x) :: Rounded 'TowardInf Double)
 "fromIntegral/a->Rounded TowardNegInf Double"
-  forall x. fromIntegral x = Rounded (roundedFromInteger TowardNegInf (fromIntegral x)) :: Rounded 'TowardNegInf Double
+  fromIntegral = \x -> (Rounded (fromIntegralTowardNegative x) :: Rounded 'TowardNegInf Double)
 "fromIntegral/a->Rounded TowardZero Double"
-  forall x. fromIntegral x = Rounded (roundedFromInteger TowardZero (fromIntegral x)) :: Rounded 'TowardZero Double
+  fromIntegral = \x -> (Rounded (fromIntegralTowardZero x) :: Rounded 'TowardZero Double)
   #-}
