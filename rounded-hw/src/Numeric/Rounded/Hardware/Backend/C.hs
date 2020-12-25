@@ -32,6 +32,10 @@ module Numeric.Rounded.Hardware.Backend.C
   , CDouble(..)
   , VUM.MVector(..)
   , VU.Vector(..)
+  , roundedFloatFromInt64
+  , roundedFloatFromWord64
+  , roundedDoubleFromInt64
+  , roundedDoubleFromWord64
   ) where
 import           Control.DeepSeq (NFData (..))
 import           Data.Bifunctor
