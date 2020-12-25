@@ -114,8 +114,6 @@ main =
          , bench "mul" $ nf (uncurry (*)) (iv1, iv2)
          , bench "div" $ nf (uncurry (/)) (iv1, iv2)
          , bench "sqrt" $ nf sqrt iv1
-         , bench "fromInteger" $ nf (fromInteger :: Integer -> Interval Double) (2^60 + 1)
-         , bench "fromIntegral/Int64" $ nf (fromIntegral :: Int64 -> Interval Double) (2^60 + 1)
          ]
     , let vec :: V.Vector (Interval Double)
           vec = V.generate 100000 $ \i -> fromRational (1 % (1 + fromIntegral i))
