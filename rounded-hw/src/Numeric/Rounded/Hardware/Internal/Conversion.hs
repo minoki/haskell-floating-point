@@ -3,11 +3,13 @@ module Numeric.Rounded.Hardware.Internal.Conversion
   ( roundedFromInteger_default
   , roundedFromRational_default
   , intervalFromInteger_default
+  , intervalFromIntegral
   , intervalFromRational_default
   ) where
 import           Data.Functor.Product
 import           Numeric.Floating.IEEE
-import           Numeric.Floating.IEEE.Internal (fromIntegerR, fromRationalR,
+import           Numeric.Floating.IEEE.Internal (fromIntegerR, fromIntegralR,
+                                                 fromRationalR,
                                                  roundTowardNegative,
                                                  roundTowardPositive)
 import           Numeric.Rounded.Hardware.Internal.Rounding
@@ -35,3 +37,8 @@ intervalFromRational_default :: RealFloat a => Rational -> (Rounded 'TowardNegIn
 intervalFromRational_default x = case fromRationalR x of
   Pair a b -> (Rounded (roundTowardNegative a), Rounded (roundTowardPositive b))
 {-# INLINE intervalFromRational_default #-}
+
+intervalFromIntegral :: (Integral i, RealFloat a) => i -> (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
+intervalFromIntegral x = case fromIntegralR x of
+  Pair a b -> (Rounded (roundTowardNegative a), Rounded (roundTowardPositive b))
+{-# INLINE intervalFromIntegral #-}

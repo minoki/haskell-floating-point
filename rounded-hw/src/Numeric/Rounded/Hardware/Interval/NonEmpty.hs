@@ -354,3 +354,10 @@ instance (Prim a, Ord a, Fractional a) => A.IArray A.UArray (Interval a) where
         y = indexByteArray (ByteArray byteArr) (2 * i + 1)
     in pairToInterval (x, y)
   -- unsafeReplace, unsafeAccum, unsafeAccumArray: Use default
+
+{-# RULES
+"fromIntegral/a->Interval Float"
+  fromIntegral = \x -> case intervalFromIntegral x of (l, u) -> I l u :: Interval Float
+"fromIntegral/a->Interval Double"
+  fromIntegral = \x -> case intervalFromIntegral x of (l, u) -> I l u :: Interval Double
+  #-}
