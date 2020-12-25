@@ -9,7 +9,6 @@ import qualified IntervalArithmeticSpec
 import           Numeric.Rounded.Hardware.Backend (backendName)
 import qualified RoundedArithmeticSpec
 import qualified ShowFloatSpec
-import qualified FloatUtilSpec
 import           Test.Hspec
 import qualified VectorSpec
 #ifdef TEST_X87_LONG_DOUBLE
@@ -41,7 +40,6 @@ main = do
     describe "showFloat" ShowFloatSpec.spec
     describe "rounded arithmetic" RoundedArithmeticSpec.spec
     describe "interval arithmetic" IntervalArithmeticSpec.spec
-    describe "FloatUtil" FloatUtilSpec.spec
     describe "Vector" VectorSpec.spec
     describe "Constants" ConstantsSpec.spec
 #ifdef TEST_X87_LONG_DOUBLE

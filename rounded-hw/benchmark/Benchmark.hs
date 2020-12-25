@@ -13,37 +13,25 @@ import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as VU
 import           Gauge.Main
 import           IGA
-import           Numeric
 import           Numeric.Rounded.Hardware.Internal
 import           Numeric.Rounded.Hardware.Interval
 import           Numeric.Rounded.Hardware.Interval.Class (makeInterval)
 import qualified Numeric.Rounded.Hardware.Interval.NonEmpty as NE
 import qualified Numeric.Rounded.Hardware.Vector.Unboxed as RVU
 
-foreign import ccall unsafe "nextafter"
-  c_nextafter_double :: Double -> Double -> Double
-foreign import ccall unsafe "nextafterf"
-  c_nextafter_float :: Float -> Float -> Float
 foreign import ccall unsafe "fma"
   c_fma_double :: Double -> Double -> Double -> Double
 foreign import ccall unsafe "fmaf"
   c_fma_float :: Float -> Float -> Float -> Float
 
 class Fractional a => CFloat a where
-  c_nextafter :: a -> a -> a
   c_fma :: a -> a -> a -> a
 
 instance CFloat Double where
-  c_nextafter = c_nextafter_double
   c_fma = c_fma_double
 
 instance CFloat Float where
-  c_nextafter = c_nextafter_float
   c_fma = c_fma_float
-
-c_nextUp, c_nextDown :: (RealFloat a, CFloat a) => a -> a
-c_nextUp x = c_nextafter x (1/0)
-c_nextDown x = c_nextafter x (-1/0)
 
 main :: IO ()
 main =
@@ -126,46 +114,6 @@ main =
       , bench "NE.exp" $ nf exp (0.3 :: NE.Interval Double)
       , bench "sin" $ nf sin (7.3 :: Interval Double)
       , bench "NE.sin" $ nf sin (7.3 :: NE.Interval Double)
-      ]
-    , bgroup "nextUp"
-      [ let cases = [0,1,0x1.ffff_ffff_ffff_fp200] :: [Double]
-        in bgroup "Double"
-           [ bgroup "C"
-             [ bench (showHFloat x "") $ nf c_nextUp x | x <- cases ]
-           , bgroup "Haskell"
-             [ bench (showHFloat x "") $ nf nextUp x | x <- cases ]
-           , bgroup "Haskell (generic)"
-             [ bench (showHFloat x "") $ nf nextUp (Identity x) | x <- cases ]
-           ]
-      , let cases = [0,1,0x1.fffffep100] :: [Float]
-        in bgroup "Float"
-           [ bgroup "C"
-             [ bench (showHFloat x "") $ nf c_nextUp x | x <- cases ]
-           , bgroup "Haskell"
-             [ bench (showHFloat x "") $ nf nextUp x | x <- cases ]
-           , bgroup "Haskell (generic)"
-             [ bench (showHFloat x "") $ nf nextUp (Identity x) | x <- cases ]
-           ]
-      ]
-    , bgroup "nextDown"
-      [ let cases = [0,1,0x1.ffff_ffff_ffff_fp200] :: [Double]
-        in bgroup "Double"
-           [ bgroup "C"
-             [ bench (showHFloat x "") $ nf c_nextDown x | x <- cases ]
-           , bgroup "Haskell"
-             [ bench (showHFloat x "") $ nf nextDown x | x <- cases ]
-           , bgroup "Haskell (generic)"
-             [ bench (showHFloat x "") $ nf nextDown (Identity x) | x <- cases ]
-           ]
-      , let cases = [0,1,0x1.fffffep100] :: [Float]
-        in bgroup "Float"
-           [ bgroup "C"
-             [ bench (showHFloat x "") $ nf c_nextDown x | x <- cases ]
-           , bgroup "Haskell"
-             [ bench (showHFloat x "") $ nf nextDown x | x <- cases ]
-           , bgroup "Haskell (generic)"
-             [ bench (showHFloat x "") $ nf nextDown (Identity x) | x <- cases ]
-           ]
       ]
     , bgroup "FMA"
       [ let arg = (1.0, 2.0, 3.0) :: (Double, Double, Double)

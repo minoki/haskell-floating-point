@@ -8,6 +8,7 @@ import           Data.Functor.Identity
 import           Data.Word
 import           Gauge.Main
 import           GHC.Float (isDoubleFinite, isFloatFinite)
+import           Numeric
 import           Numeric.Floating.IEEE
 import           Numeric.Floating.IEEE.Internal
 #if defined(USE_HALF)
@@ -18,19 +19,30 @@ import qualified Numeric.Half
 import           Numeric.Float128 (Float128)
 #endif
 
+foreign import ccall unsafe "nextafter"
+  c_nextafter_double :: Double -> Double -> Double
+foreign import ccall unsafe "nextafterf"
+  c_nextafter_float :: Float -> Float -> Float
 foreign import ccall unsafe "fma"
   c_fma_double :: Double -> Double -> Double -> Double
 foreign import ccall unsafe "fmaf"
   c_fma_float :: Float -> Float -> Float -> Float
 
 class Fractional a => CFloat a where
+  c_nextafter :: a -> a -> a
   c_fma :: a -> a -> a -> a
 
 instance CFloat Double where
+  c_nextafter = c_nextafter_double
   c_fma = c_fma_double
 
 instance CFloat Float where
+  c_nextafter = c_nextafter_float
   c_fma = c_fma_float
+
+c_nextUp, c_nextDown :: (RealFloat a, CFloat a) => a -> a
+c_nextUp x = c_nextafter x (1/0)
+c_nextDown x = c_nextafter x (-1/0)
 
 twoProduct_generic :: RealFloat a => a -> a -> (a, a)
 twoProduct_generic x y = coerce (twoProduct (Identity x) (Identity y))
@@ -334,6 +346,46 @@ main = defaultMain
            , bench "C" $ whnf canonicalizeDouble x
            , bench "identity" $ whnf id x
            ]
+         ]
+       , bgroup "nextUp"
+         [ let cases = [0,1,0x1.ffff_ffff_ffff_fp200] :: [Double]
+           in bgroup "Double"
+              [ bgroup "C"
+                [ bench (showHFloat x "") $ nf c_nextUp x | x <- cases ]
+              , bgroup "Haskell"
+                [ bench (showHFloat x "") $ nf nextUp x | x <- cases ]
+              , bgroup "Haskell (generic)"
+                [ bench (showHFloat x "") $ nf nextUp (Identity x) | x <- cases ]
+              ]
+         , let cases = [0,1,0x1.fffffep100] :: [Float]
+           in bgroup "Float"
+              [ bgroup "C"
+                [ bench (showHFloat x "") $ nf c_nextUp x | x <- cases ]
+              , bgroup "Haskell"
+                [ bench (showHFloat x "") $ nf nextUp x | x <- cases ]
+              , bgroup "Haskell (generic)"
+                [ bench (showHFloat x "") $ nf nextUp (Identity x) | x <- cases ]
+              ]
+         ]
+       , bgroup "nextDown"
+         [ let cases = [0,1,0x1.ffff_ffff_ffff_fp200] :: [Double]
+           in bgroup "Double"
+              [ bgroup "C"
+                [ bench (showHFloat x "") $ nf c_nextDown x | x <- cases ]
+              , bgroup "Haskell"
+                [ bench (showHFloat x "") $ nf nextDown x | x <- cases ]
+              , bgroup "Haskell (generic)"
+                [ bench (showHFloat x "") $ nf nextDown (Identity x) | x <- cases ]
+              ]
+         , let cases = [0,1,0x1.fffffep100] :: [Float]
+           in bgroup "Float"
+              [ bgroup "C"
+                [ bench (showHFloat x "") $ nf c_nextDown x | x <- cases ]
+              , bgroup "Haskell"
+                [ bench (showHFloat x "") $ nf nextDown x | x <- cases ]
+              , bgroup "Haskell (generic)"
+                [ bench (showHFloat x "") $ nf nextDown (Identity x) | x <- cases ]
+              ]
          ]
 #if defined(USE_HALF)
        , bgroup "Half"

@@ -3,7 +3,6 @@ module X87LongDoubleSpec where
 import qualified ConstantsSpec
 import           Data.Int
 import           Data.Proxy
-import qualified FloatUtilSpec
 import qualified FromIntegerSpec
 import qualified FromRationalSpec
 import qualified IntervalArithmeticSpec
@@ -37,8 +36,6 @@ spec = do
   describe "fromRational"        $ FromRationalSpec.specT ldProxy False
   describe "showFloat"           $ ShowFloatSpec.specT ldProxy
   describe "constants"           $ ConstantsSpec.specT ldProxy
-  prop "nextUp . nextDown == id (unless -inf)" $ forAll variousFloats (FloatUtilSpec.prop_nextUp_nextDown :: LongDouble -> Property)
-  prop "nextDown . nextUp == id (unless inf)" $ forAll variousFloats (FloatUtilSpec.prop_nextDown_nextUp :: LongDouble -> Property)
   where
     ldProxy :: Proxy LongDouble
     ldProxy = Proxy
