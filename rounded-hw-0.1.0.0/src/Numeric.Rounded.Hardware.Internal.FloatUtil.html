@@ -10,67 +10,67 @@
 </span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Ratio</span></span><span>
 </span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Numeric.Floating.IEEE</span></span><span>
 </span><span id="line-12"></span><span>
-</span><span id="line-13"></span><span id="local-6989586621679144215"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#distanceUlp"><span class="hs-identifier hs-type">distanceUlp</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679144215"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679144215"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679144215"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span></span><span>
+</span><span id="line-13"></span><span id="local-6989586621679144229"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#distanceUlp"><span class="hs-identifier hs-type">distanceUlp</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679144229"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679144229"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679144229"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span></span><span>
 </span><span id="line-14"></span><span id="distanceUlp"><span class="annot"><span class="annottext">distanceUlp :: a -&gt; a -&gt; Maybe Integer
-</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#distanceUlp"><span class="hs-identifier hs-var hs-var">distanceUlp</span></a></span></span><span> </span><span id="local-6989586621679144214"><span class="annot"><span class="annottext">x :: a
-</span><a href="#local-6989586621679144214"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679144213"><span class="annot"><span class="annottext">y :: a
-</span><a href="#local-6989586621679144213"><span class="hs-identifier hs-var">y</span></a></span></span><span>
+</span><a href="Numeric.Rounded.Hardware.Internal.FloatUtil.html#distanceUlp"><span class="hs-identifier hs-var hs-var">distanceUlp</span></a></span></span><span> </span><span id="local-6989586621679144228"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679144228"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679144227"><span class="annot"><span class="annottext">y :: a
+</span><a href="#local-6989586621679144227"><span class="hs-identifier hs-var">y</span></a></span></span><span>
 </span><span id="line-15"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679144214"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><a href="#local-6989586621679144228"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679144213"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><a href="#local-6989586621679144227"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679144214"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><a href="#local-6989586621679144228"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679144213"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Integer
+</span><a href="#local-6989586621679144227"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Integer
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
 </span><span id="line-16"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
-</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679144209"><span class="annot"><span class="annottext">m :: a
-</span><a href="#local-6989586621679144209"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679144223"><span class="annot"><span class="annottext">m :: a
+</span><a href="#local-6989586621679144223"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
 forall a. Ord a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">min</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a
 forall a. Num a =&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">abs</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679144214"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a
+</span><a href="#local-6989586621679144228"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a
 forall a. Num a =&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">abs</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679144213"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-17"></span><span>                    </span><span id="local-6989586621679144206"><span class="annot"><span class="annottext">m' :: a
-</span><a href="#local-6989586621679144206"><span class="hs-identifier hs-var hs-var">m'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; a
+</span><a href="#local-6989586621679144227"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span>                    </span><span id="local-6989586621679144220"><span class="annot"><span class="annottext">m' :: a
+</span><a href="#local-6989586621679144220"><span class="hs-identifier hs-var hs-var">m'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; a
 forall a. RealFloat a =&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">nextUp</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679144209"><span class="hs-identifier hs-var">m</span></a></span><span>
-</span><span id="line-18"></span><span>                    </span><span id="local-6989586621679144205"><span class="annot"><span class="annottext">v :: Rational
-</span><a href="#local-6989586621679144205"><span class="hs-identifier hs-var hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Rational
+</span><a href="#local-6989586621679144223"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-18"></span><span>                    </span><span id="local-6989586621679144219"><span class="annot"><span class="annottext">v :: Rational
+</span><a href="#local-6989586621679144219"><span class="hs-identifier hs-var hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Rational
 forall a. Real a =&gt; a -&gt; Rational
 </span><span class="hs-identifier hs-var">toRational</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679144213"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Rational -&gt; Rational
+</span><a href="#local-6989586621679144227"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Rational -&gt; Rational
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Rational
 forall a. Real a =&gt; a -&gt; Rational
 </span><span class="hs-identifier hs-var">toRational</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679144214"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Rational -&gt; Rational
+</span><a href="#local-6989586621679144228"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Rational -&gt; Rational
 forall a. Fractional a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">/</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Rational
 forall a. Real a =&gt; a -&gt; Rational
 </span><span class="hs-identifier hs-var">toRational</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679144206"><span class="hs-identifier hs-var">m'</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679144220"><span class="hs-identifier hs-var">m'</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679144209"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679144223"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-19"></span><span>                </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Integer
 forall a. Ratio a -&gt; a
 </span><span class="hs-identifier hs-var">denominator</span></span><span> </span><span class="annot"><span class="annottext">Rational
-</span><a href="#local-6989586621679144205"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Bool
+</span><a href="#local-6989586621679144219"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Integer -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span>
 </span><span id="line-20"></span><span>                   </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Maybe Integer
@@ -80,7 +80,7 @@ forall a. Num a =&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">abs</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Rational -&gt; Integer
 forall a. Ratio a -&gt; a
 </span><span class="hs-identifier hs-var">numerator</span></span><span> </span><span class="annot"><span class="annottext">Rational
-</span><a href="#local-6989586621679144205"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679144219"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-21"></span><span>                   </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Maybe Integer
 forall a. HasCallStack =&gt; [Char] -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;distanceUlp&quot;</span></span><span>

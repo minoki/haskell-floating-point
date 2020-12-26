@@ -4661,6 +4661,11 @@ isFloatDenormalized :: Float -> Int
 isFloatInfinite :: Float -> Int
 isFloatNaN :: Float -> Int
 
+-- | Default implementation for <tt><a>log1mexp</a></tt> requiring
+--   <tt><a>Ord</a></tt> to test against a threshold to decide which
+--   implementation variant to use.
+log1mexpOrd :: (Ord a, Floating a) => a -> a
+
 -- | Show a signed <a>RealFloat</a> value to full precision using standard
 --   decimal notation for arguments whose absolute value lies between
 --   <tt>0.1</tt> and <tt>9,999,999</tt>, and scientific notation
@@ -6367,67 +6372,93 @@ getMonotonicTimeNSec :: IO Word64
 -- | Mapping of C types to corresponding Haskell types.
 module Foreign.C.Types
 
--- | Haskell type representing the C <tt>char</tt> type.
+-- | Haskell type representing the C <tt>char</tt> type. <i>(The concrete
+--   types of <a>Foreign.C.Types#platform</a> are platform-specific.)</i>
 newtype CChar
 CChar :: Int8 -> CChar
 
--- | Haskell type representing the C <tt>signed char</tt> type.
+-- | Haskell type representing the C <tt>signed char</tt> type. <i>(The
+--   concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 newtype CSChar
 CSChar :: Int8 -> CSChar
 
--- | Haskell type representing the C <tt>unsigned char</tt> type.
+-- | Haskell type representing the C <tt>unsigned char</tt> type. <i>(The
+--   concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 newtype CUChar
 CUChar :: Word8 -> CUChar
 
--- | Haskell type representing the C <tt>short</tt> type.
+-- | Haskell type representing the C <tt>short</tt> type. <i>(The concrete
+--   types of <a>Foreign.C.Types#platform</a> are platform-specific.)</i>
 newtype CShort
 CShort :: Int16 -> CShort
 
--- | Haskell type representing the C <tt>unsigned short</tt> type.
+-- | Haskell type representing the C <tt>unsigned short</tt> type. <i>(The
+--   concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 newtype CUShort
 CUShort :: Word16 -> CUShort
 
--- | Haskell type representing the C <tt>int</tt> type.
+-- | Haskell type representing the C <tt>int</tt> type. <i>(The concrete
+--   types of <a>Foreign.C.Types#platform</a> are platform-specific.)</i>
 newtype CInt
 CInt :: Int32 -> CInt
 
--- | Haskell type representing the C <tt>unsigned int</tt> type.
+-- | Haskell type representing the C <tt>unsigned int</tt> type. <i>(The
+--   concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 newtype CUInt
 CUInt :: Word32 -> CUInt
 
--- | Haskell type representing the C <tt>long</tt> type.
+-- | Haskell type representing the C <tt>long</tt> type. <i>(The concrete
+--   types of <a>Foreign.C.Types#platform</a> are platform-specific.)</i>
 newtype CLong
 CLong :: Int64 -> CLong
 
--- | Haskell type representing the C <tt>unsigned long</tt> type.
+-- | Haskell type representing the C <tt>unsigned long</tt> type. <i>(The
+--   concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 newtype CULong
 CULong :: Word64 -> CULong
 
--- | Haskell type representing the C <tt>ptrdiff_t</tt> type.
+-- | Haskell type representing the C <tt>ptrdiff_t</tt> type. <i>(The
+--   concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 newtype CPtrdiff
 CPtrdiff :: Int64 -> CPtrdiff
 
--- | Haskell type representing the C <tt>size_t</tt> type.
+-- | Haskell type representing the C <tt>size_t</tt> type. <i>(The concrete
+--   types of <a>Foreign.C.Types#platform</a> are platform-specific.)</i>
 newtype CSize
 CSize :: Word64 -> CSize
 
--- | Haskell type representing the C <tt>wchar_t</tt> type.
+-- | Haskell type representing the C <tt>wchar_t</tt> type. <i>(The
+--   concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 newtype CWchar
 CWchar :: Int32 -> CWchar
 
--- | Haskell type representing the C <tt>sig_atomic_t</tt> type.
+-- | Haskell type representing the C <tt>sig_atomic_t</tt> type. <i>(The
+--   concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 newtype CSigAtomic
 CSigAtomic :: Int32 -> CSigAtomic
 
--- | Haskell type representing the C <tt>long long</tt> type.
+-- | Haskell type representing the C <tt>long long</tt> type. <i>(The
+--   concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 newtype CLLong
 CLLong :: Int64 -> CLLong
 
 -- | Haskell type representing the C <tt>unsigned long long</tt> type.
+--   <i>(The concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 newtype CULLong
 CULLong :: Word64 -> CULLong
 
--- | Haskell type representing the C <tt>bool</tt> type.
+-- | Haskell type representing the C <tt>bool</tt> type. <i>(The concrete
+--   types of <a>Foreign.C.Types#platform</a> are platform-specific.)</i>
 newtype {-# CTYPE "THE_CTYPE" #-} CBool
 CBool :: Word8 -> CBool
 newtype CIntPtr
@@ -6439,37 +6470,50 @@ CIntMax :: Int64 -> CIntMax
 newtype CUIntMax
 CUIntMax :: Word64 -> CUIntMax
 
--- | Haskell type representing the C <tt>clock_t</tt> type.
+-- | Haskell type representing the C <tt>clock_t</tt> type. <i>(The
+--   concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 newtype CClock
 CClock :: Word64 -> CClock
 
--- | Haskell type representing the C <tt>time_t</tt> type.
+-- | Haskell type representing the C <tt>time_t</tt> type. <i>(The concrete
+--   types of <a>Foreign.C.Types#platform</a> are platform-specific.)</i>
 newtype CTime
 CTime :: Int64 -> CTime
 
--- | Haskell type representing the C <tt>useconds_t</tt> type.
+-- | Haskell type representing the C <tt>useconds_t</tt> type. <i>(The
+--   concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 newtype CUSeconds
 CUSeconds :: Word32 -> CUSeconds
 
--- | Haskell type representing the C <tt>suseconds_t</tt> type.
+-- | Haskell type representing the C <tt>suseconds_t</tt> type. <i>(The
+--   concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 newtype CSUSeconds
 CSUSeconds :: Int32 -> CSUSeconds
 
--- | Haskell type representing the C <tt>float</tt> type.
+-- | Haskell type representing the C <tt>float</tt> type. <i>(The concrete
+--   types of <a>Foreign.C.Types#platform</a> are platform-specific.)</i>
 newtype CFloat
 CFloat :: Float -> CFloat
 
--- | Haskell type representing the C <tt>double</tt> type.
+-- | Haskell type representing the C <tt>double</tt> type. <i>(The concrete
+--   types of <a>Foreign.C.Types#platform</a> are platform-specific.)</i>
 newtype CDouble
 CDouble :: Double -> CDouble
 
--- | Haskell type representing the C <tt>FILE</tt> type.
+-- | Haskell type representing the C <tt>FILE</tt> type. <i>(The concrete
+--   types of <a>Foreign.C.Types#platform</a> are platform-specific.)</i>
 data CFile
 
--- | Haskell type representing the C <tt>fpos_t</tt> type.
+-- | Haskell type representing the C <tt>fpos_t</tt> type. <i>(The concrete
+--   types of <a>Foreign.C.Types#platform</a> are platform-specific.)</i>
 data CFpos
 
--- | Haskell type representing the C <tt>jmp_buf</tt> type.
+-- | Haskell type representing the C <tt>jmp_buf</tt> type. <i>(The
+--   concrete types of <a>Foreign.C.Types#platform</a> are
+--   platform-specific.)</i>
 data CJmpBuf
 instance GHC.Show.Show Foreign.C.Types.CUIntMax
 instance GHC.Read.Read Foreign.C.Types.CUIntMax

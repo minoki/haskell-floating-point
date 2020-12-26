@@ -5,7 +5,7 @@
 -- | Directed rounding for built-in floating types
 --   
 --   Please see the README on GitHub at
---   <a>https://github.com/minoki/haskell-floating-point/tree/%E4%B8%BB/rounded-hw#readme</a>
+--   <a>https://github.com/minoki/haskell-floating-point/tree/master/rounded-hw#readme</a>
 @package rounded-hw
 @version 0.1.0.0
 
@@ -72,6 +72,10 @@ newtype CDouble
 CDouble :: Double -> CDouble
 data family MVector s a
 data family Vector a
+roundedFloatFromInt64 :: RoundingMode -> Int64 -> Float
+roundedFloatFromWord64 :: RoundingMode -> Word64 -> Float
+roundedDoubleFromInt64 :: RoundingMode -> Int64 -> Double
+roundedDoubleFromWord64 :: RoundingMode -> Word64 -> Double
 instance Foreign.Storable.Storable Numeric.Rounded.Hardware.Backend.C.CDouble
 instance GHC.Num.Num Numeric.Rounded.Hardware.Backend.C.CDouble
 instance GHC.Generics.Generic Numeric.Rounded.Hardware.Backend.C.CDouble
@@ -265,99 +269,79 @@ data family Vector a
 -- | IEEE 754 <tt>nextUp</tt> operation.
 --   
 --   <pre>
---   nextUp 1 == (0x1.000002p0 :: Float)
---   </pre>
+--   &gt;&gt;&gt; nextUp 1 == (0x1.000002p0 :: Float)
+--   True
 --   
---   <pre>
---   nextUp 1 == (0x1.0000_0000_0000_1p0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp 1 == (0x1.0000_0000_0000_1p0 :: Double)
+--   True
 --   
---   <pre>
---   nextUp (1/0) == (1/0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp (1/0) == (1/0 :: Double)
+--   True
 --   
---   <pre>
---   nextUp (-1/0) == (- maxFinite :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp (-1/0) == (- maxFinite :: Double)
+--   True
 --   
---   <pre>
---   nextUp 0 == (0x1p-1074 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp 0 == (0x1p-1074 :: Double)
+--   True
 --   
---   <pre>
---   nextUp (-0) == (0x1p-1074 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp (-0) == (0x1p-1074 :: Double)
+--   True
 --   
---   <pre>
---   nextUp (-0x1p-1074) == (-0 :: Double)
---   </pre>
---   
---   <pre>
---   isNegativeZero (nextUp (-0x1p-1074) :: Double)
+--   &gt;&gt;&gt; nextUp (-0x1p-1074) :: Double -- should be negative zero
+--   -0.0
 --   </pre>
 nextUp :: RealFloat a => a -> a
 
 -- | IEEE 754 <tt>nextDown</tt> operation.
 --   
 --   <pre>
---   nextDown 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
+--   True
 --   
---   <pre>
---   nextDown 1 == (0x1.fffffep-1 :: Float)
---   </pre>
+--   &gt;&gt;&gt; nextDown 1 == (0x1.fffffep-1 :: Float)
+--   True
 --   
---   <pre>
---   nextDown (1/0) == (maxFinite :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown (1/0) == (maxFinite :: Double)
+--   True
 --   
---   <pre>
---   nextDown (-1/0) == (-1/0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown (-1/0) == (-1/0 :: Double)
+--   True
 --   
---   <pre>
---   nextDown 0 == (-0x1p-1074 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown 0 == (-0x1p-1074 :: Double)
+--   True
 --   
---   <pre>
---   nextDown (-0) == (-0x1p-1074 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown (-0) == (-0x1p-1074 :: Double)
+--   True
 --   
---   <pre>
---   nextDown 0x1p-1074 == (0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown 0x1p-1074 -- should be positive zero
+--   0.0
 --   
---   <pre>
---   nextDown 0x1p-1022 == (0x0.ffff_ffff_ffff_fp-1022 ::Double)
+--   &gt;&gt;&gt; nextDown 0x1p-1022 == (0x0.ffff_ffff_ffff_fp-1022 ::Double)
+--   True
 --   </pre>
 nextDown :: RealFloat a => a -> a
 
 -- | <pre>
---   nextTowardZero 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
+--   True
 --   
---   <pre>
---   nextTowardZero 1 == (0x1.fffffep-1 :: Float)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero 1 == (0x1.fffffep-1 :: Float)
+--   True
 --   
---   <pre>
---   nextTowardZero (1/0) == (maxFinite :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero (1/0) == (maxFinite :: Double)
+--   True
 --   
---   <pre>
---   nextTowardZero (-1/0) == (-maxFinite :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero (-1/0) == (-maxFinite :: Double)
+--   True
 --   
---   <pre>
---   nextTowardZero 0 == (0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero 0 :: Double -- should be positive zero
+--   0.0
 --   
---   <pre>
---   isNegativeZero (nextTowardZero (-0 :: Double))
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero (-0 :: Double) -- should be negative zero
+--   -0.0
 --   
---   <pre>
---   nextTowardZero 0x1p-1074 == (0 :: Double)
+--   &gt;&gt;&gt; nextTowardZero 0x1p-1074 :: Double
+--   0.0
 --   </pre>
 nextTowardZero :: RealFloat a => a -> a
 distanceUlp :: RealFloat a => a -> a -> Maybe Integer
@@ -374,6 +358,7 @@ fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a
 roundedFromInteger_default :: RealFloat a => RoundingMode -> Integer -> a
 roundedFromRational_default :: RealFloat a => RoundingMode -> Rational -> a
 intervalFromInteger_default :: RealFloat a => Integer -> (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
+intervalFromIntegral :: (Integral i, RealFloat a) => i -> (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
 intervalFromRational_default :: RealFloat a => Rational -> (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
 class RealFloatConstants a
 
@@ -508,7 +493,7 @@ zipWith_roundedMul :: (RoundedRing_Vector vector a, Vector vector a) => Rounding
 -- | Equivalent to <tt>zipWith3 . <a>roundedFusedMultiplyAdd</a></tt>
 zipWith3_roundedFusedMultiplyAdd :: (RoundedRing_Vector vector a, Vector vector a) => RoundingMode -> vector a -> vector a -> vector a -> vector a
 
--- | Rounding-controlled version of <tt>sqrt</tt>.
+-- | Rounding-controlled version of <a>sqrt</a>.
 class RoundedRing a => RoundedSqrt a
 roundedSqrt :: RoundedSqrt a => RoundingMode -> a -> a
 intervalSqrt :: RoundedSqrt a => Rounded 'TowardNegInf a -> Rounded 'TowardInf a -> (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
@@ -519,6 +504,7 @@ roundedDiv :: RoundedFractional a => RoundingMode -> a -> a -> a
 roundedRecip :: RoundedFractional a => RoundingMode -> a -> a
 roundedRecip :: (RoundedFractional a, Num a) => RoundingMode -> a -> a
 roundedFromRational :: RoundedFractional a => RoundingMode -> Rational -> a
+roundedFromRational :: (RoundedFractional a, RealFloat a) => RoundingMode -> Rational -> a
 roundedFromRealFloat :: (RoundedFractional a, RealFloat b) => RoundingMode -> b -> a
 roundedFromRealFloat :: (RoundedFractional a, Fractional a, RealFloat b) => RoundingMode -> b -> a
 intervalDiv :: RoundedFractional a => Rounded 'TowardNegInf a -> Rounded 'TowardInf a -> Rounded 'TowardNegInf a -> Rounded 'TowardInf a -> (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
@@ -533,6 +519,7 @@ roundedSub :: RoundedRing a => RoundingMode -> a -> a -> a
 roundedMul :: RoundedRing a => RoundingMode -> a -> a -> a
 roundedFusedMultiplyAdd :: RoundedRing a => RoundingMode -> a -> a -> a -> a
 roundedFromInteger :: RoundedRing a => RoundingMode -> Integer -> a
+roundedFromInteger :: (RoundedRing a, RealFloat a) => RoundingMode -> Integer -> a
 
 -- | <pre>
 --   \x_lo x_hi y_lo y_hi -&gt; intervalAdd (Rounded x_lo) (Rounded x_hi) (Rounded y_lo) (Rounded y_hi) == (Rounded (roundedAdd TowardNegInf x_lo y_lo), Rounded (roundedAdd TowardInf x_hi y_hi))
@@ -617,6 +604,7 @@ roundedSub :: RoundedRing a => RoundingMode -> a -> a -> a
 roundedMul :: RoundedRing a => RoundingMode -> a -> a -> a
 roundedFusedMultiplyAdd :: RoundedRing a => RoundingMode -> a -> a -> a -> a
 roundedFromInteger :: RoundedRing a => RoundingMode -> Integer -> a
+roundedFromInteger :: (RoundedRing a, RealFloat a) => RoundingMode -> Integer -> a
 
 -- | <pre>
 --   \x_lo x_hi y_lo y_hi -&gt; intervalAdd (Rounded x_lo) (Rounded x_hi) (Rounded y_lo) (Rounded y_hi) == (Rounded (roundedAdd TowardNegInf x_lo y_lo), Rounded (roundedAdd TowardInf x_hi y_hi))
@@ -638,6 +626,7 @@ roundedDiv :: RoundedFractional a => RoundingMode -> a -> a -> a
 roundedRecip :: RoundedFractional a => RoundingMode -> a -> a
 roundedRecip :: (RoundedFractional a, Num a) => RoundingMode -> a -> a
 roundedFromRational :: RoundedFractional a => RoundingMode -> Rational -> a
+roundedFromRational :: (RoundedFractional a, RealFloat a) => RoundingMode -> Rational -> a
 roundedFromRealFloat :: (RoundedFractional a, RealFloat b) => RoundingMode -> b -> a
 roundedFromRealFloat :: (RoundedFractional a, Fractional a, RealFloat b) => RoundingMode -> b -> a
 intervalDiv :: RoundedFractional a => Rounded 'TowardNegInf a -> Rounded 'TowardInf a -> Rounded 'TowardNegInf a -> Rounded 'TowardInf a -> (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
@@ -645,7 +634,7 @@ intervalDivAdd :: RoundedFractional a => Rounded 'TowardNegInf a -> Rounded 'Tow
 intervalRecip :: RoundedFractional a => Rounded 'TowardNegInf a -> Rounded 'TowardInf a -> (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
 intervalFromRational :: RoundedFractional a => Rational -> (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
 
--- | Rounding-controlled version of <tt>sqrt</tt>.
+-- | Rounding-controlled version of <a>sqrt</a>.
 class RoundedRing a => RoundedSqrt a
 roundedSqrt :: RoundedSqrt a => RoundingMode -> a -> a
 intervalSqrt :: RoundedSqrt a => Rounded 'TowardNegInf a -> Rounded 'TowardInf a -> (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
@@ -789,7 +778,7 @@ class Ord a => RoundedRing a
 -- | Rounding-controlled version of <a>Fractional</a>.
 class RoundedRing a => RoundedFractional a
 
--- | Rounding-controlled version of <tt>sqrt</tt>.
+-- | Rounding-controlled version of <a>sqrt</a>.
 class RoundedRing a => RoundedSqrt a
 
 module Numeric.Rounded.Hardware.Interval.Class

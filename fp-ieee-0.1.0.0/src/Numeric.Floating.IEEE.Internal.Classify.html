@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span id="%24maxtag_2LMbrQK1diw4Szfy3PzrT4"><span id="%24tag2con_2LMbrQK1diw4Szfy3PzrT4"><span id="%24con2tag_2LMbrQK1diw4Szfy3PzrT4"></span></span></span><span class="hs-pragma">{-# LANGUAGE NoImplicitPrelude #-}</span><span>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span id="%24maxtag_DNy3Xh6sCRiIL1CVjSXmOq"><span id="%24tag2con_DNy3Xh6sCRiIL1CVjSXmOq"><span id="%24con2tag_DNy3Xh6sCRiIL1CVjSXmOq"></span></span></span><span class="hs-pragma">{-# LANGUAGE NoImplicitPrelude #-}</span><span>
 </span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE NumericUnderscores #-}</span><span>
 </span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Numeric.Floating.IEEE.Internal.Classify</span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-4"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Bits</span></span><span>
@@ -10,28 +10,28 @@
 </span><span id="line-10"></span><span>
 </span><span id="line-11"></span><span class="hs-comment">-- |</span><span>
 </span><span id="line-12"></span><span class="hs-comment">-- IEEE 754 @isNormal@ operation.</span><span>
-</span><span id="line-13"></span><span id="local-6989586621679091772"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isNormal"><span class="hs-identifier hs-type">isNormal</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679091772"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679091772"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span>
+</span><span id="line-13"></span><span id="local-6989586621679092550"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isNormal"><span class="hs-identifier hs-type">isNormal</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679092550"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092550"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span>
 </span><span id="line-14"></span><span id="isNormal"><span class="annot"><span class="annottext">isNormal :: a -&gt; Bool
-</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isNormal"><span class="hs-identifier hs-var hs-var">isNormal</span></a></span></span><span> </span><span id="local-6989586621679091770"><span class="annot"><span class="annottext">x :: a
-</span><a href="#local-6989586621679091770"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091770"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isNormal"><span class="hs-identifier hs-var hs-var">isNormal</span></a></span></span><span> </span><span id="local-6989586621679092548"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679092548"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679092548"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
 </span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091770"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><a href="#local-6989586621679092548"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
 </span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091770"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><a href="#local-6989586621679092548"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
 </span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isDenormalized</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091770"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679092548"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-15"></span><span class="hs-pragma">{-# NOINLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isNormal"><span class="hs-pragma hs-type">isNormal</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-16"></span><span class="hs-pragma">{-# RULES</span><span>
 </span><span id="line-17"></span><span class="annot"><span class="hs-pragma">&quot;isNormal/Float&quot;</span></span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isNormal"><span class="hs-pragma hs-type">isNormal</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFloatNormal"><span class="hs-pragma hs-type">isFloatNormal</span></a></span><span>
@@ -40,70 +40,70 @@ forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span id="line-20"></span><span>
 </span><span id="line-21"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFloatNormal"><span class="hs-identifier hs-type">isFloatNormal</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
 </span><span id="line-22"></span><span id="isFloatNormal"><span class="annot"><span class="annottext">isFloatNormal :: Float -&gt; Bool
-</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFloatNormal"><span class="hs-identifier hs-var hs-var">isFloatNormal</span></a></span></span><span> </span><span id="local-6989586621679091761"><span class="annot"><span class="annottext">x :: Float
-</span><a href="#local-6989586621679091761"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679091760"><span class="annot"><span class="annottext">w :: Word32
-</span><a href="#local-6989586621679091760"><span class="hs-identifier hs-var hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Float -&gt; Word32
+</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFloatNormal"><span class="hs-identifier hs-var hs-var">isFloatNormal</span></a></span></span><span> </span><span id="local-6989586621679092539"><span class="annot"><span class="annottext">x :: Float
+</span><a href="#local-6989586621679092539"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679092538"><span class="annot"><span class="annottext">w :: Word32
+</span><a href="#local-6989586621679092538"><span class="hs-identifier hs-var hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Float -&gt; Word32
 </span><a href="GHC.Float.Compat.html#castFloatToWord32"><span class="hs-identifier hs-var">castFloatToWord32</span></a></span><span> </span><span class="annot"><span class="annottext">Float
-</span><a href="#local-6989586621679091761"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Word32
+</span><a href="#local-6989586621679092539"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Word32
 forall a. Bits a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="annot"><span class="hs-number">0x7f80_0000</span></span><span>
 </span><span id="line-23"></span><span>                  </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Word32
-</span><a href="#local-6989586621679091760"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Bool
+</span><a href="#local-6989586621679092538"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">Word32
-</span><a href="#local-6989586621679091760"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Bool
+</span><a href="#local-6989586621679092538"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">0x7f80_0000</span></span><span>
 </span><span id="line-24"></span><span>
 </span><span id="line-25"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isDoubleNormal"><span class="hs-identifier hs-type">isDoubleNormal</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
 </span><span id="line-26"></span><span id="isDoubleNormal"><span class="annot"><span class="annottext">isDoubleNormal :: Double -&gt; Bool
-</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isDoubleNormal"><span class="hs-identifier hs-var hs-var">isDoubleNormal</span></a></span></span><span> </span><span id="local-6989586621679091758"><span class="annot"><span class="annottext">x :: Double
-</span><a href="#local-6989586621679091758"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679091757"><span class="annot"><span class="annottext">w :: Word64
-</span><a href="#local-6989586621679091757"><span class="hs-identifier hs-var hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; Word64
+</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isDoubleNormal"><span class="hs-identifier hs-var hs-var">isDoubleNormal</span></a></span></span><span> </span><span id="local-6989586621679092536"><span class="annot"><span class="annottext">x :: Double
+</span><a href="#local-6989586621679092536"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679092535"><span class="annot"><span class="annottext">w :: Word64
+</span><a href="#local-6989586621679092535"><span class="hs-identifier hs-var hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; Word64
 </span><span class="hs-identifier hs-var">castDoubleToWord64</span></span><span> </span><span class="annot"><span class="annottext">Double
-</span><a href="#local-6989586621679091758"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
+</span><a href="#local-6989586621679092536"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
 forall a. Bits a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="annot"><span class="hs-number">0x7ff0_0000_0000_0000</span></span><span>
 </span><span id="line-27"></span><span>                   </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679091757"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
+</span><a href="#local-6989586621679092535"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679091757"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
+</span><a href="#local-6989586621679092535"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="hs-number">0x7ff0_0000_0000_0000</span></span><span>
 </span><span id="line-28"></span><span>
 </span><span id="line-29"></span><span class="hs-comment">-- |</span><span>
 </span><span id="line-30"></span><span class="hs-comment">-- IEEE 754 @isFinite@ operation.</span><span>
-</span><span id="line-31"></span><span id="local-6989586621679091756"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFinite"><span class="hs-identifier hs-type">isFinite</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679091756"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679091756"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span>
+</span><span id="line-31"></span><span id="local-6989586621679092534"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFinite"><span class="hs-identifier hs-type">isFinite</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679092534"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092534"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span>
 </span><span id="line-32"></span><span id="isFinite"><span class="annot"><span class="annottext">isFinite :: a -&gt; Bool
-</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFinite"><span class="hs-identifier hs-var hs-var">isFinite</span></a></span></span><span> </span><span id="local-6989586621679091754"><span class="annot"><span class="annottext">x :: a
-</span><a href="#local-6989586621679091754"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFinite"><span class="hs-identifier hs-var hs-var">isFinite</span></a></span></span><span> </span><span id="local-6989586621679092532"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679092532"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
 </span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091754"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><a href="#local-6989586621679092532"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
 </span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091754"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679092532"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-33"></span><span class="hs-pragma">{-# NOINLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFinite"><span class="hs-pragma hs-type">isFinite</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-34"></span><span class="hs-pragma">{-# RULES</span><span>
 </span><span id="line-35"></span><span class="annot"><span class="hs-pragma">&quot;isFinite/Float&quot;</span></span><span>
-</span><span id="line-36"></span><span>  </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFinite"><span class="hs-pragma hs-type">isFinite</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="hs-pragma">\</span><span id="local-6989586621679091753"><span class="annot"><a href="#local-6989586621679091753"><span class="hs-pragma hs-var">x</span></a></span></span><span> </span><span class="hs-pragma">-&gt;</span><span> </span><span class="annot"><span class="hs-pragma hs-type">isFloatFinite</span></span><span> </span><span class="annot"><a href="#local-6989586621679091753"><span class="hs-pragma hs-type">x</span></a></span><span> </span><span class="annot"><span class="hs-pragma hs-type">/=</span></span><span> </span><span class="annot"><span class="hs-pragma">0</span></span><span>
+</span><span id="line-36"></span><span>  </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFinite"><span class="hs-pragma hs-type">isFinite</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="hs-pragma">\</span><span id="local-6989586621679092531"><span class="annot"><a href="#local-6989586621679092531"><span class="hs-pragma hs-var">x</span></a></span></span><span> </span><span class="hs-pragma">-&gt;</span><span> </span><span class="annot"><span class="hs-pragma hs-type">isFloatFinite</span></span><span> </span><span class="annot"><a href="#local-6989586621679092531"><span class="hs-pragma hs-type">x</span></a></span><span> </span><span class="annot"><span class="hs-pragma hs-type">/=</span></span><span> </span><span class="annot"><span class="hs-pragma">0</span></span><span>
 </span><span id="line-37"></span><span class="annot"><span class="hs-pragma">&quot;isFinite/Double&quot;</span></span><span>
-</span><span id="line-38"></span><span>  </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFinite"><span class="hs-pragma hs-type">isFinite</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="hs-pragma">\</span><span id="local-6989586621679091752"><span class="annot"><a href="#local-6989586621679091752"><span class="hs-pragma hs-var">x</span></a></span></span><span> </span><span class="hs-pragma">-&gt;</span><span> </span><span class="annot"><span class="hs-pragma hs-type">isDoubleFinite</span></span><span> </span><span class="annot"><a href="#local-6989586621679091752"><span class="hs-pragma hs-type">x</span></a></span><span> </span><span class="annot"><span class="hs-pragma hs-type">/=</span></span><span> </span><span class="annot"><span class="hs-pragma">0</span></span><span>
+</span><span id="line-38"></span><span>  </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFinite"><span class="hs-pragma hs-type">isFinite</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="hs-pragma">\</span><span id="local-6989586621679092530"><span class="annot"><a href="#local-6989586621679092530"><span class="hs-pragma hs-var">x</span></a></span></span><span> </span><span class="hs-pragma">-&gt;</span><span> </span><span class="annot"><span class="hs-pragma hs-type">isDoubleFinite</span></span><span> </span><span class="annot"><a href="#local-6989586621679092530"><span class="hs-pragma hs-type">x</span></a></span><span> </span><span class="annot"><span class="hs-pragma hs-type">/=</span></span><span> </span><span class="annot"><span class="hs-pragma">0</span></span><span>
 </span><span id="line-39"></span><span>  </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-40"></span><span>
 </span><span id="line-41"></span><span class="hs-comment">-- |</span><span>
 </span><span id="line-42"></span><span class="hs-comment">-- IEEE 754 @isZero@ operation.</span><span>
-</span><span id="line-43"></span><span id="local-6989586621679091751"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isZero"><span class="hs-identifier hs-type">isZero</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679091751"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679091751"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span>
+</span><span id="line-43"></span><span id="local-6989586621679092529"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isZero"><span class="hs-identifier hs-type">isZero</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679092529"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092529"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span>
 </span><span id="line-44"></span><span id="isZero"><span class="annot"><span class="annottext">isZero :: a -&gt; Bool
-</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isZero"><span class="hs-identifier hs-var hs-var">isZero</span></a></span></span><span> </span><span id="local-6989586621679091749"><span class="annot"><span class="annottext">x :: a
-</span><a href="#local-6989586621679091749"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091749"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isZero"><span class="hs-identifier hs-var hs-var">isZero</span></a></span></span><span> </span><span id="local-6989586621679092527"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679092527"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679092527"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span>
 </span><span id="line-45"></span><span>
@@ -112,17 +112,17 @@ forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span id="line-48"></span><span class="hs-comment">--</span><span>
 </span><span id="line-49"></span><span class="hs-comment">-- Since 'RealFloat' constraint is insufficient to query the sign of NaNs,</span><span>
 </span><span id="line-50"></span><span class="hs-comment">-- this function treats all NaNs as positive.</span><span>
-</span><span id="line-51"></span><span id="local-6989586621679091748"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isSignMinus"><span class="hs-identifier hs-type">isSignMinus</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679091748"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679091748"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span>
+</span><span id="line-51"></span><span id="local-6989586621679092526"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#isSignMinus"><span class="hs-identifier hs-type">isSignMinus</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679092526"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092526"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span>
 </span><span id="line-52"></span><span id="isSignMinus"><span class="annot"><span class="annottext">isSignMinus :: a -&gt; Bool
-</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isSignMinus"><span class="hs-identifier hs-var hs-var">isSignMinus</span></a></span></span><span> </span><span id="local-6989586621679091746"><span class="annot"><span class="annottext">x :: a
-</span><a href="#local-6989586621679091746"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091746"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isSignMinus"><span class="hs-identifier hs-var hs-var">isSignMinus</span></a></span></span><span> </span><span id="local-6989586621679092524"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679092524"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679092524"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isNegativeZero</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091746"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><a href="#local-6989586621679092524"><span class="hs-identifier hs-var">x</span></a></span><span>
 </span><span id="line-53"></span><span>
 </span><span id="line-54"></span><span class="hs-comment">-- |</span><span>
 </span><span id="line-55"></span><span class="hs-comment">-- Comparison with IEEE 754 @totalOrder@ predicate.</span><span>
@@ -132,29 +132,29 @@ forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span id="line-59"></span><span class="hs-comment">--</span><span>
 </span><span id="line-60"></span><span class="hs-comment">-- Floating-point numbers are ordered as,</span><span>
 </span><span id="line-61"></span><span class="hs-comment">-- \(-\infty &lt; \text{negative reals} &lt; -0 &lt; +0 &lt; \text{positive reals} &lt; +\infty &lt; \mathrm{NaN}\).</span><span>
-</span><span id="line-62"></span><span id="local-6989586621679091789"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#compareByTotalOrder"><span class="hs-identifier hs-type">compareByTotalOrder</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679091789"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679091789"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679091789"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ordering</span></span></span><span>
+</span><span id="line-62"></span><span id="local-6989586621679092567"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#compareByTotalOrder"><span class="hs-identifier hs-type">compareByTotalOrder</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679092567"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092567"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092567"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ordering</span></span></span><span>
 </span><span id="line-63"></span><span id="compareByTotalOrder"><span class="annot"><span class="annottext">compareByTotalOrder :: a -&gt; a -&gt; Ordering
-</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#compareByTotalOrder"><span class="hs-identifier hs-var hs-var">compareByTotalOrder</span></a></span></span><span> </span><span id="local-6989586621679091741"><span class="annot"><span class="annottext">x :: a
-</span><a href="#local-6989586621679091741"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679091740"><span class="annot"><span class="annottext">y :: a
-</span><a href="#local-6989586621679091740"><span class="hs-identifier hs-var">y</span></a></span></span><span>
+</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#compareByTotalOrder"><span class="hs-identifier hs-var hs-var">compareByTotalOrder</span></a></span></span><span> </span><span id="local-6989586621679092519"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679092519"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679092518"><span class="annot"><span class="annottext">y :: a
+</span><a href="#local-6989586621679092518"><span class="hs-identifier hs-var">y</span></a></span></span><span>
 </span><span id="line-64"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091741"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679092519"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091740"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Ordering
+</span><a href="#local-6989586621679092518"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Ordering
 </span><span class="hs-identifier hs-var">LT</span></span><span>
 </span><span id="line-65"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091740"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679092518"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091741"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Ordering
+</span><a href="#local-6989586621679092519"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Ordering
 </span><span class="hs-identifier hs-var">GT</span></span><span>
 </span><span id="line-66"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091741"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679092519"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091740"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091741"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679092518"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679092519"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-keyword">then</span><span>
 </span><span id="line-67"></span><span>               </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Ordering
@@ -162,10 +162,10 @@ forall a. Ord a =&gt; a -&gt; a -&gt; Ordering
 </span><span class="hs-identifier hs-var">compare</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isNegativeZero</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091740"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
+</span><a href="#local-6989586621679092518"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isNegativeZero</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091741"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679092519"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-68"></span><span>             </span><span class="hs-keyword">else</span><span>
 </span><span id="line-69"></span><span>               </span><span class="annot"><span class="annottext">Ordering
 </span><span class="hs-identifier hs-var">EQ</span></span><span>
@@ -175,27 +175,27 @@ forall a. Ord a =&gt; a -&gt; a -&gt; Ordering
 </span><span class="hs-identifier hs-var">compare</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091741"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
+</span><a href="#local-6989586621679092519"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091740"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- The sign bit and payload of NaNs are ignored</span><span>
+</span><a href="#local-6989586621679092518"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- The sign bit and payload of NaNs are ignored</span><span>
 </span><span id="line-71"></span><span class="hs-comment">-- TODO: Specialize for Float, Double</span><span>
 </span><span id="line-72"></span><span>
 </span><span id="line-73"></span><span class="hs-comment">-- |</span><span>
 </span><span id="line-74"></span><span class="hs-comment">-- Comparison with IEEE 754 @totalOrderMag@ predicate.</span><span>
-</span><span id="line-75"></span><span id="local-6989586621679091738"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#compareByTotalOrderMag"><span class="hs-identifier hs-type">compareByTotalOrderMag</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679091738"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679091738"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679091738"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ordering</span></span></span><span>
+</span><span id="line-75"></span><span id="local-6989586621679092516"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#compareByTotalOrderMag"><span class="hs-identifier hs-type">compareByTotalOrderMag</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679092516"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092516"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092516"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ordering</span></span></span><span>
 </span><span id="line-76"></span><span id="compareByTotalOrderMag"><span class="annot"><span class="annottext">compareByTotalOrderMag :: a -&gt; a -&gt; Ordering
-</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#compareByTotalOrderMag"><span class="hs-identifier hs-var hs-var">compareByTotalOrderMag</span></a></span></span><span> </span><span id="local-6989586621679091736"><span class="annot"><span class="annottext">x :: a
-</span><a href="#local-6989586621679091736"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679091735"><span class="annot"><span class="annottext">y :: a
-</span><a href="#local-6989586621679091735"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Ordering
+</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#compareByTotalOrderMag"><span class="hs-identifier hs-var hs-var">compareByTotalOrderMag</span></a></span></span><span> </span><span id="local-6989586621679092514"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679092514"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679092513"><span class="annot"><span class="annottext">y :: a
+</span><a href="#local-6989586621679092513"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Ordering
 forall a. RealFloat a =&gt; a -&gt; a -&gt; Ordering
 </span><a href="Numeric.Floating.IEEE.Internal.Classify.html#compareByTotalOrder"><span class="hs-identifier hs-var">compareByTotalOrder</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a
 forall a. Num a =&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">abs</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091736"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a
+</span><a href="#local-6989586621679092514"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a
 forall a. Num a =&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">abs</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091735"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679092513"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-77"></span><span>
 </span><span id="line-78"></span><span class="hs-comment">-- isCanonical :: a -&gt; Bool</span><span>
 </span><span id="line-79"></span><span>
@@ -211,14 +211,14 @@ forall a. Num a =&gt; a -&gt; a
 </span><span id="line-89"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span id="PositiveSubnormal"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#PositiveSubnormal"><span class="hs-identifier hs-var">PositiveSubnormal</span></a></span></span><span>
 </span><span id="line-90"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span id="PositiveNormal"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#PositiveNormal"><span class="hs-identifier hs-var">PositiveNormal</span></a></span></span><span>
 </span><span id="line-91"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span id="PositiveInfinity"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#PositiveInfinity"><span class="hs-identifier hs-var">PositiveInfinity</span></a></span></span><span>
-</span><span id="line-92"></span><span>           </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679091720"><span id="local-6989586621679091722"><span class="annot"><span class="annottext">Class -&gt; Class -&gt; Bool
+</span><span id="line-92"></span><span>           </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679092498"><span id="local-6989586621679092500"><span class="annot"><span class="annottext">Class -&gt; Class -&gt; Bool
 (Class -&gt; Class -&gt; Bool) -&gt; (Class -&gt; Class -&gt; Bool) -&gt; Eq Class
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 /= :: Class -&gt; Class -&gt; Bool
 $c/= :: Class -&gt; Class -&gt; Bool
 == :: Class -&gt; Class -&gt; Bool
 $c== :: Class -&gt; Class -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679091704"><span id="local-6989586621679091706"><span id="local-6989586621679091708"><span id="local-6989586621679091710"><span id="local-6989586621679091712"><span id="local-6989586621679091714"><span id="local-6989586621679091716"><span class="annot"><span class="annottext">Eq Class
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679092482"><span id="local-6989586621679092484"><span id="local-6989586621679092486"><span id="local-6989586621679092488"><span id="local-6989586621679092490"><span id="local-6989586621679092492"><span id="local-6989586621679092494"><span class="annot"><span class="annottext">Eq Class
 Eq Class =&gt;
 (Class -&gt; Class -&gt; Ordering)
 -&gt; (Class -&gt; Class -&gt; Bool)
@@ -256,7 +256,7 @@ $c&lt; :: Class -&gt; Class -&gt; Bool
 compare :: Class -&gt; Class -&gt; Ordering
 $ccompare :: Class -&gt; Class -&gt; Ordering
 $cp1Ord :: Eq Class
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679091697"><span id="local-6989586621679091699"><span id="local-6989586621679091701"><span class="annot"><span class="annottext">Int -&gt; Class -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679092475"><span id="local-6989586621679092477"><span id="local-6989586621679092479"><span class="annot"><span class="annottext">Int -&gt; Class -&gt; ShowS
 [Class] -&gt; ShowS
 Class -&gt; String
 (Int -&gt; Class -&gt; ShowS)
@@ -269,7 +269,7 @@ show :: Class -&gt; String
 $cshow :: Class -&gt; String
 showsPrec :: Int -&gt; Class -&gt; ShowS
 $cshowsPrec :: Int -&gt; Class -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679091688"><span id="local-6989586621679091690"><span id="local-6989586621679091692"><span id="local-6989586621679091694"><span class="annot"><span class="annottext">ReadPrec [Class]
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679092466"><span id="local-6989586621679092468"><span id="local-6989586621679092470"><span id="local-6989586621679092472"><span class="annot"><span class="annottext">ReadPrec [Class]
 ReadPrec Class
 Int -&gt; ReadS Class
 ReadS [Class]
@@ -289,7 +289,7 @@ readList :: ReadS [Class]
 $creadList :: ReadS [Class]
 readsPrec :: Int -&gt; ReadS Class
 $creadsPrec :: Int -&gt; ReadS Class
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Read</span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679091671"><span id="local-6989586621679091673"><span id="local-6989586621679091675"><span id="local-6989586621679091677"><span id="local-6989586621679091679"><span id="local-6989586621679091681"><span id="local-6989586621679091683"><span id="local-6989586621679091685"><span class="annot"><span class="annottext">Int -&gt; Class
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Read</span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679092449"><span id="local-6989586621679092451"><span id="local-6989586621679092453"><span id="local-6989586621679092455"><span id="local-6989586621679092457"><span id="local-6989586621679092459"><span id="local-6989586621679092461"><span id="local-6989586621679092463"><span class="annot"><span class="annottext">Int -&gt; Class
 Class -&gt; Int
 Class -&gt; [Class]
 Class -&gt; Class
@@ -333,54 +333,54 @@ $csucc :: Class -&gt; Class
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Enum</span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-93"></span><span>
 </span><span id="line-94"></span><span class="hs-comment">-- | Treats NaNs as quiet</span><span>
-</span><span id="line-95"></span><span id="local-6989586621679091669"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#classify"><span class="hs-identifier hs-type">classify</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679091669"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679091669"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#Class"><span class="hs-identifier hs-type">Class</span></a></span></span><span>
+</span><span id="line-95"></span><span id="local-6989586621679092447"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#classify"><span class="hs-identifier hs-type">classify</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679092447"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092447"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#Class"><span class="hs-identifier hs-type">Class</span></a></span></span><span>
 </span><span id="line-96"></span><span id="classify"><span class="annot"><span class="annottext">classify :: a -&gt; Class
-</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#classify"><span class="hs-identifier hs-var hs-var">classify</span></a></span></span><span> </span><span id="local-6989586621679091667"><span class="annot"><span class="annottext">x :: a
-</span><a href="#local-6989586621679091667"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#classify"><span class="hs-identifier hs-var hs-var">classify</span></a></span></span><span> </span><span id="local-6989586621679092445"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679092445"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091667"><span class="hs-identifier hs-var">x</span></a></span><span>                 </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
+</span><a href="#local-6989586621679092445"><span class="hs-identifier hs-var">x</span></a></span><span>                 </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
 </span><a href="Numeric.Floating.IEEE.Internal.Classify.html#QuietNaN"><span class="hs-identifier hs-var">QuietNaN</span></a></span><span>
 </span><span id="line-97"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091667"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679092445"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091667"><span class="hs-identifier hs-var">x</span></a></span><span>     </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
+</span><a href="#local-6989586621679092445"><span class="hs-identifier hs-var">x</span></a></span><span>     </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
 </span><a href="Numeric.Floating.IEEE.Internal.Classify.html#NegativeInfinity"><span class="hs-identifier hs-var">NegativeInfinity</span></a></span><span>
 </span><span id="line-98"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091667"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679092445"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isDenormalized</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091667"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
+</span><a href="#local-6989586621679092445"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
 </span><a href="Numeric.Floating.IEEE.Internal.Classify.html#NegativeSubnormal"><span class="hs-identifier hs-var">NegativeSubnormal</span></a></span><span>
 </span><span id="line-99"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091667"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679092445"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span>                   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
 </span><a href="Numeric.Floating.IEEE.Internal.Classify.html#NegativeNormal"><span class="hs-identifier hs-var">NegativeNormal</span></a></span><span>
 </span><span id="line-100"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isNegativeZero</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091667"><span class="hs-identifier hs-var">x</span></a></span><span>        </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
+</span><a href="#local-6989586621679092445"><span class="hs-identifier hs-var">x</span></a></span><span>        </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
 </span><a href="Numeric.Floating.IEEE.Internal.Classify.html#NegativeZero"><span class="hs-identifier hs-var">NegativeZero</span></a></span><span>
 </span><span id="line-101"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091667"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679092445"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span>                  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
 </span><a href="Numeric.Floating.IEEE.Internal.Classify.html#PositiveZero"><span class="hs-identifier hs-var">PositiveZero</span></a></span><span>
 </span><span id="line-102"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isDenormalized</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091667"><span class="hs-identifier hs-var">x</span></a></span><span>        </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
+</span><a href="#local-6989586621679092445"><span class="hs-identifier hs-var">x</span></a></span><span>        </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
 </span><a href="Numeric.Floating.IEEE.Internal.Classify.html#PositiveSubnormal"><span class="hs-identifier hs-var">PositiveSubnormal</span></a></span><span>
 </span><span id="line-103"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
 forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679091667"><span class="hs-identifier hs-var">x</span></a></span><span>            </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
+</span><a href="#local-6989586621679092445"><span class="hs-identifier hs-var">x</span></a></span><span>            </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
 </span><a href="Numeric.Floating.IEEE.Internal.Classify.html#PositiveInfinity"><span class="hs-identifier hs-var">PositiveInfinity</span></a></span><span>
 </span><span id="line-104"></span><span>           </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">otherwise</span></span><span>               </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Class
@@ -393,32 +393,32 @@ forall a. RealFloat a =&gt; a -&gt; Bool
 </span><span id="line-110"></span><span>
 </span><span id="line-111"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#classifyFloat"><span class="hs-identifier hs-type">classifyFloat</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#Class"><span class="hs-identifier hs-type">Class</span></a></span><span>
 </span><span id="line-112"></span><span id="classifyFloat"><span class="annot"><span class="annottext">classifyFloat :: Float -&gt; Class
-</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#classifyFloat"><span class="hs-identifier hs-var hs-var">classifyFloat</span></a></span></span><span> </span><span id="local-6989586621679091664"><span class="annot"><span class="annottext">x :: Float
-</span><a href="#local-6989586621679091664"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679091663"><span class="annot"><span class="annottext">w :: Word32
-</span><a href="#local-6989586621679091663"><span class="hs-identifier hs-var hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Float -&gt; Word32
+</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#classifyFloat"><span class="hs-identifier hs-var hs-var">classifyFloat</span></a></span></span><span> </span><span id="local-6989586621679092442"><span class="annot"><span class="annottext">x :: Float
+</span><a href="#local-6989586621679092442"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679092441"><span class="annot"><span class="annottext">w :: Word32
+</span><a href="#local-6989586621679092441"><span class="hs-identifier hs-var hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Float -&gt; Word32
 </span><a href="GHC.Float.Compat.html#castFloatToWord32"><span class="hs-identifier hs-var">castFloatToWord32</span></a></span><span> </span><span class="annot"><span class="annottext">Float
-</span><a href="#local-6989586621679091664"><span class="hs-identifier hs-var">x</span></a></span><span>
-</span><span id="line-113"></span><span>                      </span><span id="local-6989586621679091662"><span class="annot"><span class="annottext">s :: Bool
-</span><a href="#local-6989586621679091662"><span class="hs-identifier hs-var hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679092442"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-113"></span><span>                      </span><span id="local-6989586621679092440"><span class="annot"><span class="annottext">s :: Bool
+</span><a href="#local-6989586621679092440"><span class="hs-identifier hs-var hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Int -&gt; Bool
 forall a. Bits a =&gt; a -&gt; Int -&gt; Bool
 </span><span class="hs-identifier hs-var">testBit</span></span><span> </span><span class="annot"><span class="annottext">Word32
-</span><a href="#local-6989586621679091663"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="hs-number">31</span></span><span> </span><span class="hs-comment">-- sign bit</span><span>
-</span><span id="line-114"></span><span>                      </span><span id="local-6989586621679091660"><span class="annot"><span class="annottext">e :: Word32
-</span><a href="#local-6989586621679091660"><span class="hs-identifier hs-var hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word32
-</span><a href="#local-6989586621679091663"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Int -&gt; Word32
+</span><a href="#local-6989586621679092441"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="hs-number">31</span></span><span> </span><span class="hs-comment">-- sign bit</span><span>
+</span><span id="line-114"></span><span>                      </span><span id="local-6989586621679092438"><span class="annot"><span class="annottext">e :: Word32
+</span><a href="#local-6989586621679092438"><span class="hs-identifier hs-var hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679092441"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Int -&gt; Word32
 forall a. Bits a =&gt; a -&gt; Int -&gt; a
 </span><span class="hs-operator hs-var">`unsafeShiftR`</span></span><span> </span><span class="annot"><span class="hs-number">23</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Word32
 forall a. Bits a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="annot"><span class="hs-number">0xff</span></span><span> </span><span class="hs-comment">-- exponent (8 bits)</span><span>
-</span><span id="line-115"></span><span>                      </span><span id="local-6989586621679091658"><span class="annot"><span class="annottext">m :: Word32
-</span><a href="#local-6989586621679091658"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32
-</span><a href="#local-6989586621679091663"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Word32
+</span><span id="line-115"></span><span>                      </span><span id="local-6989586621679092436"><span class="annot"><span class="annottext">m :: Word32
+</span><a href="#local-6989586621679092436"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679092441"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Word32
 forall a. Bits a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="annot"><span class="hs-number">0x007f_ffff</span></span><span> </span><span class="hs-comment">-- mantissa (23 bits without leading 1)</span><span>
 </span><span id="line-116"></span><span>                   </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Bool
-</span><a href="#local-6989586621679091662"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word32
-</span><a href="#local-6989586621679091660"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word32
-</span><a href="#local-6989586621679091658"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679092440"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679092438"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679092436"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-117"></span><span>                        </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">True</span></span><span class="hs-special">,</span><span>  </span><span class="hs-number">0</span><span class="hs-special">,</span><span>    </span><span class="hs-number">0</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Class
 </span><a href="Numeric.Floating.IEEE.Internal.Classify.html#NegativeZero"><span class="hs-identifier hs-var">NegativeZero</span></a></span><span>
 </span><span id="line-118"></span><span>                        </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">False</span></span><span class="hs-special">,</span><span> </span><span class="hs-number">0</span><span class="hs-special">,</span><span>    </span><span class="hs-number">0</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Class
@@ -440,32 +440,32 @@ forall a. Bits a =&gt; a -&gt; a -&gt; a
 </span><span id="line-126"></span><span>
 </span><span id="line-127"></span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#classifyDouble"><span class="hs-identifier hs-type">classifyDouble</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html#Class"><span class="hs-identifier hs-type">Class</span></a></span><span>
 </span><span id="line-128"></span><span id="classifyDouble"><span class="annot"><span class="annottext">classifyDouble :: Double -&gt; Class
-</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#classifyDouble"><span class="hs-identifier hs-var hs-var">classifyDouble</span></a></span></span><span> </span><span id="local-6989586621679091657"><span class="annot"><span class="annottext">x :: Double
-</span><a href="#local-6989586621679091657"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679091656"><span class="annot"><span class="annottext">w :: Word64
-</span><a href="#local-6989586621679091656"><span class="hs-identifier hs-var hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; Word64
+</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#classifyDouble"><span class="hs-identifier hs-var hs-var">classifyDouble</span></a></span></span><span> </span><span id="local-6989586621679092435"><span class="annot"><span class="annottext">x :: Double
+</span><a href="#local-6989586621679092435"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679092434"><span class="annot"><span class="annottext">w :: Word64
+</span><a href="#local-6989586621679092434"><span class="hs-identifier hs-var hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; Word64
 </span><span class="hs-identifier hs-var">castDoubleToWord64</span></span><span> </span><span class="annot"><span class="annottext">Double
-</span><a href="#local-6989586621679091657"><span class="hs-identifier hs-var">x</span></a></span><span>
-</span><span id="line-129"></span><span>                       </span><span id="local-6989586621679091655"><span class="annot"><span class="annottext">s :: Bool
-</span><a href="#local-6989586621679091655"><span class="hs-identifier hs-var hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679092435"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-129"></span><span>                       </span><span id="local-6989586621679092433"><span class="annot"><span class="annottext">s :: Bool
+</span><a href="#local-6989586621679092433"><span class="hs-identifier hs-var hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Int -&gt; Bool
 forall a. Bits a =&gt; a -&gt; Int -&gt; Bool
 </span><span class="hs-identifier hs-var">testBit</span></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679091656"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="hs-number">63</span></span><span> </span><span class="hs-comment">-- sign bit</span><span>
-</span><span id="line-130"></span><span>                       </span><span id="local-6989586621679091654"><span class="annot"><span class="annottext">e :: Word64
-</span><a href="#local-6989586621679091654"><span class="hs-identifier hs-var hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679091656"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Int -&gt; Word64
+</span><a href="#local-6989586621679092434"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="hs-number">63</span></span><span> </span><span class="hs-comment">-- sign bit</span><span>
+</span><span id="line-130"></span><span>                       </span><span id="local-6989586621679092432"><span class="annot"><span class="annottext">e :: Word64
+</span><a href="#local-6989586621679092432"><span class="hs-identifier hs-var hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679092434"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Int -&gt; Word64
 forall a. Bits a =&gt; a -&gt; Int -&gt; a
 </span><span class="hs-operator hs-var">`unsafeShiftR`</span></span><span> </span><span class="annot"><span class="hs-number">52</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
 forall a. Bits a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="annot"><span class="hs-number">0x7ff</span></span><span> </span><span class="hs-comment">-- exponent (11 bits)</span><span>
-</span><span id="line-131"></span><span>                       </span><span id="local-6989586621679091653"><span class="annot"><span class="annottext">m :: Word64
-</span><a href="#local-6989586621679091653"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679091656"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
+</span><span id="line-131"></span><span>                       </span><span id="local-6989586621679092431"><span class="annot"><span class="annottext">m :: Word64
+</span><a href="#local-6989586621679092431"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679092434"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
 forall a. Bits a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="annot"><span class="hs-number">0x000f_ffff_ffff_ffff</span></span><span> </span><span class="hs-comment">-- mantissa (52 bits without leading 1)</span><span>
 </span><span id="line-132"></span><span>                   </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Bool
-</span><a href="#local-6989586621679091655"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679091654"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679091653"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679092433"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679092432"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679092431"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-133"></span><span>                        </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">True</span></span><span class="hs-special">,</span><span>  </span><span class="hs-number">0</span><span class="hs-special">,</span><span>     </span><span class="hs-number">0</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Class
 </span><a href="Numeric.Floating.IEEE.Internal.Classify.html#NegativeZero"><span class="hs-identifier hs-var">NegativeZero</span></a></span><span>
 </span><span id="line-134"></span><span>                        </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">False</span></span><span class="hs-special">,</span><span> </span><span class="hs-number">0</span><span class="hs-special">,</span><span>     </span><span class="hs-number">0</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Class

@@ -3,61 +3,11 @@
 
 
 -- | Please see the README on GitHub at
---   <a>https://github.com/minoki/haskell-floating-point/tree/%E4%B8%BB/fp-ieee#readme</a>
+--   <a>https://github.com/minoki/haskell-floating-point/tree/master/fp-ieee#readme</a>
 @package fp-ieee
 @version 0.1.0.0
 
 module Numeric.Floating.IEEE.Internal
-
--- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
---   attributes.
-fromIntegerTiesToEven :: RealFloat a => Integer -> a
-
--- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
---   attributes.
-fromIntegerTiesToAway :: RealFloat a => Integer -> a
-
--- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
---   attributes.
-fromIntegerTowardPositive :: RealFloat a => Integer -> a
-
--- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
---   attributes.
-fromIntegerTowardNegative :: RealFloat a => Integer -> a
-
--- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
---   attributes.
-fromIntegerTowardZero :: RealFloat a => Integer -> a
-
--- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
---   attributes.
-fromIntegralTiesToEven :: (Integral i, RealFloat a) => i -> a
-
--- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
---   attributes.
-fromIntegralTiesToAway :: (Integral i, RealFloat a) => i -> a
-
--- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
---   attributes.
-fromIntegralTowardPositive :: (Integral i, RealFloat a) => i -> a
-
--- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
---   attributes.
-fromIntegralTowardNegative :: (Integral i, RealFloat a) => i -> a
-
--- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
---   attributes.
-fromIntegralTowardZero :: (Integral i, RealFloat a) => i -> a
-fromRationalTiesToEven :: RealFloat a => Rational -> a
-fromRationalTiesToAway :: RealFloat a => Rational -> a
-fromRationalTowardPositive :: RealFloat a => Rational -> a
-fromRationalTowardNegative :: RealFloat a => Rational -> a
-fromRationalTowardZero :: RealFloat a => Rational -> a
-encodeFloatTiesToEven :: RealFloat a => Integer -> Int -> a
-encodeFloatTiesToAway :: RealFloat a => Integer -> Int -> a
-encodeFloatTowardPositive :: RealFloat a => Integer -> Int -> a
-encodeFloatTowardNegative :: RealFloat a => Integer -> Int -> a
-encodeFloatTowardZero :: RealFloat a => Integer -> Int -> a
 
 -- | <tt><a>truncate</a> x</tt> returns the integer nearest <tt>x</tt>
 --   between zero and <tt>x</tt>
@@ -78,63 +28,59 @@ isFloatBinary32 :: Bool
 isDoubleBinary64 :: Bool
 
 -- | <pre>
---   (minPositive :: Float) == 0x1p-149
---   </pre>
+--   &gt;&gt;&gt; (minPositive :: Float) == 0x1p-149
+--   True
 --   
---   <pre>
---   (minPositive :: Double) == 0x1p-1074
---   </pre>
+--   &gt;&gt;&gt; (minPositive :: Double) == 0x1p-1074
+--   True
 --   
---   <pre>
---   nextDown (minPositive :: Float) == 0
---   </pre>
+--   &gt;&gt;&gt; nextDown (minPositive :: Float)
+--   0.0
 --   
---   <pre>
---   nextDown (minPositive :: Double) == 0
+--   &gt;&gt;&gt; nextDown (minPositive :: Double)
+--   0.0
 --   </pre>
 minPositive :: RealFloat a => a
 
 -- | <pre>
---   (minPositiveNormal :: Float) == 0x1p-126
---   </pre>
+--   &gt;&gt;&gt; (minPositiveNormal :: Float) == 0x1p-126
+--   True
 --   
---   <pre>
---   (minPositiveNormal :: Double) == 0x1p-1022
---   </pre>
+--   &gt;&gt;&gt; (minPositiveNormal :: Double) == 0x1p-1022
+--   True
 --   
---   <pre>
---   not (isDenormalized (minPositiveNormal :: Float))
---   </pre>
+--   &gt;&gt;&gt; isDenormalized (minPositiveNormal :: Float)
+--   False
 --   
---   <pre>
---   not (isDenormalized (minPositiveNormal :: Double))
---   </pre>
+--   &gt;&gt;&gt; isDenormalized (minPositiveNormal :: Double)
+--   False
 --   
---   <pre>
---   isDenormalized (nextDown (minPositiveNormal :: Float))
---   </pre>
+--   &gt;&gt;&gt; isDenormalized (nextDown (minPositiveNormal :: Float))
+--   True
 --   
---   <pre>
---   isDenormalized (nextDown (minPositiveNormal :: Double))
+--   &gt;&gt;&gt; isDenormalized (nextDown (minPositiveNormal :: Double))
+--   True
 --   </pre>
 minPositiveNormal :: RealFloat a => a
 
 -- | <pre>
---   (maxFinite :: Float) == 0x1.fffffep+127
---   </pre>
+--   &gt;&gt;&gt; (maxFinite :: Float) == 0x1.fffffep+127
+--   True
 --   
---   <pre>
---   (maxFinite :: Double) == 0x1.ffff_ffff_ffff_fp+1023
+--   &gt;&gt;&gt; (maxFinite :: Double) == 0x1.ffff_ffff_ffff_fp+1023
+--   True
 --   </pre>
 maxFinite :: RealFloat a => a
 
 -- | <pre>
---   negateIntAsWord minBound == fromInteger (negate (fromIntegral (minBound :: Int)))
+--   &gt;&gt;&gt; negateIntAsWord minBound == fromInteger (negate (fromIntegral (minBound :: Int)))
+--   True
 --   </pre>
 negateIntAsWord :: Int -> Word
 
 -- | <pre>
---   absIntAsWord minBound == fromInteger (abs (fromIntegral (minBound :: Int)))
+--   &gt;&gt;&gt; absIntAsWord minBound == fromInteger (abs (fromIntegral (minBound :: Int)))
+--   True
 --   </pre>
 absIntAsWord :: Int -> Word
 data Class
@@ -181,22 +127,17 @@ compareByTotalOrderMag :: RealFloat a => a -> a -> Ordering
 classify :: RealFloat a => a -> Class
 classifyFloat :: Float -> Class
 classifyDouble :: Double -> Class
+canonicalizeDouble :: Double -> Double
+canonicalizeFloat :: Float -> Float
 
 -- | Similar to <a>realToFrac</a>, but treats NaN, infinities, negative
 --   zero even if the rewrite rule is off.
---   
---   The properties of NaN may or may not be kept.
 realFloatToFrac :: (RealFloat a, Fractional b) => a -> b
+canonicalize :: RealFloat a => a -> a
 integerToIntMaybe :: Integer -> Maybe Int
 naturalToWordMaybe :: Natural -> Maybe Word
 unsafeShiftLInteger :: Integer -> Int -> Integer
 unsafeShiftRInteger :: Integer -> Int -> Integer
-
--- | Assumption: <tt>n &gt; 0</tt>, <tt>e &gt;= 0</tt>, and <tt>integerLog2
---   n &gt;= e</tt>
---   
---   Returns <tt>compare (n `<a>rem</a>` 2^(e+1)) (2^e)</tt>.
-roundingMode :: Integer -> Int -> Ordering
 
 -- | <a>Integer</a> version of <a>countTrailingZeros</a>. The argument must
 --   not be zero.
@@ -213,6 +154,12 @@ roundingMode :: Integer -> Int -> Ordering
 --   3
 --   </pre>
 countTrailingZerosInteger :: Integer -> Int
+
+-- | Assumption: <tt>n &gt; 0</tt>, <tt>e &gt;= 0</tt>, and <tt>integerLog2
+--   n &gt;= e</tt>
+--   
+--   Returns <tt>compare (n `<a>rem</a>` 2^(e+1)) (2^e)</tt>.
+roundingMode :: Integer -> Int -> Ordering
 
 -- | Returns <tt>Just (integerLog2 x)</tt> if the argument <tt>x</tt> is a
 --   power of 2, and <tt>Nothing</tt> otherwise. The argument <tt>x</tt>
@@ -250,103 +197,91 @@ maximumMagnitude :: RealFloat a => a -> a -> a
 
 -- | IEEE 754 <tt>maximumMagnitudeNumber</tt> operation.
 maximumMagnitudeNumber :: RealFloat a => a -> a -> a
+minimumFloat :: Float -> Float -> Float
+minimumDouble :: Double -> Double -> Double
+minimumNumberFloat :: Float -> Float -> Float
+minimumNumberDouble :: Double -> Double -> Double
+maximumFloat :: Float -> Float -> Float
+maximumDouble :: Double -> Double -> Double
+maximumNumberFloat :: Float -> Float -> Float
+maximumNumberDouble :: Double -> Double -> Double
 
 -- | IEEE 754 <tt>nextUp</tt> operation.
 --   
 --   <pre>
---   nextUp 1 == (0x1.000002p0 :: Float)
---   </pre>
+--   &gt;&gt;&gt; nextUp 1 == (0x1.000002p0 :: Float)
+--   True
 --   
---   <pre>
---   nextUp 1 == (0x1.0000_0000_0000_1p0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp 1 == (0x1.0000_0000_0000_1p0 :: Double)
+--   True
 --   
---   <pre>
---   nextUp (1/0) == (1/0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp (1/0) == (1/0 :: Double)
+--   True
 --   
---   <pre>
---   nextUp (-1/0) == (- maxFinite :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp (-1/0) == (- maxFinite :: Double)
+--   True
 --   
---   <pre>
---   nextUp 0 == (0x1p-1074 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp 0 == (0x1p-1074 :: Double)
+--   True
 --   
---   <pre>
---   nextUp (-0) == (0x1p-1074 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp (-0) == (0x1p-1074 :: Double)
+--   True
 --   
---   <pre>
---   nextUp (-0x1p-1074) == (-0 :: Double)
---   </pre>
---   
---   <pre>
---   isNegativeZero (nextUp (-0x1p-1074) :: Double)
+--   &gt;&gt;&gt; nextUp (-0x1p-1074) :: Double -- should be negative zero
+--   -0.0
 --   </pre>
 nextUp :: RealFloat a => a -> a
 
 -- | IEEE 754 <tt>nextDown</tt> operation.
 --   
 --   <pre>
---   nextDown 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
+--   True
 --   
---   <pre>
---   nextDown 1 == (0x1.fffffep-1 :: Float)
---   </pre>
+--   &gt;&gt;&gt; nextDown 1 == (0x1.fffffep-1 :: Float)
+--   True
 --   
---   <pre>
---   nextDown (1/0) == (maxFinite :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown (1/0) == (maxFinite :: Double)
+--   True
 --   
---   <pre>
---   nextDown (-1/0) == (-1/0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown (-1/0) == (-1/0 :: Double)
+--   True
 --   
---   <pre>
---   nextDown 0 == (-0x1p-1074 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown 0 == (-0x1p-1074 :: Double)
+--   True
 --   
---   <pre>
---   nextDown (-0) == (-0x1p-1074 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown (-0) == (-0x1p-1074 :: Double)
+--   True
 --   
---   <pre>
---   nextDown 0x1p-1074 == (0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown 0x1p-1074 -- should be positive zero
+--   0.0
 --   
---   <pre>
---   nextDown 0x1p-1022 == (0x0.ffff_ffff_ffff_fp-1022 ::Double)
+--   &gt;&gt;&gt; nextDown 0x1p-1022 == (0x0.ffff_ffff_ffff_fp-1022 ::Double)
+--   True
 --   </pre>
 nextDown :: RealFloat a => a -> a
 
 -- | <pre>
---   nextTowardZero 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
+--   True
 --   
---   <pre>
---   nextTowardZero 1 == (0x1.fffffep-1 :: Float)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero 1 == (0x1.fffffep-1 :: Float)
+--   True
 --   
---   <pre>
---   nextTowardZero (1/0) == (maxFinite :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero (1/0) == (maxFinite :: Double)
+--   True
 --   
---   <pre>
---   nextTowardZero (-1/0) == (-maxFinite :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero (-1/0) == (-maxFinite :: Double)
+--   True
 --   
---   <pre>
---   nextTowardZero 0 == (0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero 0 :: Double -- should be positive zero
+--   0.0
 --   
---   <pre>
---   isNegativeZero (nextTowardZero (-0 :: Double))
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero (-0 :: Double) -- should be negative zero
+--   -0.0
 --   
---   <pre>
---   nextTowardZero 0x1p-1074 == (0 :: Double)
+--   &gt;&gt;&gt; nextTowardZero 0x1p-1074 :: Double
+--   0.0
 --   </pre>
 nextTowardZero :: RealFloat a => a -> a
 nextUp_positive :: RealFloat a => a -> a
@@ -509,8 +444,107 @@ nextTowardZeroFloat :: Float -> Float
 --   nextTowardZeroDouble 0x1p-1074 == 0
 --   </pre>
 nextTowardZeroDouble :: Double -> Double
+fusedMultiplyAddDouble :: Double -> Double -> Double -> Double
+fusedMultiplyAddFloat :: Float -> Float -> Float -> Float
+isMantissaEven :: RealFloat a => a -> Bool
+
+-- | Returns <tt>x := a + b</tt> and <tt>x - &lt;the exact value of (a +
+--   b)&gt;</tt>.
+--   
+--   This function does not avoid undue overflow; For example, the second
+--   component of <tt>twoSum (0x1.017bd555b0b1fp1022)
+--   (-0x1.fffffffffffffp1023)</tt> is a NaN.
+--   
+--   <pre>
+--   \(a :: Double) (b :: Double) -&gt; let (_,expMax) = floatRange a in max (exponent a) (exponent b) &lt; expMax ==&gt; let (x, y) = twoSum a b in a + b == x &amp;&amp; toRational a + toRational b == toRational x + toRational y
+--   </pre>
+twoSum :: RealFloat a => a -> a -> (a, a)
+
+-- | Addition, with round to nearest odd floating-point number. Like
+--   <a>twoSum</a>, this function does not handle undue overflow.
+addToOdd :: RealFloat a => a -> a -> a
+split :: RealFloat a => a -> (a, a)
+
+-- | <pre>
+--   \(a :: Double) (b :: Double) -&gt; let (x, y) = twoProduct a b in a * b == x &amp;&amp; fromRational (toRational a * toRational b - toRational x) == y
+--   </pre>
+twoProduct :: RealFloat a => a -> a -> (a, a)
+twoProductFloat_viaDouble :: Float -> Float -> (Float, Float)
+twoProduct_nonscaling :: RealFloat a => a -> a -> (a, a)
+twoProductFloat :: Float -> Float -> (Float, Float)
+twoProductDouble :: Double -> Double -> (Double, Double)
+
+-- | IEEE 754 <tt>fusedMultiplyAdd</tt> operation.
+--   
+--   May make use of hardware FMA instructions if the target architecture
+--   has it; set <tt>fma3</tt> package flag on x86 systems.
+--   
+--   <pre>
+--   \(a :: Double) (b :: Double) (c :: Double) -&gt; fusedMultiplyAdd a b c == fromRational (toRational a * toRational b + toRational c)
+--   </pre>
+fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a
+fusedMultiplyAddFloat_viaDouble :: Float -> Float -> Float -> Float
+
+-- | IEEE 754 <tt>addition</tt> operation.
+genericAdd :: (RealFloat a, RealFloat b) => a -> a -> b
+infixl 6 `genericAdd`
+
+-- | IEEE 754 <tt>subtraction</tt> operation.
+genericSub :: (RealFloat a, RealFloat b) => a -> a -> b
+infixl 6 `genericSub`
+
+-- | IEEE 754 <tt>multiplication</tt> operation.
+genericMul :: (RealFloat a, RealFloat b) => a -> a -> b
+infixl 7 `genericMul`
+
+-- | IEEE 754 <tt>division</tt> operation.
+genericDiv :: (RealFloat a, RealFloat b) => a -> a -> b
+infixl 7 `genericDiv`
+
+-- | IEEE 754 <tt>fusedMultiplyAdd</tt> operation.
+genericFusedMultiplyAdd :: (RealFloat a, RealFloat b) => a -> a -> a -> b
+
+-- | Returns True if <tt>a</tt> is a subtype of <tt>b</tt>
+--   
+--   <pre>
+--   &gt;&gt;&gt; isSubFloatingType (undefined :: Float) (undefined :: Double)
+--   True
+--   
+--   &gt;&gt;&gt; isSubFloatingType (undefined :: Double) (undefined :: Float)
+--   False
+--   
+--   &gt;&gt;&gt; isSubFloatingType (undefined :: Double) (undefined :: Double)
+--   True
+--   </pre>
+isSubFloatingType :: (RealFloat a, RealFloat b) => a -> b -> Bool
+
+-- | Returns True if <tt>a</tt> is a subtype of <tt>b</tt>
+--   
+--   <pre>
+--   &gt;&gt;&gt; isSubFloatingTypeProxy (Proxy :: Proxy Float) (Proxy :: Proxy Double)
+--   True
+--   
+--   &gt;&gt;&gt; isSubFloatingTypeProxy (Proxy :: Proxy Double) (Proxy :: Proxy Float)
+--   False
+--   
+--   &gt;&gt;&gt; isSubFloatingTypeProxy (Proxy :: Proxy Double) (Proxy :: Proxy Double)
+--   True
+--   </pre>
+isSubFloatingTypeProxy :: (RealFloat a, RealFloat b) => Proxy a -> Proxy b -> Bool
+
+-- | IEEE 754 <tt>augmentedAddition</tt> operation.
+augmentedAddition :: RealFloat a => a -> a -> (a, a)
+
+-- | IEEE 754 <tt>augmentedSubtraction</tt> operation.
+augmentedSubtraction :: RealFloat a => a -> a -> (a, a)
+
+-- | IEEE 754 <tt>augmentedMultiplication</tt> operation.
+augmentedMultiplication :: RealFloat a => a -> a -> (a, a)
 
 -- | IEEE 754 <tt>remainder</tt> operation.
+--   
+--   &lt;math&gt;, where n is the integer nearest the exact number
+--   &lt;math&gt;
 remainder :: RealFloat a => a -> a -> a
 
 -- | IEEE 754 <tt>roundToIntegralTiesToEven</tt> operation.
@@ -617,9 +651,74 @@ isDivisibleByExpt :: Integer -> Integer -> Int -> Integer -> Bool
 --   
 --   Returns <tt>compare r (base^e)</tt>.
 compareWithExpt :: Integer -> Integer -> Integer -> Int -> Ordering
+encodeFloatTiesToEven :: RealFloat a => Integer -> Int -> a
+encodeFloatTiesToAway :: RealFloat a => Integer -> Int -> a
+encodeFloatTowardPositive :: RealFloat a => Integer -> Int -> a
+encodeFloatTowardNegative :: RealFloat a => Integer -> Int -> a
+encodeFloatTowardZero :: RealFloat a => Integer -> Int -> a
+encodeFloatR :: (RealFloat a, RoundingStrategy f) => Integer -> Int -> f a
+encodePositiveFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Int -> f a
+encodePositiveFloatR# :: forall f a. (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Int# -> f a
+
+-- | IEEE 754 <tt>scaleB</tt> operation, with each rounding attributes.
+scaleFloatTiesToEven :: RealFloat a => Int -> a -> a
+
+-- | IEEE 754 <tt>scaleB</tt> operation, with each rounding attributes.
+scaleFloatTiesToAway :: RealFloat a => Int -> a -> a
+
+-- | IEEE 754 <tt>scaleB</tt> operation, with each rounding attributes.
+scaleFloatTowardPositive :: RealFloat a => Int -> a -> a
+
+-- | IEEE 754 <tt>scaleB</tt> operation, with each rounding attributes.
+scaleFloatTowardNegative :: RealFloat a => Int -> a -> a
+
+-- | IEEE 754 <tt>scaleB</tt> operation, with each rounding attributes.
+scaleFloatTowardZero :: RealFloat a => Int -> a -> a
+scaleFloatR :: (RealFloat a, RoundingStrategy f) => Int -> a -> f a
+scaleFloatR# :: (RealFloat a, RoundingStrategy f) => Int# -> a -> f a
+
+-- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
+--   attributes.
+fromIntegerTiesToEven :: RealFloat a => Integer -> a
+
+-- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
+--   attributes.
+fromIntegerTiesToAway :: RealFloat a => Integer -> a
+
+-- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
+--   attributes.
+fromIntegerTowardPositive :: RealFloat a => Integer -> a
+
+-- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
+--   attributes.
+fromIntegerTowardNegative :: RealFloat a => Integer -> a
+
+-- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
+--   attributes.
+fromIntegerTowardZero :: RealFloat a => Integer -> a
+
+-- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
+--   attributes.
+fromIntegralTiesToEven :: (Integral i, RealFloat a) => i -> a
+
+-- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
+--   attributes.
+fromIntegralTiesToAway :: (Integral i, RealFloat a) => i -> a
+
+-- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
+--   attributes.
+fromIntegralTowardPositive :: (Integral i, RealFloat a) => i -> a
+
+-- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
+--   attributes.
+fromIntegralTowardNegative :: (Integral i, RealFloat a) => i -> a
+
+-- | IEEE 754 <tt>convertFromInt</tt> operation, with each rounding
+--   attributes.
+fromIntegralTowardZero :: (Integral i, RealFloat a) => i -> a
 fromIntegerR :: (RealFloat a, RoundingStrategy f) => Integer -> f a
 fromIntegralR :: (Integral i, RealFloat a, RoundingStrategy f) => i -> f a
-fromIntegralRBits :: (Integral i, Bits i, RealFloat a, RoundingStrategy f) => i -> f a
+fromIntegralRBits :: forall i f a. (Integral i, Bits i, RealFloat a, RoundingStrategy f) => i -> f a
 
 -- | <pre>
 --   &gt;&gt;&gt; boundsForExactConversion (Proxy :: Proxy Double) :: (Maybe Integer, Maybe Integer) -- (Just (-2^53),Just (2^53))
@@ -631,62 +730,20 @@ fromIntegralRBits :: (Integral i, Bits i, RealFloat a, RoundingStrategy f) => i 
 --   &gt;&gt;&gt; boundsForExactConversion (Proxy :: Proxy Float) :: (Maybe Word, Maybe Word) -- (Nothing,Just (2^24))
 --   (Nothing,Just 16777216)
 --   </pre>
-boundsForExactConversion :: (Integral i, Bits i, RealFloat a) => Proxy a -> (Maybe i, Maybe i)
+boundsForExactConversion :: forall a i. (Integral i, Bits i, RealFloat a) => Proxy a -> (Maybe i, Maybe i)
 minBoundAsInteger :: Bits i => i -> Maybe Integer
 maxBoundAsInteger :: Bits i => i -> Maybe Integer
 positiveWordToBinaryFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Word -> f a
-positiveWordToBinaryFloatR# :: (RealFloat a, RoundingStrategy f) => Bool -> Word# -> f a
-fromPositiveIntegerR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> f a
+positiveWordToBinaryFloatR# :: forall f a. (RealFloat a, RoundingStrategy f) => Bool -> Word# -> f a
+fromPositiveIntegerR :: forall f a. (RealFloat a, RoundingStrategy f) => Bool -> Integer -> f a
+fromRationalTiesToEven :: RealFloat a => Rational -> a
+fromRationalTiesToAway :: RealFloat a => Rational -> a
+fromRationalTowardPositive :: RealFloat a => Rational -> a
+fromRationalTowardNegative :: RealFloat a => Rational -> a
+fromRationalTowardZero :: RealFloat a => Rational -> a
 fromRationalR :: (RealFloat a, RoundingStrategy f) => Rational -> f a
 fromRatioR :: (RealFloat a, RoundingStrategy f) => Integer -> Integer -> f a
-fromPositiveRatioR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Integer -> f a
-encodeFloatR :: (RealFloat a, RoundingStrategy f) => Integer -> Int -> f a
-encodePositiveFloatR :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Int -> f a
-encodePositiveFloatR# :: (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Int# -> f a
-fusedMultiplyAddDouble :: Double -> Double -> Double -> Double
-fusedMultiplyAddFloat :: Float -> Float -> Float -> Float
-isMantissaEven :: RealFloat a => a -> Bool
-
--- | Returns <tt>x := a + b</tt> and <tt>x - &lt;the exact value of (a +
---   b)&gt;</tt>.
---   
---   This function does not avoid undue overflow; For example, the second
---   component of <tt>twoSum (0x1.017bd555b0b1fp1022)
---   (-0x1.fffffffffffffp1023)</tt> is a NaN.
---   
---   <pre>
---   \(a :: Double) (b :: Double) -&gt; let (_,expMax) = floatRange a in max (exponent a) (exponent b) &lt; expMax ==&gt; let (x, y) = twoSum a b in a + b == x &amp;&amp; toRational a + toRational b == toRational x + toRational y
---   </pre>
-twoSum :: RealFloat a => a -> a -> (a, a)
-
--- | Addition, with round to nearest odd floating-point number. Like
---   <a>twoSum</a>, this function does not handle undue overflow.
-add_roundToOdd :: RealFloat a => a -> a -> a
-split :: RealFloat a => a -> (a, a)
-twoProduct_generic :: RealFloat a => a -> a -> (a, a)
-twoProductFloat_viaDouble :: Float -> Float -> (Float, Float)
-
--- | <pre>
---   \(a :: Double) (b :: Double) -&gt; let (x, y) = twoProduct a b in a * b == x &amp;&amp; fromRational (toRational a * toRational b - toRational x) == y
---   </pre>
-twoProduct :: RealFloat a => a -> a -> (a, a)
-twoProduct_nonscaling :: RealFloat a => a -> a -> (a, a)
-twoProductFloat :: Float -> Float -> (Float, Float)
-twoProductDouble :: Double -> Double -> (Double, Double)
-fusedMultiplyAdd_twoProduct :: RealFloat a => a -> a -> a -> a
-fusedMultiplyAddFloat_viaDouble :: Float -> Float -> Float -> Float
-fusedMultiplyAdd_viaInteger :: RealFloat a => a -> a -> a -> a
-fusedMultiplyAdd_viaRational :: RealFloat a => a -> a -> a -> a
-
--- | IEEE 754 <tt>fusedMultiplyAdd</tt> operation.
---   
---   May make use of hardware FMA instructions if the target architecture
---   has it; set <tt>fma3</tt> package flag on x86 systems.
---   
---   <pre>
---   \(a :: Double) (b :: Double) (c :: Double) -&gt; fusedMultiplyAdd a b c == fromRational (toRational a * toRational b + toRational c)
---   </pre>
-fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a
+fromPositiveRatioR :: forall f a. (RealFloat a, RoundingStrategy f) => Bool -> Integer -> Integer -> f a
 castHalfToWord16 :: Half -> Word16
 castWord16ToHalf :: Word16 -> Half
 nextUpHalf :: Half -> Half
@@ -696,73 +753,10 @@ isNormalHalf :: Half -> Bool
 isFiniteHalf :: Half -> Bool
 isSignMinusHalf :: Half -> Bool
 classifyHalf :: Half -> Class
-classifyHalfNaNAware :: Half -> Class
-compareByTotalOrderHalfNaNAware :: Half -> Half -> Ordering
 halfToFloat :: Half -> Float
 halfToDouble :: Half -> Double
 floatToHalf :: Float -> Half
 doubleToHalf :: Double -> Half
-
--- | IEEE 754 <tt>addition</tt> operation.
-genericAdd :: (RealFloat a, RealFloat b) => a -> a -> b
-infixl 6 `genericAdd`
-
--- | IEEE 754 <tt>subtraction</tt> operation.
-genericSub :: (RealFloat a, RealFloat b) => a -> a -> b
-infixl 6 `genericSub`
-
--- | IEEE 754 <tt>multiplication</tt> operation.
-genericMul :: (RealFloat a, RealFloat b) => a -> a -> b
-infixl 7 `genericMul`
-
--- | IEEE 754 <tt>division</tt> operation.
-genericDiv :: (RealFloat a, RealFloat b) => a -> a -> b
-infixl 7 `genericDiv`
-
--- | IEEE 754 <tt>fusedMultiplyAdd</tt> operation.
-genericFusedMultiplyAdd :: (RealFloat a, RealFloat b) => a -> a -> a -> b
-
--- | Returns True if <tt>a</tt> is a subtype of <tt>b</tt>
---   
---   <pre>
---   &gt;&gt;&gt; isSubFloatingType (undefined :: Float) (undefined :: Double)
---   True
---   
---   &gt;&gt;&gt; isSubFloatingType (undefined :: Double) (undefined :: Float)
---   False
---   
---   &gt;&gt;&gt; isSubFloatingType (undefined :: Double) (undefined :: Double)
---   True
---   </pre>
-isSubFloatingType :: (RealFloat a, RealFloat b) => a -> b -> Bool
-
--- | Returns True if <tt>a</tt> is a subtype of <tt>b</tt>
---   
---   <pre>
---   &gt;&gt;&gt; isSubFloatingTypeProxy (Proxy :: Proxy Float) (Proxy :: Proxy Double)
---   True
---   
---   &gt;&gt;&gt; isSubFloatingTypeProxy (Proxy :: Proxy Double) (Proxy :: Proxy Float)
---   False
---   
---   &gt;&gt;&gt; isSubFloatingTypeProxy (Proxy :: Proxy Double) (Proxy :: Proxy Double)
---   True
---   </pre>
-isSubFloatingTypeProxy :: (RealFloat a, RealFloat b) => Proxy a -> Proxy b -> Bool
-newtype RoundTiesTowardZero a
-RoundTiesTowardZero :: a -> RoundTiesTowardZero a
-[roundTiesTowardZero] :: RoundTiesTowardZero a -> a
-
--- | IEEE 754 <tt>augmentedAddition</tt> operation.
-augmentedAddition :: RealFloat a => a -> a -> (a, a)
-
--- | IEEE 754 <tt>augmentedSubtraction</tt> operation.
-augmentedSubtraction :: RealFloat a => a -> a -> (a, a)
-
--- | IEEE 754 <tt>augmentedMultiplication</tt> operation.
-augmentedMultiplication :: RealFloat a => a -> a -> (a, a)
-augmentedAddition_viaRational :: (RealFloat a, Show a) => a -> a -> (a, a)
-augmentedMultiplication_viaRational :: (RealFloat a, Show a) => a -> a -> (a, a)
 
 
 -- | This module provides IEEE 754-compliant operations for floating-point
@@ -856,107 +850,111 @@ floor' :: RealFloat a => a -> a
 -- | IEEE 754 <tt>nextUp</tt> operation.
 --   
 --   <pre>
---   nextUp 1 == (0x1.000002p0 :: Float)
---   </pre>
+--   &gt;&gt;&gt; nextUp 1 == (0x1.000002p0 :: Float)
+--   True
 --   
---   <pre>
---   nextUp 1 == (0x1.0000_0000_0000_1p0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp 1 == (0x1.0000_0000_0000_1p0 :: Double)
+--   True
 --   
---   <pre>
---   nextUp (1/0) == (1/0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp (1/0) == (1/0 :: Double)
+--   True
 --   
---   <pre>
---   nextUp (-1/0) == (- maxFinite :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp (-1/0) == (- maxFinite :: Double)
+--   True
 --   
---   <pre>
---   nextUp 0 == (0x1p-1074 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp 0 == (0x1p-1074 :: Double)
+--   True
 --   
---   <pre>
---   nextUp (-0) == (0x1p-1074 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextUp (-0) == (0x1p-1074 :: Double)
+--   True
 --   
---   <pre>
---   nextUp (-0x1p-1074) == (-0 :: Double)
---   </pre>
---   
---   <pre>
---   isNegativeZero (nextUp (-0x1p-1074) :: Double)
+--   &gt;&gt;&gt; nextUp (-0x1p-1074) :: Double -- should be negative zero
+--   -0.0
 --   </pre>
 nextUp :: RealFloat a => a -> a
 
 -- | IEEE 754 <tt>nextDown</tt> operation.
 --   
 --   <pre>
---   nextDown 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
+--   True
 --   
---   <pre>
---   nextDown 1 == (0x1.fffffep-1 :: Float)
---   </pre>
+--   &gt;&gt;&gt; nextDown 1 == (0x1.fffffep-1 :: Float)
+--   True
 --   
---   <pre>
---   nextDown (1/0) == (maxFinite :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown (1/0) == (maxFinite :: Double)
+--   True
 --   
---   <pre>
---   nextDown (-1/0) == (-1/0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown (-1/0) == (-1/0 :: Double)
+--   True
 --   
---   <pre>
---   nextDown 0 == (-0x1p-1074 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown 0 == (-0x1p-1074 :: Double)
+--   True
 --   
---   <pre>
---   nextDown (-0) == (-0x1p-1074 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown (-0) == (-0x1p-1074 :: Double)
+--   True
 --   
---   <pre>
---   nextDown 0x1p-1074 == (0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextDown 0x1p-1074 -- should be positive zero
+--   0.0
 --   
---   <pre>
---   nextDown 0x1p-1022 == (0x0.ffff_ffff_ffff_fp-1022 ::Double)
+--   &gt;&gt;&gt; nextDown 0x1p-1022 == (0x0.ffff_ffff_ffff_fp-1022 ::Double)
+--   True
 --   </pre>
 nextDown :: RealFloat a => a -> a
 
 -- | <pre>
---   nextTowardZero 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
+--   True
 --   
---   <pre>
---   nextTowardZero 1 == (0x1.fffffep-1 :: Float)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero 1 == (0x1.fffffep-1 :: Float)
+--   True
 --   
---   <pre>
---   nextTowardZero (1/0) == (maxFinite :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero (1/0) == (maxFinite :: Double)
+--   True
 --   
---   <pre>
---   nextTowardZero (-1/0) == (-maxFinite :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero (-1/0) == (-maxFinite :: Double)
+--   True
 --   
---   <pre>
---   nextTowardZero 0 == (0 :: Double)
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero 0 :: Double -- should be positive zero
+--   0.0
 --   
---   <pre>
---   isNegativeZero (nextTowardZero (-0 :: Double))
---   </pre>
+--   &gt;&gt;&gt; nextTowardZero (-0 :: Double) -- should be negative zero
+--   -0.0
 --   
---   <pre>
---   nextTowardZero 0x1p-1074 == (0 :: Double)
+--   &gt;&gt;&gt; nextTowardZero 0x1p-1074 :: Double
+--   0.0
 --   </pre>
 nextTowardZero :: RealFloat a => a -> a
 
 -- | IEEE 754 <tt>remainder</tt> operation.
+--   
+--   &lt;math&gt;, where n is the integer nearest the exact number
+--   &lt;math&gt;
 remainder :: RealFloat a => a -> a -> a
 
--- | multiplies a floating-point number by an integer power of the radix
-scaleFloat :: RealFloat a => Int -> a -> a
+-- | IEEE 754 <tt>scaleB</tt> operation, with each rounding attributes.
+scaleFloatTiesToEven :: RealFloat a => Int -> a -> a
+
+-- | IEEE 754 <tt>scaleB</tt> operation, with each rounding attributes.
+scaleFloatTiesToAway :: RealFloat a => Int -> a -> a
+
+-- | IEEE 754 <tt>scaleB</tt> operation, with each rounding attributes.
+scaleFloatTowardPositive :: RealFloat a => Int -> a -> a
+
+-- | IEEE 754 <tt>scaleB</tt> operation, with each rounding attributes.
+scaleFloatTowardNegative :: RealFloat a => Int -> a -> a
+
+-- | IEEE 754 <tt>scaleB</tt> operation, with each rounding attributes.
+scaleFloatTowardZero :: RealFloat a => Int -> a -> a
+
+-- | <a>exponent</a> corresponds to the second component of
+--   <a>decodeFloat</a>. <tt><a>exponent</a> 0 = 0</tt> and for finite
+--   nonzero <tt>x</tt>, <tt><a>exponent</a> x = snd (<a>decodeFloat</a> x)
+--   + <a>floatDigits</a> x</tt>. If <tt>x</tt> is a finite floating-point
+--   number, it is equal in value to <tt><a>significand</a> x * b ^^
+--   <a>exponent</a> x</tt>, where <tt>b</tt> is the floating-point radix.
+--   The behaviour is unspecified on infinite or <tt>NaN</tt> values.
+exponent :: RealFloat a => a -> Int
 (+) :: Num a => a -> a -> a
 infixl 6 +
 (-) :: Num a => a -> a -> a
@@ -1069,9 +1067,8 @@ floor :: (RealFrac a, Integral b) => a -> b
 
 -- | Similar to <a>realToFrac</a>, but treats NaN, infinities, negative
 --   zero even if the rewrite rule is off.
---   
---   The properties of NaN may or may not be kept.
 realFloatToFrac :: (RealFloat a, Fractional b) => a -> b
+canonicalize :: RealFloat a => a -> a
 
 -- | Unary negation.
 negate :: Num a => a -> a
@@ -1171,81 +1168,97 @@ maximumMagnitude :: RealFloat a => a -> a -> a
 maximumMagnitudeNumber :: RealFloat a => a -> a -> a
 
 -- | <pre>
---   (minPositive :: Float) == 0x1p-149
---   </pre>
+--   &gt;&gt;&gt; (minPositive :: Float) == 0x1p-149
+--   True
 --   
---   <pre>
---   (minPositive :: Double) == 0x1p-1074
---   </pre>
+--   &gt;&gt;&gt; (minPositive :: Double) == 0x1p-1074
+--   True
 --   
---   <pre>
---   nextDown (minPositive :: Float) == 0
---   </pre>
+--   &gt;&gt;&gt; nextDown (minPositive :: Float)
+--   0.0
 --   
---   <pre>
---   nextDown (minPositive :: Double) == 0
+--   &gt;&gt;&gt; nextDown (minPositive :: Double)
+--   0.0
 --   </pre>
 minPositive :: RealFloat a => a
 
 -- | <pre>
---   (minPositiveNormal :: Float) == 0x1p-126
---   </pre>
+--   &gt;&gt;&gt; (minPositiveNormal :: Float) == 0x1p-126
+--   True
 --   
---   <pre>
---   (minPositiveNormal :: Double) == 0x1p-1022
---   </pre>
+--   &gt;&gt;&gt; (minPositiveNormal :: Double) == 0x1p-1022
+--   True
 --   
---   <pre>
---   not (isDenormalized (minPositiveNormal :: Float))
---   </pre>
+--   &gt;&gt;&gt; isDenormalized (minPositiveNormal :: Float)
+--   False
 --   
---   <pre>
---   not (isDenormalized (minPositiveNormal :: Double))
---   </pre>
+--   &gt;&gt;&gt; isDenormalized (minPositiveNormal :: Double)
+--   False
 --   
---   <pre>
---   isDenormalized (nextDown (minPositiveNormal :: Float))
---   </pre>
+--   &gt;&gt;&gt; isDenormalized (nextDown (minPositiveNormal :: Float))
+--   True
 --   
---   <pre>
---   isDenormalized (nextDown (minPositiveNormal :: Double))
+--   &gt;&gt;&gt; isDenormalized (nextDown (minPositiveNormal :: Double))
+--   True
 --   </pre>
 minPositiveNormal :: RealFloat a => a
 
 -- | <pre>
---   (maxFinite :: Float) == 0x1.fffffep+127
---   </pre>
+--   &gt;&gt;&gt; (maxFinite :: Float) == 0x1.fffffep+127
+--   True
 --   
---   <pre>
---   (maxFinite :: Double) == 0x1.ffff_ffff_ffff_fp+1023
+--   &gt;&gt;&gt; (maxFinite :: Double) == 0x1.ffff_ffff_ffff_fp+1023
+--   True
 --   </pre>
 maxFinite :: RealFloat a => a
 
 module Numeric.Floating.IEEE.NaN
 
 -- | An instance of this class supports manipulation of NaN.
-class SupportsNaN a
+class RealFloat a => RealFloatNaN a
 
--- | Returns the first operand, with the sign of the second
+-- | Returns the first operand, with the sign of the second.
 --   
 --   IEEE 754 <tt>copySign</tt> operation.
-copySign :: SupportsNaN a => a -> a -> a
+copySign :: RealFloatNaN a => a -> a -> a
 
--- | IEEE 754 <tt>isSignMinus</tt> operation.
-isSignMinus :: SupportsNaN a => a -> Bool
+-- | Returns <tt>True</tt> if the operand is a negative number, negative
+--   infinity, negative zero, or a NaN with negative sign bit.
+--   
+--   IEEE 754 <tt>isSignMinus</tt> operation.
+isSignMinus :: RealFloatNaN a => a -> Bool
 
--- | IEEE 754 <tt>isSignaling</tt> operation.
-isSignaling :: SupportsNaN a => a -> Bool
+-- | Returns <tt>True</tt> if the operand is a signaling NaN.
+--   
+--   IEEE 754 <tt>isSignaling</tt> operation.
+isSignaling :: RealFloatNaN a => a -> Bool
 
--- | IEEE 754 <tt>getPayload</tt> operation.
-getPayload :: SupportsNaN a => a -> a
+-- | Returns the payload of a NaN. Returns <tt>-1</tt> if the operand is
+--   not a NaN.
+--   
+--   IEEE 754 <tt>getPayload</tt> operation.
+getPayload :: RealFloatNaN a => a -> a
 
--- | IEEE 754 <tt>setPayload</tt> operation.
-setPayload :: SupportsNaN a => a -> a
+-- | Returns a quiet NaN with a given payload. Returns a positive zero if
+--   the payload is invalid.
+--   
+--   IEEE 754 <tt>setPayload</tt> operation.
+setPayload :: RealFloatNaN a => a -> a
 
--- | IEEE 754 <tt>setPayloadSignaling</tt> operation.
-setPayloadSignaling :: SupportsNaN a => a -> a
-classify :: (RealFloat a, SupportsNaN a) => a -> Class
+-- | Returns a signaling NaN with a given payload. Returns a positive zero
+--   if the payload is invalid.
+--   
+--   IEEE 754 <tt>setPayloadSignaling</tt> operation.
+setPayloadSignaling :: RealFloatNaN a => a -> a
+
+-- | IEEE 754 <tt>class</tt> operation.
+classify :: RealFloatNaN a => a -> Class
+
+-- | Equality with IEEE 754 <tt>totalOrder</tt> operation.
+equalByTotalOrder :: RealFloatNaN a => a -> a -> Bool
+
+-- | Comparison with IEEE 754 <tt>totalOrder</tt> operation.
+compareByTotalOrder :: RealFloatNaN a => a -> a -> Ordering
 data Class
 SignalingNaN :: Class
 QuietNaN :: Class
@@ -1259,4 +1272,3 @@ PositiveNormal :: Class
 PositiveInfinity :: Class
 newtype TotallyOrdered a
 TotallyOrdered :: a -> TotallyOrdered a
-compareByTotalOrder :: (RealFloat a, SupportsNaN a) => a -> a -> Ordering

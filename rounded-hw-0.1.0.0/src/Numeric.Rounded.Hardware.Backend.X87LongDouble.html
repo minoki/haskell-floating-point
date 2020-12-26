@@ -29,10 +29,10 @@
 </span><span id="line-29"></span><span>
 </span><span id="line-30"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedAdd_ld"><span class="hs-identifier hs-type">roundedAdd_ld</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span>
 </span><span id="line-31"></span><span id="roundedAdd_ld"><span class="annot"><span class="annottext">roundedAdd_ld :: RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
-</span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedAdd_ld"><span class="hs-identifier hs-var hs-var">roundedAdd_ld</span></a></span></span><span> </span><span id="local-6989586621679145467"><span class="annot"><span class="annottext">mode :: RoundingMode
-</span><a href="#local-6989586621679145467"><span class="hs-identifier hs-var">mode</span></a></span></span><span> </span><span id="local-6989586621679145466"><span class="annot"><span class="annottext">x :: LongDouble
-</span><a href="#local-6989586621679145466"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679145465"><span class="annot"><span class="annottext">y :: LongDouble
-</span><a href="#local-6989586621679145465"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO LongDouble -&gt; LongDouble
+</span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedAdd_ld"><span class="hs-identifier hs-var hs-var">roundedAdd_ld</span></a></span></span><span> </span><span id="local-6989586621679145499"><span class="annot"><span class="annottext">mode :: RoundingMode
+</span><a href="#local-6989586621679145499"><span class="hs-identifier hs-var">mode</span></a></span></span><span> </span><span id="local-6989586621679145498"><span class="annot"><span class="annottext">x :: LongDouble
+</span><a href="#local-6989586621679145498"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679145497"><span class="annot"><span class="annottext">y :: LongDouble
+</span><a href="#local-6989586621679145497"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO LongDouble -&gt; LongDouble
 forall a. IO a -&gt; a
 </span><span class="hs-identifier hs-var">unsafePerformIO</span></span><span> </span><span class="annot"><span class="annottext">(IO LongDouble -&gt; LongDouble) -&gt; IO LongDouble -&gt; LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -40,45 +40,45 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span id="line-32"></span><span>  </span><span class="annot"><span class="annottext">LongDouble -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; a -&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">with</span></span><span> </span><span class="annot"><span class="annottext">LongDouble
-</span><a href="#local-6989586621679145466"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
+</span><a href="#local-6989586621679145498"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145463"><span class="annot"><span class="annottext">xPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145463"><span class="hs-identifier hs-var">xPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145495"><span class="annot"><span class="annottext">xPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145495"><span class="hs-identifier hs-var">xPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-33"></span><span>  </span><span class="annot"><span class="annottext">LongDouble -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; a -&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">with</span></span><span> </span><span class="annot"><span class="annottext">LongDouble
-</span><a href="#local-6989586621679145465"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
+</span><a href="#local-6989586621679145497"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145462"><span class="annot"><span class="annottext">yPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145462"><span class="hs-identifier hs-var">yPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145494"><span class="annot"><span class="annottext">yPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145494"><span class="hs-identifier hs-var">yPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-34"></span><span>  </span><span class="annot"><span class="annottext">(Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">alloca</span></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145461"><span class="annot"><span class="annottext">resultPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145461"><span class="hs-identifier hs-var">resultPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145493"><span class="annot"><span class="annottext">resultPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145493"><span class="hs-identifier hs-var">resultPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-35"></span><span>  </span><span class="annot"><span class="annottext">Int -&gt; Ptr LongDouble -&gt; Ptr LongDouble -&gt; Ptr LongDouble -&gt; IO ()
 </span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#c_rounded_add_longdouble"><span class="hs-identifier hs-var">c_rounded_add_longdouble</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679145467"><span class="hs-identifier hs-var">mode</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145461"><span class="hs-identifier hs-var">resultPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145463"><span class="hs-identifier hs-var">xPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145462"><span class="hs-identifier hs-var">yPtr</span></a></span><span>
+</span><a href="#local-6989586621679145499"><span class="hs-identifier hs-var">mode</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145493"><span class="hs-identifier hs-var">resultPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145495"><span class="hs-identifier hs-var">xPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145494"><span class="hs-identifier hs-var">yPtr</span></a></span><span>
 </span><span id="line-36"></span><span>  </span><span class="annot"><span class="annottext">Ptr LongDouble -&gt; IO LongDouble
 forall a. Storable a =&gt; Ptr a -&gt; IO a
 </span><span class="hs-identifier hs-var">peek</span></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145461"><span class="hs-identifier hs-var">resultPtr</span></a></span><span>
+</span><a href="#local-6989586621679145493"><span class="hs-identifier hs-var">resultPtr</span></a></span><span>
 </span><span id="line-37"></span><span>
 </span><span id="line-38"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedSub_ld"><span class="hs-identifier hs-type">roundedSub_ld</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span>
 </span><span id="line-39"></span><span id="roundedSub_ld"><span class="annot"><span class="annottext">roundedSub_ld :: RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
-</span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedSub_ld"><span class="hs-identifier hs-var hs-var">roundedSub_ld</span></a></span></span><span> </span><span id="local-6989586621679145458"><span class="annot"><span class="annottext">mode :: RoundingMode
-</span><a href="#local-6989586621679145458"><span class="hs-identifier hs-var">mode</span></a></span></span><span> </span><span id="local-6989586621679145457"><span class="annot"><span class="annottext">x :: LongDouble
-</span><a href="#local-6989586621679145457"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679145456"><span class="annot"><span class="annottext">y :: LongDouble
-</span><a href="#local-6989586621679145456"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO LongDouble -&gt; LongDouble
+</span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedSub_ld"><span class="hs-identifier hs-var hs-var">roundedSub_ld</span></a></span></span><span> </span><span id="local-6989586621679145490"><span class="annot"><span class="annottext">mode :: RoundingMode
+</span><a href="#local-6989586621679145490"><span class="hs-identifier hs-var">mode</span></a></span></span><span> </span><span id="local-6989586621679145489"><span class="annot"><span class="annottext">x :: LongDouble
+</span><a href="#local-6989586621679145489"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679145488"><span class="annot"><span class="annottext">y :: LongDouble
+</span><a href="#local-6989586621679145488"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO LongDouble -&gt; LongDouble
 forall a. IO a -&gt; a
 </span><span class="hs-identifier hs-var">unsafePerformIO</span></span><span> </span><span class="annot"><span class="annottext">(IO LongDouble -&gt; LongDouble) -&gt; IO LongDouble -&gt; LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -86,45 +86,45 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span id="line-40"></span><span>  </span><span class="annot"><span class="annottext">LongDouble -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; a -&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">with</span></span><span> </span><span class="annot"><span class="annottext">LongDouble
-</span><a href="#local-6989586621679145457"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
+</span><a href="#local-6989586621679145489"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145455"><span class="annot"><span class="annottext">xPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145455"><span class="hs-identifier hs-var">xPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145487"><span class="annot"><span class="annottext">xPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145487"><span class="hs-identifier hs-var">xPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-41"></span><span>  </span><span class="annot"><span class="annottext">LongDouble -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; a -&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">with</span></span><span> </span><span class="annot"><span class="annottext">LongDouble
-</span><a href="#local-6989586621679145456"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
+</span><a href="#local-6989586621679145488"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145454"><span class="annot"><span class="annottext">yPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145454"><span class="hs-identifier hs-var">yPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145486"><span class="annot"><span class="annottext">yPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145486"><span class="hs-identifier hs-var">yPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-42"></span><span>  </span><span class="annot"><span class="annottext">(Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">alloca</span></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145453"><span class="annot"><span class="annottext">resultPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145453"><span class="hs-identifier hs-var">resultPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145485"><span class="annot"><span class="annottext">resultPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145485"><span class="hs-identifier hs-var">resultPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-43"></span><span>  </span><span class="annot"><span class="annottext">Int -&gt; Ptr LongDouble -&gt; Ptr LongDouble -&gt; Ptr LongDouble -&gt; IO ()
 </span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#c_rounded_sub_longdouble"><span class="hs-identifier hs-var">c_rounded_sub_longdouble</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679145458"><span class="hs-identifier hs-var">mode</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145453"><span class="hs-identifier hs-var">resultPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145455"><span class="hs-identifier hs-var">xPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145454"><span class="hs-identifier hs-var">yPtr</span></a></span><span>
+</span><a href="#local-6989586621679145490"><span class="hs-identifier hs-var">mode</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145485"><span class="hs-identifier hs-var">resultPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145487"><span class="hs-identifier hs-var">xPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145486"><span class="hs-identifier hs-var">yPtr</span></a></span><span>
 </span><span id="line-44"></span><span>  </span><span class="annot"><span class="annottext">Ptr LongDouble -&gt; IO LongDouble
 forall a. Storable a =&gt; Ptr a -&gt; IO a
 </span><span class="hs-identifier hs-var">peek</span></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145453"><span class="hs-identifier hs-var">resultPtr</span></a></span><span>
+</span><a href="#local-6989586621679145485"><span class="hs-identifier hs-var">resultPtr</span></a></span><span>
 </span><span id="line-45"></span><span>
 </span><span id="line-46"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedMul_ld"><span class="hs-identifier hs-type">roundedMul_ld</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span>
 </span><span id="line-47"></span><span id="roundedMul_ld"><span class="annot"><span class="annottext">roundedMul_ld :: RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
-</span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedMul_ld"><span class="hs-identifier hs-var hs-var">roundedMul_ld</span></a></span></span><span> </span><span id="local-6989586621679145451"><span class="annot"><span class="annottext">mode :: RoundingMode
-</span><a href="#local-6989586621679145451"><span class="hs-identifier hs-var">mode</span></a></span></span><span> </span><span id="local-6989586621679145450"><span class="annot"><span class="annottext">x :: LongDouble
-</span><a href="#local-6989586621679145450"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679145449"><span class="annot"><span class="annottext">y :: LongDouble
-</span><a href="#local-6989586621679145449"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO LongDouble -&gt; LongDouble
+</span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedMul_ld"><span class="hs-identifier hs-var hs-var">roundedMul_ld</span></a></span></span><span> </span><span id="local-6989586621679145483"><span class="annot"><span class="annottext">mode :: RoundingMode
+</span><a href="#local-6989586621679145483"><span class="hs-identifier hs-var">mode</span></a></span></span><span> </span><span id="local-6989586621679145482"><span class="annot"><span class="annottext">x :: LongDouble
+</span><a href="#local-6989586621679145482"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679145481"><span class="annot"><span class="annottext">y :: LongDouble
+</span><a href="#local-6989586621679145481"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO LongDouble -&gt; LongDouble
 forall a. IO a -&gt; a
 </span><span class="hs-identifier hs-var">unsafePerformIO</span></span><span> </span><span class="annot"><span class="annottext">(IO LongDouble -&gt; LongDouble) -&gt; IO LongDouble -&gt; LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -132,45 +132,45 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span id="line-48"></span><span>  </span><span class="annot"><span class="annottext">LongDouble -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; a -&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">with</span></span><span> </span><span class="annot"><span class="annottext">LongDouble
-</span><a href="#local-6989586621679145450"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
+</span><a href="#local-6989586621679145482"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145448"><span class="annot"><span class="annottext">xPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145448"><span class="hs-identifier hs-var">xPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145480"><span class="annot"><span class="annottext">xPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145480"><span class="hs-identifier hs-var">xPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-49"></span><span>  </span><span class="annot"><span class="annottext">LongDouble -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; a -&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">with</span></span><span> </span><span class="annot"><span class="annottext">LongDouble
-</span><a href="#local-6989586621679145449"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
+</span><a href="#local-6989586621679145481"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145447"><span class="annot"><span class="annottext">yPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145447"><span class="hs-identifier hs-var">yPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145479"><span class="annot"><span class="annottext">yPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145479"><span class="hs-identifier hs-var">yPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-50"></span><span>  </span><span class="annot"><span class="annottext">(Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">alloca</span></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145446"><span class="annot"><span class="annottext">resultPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145446"><span class="hs-identifier hs-var">resultPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145478"><span class="annot"><span class="annottext">resultPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145478"><span class="hs-identifier hs-var">resultPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-51"></span><span>  </span><span class="annot"><span class="annottext">Int -&gt; Ptr LongDouble -&gt; Ptr LongDouble -&gt; Ptr LongDouble -&gt; IO ()
 </span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#c_rounded_mul_longdouble"><span class="hs-identifier hs-var">c_rounded_mul_longdouble</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679145451"><span class="hs-identifier hs-var">mode</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145446"><span class="hs-identifier hs-var">resultPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145448"><span class="hs-identifier hs-var">xPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145447"><span class="hs-identifier hs-var">yPtr</span></a></span><span>
+</span><a href="#local-6989586621679145483"><span class="hs-identifier hs-var">mode</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145478"><span class="hs-identifier hs-var">resultPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145480"><span class="hs-identifier hs-var">xPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145479"><span class="hs-identifier hs-var">yPtr</span></a></span><span>
 </span><span id="line-52"></span><span>  </span><span class="annot"><span class="annottext">Ptr LongDouble -&gt; IO LongDouble
 forall a. Storable a =&gt; Ptr a -&gt; IO a
 </span><span class="hs-identifier hs-var">peek</span></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145446"><span class="hs-identifier hs-var">resultPtr</span></a></span><span>
+</span><a href="#local-6989586621679145478"><span class="hs-identifier hs-var">resultPtr</span></a></span><span>
 </span><span id="line-53"></span><span>
 </span><span id="line-54"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedDiv_ld"><span class="hs-identifier hs-type">roundedDiv_ld</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span>
 </span><span id="line-55"></span><span id="roundedDiv_ld"><span class="annot"><span class="annottext">roundedDiv_ld :: RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
-</span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedDiv_ld"><span class="hs-identifier hs-var hs-var">roundedDiv_ld</span></a></span></span><span> </span><span id="local-6989586621679145444"><span class="annot"><span class="annottext">mode :: RoundingMode
-</span><a href="#local-6989586621679145444"><span class="hs-identifier hs-var">mode</span></a></span></span><span> </span><span id="local-6989586621679145443"><span class="annot"><span class="annottext">x :: LongDouble
-</span><a href="#local-6989586621679145443"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679145442"><span class="annot"><span class="annottext">y :: LongDouble
-</span><a href="#local-6989586621679145442"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO LongDouble -&gt; LongDouble
+</span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedDiv_ld"><span class="hs-identifier hs-var hs-var">roundedDiv_ld</span></a></span></span><span> </span><span id="local-6989586621679145476"><span class="annot"><span class="annottext">mode :: RoundingMode
+</span><a href="#local-6989586621679145476"><span class="hs-identifier hs-var">mode</span></a></span></span><span> </span><span id="local-6989586621679145475"><span class="annot"><span class="annottext">x :: LongDouble
+</span><a href="#local-6989586621679145475"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679145474"><span class="annot"><span class="annottext">y :: LongDouble
+</span><a href="#local-6989586621679145474"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO LongDouble -&gt; LongDouble
 forall a. IO a -&gt; a
 </span><span class="hs-identifier hs-var">unsafePerformIO</span></span><span> </span><span class="annot"><span class="annottext">(IO LongDouble -&gt; LongDouble) -&gt; IO LongDouble -&gt; LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -178,44 +178,44 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span id="line-56"></span><span>  </span><span class="annot"><span class="annottext">LongDouble -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; a -&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">with</span></span><span> </span><span class="annot"><span class="annottext">LongDouble
-</span><a href="#local-6989586621679145443"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
+</span><a href="#local-6989586621679145475"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145441"><span class="annot"><span class="annottext">xPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145441"><span class="hs-identifier hs-var">xPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145473"><span class="annot"><span class="annottext">xPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145473"><span class="hs-identifier hs-var">xPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-57"></span><span>  </span><span class="annot"><span class="annottext">LongDouble -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; a -&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">with</span></span><span> </span><span class="annot"><span class="annottext">LongDouble
-</span><a href="#local-6989586621679145442"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
+</span><a href="#local-6989586621679145474"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145440"><span class="annot"><span class="annottext">yPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145440"><span class="hs-identifier hs-var">yPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145472"><span class="annot"><span class="annottext">yPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145472"><span class="hs-identifier hs-var">yPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-58"></span><span>  </span><span class="annot"><span class="annottext">(Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">alloca</span></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145439"><span class="annot"><span class="annottext">resultPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145439"><span class="hs-identifier hs-var">resultPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145471"><span class="annot"><span class="annottext">resultPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145471"><span class="hs-identifier hs-var">resultPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-59"></span><span>  </span><span class="annot"><span class="annottext">Int -&gt; Ptr LongDouble -&gt; Ptr LongDouble -&gt; Ptr LongDouble -&gt; IO ()
 </span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#c_rounded_div_longdouble"><span class="hs-identifier hs-var">c_rounded_div_longdouble</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679145444"><span class="hs-identifier hs-var">mode</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145439"><span class="hs-identifier hs-var">resultPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145441"><span class="hs-identifier hs-var">xPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145440"><span class="hs-identifier hs-var">yPtr</span></a></span><span>
+</span><a href="#local-6989586621679145476"><span class="hs-identifier hs-var">mode</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145471"><span class="hs-identifier hs-var">resultPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145473"><span class="hs-identifier hs-var">xPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145472"><span class="hs-identifier hs-var">yPtr</span></a></span><span>
 </span><span id="line-60"></span><span>  </span><span class="annot"><span class="annottext">Ptr LongDouble -&gt; IO LongDouble
 forall a. Storable a =&gt; Ptr a -&gt; IO a
 </span><span class="hs-identifier hs-var">peek</span></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145439"><span class="hs-identifier hs-var">resultPtr</span></a></span><span>
+</span><a href="#local-6989586621679145471"><span class="hs-identifier hs-var">resultPtr</span></a></span><span>
 </span><span id="line-61"></span><span>
 </span><span id="line-62"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedSqrt_ld"><span class="hs-identifier hs-type">roundedSqrt_ld</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span>
 </span><span id="line-63"></span><span id="roundedSqrt_ld"><span class="annot"><span class="annottext">roundedSqrt_ld :: RoundingMode -&gt; LongDouble -&gt; LongDouble
-</span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedSqrt_ld"><span class="hs-identifier hs-var hs-var">roundedSqrt_ld</span></a></span></span><span> </span><span id="local-6989586621679145437"><span class="annot"><span class="annottext">mode :: RoundingMode
-</span><a href="#local-6989586621679145437"><span class="hs-identifier hs-var">mode</span></a></span></span><span> </span><span id="local-6989586621679145436"><span class="annot"><span class="annottext">x :: LongDouble
-</span><a href="#local-6989586621679145436"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO LongDouble -&gt; LongDouble
+</span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedSqrt_ld"><span class="hs-identifier hs-var hs-var">roundedSqrt_ld</span></a></span></span><span> </span><span id="local-6989586621679145469"><span class="annot"><span class="annottext">mode :: RoundingMode
+</span><a href="#local-6989586621679145469"><span class="hs-identifier hs-var">mode</span></a></span></span><span> </span><span id="local-6989586621679145468"><span class="annot"><span class="annottext">x :: LongDouble
+</span><a href="#local-6989586621679145468"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO LongDouble -&gt; LongDouble
 forall a. IO a -&gt; a
 </span><span class="hs-identifier hs-var">unsafePerformIO</span></span><span> </span><span class="annot"><span class="annottext">(IO LongDouble -&gt; LongDouble) -&gt; IO LongDouble -&gt; LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -223,38 +223,38 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span id="line-64"></span><span>  </span><span class="annot"><span class="annottext">LongDouble -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; a -&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">with</span></span><span> </span><span class="annot"><span class="annottext">LongDouble
-</span><a href="#local-6989586621679145436"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
+</span><a href="#local-6989586621679145468"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145435"><span class="annot"><span class="annottext">xPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145435"><span class="hs-identifier hs-var">xPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145467"><span class="annot"><span class="annottext">xPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145467"><span class="hs-identifier hs-var">xPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-65"></span><span>  </span><span class="annot"><span class="annottext">(Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">alloca</span></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145434"><span class="annot"><span class="annottext">resultPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145434"><span class="hs-identifier hs-var">resultPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145466"><span class="annot"><span class="annottext">resultPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145466"><span class="hs-identifier hs-var">resultPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-66"></span><span>  </span><span class="annot"><span class="annottext">Int -&gt; Ptr LongDouble -&gt; Ptr LongDouble -&gt; IO ()
 </span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#c_rounded_sqrt_longdouble"><span class="hs-identifier hs-var">c_rounded_sqrt_longdouble</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679145437"><span class="hs-identifier hs-var">mode</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145434"><span class="hs-identifier hs-var">resultPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145435"><span class="hs-identifier hs-var">xPtr</span></a></span><span>
+</span><a href="#local-6989586621679145469"><span class="hs-identifier hs-var">mode</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145466"><span class="hs-identifier hs-var">resultPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145467"><span class="hs-identifier hs-var">xPtr</span></a></span><span>
 </span><span id="line-67"></span><span>  </span><span class="annot"><span class="annottext">Ptr LongDouble -&gt; IO LongDouble
 forall a. Storable a =&gt; Ptr a -&gt; IO a
 </span><span class="hs-identifier hs-var">peek</span></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145434"><span class="hs-identifier hs-var">resultPtr</span></a></span><span>
+</span><a href="#local-6989586621679145466"><span class="hs-identifier hs-var">resultPtr</span></a></span><span>
 </span><span id="line-68"></span><span>
 </span><span id="line-69"></span><span class="annot"><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedFMA_ld"><span class="hs-identifier hs-type">roundedFMA_ld</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#RoundingMode"><span class="hs-identifier hs-type">RoundingMode</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span>
 </span><span id="line-70"></span><span id="roundedFMA_ld"><span class="annot"><span class="annottext">roundedFMA_ld :: RoundingMode
 -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
-</span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedFMA_ld"><span class="hs-identifier hs-var hs-var">roundedFMA_ld</span></a></span></span><span> </span><span id="local-6989586621679145432"><span class="annot"><span class="annottext">mode :: RoundingMode
-</span><a href="#local-6989586621679145432"><span class="hs-identifier hs-var">mode</span></a></span></span><span> </span><span id="local-6989586621679145431"><span class="annot"><span class="annottext">x :: LongDouble
-</span><a href="#local-6989586621679145431"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679145430"><span class="annot"><span class="annottext">y :: LongDouble
-</span><a href="#local-6989586621679145430"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span id="local-6989586621679145429"><span class="annot"><span class="annottext">z :: LongDouble
-</span><a href="#local-6989586621679145429"><span class="hs-identifier hs-var">z</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO LongDouble -&gt; LongDouble
+</span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedFMA_ld"><span class="hs-identifier hs-var hs-var">roundedFMA_ld</span></a></span></span><span> </span><span id="local-6989586621679145464"><span class="annot"><span class="annottext">mode :: RoundingMode
+</span><a href="#local-6989586621679145464"><span class="hs-identifier hs-var">mode</span></a></span></span><span> </span><span id="local-6989586621679145463"><span class="annot"><span class="annottext">x :: LongDouble
+</span><a href="#local-6989586621679145463"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679145462"><span class="annot"><span class="annottext">y :: LongDouble
+</span><a href="#local-6989586621679145462"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span id="local-6989586621679145461"><span class="annot"><span class="annottext">z :: LongDouble
+</span><a href="#local-6989586621679145461"><span class="hs-identifier hs-var">z</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO LongDouble -&gt; LongDouble
 forall a. IO a -&gt; a
 </span><span class="hs-identifier hs-var">unsafePerformIO</span></span><span> </span><span class="annot"><span class="annottext">(IO LongDouble -&gt; LongDouble) -&gt; IO LongDouble -&gt; LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -262,34 +262,34 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span id="line-71"></span><span>  </span><span class="annot"><span class="annottext">LongDouble -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; a -&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">with</span></span><span> </span><span class="annot"><span class="annottext">LongDouble
-</span><a href="#local-6989586621679145431"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
+</span><a href="#local-6989586621679145463"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145428"><span class="annot"><span class="annottext">xPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145428"><span class="hs-identifier hs-var">xPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145460"><span class="annot"><span class="annottext">xPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145460"><span class="hs-identifier hs-var">xPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-72"></span><span>  </span><span class="annot"><span class="annottext">LongDouble -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; a -&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">with</span></span><span> </span><span class="annot"><span class="annottext">LongDouble
-</span><a href="#local-6989586621679145430"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
+</span><a href="#local-6989586621679145462"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145427"><span class="annot"><span class="annottext">yPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145427"><span class="hs-identifier hs-var">yPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145459"><span class="annot"><span class="annottext">yPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145459"><span class="hs-identifier hs-var">yPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-73"></span><span>  </span><span class="annot"><span class="annottext">LongDouble -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; a -&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">with</span></span><span> </span><span class="annot"><span class="annottext">LongDouble
-</span><a href="#local-6989586621679145429"><span class="hs-identifier hs-var">z</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
+</span><a href="#local-6989586621679145461"><span class="hs-identifier hs-var">z</span></a></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145426"><span class="annot"><span class="annottext">zPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145426"><span class="hs-identifier hs-var">zPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145458"><span class="annot"><span class="annottext">zPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145458"><span class="hs-identifier hs-var">zPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-74"></span><span>  </span><span class="annot"><span class="annottext">(Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. Storable a =&gt; (Ptr a -&gt; IO b) -&gt; IO b
 </span><span class="hs-identifier hs-var">alloca</span></span><span> </span><span class="annot"><span class="annottext">((Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble)
 -&gt; (Ptr LongDouble -&gt; IO LongDouble) -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145425"><span class="annot"><span class="annottext">resultPtr :: Ptr LongDouble
-</span><a href="#local-6989586621679145425"><span class="hs-identifier hs-var">resultPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679145457"><span class="annot"><span class="annottext">resultPtr :: Ptr LongDouble
+</span><a href="#local-6989586621679145457"><span class="hs-identifier hs-var">resultPtr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-75"></span><span>  </span><span class="annot"><span class="annottext">Int
 -&gt; Ptr LongDouble
 -&gt; Ptr LongDouble
@@ -299,161 +299,161 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#c_rounded_fma_longdouble"><span class="hs-identifier hs-var">c_rounded_fma_longdouble</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RoundingMode -&gt; Int
 forall a. Enum a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="annot"><span class="annottext">RoundingMode
-</span><a href="#local-6989586621679145432"><span class="hs-identifier hs-var">mode</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145425"><span class="hs-identifier hs-var">resultPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145428"><span class="hs-identifier hs-var">xPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145427"><span class="hs-identifier hs-var">yPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145426"><span class="hs-identifier hs-var">zPtr</span></a></span><span>
+</span><a href="#local-6989586621679145464"><span class="hs-identifier hs-var">mode</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145457"><span class="hs-identifier hs-var">resultPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145460"><span class="hs-identifier hs-var">xPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145459"><span class="hs-identifier hs-var">yPtr</span></a></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
+</span><a href="#local-6989586621679145458"><span class="hs-identifier hs-var">zPtr</span></a></span><span>
 </span><span id="line-76"></span><span>  </span><span class="annot"><span class="annottext">Ptr LongDouble -&gt; IO LongDouble
 forall a. Storable a =&gt; Ptr a -&gt; IO a
 </span><span class="hs-identifier hs-var">peek</span></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679145425"><span class="hs-identifier hs-var">resultPtr</span></a></span><span>
+</span><a href="#local-6989586621679145457"><span class="hs-identifier hs-var">resultPtr</span></a></span><span>
 </span><span id="line-77"></span><span>
 </span><span id="line-78"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Constants.html#RealFloatConstants"><span class="hs-identifier hs-type">RealFloatConstants</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-79"></span><span>  </span><span id="local-6989586621679145395"><span class="annot"><span class="annottext">positiveInfinity :: LongDouble
+</span><span id="line-79"></span><span>  </span><span id="local-6989586621679145427"><span class="annot"><span class="annottext">positiveInfinity :: LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#positiveInfinity"><span class="hs-identifier hs-var hs-var hs-var hs-var">positiveInfinity</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="annot"><span class="annottext">LongDouble -&gt; LongDouble -&gt; LongDouble
 forall a. Fractional a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">/</span></span><span class="annot"><span class="hs-number">0</span></span><span>
-</span><span id="line-80"></span><span>  </span><span id="local-6989586621679145392"><span class="annot"><span class="annottext">negativeInfinity :: LongDouble
+</span><span id="line-80"></span><span>  </span><span id="local-6989586621679145424"><span class="annot"><span class="annottext">negativeInfinity :: LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#negativeInfinity"><span class="hs-identifier hs-var hs-var hs-var hs-var">negativeInfinity</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">-</span><span class="annot"><span class="hs-number">1</span></span><span class="annot"><span class="annottext">LongDouble -&gt; LongDouble -&gt; LongDouble
 forall a. Fractional a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">/</span></span><span class="annot"><span class="hs-number">0</span></span><span>
-</span><span id="line-81"></span><span>  </span><span id="local-6989586621679145390"><span class="annot"><span class="annottext">maxFinite :: LongDouble
+</span><span id="line-81"></span><span>  </span><span id="local-6989586621679145422"><span class="annot"><span class="annottext">maxFinite :: LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#maxFinite"><span class="hs-identifier hs-var hs-var hs-var hs-var">maxFinite</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">0x1.fffffffffffffffep+16383</span></span><span>
-</span><span id="line-82"></span><span>  </span><span id="local-6989586621679145388"><span class="annot"><span class="annottext">minPositive :: LongDouble
+</span><span id="line-82"></span><span>  </span><span id="local-6989586621679145420"><span class="annot"><span class="annottext">minPositive :: LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#minPositive"><span class="hs-identifier hs-var hs-var hs-var hs-var">minPositive</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int -&gt; LongDouble
 forall a. RealFloat a =&gt; Integer -&gt; Int -&gt; a
 </span><span class="hs-identifier hs-var">encodeFloat</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">-</span><span class="annot"><span class="hs-number">16445</span></span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- The literal 0x1p-16445 yields 0 on long-double-0.1.1</span><span>
-</span><span id="line-83"></span><span>  </span><span id="local-6989586621679145385"><span class="annot"><span class="annottext">pi_down :: Rounded 'TowardNegInf LongDouble
+</span><span id="line-83"></span><span>  </span><span id="local-6989586621679145417"><span class="annot"><span class="annottext">pi_down :: Rounded 'TowardNegInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#pi_down"><span class="hs-identifier hs-var hs-var hs-var hs-var">pi_down</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardNegInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.921fb54442d18468p+1</span></span><span>
-</span><span id="line-84"></span><span>  </span><span id="local-6989586621679145382"><span class="annot"><span class="annottext">pi_up :: Rounded 'TowardInf LongDouble
+</span><span id="line-84"></span><span>  </span><span id="local-6989586621679145414"><span class="annot"><span class="annottext">pi_up :: Rounded 'TowardInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#pi_up"><span class="hs-identifier hs-var hs-var hs-var hs-var">pi_up</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.921fb54442d1846ap+1</span></span><span>
 </span><span id="line-85"></span><span>  </span><span class="hs-comment">-- 3*pi</span><span>
-</span><span id="line-86"></span><span>  </span><span id="local-6989586621679145380"><span class="annot"><span class="annottext">three_pi_down :: Rounded 'TowardNegInf LongDouble
+</span><span id="line-86"></span><span>  </span><span id="local-6989586621679145412"><span class="annot"><span class="annottext">three_pi_down :: Rounded 'TowardNegInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#three_pi_down"><span class="hs-identifier hs-var hs-var hs-var hs-var">three_pi_down</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardNegInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.2d97c7f3321d234ep+3</span></span><span>
-</span><span id="line-87"></span><span>  </span><span id="local-6989586621679145378"><span class="annot"><span class="annottext">three_pi_up :: Rounded 'TowardInf LongDouble
+</span><span id="line-87"></span><span>  </span><span id="local-6989586621679145410"><span class="annot"><span class="annottext">three_pi_up :: Rounded 'TowardInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#three_pi_up"><span class="hs-identifier hs-var hs-var hs-var hs-var">three_pi_up</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.2d97c7f3321d2350p+3</span></span><span>
 </span><span id="line-88"></span><span>  </span><span class="hs-comment">-- 5*pi</span><span>
-</span><span id="line-89"></span><span>  </span><span id="local-6989586621679145376"><span class="annot"><span class="annottext">five_pi_down :: Rounded 'TowardNegInf LongDouble
+</span><span id="line-89"></span><span>  </span><span id="local-6989586621679145408"><span class="annot"><span class="annottext">five_pi_down :: Rounded 'TowardNegInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#five_pi_down"><span class="hs-identifier hs-var hs-var hs-var hs-var">five_pi_down</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardNegInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.f6a7a2955385e582p+3</span></span><span>
-</span><span id="line-90"></span><span>  </span><span id="local-6989586621679145374"><span class="annot"><span class="annottext">five_pi_up :: Rounded 'TowardInf LongDouble
+</span><span id="line-90"></span><span>  </span><span id="local-6989586621679145406"><span class="annot"><span class="annottext">five_pi_up :: Rounded 'TowardInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#five_pi_up"><span class="hs-identifier hs-var hs-var hs-var hs-var">five_pi_up</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.f6a7a2955385e584p+3</span></span><span>
 </span><span id="line-91"></span><span>  </span><span class="hs-comment">-- log(2)</span><span>
-</span><span id="line-92"></span><span>  </span><span id="local-6989586621679145372"><span class="annot"><span class="annottext">log2_down :: Rounded 'TowardNegInf LongDouble
+</span><span id="line-92"></span><span>  </span><span id="local-6989586621679145404"><span class="annot"><span class="annottext">log2_down :: Rounded 'TowardNegInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#log2_down"><span class="hs-identifier hs-var hs-var hs-var hs-var">log2_down</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardNegInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.62e42fefa39ef356p-1</span></span><span>
-</span><span id="line-93"></span><span>  </span><span id="local-6989586621679145370"><span class="annot"><span class="annottext">log2_up :: Rounded 'TowardInf LongDouble
+</span><span id="line-93"></span><span>  </span><span id="local-6989586621679145402"><span class="annot"><span class="annottext">log2_up :: Rounded 'TowardInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#log2_up"><span class="hs-identifier hs-var hs-var hs-var hs-var">log2_up</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.62e42fefa39ef358p-1</span></span><span>
 </span><span id="line-94"></span><span>  </span><span class="hs-comment">-- exp(1)</span><span>
-</span><span id="line-95"></span><span>  </span><span id="local-6989586621679145368"><span class="annot"><span class="annottext">exp1_down :: Rounded 'TowardNegInf LongDouble
+</span><span id="line-95"></span><span>  </span><span id="local-6989586621679145400"><span class="annot"><span class="annottext">exp1_down :: Rounded 'TowardNegInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#exp1_down"><span class="hs-identifier hs-var hs-var hs-var hs-var">exp1_down</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardNegInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.5bf0a8b145769534p+1</span></span><span>
-</span><span id="line-96"></span><span>  </span><span id="local-6989586621679145366"><span class="annot"><span class="annottext">exp1_up :: Rounded 'TowardInf LongDouble
+</span><span id="line-96"></span><span>  </span><span id="local-6989586621679145398"><span class="annot"><span class="annottext">exp1_up :: Rounded 'TowardInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#exp1_up"><span class="hs-identifier hs-var hs-var hs-var hs-var">exp1_up</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.5bf0a8b145769536p+1</span></span><span>
 </span><span id="line-97"></span><span>  </span><span class="hs-comment">-- exp(1/2)</span><span>
-</span><span id="line-98"></span><span>  </span><span id="local-6989586621679145364"><span class="annot"><span class="annottext">exp1_2_down :: Rounded 'TowardNegInf LongDouble
+</span><span id="line-98"></span><span>  </span><span id="local-6989586621679145396"><span class="annot"><span class="annottext">exp1_2_down :: Rounded 'TowardNegInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#exp1_2_down"><span class="hs-identifier hs-var hs-var hs-var hs-var">exp1_2_down</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardNegInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.a61298e1e069bc96p+0</span></span><span>
-</span><span id="line-99"></span><span>  </span><span id="local-6989586621679145362"><span class="annot"><span class="annottext">exp1_2_up :: Rounded 'TowardInf LongDouble
+</span><span id="line-99"></span><span>  </span><span id="local-6989586621679145394"><span class="annot"><span class="annottext">exp1_2_up :: Rounded 'TowardInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#exp1_2_up"><span class="hs-identifier hs-var hs-var hs-var hs-var">exp1_2_up</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.a61298e1e069bc98p+0</span></span><span>
 </span><span id="line-100"></span><span>  </span><span class="hs-comment">-- exp(-1/2)</span><span>
-</span><span id="line-101"></span><span>  </span><span id="local-6989586621679145360"><span class="annot"><span class="annottext">expm1_2_down :: Rounded 'TowardNegInf LongDouble
+</span><span id="line-101"></span><span>  </span><span id="local-6989586621679145392"><span class="annot"><span class="annottext">expm1_2_down :: Rounded 'TowardNegInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#expm1_2_down"><span class="hs-identifier hs-var hs-var hs-var hs-var">expm1_2_down</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardNegInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.368b2fc6f9609fe6p-1</span></span><span>
-</span><span id="line-102"></span><span>  </span><span id="local-6989586621679145358"><span class="annot"><span class="annottext">expm1_2_up :: Rounded 'TowardInf LongDouble
+</span><span id="line-102"></span><span>  </span><span id="local-6989586621679145390"><span class="annot"><span class="annottext">expm1_2_up :: Rounded 'TowardInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#expm1_2_up"><span class="hs-identifier hs-var hs-var hs-var hs-var">expm1_2_up</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.368b2fc6f9609fe8p-1</span></span><span>
 </span><span id="line-103"></span><span>  </span><span class="hs-comment">-- sqrt(2)</span><span>
-</span><span id="line-104"></span><span>  </span><span id="local-6989586621679145356"><span class="annot"><span class="annottext">sqrt2_down :: Rounded 'TowardNegInf LongDouble
+</span><span id="line-104"></span><span>  </span><span id="local-6989586621679145388"><span class="annot"><span class="annottext">sqrt2_down :: Rounded 'TowardNegInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#sqrt2_down"><span class="hs-identifier hs-var hs-var hs-var hs-var">sqrt2_down</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardNegInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.6a09e667f3bcc908p+0</span></span><span>
-</span><span id="line-105"></span><span>  </span><span id="local-6989586621679145354"><span class="annot"><span class="annottext">sqrt2_up :: Rounded 'TowardInf LongDouble
+</span><span id="line-105"></span><span>  </span><span id="local-6989586621679145386"><span class="annot"><span class="annottext">sqrt2_up :: Rounded 'TowardInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#sqrt2_up"><span class="hs-identifier hs-var hs-var hs-var hs-var">sqrt2_up</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.6a09e667f3bcc90ap+0</span></span><span>
 </span><span id="line-106"></span><span>  </span><span class="hs-comment">-- sqrt(1/2)</span><span>
-</span><span id="line-107"></span><span>  </span><span id="local-6989586621679145352"><span class="annot"><span class="annottext">sqrt1_2_down :: Rounded 'TowardNegInf LongDouble
+</span><span id="line-107"></span><span>  </span><span id="local-6989586621679145384"><span class="annot"><span class="annottext">sqrt1_2_down :: Rounded 'TowardNegInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#sqrt1_2_down"><span class="hs-identifier hs-var hs-var hs-var hs-var">sqrt1_2_down</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardNegInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.6a09e667f3bcc908p-1</span></span><span>
-</span><span id="line-108"></span><span>  </span><span id="local-6989586621679145350"><span class="annot"><span class="annottext">sqrt1_2_up :: Rounded 'TowardInf LongDouble
+</span><span id="line-108"></span><span>  </span><span id="local-6989586621679145382"><span class="annot"><span class="annottext">sqrt1_2_up :: Rounded 'TowardInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#sqrt1_2_up"><span class="hs-identifier hs-var hs-var hs-var hs-var">sqrt1_2_up</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.6a09e667f3bcc90ap-1</span></span><span>
 </span><span id="line-109"></span><span>  </span><span class="hs-comment">-- sqrt(2)-1</span><span>
-</span><span id="line-110"></span><span>  </span><span id="local-6989586621679145348"><span class="annot"><span class="annottext">sqrt2m1_down :: Rounded 'TowardNegInf LongDouble
+</span><span id="line-110"></span><span>  </span><span id="local-6989586621679145380"><span class="annot"><span class="annottext">sqrt2m1_down :: Rounded 'TowardNegInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#sqrt2m1_down"><span class="hs-identifier hs-var hs-var hs-var hs-var">sqrt2m1_down</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardNegInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.a827999fcef32422p-2</span></span><span>
-</span><span id="line-111"></span><span>  </span><span id="local-6989586621679145346"><span class="annot"><span class="annottext">sqrt2m1_up :: Rounded 'TowardInf LongDouble
+</span><span id="line-111"></span><span>  </span><span id="local-6989586621679145378"><span class="annot"><span class="annottext">sqrt2m1_up :: Rounded 'TowardInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#sqrt2m1_up"><span class="hs-identifier hs-var hs-var hs-var hs-var">sqrt2m1_up</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.a827999fcef32424p-2</span></span><span>
 </span><span id="line-112"></span><span>  </span><span class="hs-comment">-- 3 - 2 * sqrt(2)</span><span>
-</span><span id="line-113"></span><span>  </span><span id="local-6989586621679145344"><span class="annot"><span class="annottext">three_minus_2sqrt2_down :: Rounded 'TowardNegInf LongDouble
+</span><span id="line-113"></span><span>  </span><span id="local-6989586621679145376"><span class="annot"><span class="annottext">three_minus_2sqrt2_down :: Rounded 'TowardNegInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#three_minus_2sqrt2_down"><span class="hs-identifier hs-var hs-var hs-var hs-var">three_minus_2sqrt2_down</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardNegInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.5f619980c4336f74p-3</span></span><span>
-</span><span id="line-114"></span><span>  </span><span id="local-6989586621679145342"><span class="annot"><span class="annottext">three_minus_2sqrt2_up :: Rounded 'TowardInf LongDouble
+</span><span id="line-114"></span><span>  </span><span id="local-6989586621679145374"><span class="annot"><span class="annottext">three_minus_2sqrt2_up :: Rounded 'TowardInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#three_minus_2sqrt2_up"><span class="hs-identifier hs-var hs-var hs-var hs-var">three_minus_2sqrt2_up</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.5f619980c4336f76p-3</span></span><span>
 </span><span id="line-115"></span><span>  </span><span class="hs-comment">-- 2 - sqrt(2)</span><span>
-</span><span id="line-116"></span><span>  </span><span id="local-6989586621679145340"><span class="annot"><span class="annottext">two_minus_sqrt2_down :: Rounded 'TowardNegInf LongDouble
+</span><span id="line-116"></span><span>  </span><span id="local-6989586621679145372"><span class="annot"><span class="annottext">two_minus_sqrt2_down :: Rounded 'TowardNegInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#two_minus_sqrt2_down"><span class="hs-identifier hs-var hs-var hs-var hs-var">two_minus_sqrt2_down</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardNegInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.2bec333018866deep-1</span></span><span>
-</span><span id="line-117"></span><span>  </span><span id="local-6989586621679145338"><span class="annot"><span class="annottext">two_minus_sqrt2_up :: Rounded 'TowardInf LongDouble
+</span><span id="line-117"></span><span>  </span><span id="local-6989586621679145370"><span class="annot"><span class="annottext">two_minus_sqrt2_up :: Rounded 'TowardInf LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Constants.html#two_minus_sqrt2_up"><span class="hs-identifier hs-var hs-var hs-var hs-var">two_minus_sqrt2_up</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LongDouble -&gt; Rounded 'TowardInf LongDouble
 forall (r :: RoundingMode) a. a -&gt; Rounded r a
 </span><a href="Numeric.Rounded.Hardware.Internal.Rounding.html#Rounded"><span class="hs-identifier hs-var">Rounded</span></a></span><span> </span><span class="annot"><span class="hs-number">0x1.2bec333018866df0p-1</span></span><span>
 </span><span id="line-118"></span><span>
 </span><span id="line-119"></span><span class="hs-comment">-- | Only available on x86/x86_64 systems.</span><span>
 </span><span id="line-120"></span><span class="hs-comment">-- Note that 'LongDouble' may not work correctly on Win64.</span><span>
-</span><span id="line-121"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679145323"><span id="local-6989586621679145325"><span id="local-6989586621679145327"><span id="local-6989586621679145329"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Class.html#RoundedRing"><span class="hs-identifier hs-type">RoundedRing</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-122"></span><span>  </span><span id="local-6989586621679145319"><span class="annot"><span class="annottext">roundedAdd :: RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
+</span><span id="line-121"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679145355"><span id="local-6989586621679145357"><span id="local-6989586621679145359"><span id="local-6989586621679145361"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Class.html#RoundedRing"><span class="hs-identifier hs-type">RoundedRing</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-122"></span><span>  </span><span id="local-6989586621679145351"><span class="annot"><span class="annottext">roundedAdd :: RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Class.html#roundedAdd"><span class="hs-identifier hs-var hs-var hs-var hs-var">roundedAdd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedAdd_ld"><span class="hs-identifier hs-var">roundedAdd_ld</span></a></span><span>
-</span><span id="line-123"></span><span>  </span><span id="local-6989586621679145317"><span class="annot"><span class="annottext">roundedSub :: RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
+</span><span id="line-123"></span><span>  </span><span id="local-6989586621679145349"><span class="annot"><span class="annottext">roundedSub :: RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Class.html#roundedSub"><span class="hs-identifier hs-var hs-var hs-var hs-var">roundedSub</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedSub_ld"><span class="hs-identifier hs-var">roundedSub_ld</span></a></span><span>
-</span><span id="line-124"></span><span>  </span><span id="local-6989586621679145315"><span class="annot"><span class="annottext">roundedMul :: RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
+</span><span id="line-124"></span><span>  </span><span id="local-6989586621679145347"><span class="annot"><span class="annottext">roundedMul :: RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Class.html#roundedMul"><span class="hs-identifier hs-var hs-var hs-var hs-var">roundedMul</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedMul_ld"><span class="hs-identifier hs-var">roundedMul_ld</span></a></span><span>
-</span><span id="line-125"></span><span>  </span><span id="local-6989586621679145313"><span class="annot"><span class="annottext">roundedFusedMultiplyAdd :: RoundingMode
+</span><span id="line-125"></span><span>  </span><span id="local-6989586621679145345"><span class="annot"><span class="annottext">roundedFusedMultiplyAdd :: RoundingMode
 -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Class.html#roundedFusedMultiplyAdd"><span class="hs-identifier hs-var hs-var hs-var hs-var">roundedFusedMultiplyAdd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode
 -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedFMA_ld"><span class="hs-identifier hs-var">roundedFMA_ld</span></a></span><span>
-</span><span id="line-126"></span><span>  </span><span id="local-6989586621679145311"><span class="annot"><span class="annottext">roundedFromInteger :: RoundingMode -&gt; Integer -&gt; LongDouble
+</span><span id="line-126"></span><span>  </span><span id="local-6989586621679145343"><span class="annot"><span class="annottext">roundedFromInteger :: RoundingMode -&gt; Integer -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Class.html#roundedFromInteger"><span class="hs-identifier hs-var hs-var hs-var hs-var">roundedFromInteger</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode -&gt; Integer -&gt; LongDouble
 forall a. RealFloat a =&gt; RoundingMode -&gt; Integer -&gt; a
 </span><a href="Numeric.Rounded.Hardware.Internal.Conversion.html#roundedFromInteger_default"><span class="hs-identifier hs-var">roundedFromInteger_default</span></a></span><span>
-</span><span id="line-127"></span><span>  </span><span id="local-6989586621679145308"><span class="annot"><span class="annottext">intervalFromInteger :: Integer
+</span><span id="line-127"></span><span>  </span><span id="local-6989586621679145340"><span class="annot"><span class="annottext">intervalFromInteger :: Integer
 -&gt; (Rounded 'TowardNegInf LongDouble,
     Rounded 'TowardInf LongDouble)
 </span><a href="Numeric.Rounded.Hardware.Internal.Class.html#intervalFromInteger"><span class="hs-identifier hs-var hs-var hs-var hs-var">intervalFromInteger</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer
@@ -463,7 +463,7 @@ forall a.
 RealFloat a =&gt;
 Integer -&gt; (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
 </span><a href="Numeric.Rounded.Hardware.Internal.Conversion.html#intervalFromInteger_default"><span class="hs-identifier hs-var">intervalFromInteger_default</span></a></span><span>
-</span><span id="line-128"></span><span>  </span><span id="local-6989586621679145305"><span class="annot"><span class="annottext">backendNameT :: Tagged LongDouble String
+</span><span id="line-128"></span><span>  </span><span id="local-6989586621679145337"><span class="annot"><span class="annottext">backendNameT :: Tagged LongDouble String
 </span><a href="Numeric.Rounded.Hardware.Internal.Class.html#backendNameT"><span class="hs-identifier hs-var hs-var hs-var hs-var">backendNameT</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Tagged LongDouble String
 forall k (s :: k) b. b -&gt; Tagged s b
 </span><span class="hs-identifier hs-var">Tagged</span></span><span> </span><span class="annot"><span class="annottext">String
@@ -477,15 +477,15 @@ forall k (s :: k) b. b -&gt; Tagged s b
 </span><span id="line-135"></span><span>
 </span><span id="line-136"></span><span class="hs-comment">-- | Only available on x86/x86_64 systems.</span><span>
 </span><span id="line-137"></span><span class="hs-comment">-- Note that 'LongDouble' may not work correctly on Win64.</span><span>
-</span><span id="line-138"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679145289"><span id="local-6989586621679145291"><span id="local-6989586621679145293"><span id="local-6989586621679145295"><span id="local-6989586621679145298"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Class.html#RoundedFractional"><span class="hs-identifier hs-type">RoundedFractional</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-139"></span><span>  </span><span id="local-6989586621679145286"><span class="annot"><span class="annottext">roundedDiv :: RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
+</span><span id="line-138"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679145321"><span id="local-6989586621679145323"><span id="local-6989586621679145325"><span id="local-6989586621679145327"><span id="local-6989586621679145330"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Class.html#RoundedFractional"><span class="hs-identifier hs-type">RoundedFractional</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-139"></span><span>  </span><span id="local-6989586621679145318"><span class="annot"><span class="annottext">roundedDiv :: RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Class.html#roundedDiv"><span class="hs-identifier hs-var hs-var hs-var hs-var">roundedDiv</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode -&gt; LongDouble -&gt; LongDouble -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedDiv_ld"><span class="hs-identifier hs-var">roundedDiv_ld</span></a></span><span>
-</span><span id="line-140"></span><span>  </span><span id="local-6989586621679145284"><span class="annot"><span class="annottext">roundedFromRational :: RoundingMode -&gt; Rational -&gt; LongDouble
+</span><span id="line-140"></span><span>  </span><span id="local-6989586621679145316"><span class="annot"><span class="annottext">roundedFromRational :: RoundingMode -&gt; Rational -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Class.html#roundedFromRational"><span class="hs-identifier hs-var hs-var hs-var hs-var">roundedFromRational</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode -&gt; Rational -&gt; LongDouble
 forall a. RealFloat a =&gt; RoundingMode -&gt; Rational -&gt; a
 </span><a href="Numeric.Rounded.Hardware.Internal.Conversion.html#roundedFromRational_default"><span class="hs-identifier hs-var">roundedFromRational_default</span></a></span><span>
-</span><span id="line-141"></span><span>  </span><span id="local-6989586621679145281"><span class="annot"><span class="annottext">intervalFromRational :: Rational
+</span><span id="line-141"></span><span>  </span><span id="local-6989586621679145313"><span class="annot"><span class="annottext">intervalFromRational :: Rational
 -&gt; (Rounded 'TowardNegInf LongDouble,
     Rounded 'TowardInf LongDouble)
 </span><a href="Numeric.Rounded.Hardware.Internal.Class.html#intervalFromRational"><span class="hs-identifier hs-var hs-var hs-var hs-var">intervalFromRational</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Rational
@@ -501,8 +501,8 @@ Rational -&gt; (Rounded 'TowardNegInf a, Rounded 'TowardInf a)
 </span><span id="line-145"></span><span>
 </span><span id="line-146"></span><span class="hs-comment">-- | Only available on x86/x86_64 systems.</span><span>
 </span><span id="line-147"></span><span class="hs-comment">-- Note that 'LongDouble' may not work correctly on Win64.</span><span>
-</span><span id="line-148"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679145275"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Class.html#RoundedSqrt"><span class="hs-identifier hs-type">RoundedSqrt</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-149"></span><span>  </span><span id="local-6989586621679145273"><span class="annot"><span class="annottext">roundedSqrt :: RoundingMode -&gt; LongDouble -&gt; LongDouble
+</span><span id="line-148"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679145307"><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Class.html#RoundedSqrt"><span class="hs-identifier hs-type">RoundedSqrt</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">LongDouble</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-149"></span><span>  </span><span id="local-6989586621679145305"><span class="annot"><span class="annottext">roundedSqrt :: RoundingMode -&gt; LongDouble -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Internal.Class.html#roundedSqrt"><span class="hs-identifier hs-var hs-var hs-var hs-var">roundedSqrt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RoundingMode -&gt; LongDouble -&gt; LongDouble
 </span><a href="Numeric.Rounded.Hardware.Backend.X87LongDouble.html#roundedSqrt_ld"><span class="hs-identifier hs-var">roundedSqrt_ld</span></a></span><span>
 </span><span id="line-150"></span><span>  </span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Numeric.Rounded.Hardware.Internal.Class.html#roundedSqrt"><span class="hs-pragma hs-type">roundedSqrt</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>

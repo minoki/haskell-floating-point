@@ -40,32 +40,32 @@
 </span><span>
 </span><span id="line-37"></span><span class="annot"><a href="Data.Proxy.TH.html#proxyTypeQ"><span class="hs-identifier hs-type">proxyTypeQ</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">TypeQ</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">TypeQ</span></span><span>
 </span><span id="line-38"></span><span id="proxyTypeQ"><span class="annot"><span class="annottext">proxyTypeQ :: TypeQ -&gt; TypeQ
-</span><a href="Data.Proxy.TH.html#proxyTypeQ"><span class="hs-identifier hs-var hs-var">proxyTypeQ</span></a></span></span><span> </span><span id="local-6989586621679076412"><span class="annot"><span class="annottext">t :: TypeQ
-</span><a href="#local-6989586621679076412"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ -&gt; TypeQ
+</span><a href="Data.Proxy.TH.html#proxyTypeQ"><span class="hs-identifier hs-var hs-var">proxyTypeQ</span></a></span></span><span> </span><span id="local-6989586621679076407"><span class="annot"><span class="annottext">t :: TypeQ
+</span><a href="#local-6989586621679076407"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ -&gt; TypeQ
 </span><span class="hs-identifier hs-var">appT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Name -&gt; TypeQ
 </span><span class="hs-identifier hs-var">conT</span></span><span> </span><span class="annot"><span class="annottext">Name
 </span><a href="Data.Proxy.TH.html#proxy_tc"><span class="hs-identifier hs-var">proxy_tc</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">TypeQ
-</span><a href="#local-6989586621679076412"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><a href="#local-6989586621679076407"><span class="hs-identifier hs-var">t</span></a></span><span>
 </span><span id="line-39"></span><span>
 </span><span id="line-40"></span><span class="annot"><a href="Data.Proxy.TH.html#proxyExpQ"><span class="hs-identifier hs-type">proxyExpQ</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">TypeQ</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ExpQ</span></span><span>
 </span><span id="line-41"></span><span id="proxyExpQ"><span class="annot"><span class="annottext">proxyExpQ :: TypeQ -&gt; ExpQ
-</span><a href="Data.Proxy.TH.html#proxyExpQ"><span class="hs-identifier hs-var hs-var">proxyExpQ</span></a></span></span><span> </span><span id="local-6989586621679076410"><span class="annot"><span class="annottext">t :: TypeQ
-</span><a href="#local-6989586621679076410"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ExpQ -&gt; TypeQ -&gt; ExpQ
+</span><a href="Data.Proxy.TH.html#proxyExpQ"><span class="hs-identifier hs-var hs-var">proxyExpQ</span></a></span></span><span> </span><span id="local-6989586621679076405"><span class="annot"><span class="annottext">t :: TypeQ
+</span><a href="#local-6989586621679076405"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ExpQ -&gt; TypeQ -&gt; ExpQ
 </span><span class="hs-identifier hs-var">sigE</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Name -&gt; ExpQ
 </span><span class="hs-identifier hs-var">conE</span></span><span> </span><span class="annot"><span class="annottext">Name
 </span><a href="Data.Proxy.TH.html#proxy_d"><span class="hs-identifier hs-var">proxy_d</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ
 </span><a href="Data.Proxy.TH.html#proxyTypeQ"><span class="hs-identifier hs-var">proxyTypeQ</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ
-</span><a href="#local-6989586621679076410"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679076405"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-42"></span><span>
 </span><span id="line-43"></span><span class="annot"><a href="Data.Proxy.TH.html#proxyPatQ"><span class="hs-identifier hs-type">proxyPatQ</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">TypeQ</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">PatQ</span></span><span>
 </span><span id="line-44"></span><span id="proxyPatQ"><span class="annot"><span class="annottext">proxyPatQ :: TypeQ -&gt; PatQ
-</span><a href="Data.Proxy.TH.html#proxyPatQ"><span class="hs-identifier hs-var hs-var">proxyPatQ</span></a></span></span><span> </span><span id="local-6989586621679076408"><span class="annot"><span class="annottext">t :: TypeQ
-</span><a href="#local-6989586621679076408"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PatQ -&gt; TypeQ -&gt; PatQ
+</span><a href="Data.Proxy.TH.html#proxyPatQ"><span class="hs-identifier hs-var hs-var">proxyPatQ</span></a></span></span><span> </span><span id="local-6989586621679076403"><span class="annot"><span class="annottext">t :: TypeQ
+</span><a href="#local-6989586621679076403"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PatQ -&gt; TypeQ -&gt; PatQ
 </span><span class="hs-identifier hs-var">sigP</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Name -&gt; [PatQ] -&gt; PatQ
 </span><span class="hs-identifier hs-var">conP</span></span><span> </span><span class="annot"><span class="annottext">Name
 </span><a href="Data.Proxy.TH.html#proxy_d"><span class="hs-identifier hs-var">proxy_d</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ
 </span><a href="Data.Proxy.TH.html#proxyTypeQ"><span class="hs-identifier hs-var">proxyTypeQ</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ
-</span><a href="#local-6989586621679076408"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679076403"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-45"></span><span>
 </span><span id="line-46"></span><span class="hs-comment">-- | A proxy value quasiquoter. @[pr|T|]@ will splice an expression</span><span>
 </span><span id="line-47"></span><span class="hs-comment">-- @Proxy::Proxy T@, while @[pr|A,B,C|]@ will splice in a value of</span><span>
@@ -81,59 +81,59 @@
 -&gt; QuasiQuoter
 </span><span class="hs-identifier hs-var">QuasiQuoter</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(TypeQ -&gt; ExpQ) -&gt; String -&gt; ExpQ
 forall r. (TypeQ -&gt; r) -&gt; String -&gt; r
-</span><a href="#local-6989586621679076406"><span class="hs-identifier hs-var">mkProxy</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; ExpQ
+</span><a href="#local-6989586621679076401"><span class="hs-identifier hs-var">mkProxy</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; ExpQ
 </span><a href="Data.Proxy.TH.html#proxyExpQ"><span class="hs-identifier hs-var">proxyExpQ</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(TypeQ -&gt; PatQ) -&gt; String -&gt; PatQ
 forall r. (TypeQ -&gt; r) -&gt; String -&gt; r
-</span><a href="#local-6989586621679076406"><span class="hs-identifier hs-var">mkProxy</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; PatQ
+</span><a href="#local-6989586621679076401"><span class="hs-identifier hs-var">mkProxy</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; PatQ
 </span><a href="Data.Proxy.TH.html#proxyPatQ"><span class="hs-identifier hs-var">proxyPatQ</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(TypeQ -&gt; TypeQ) -&gt; String -&gt; TypeQ
 forall r. (TypeQ -&gt; r) -&gt; String -&gt; r
-</span><a href="#local-6989586621679076406"><span class="hs-identifier hs-var">mkProxy</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ
+</span><a href="#local-6989586621679076401"><span class="hs-identifier hs-var">mkProxy</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ
 </span><a href="Data.Proxy.TH.html#proxyTypeQ"><span class="hs-identifier hs-var">proxyTypeQ</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">String -&gt; Q [Dec]
 forall a. HasCallStack =&gt; a
 </span><span class="hs-identifier hs-var">undefined</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-53"></span><span>  </span><span id="local-6989586621679076453"><span class="annot"><a href="#local-6989586621679076406"><span class="hs-identifier hs-type">mkProxy</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">TypeQ</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679076453"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679076453"><span class="hs-identifier hs-type">r</span></a></span></span><span>
-</span><span id="line-54"></span><span>  </span><span id="local-6989586621679076406"><span class="annot"><span class="annottext">mkProxy :: (TypeQ -&gt; r) -&gt; String -&gt; r
-</span><a href="#local-6989586621679076406"><span class="hs-identifier hs-var hs-var">mkProxy</span></a></span></span><span> </span><span id="local-6989586621679076404"><span class="annot"><span class="annottext">p :: TypeQ -&gt; r
-</span><a href="#local-6989586621679076404"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679076403"><span class="annot"><span class="annottext">s :: String
-</span><a href="#local-6989586621679076403"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[String]
-</span><a href="#local-6989586621679076402"><span class="hs-identifier hs-var">ts</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-55"></span><span>    </span><span class="hs-special">[</span><span id="local-6989586621679076401"><span class="annot"><span class="annottext">h :: String
-</span><a href="#local-6989586621679076401"><span class="hs-identifier hs-var">h</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span id="local-6989586621679076400"><span class="annot"><span class="annottext">t :: Char
-</span><a href="#local-6989586621679076400"><span class="hs-identifier hs-var">t</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span class="hs-identifier">_</span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-53"></span><span>  </span><span id="local-6989586621679076448"><span class="annot"><a href="#local-6989586621679076401"><span class="hs-identifier hs-type">mkProxy</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">TypeQ</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679076448"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679076448"><span class="hs-identifier hs-type">r</span></a></span></span><span>
+</span><span id="line-54"></span><span>  </span><span id="local-6989586621679076401"><span class="annot"><span class="annottext">mkProxy :: (TypeQ -&gt; r) -&gt; String -&gt; r
+</span><a href="#local-6989586621679076401"><span class="hs-identifier hs-var hs-var">mkProxy</span></a></span></span><span> </span><span id="local-6989586621679076399"><span class="annot"><span class="annottext">p :: TypeQ -&gt; r
+</span><a href="#local-6989586621679076399"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679076398"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679076398"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679076397"><span class="hs-identifier hs-var">ts</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-55"></span><span>    </span><span class="hs-special">[</span><span id="local-6989586621679076396"><span class="annot"><span class="annottext">h :: String
+</span><a href="#local-6989586621679076396"><span class="hs-identifier hs-var">h</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span id="local-6989586621679076395"><span class="annot"><span class="annottext">t :: Char
+</span><a href="#local-6989586621679076395"><span class="hs-identifier hs-var">t</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span class="hs-identifier">_</span><span class="hs-special">)</span><span class="hs-special">]</span><span>
 </span><span id="line-56"></span><span>       </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Char -&gt; Bool
 </span><span class="hs-identifier hs-var">isUpper</span></span><span> </span><span class="annot"><span class="annottext">Char
-</span><a href="#local-6989586621679076400"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; r
-</span><a href="#local-6989586621679076404"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">(TypeQ -&gt; r) -&gt; TypeQ -&gt; r
+</span><a href="#local-6989586621679076395"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; r
+</span><a href="#local-6989586621679076399"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">(TypeQ -&gt; r) -&gt; TypeQ -&gt; r
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[Type] -&gt; Type
 forall a. [a] -&gt; a
 </span><span class="hs-identifier hs-var">head</span></span><span> </span><span class="annot"><span class="annottext">([Type] -&gt; Type) -&gt; Q [Type] -&gt; TypeQ
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Q [Type]
-</span><a href="#local-6989586621679076396"><span class="hs-identifier hs-var">cons</span></a></span><span>
+</span><a href="#local-6989586621679076391"><span class="hs-identifier hs-var">cons</span></a></span><span>
 </span><span id="line-57"></span><span>       </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; r
-</span><a href="#local-6989586621679076404"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">(TypeQ -&gt; r) -&gt; TypeQ -&gt; r
+</span><a href="#local-6989586621679076399"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">(TypeQ -&gt; r) -&gt; TypeQ -&gt; r
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Name -&gt; TypeQ
 </span><span class="hs-identifier hs-var">varT</span></span><span> </span><span class="annot"><span class="annottext">(Name -&gt; TypeQ) -&gt; Name -&gt; TypeQ
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Name
 </span><span class="hs-identifier hs-var">mkName</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679076401"><span class="hs-identifier hs-var">h</span></a></span><span class="hs-cpp">
+</span><a href="#local-6989586621679076396"><span class="hs-identifier hs-var">h</span></a></span><span class="hs-cpp">
 #if MIN_VERSION_template_haskell(2,8,0)
 </span><span>    </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; r
-</span><a href="#local-6989586621679076404"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">(TypeQ -&gt; r) -&gt; TypeQ -&gt; r
+</span><a href="#local-6989586621679076399"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">(TypeQ -&gt; r) -&gt; TypeQ -&gt; r
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[Type] -&gt; Type
-</span><a href="#local-6989586621679076395"><span class="hs-identifier hs-var">mkList</span></a></span><span> </span><span class="annot"><span class="annottext">([Type] -&gt; Type) -&gt; Q [Type] -&gt; TypeQ
+</span><a href="#local-6989586621679076390"><span class="hs-identifier hs-var">mkList</span></a></span><span> </span><span class="annot"><span class="annottext">([Type] -&gt; Type) -&gt; Q [Type] -&gt; TypeQ
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Q [Type]
-</span><a href="#local-6989586621679076396"><span class="hs-identifier hs-var">cons</span></a></span><span class="hs-cpp">
+</span><a href="#local-6989586621679076391"><span class="hs-identifier hs-var">cons</span></a></span><span class="hs-cpp">
 #endif
 </span><span>    </span><span class="hs-keyword">where</span><span> </span><span>
-</span><span id="line-62"></span><span>      </span><span id="local-6989586621679076402"><span class="annot"><span class="annottext">ts :: [String]
-</span><a href="#local-6989586621679076402"><span class="hs-identifier hs-var hs-var">ts</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; String) -&gt; [String] -&gt; [String]
+</span><span id="line-62"></span><span>      </span><span id="local-6989586621679076397"><span class="annot"><span class="annottext">ts :: [String]
+</span><a href="#local-6989586621679076397"><span class="hs-identifier hs-var hs-var">ts</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; String) -&gt; [String] -&gt; [String]
 forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
 </span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String
 </span><a href="Data.Proxy.TH.html#strip"><span class="hs-identifier hs-var">strip</span></a></span><span> </span><span class="annot"><span class="annottext">([String] -&gt; [String]) -&gt; [String] -&gt; [String]
@@ -141,9 +141,9 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Char -&gt; String -&gt; [String]
 forall a. Eq a =&gt; a -&gt; [a] -&gt; [[a]]
 </span><a href="Data.Proxy.TH.html#splitOn"><span class="hs-identifier hs-var">splitOn</span></a></span><span> </span><span class="annot"><span class="hs-char">','</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679076403"><span class="hs-identifier hs-var">s</span></a></span><span>
-</span><span id="line-63"></span><span>      </span><span id="local-6989586621679076396"><span class="annot"><span class="annottext">cons :: Q [Type]
-</span><a href="#local-6989586621679076396"><span class="hs-identifier hs-var hs-var">cons</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; TypeQ) -&gt; [String] -&gt; Q [Type]
+</span><a href="#local-6989586621679076398"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-63"></span><span>      </span><span id="local-6989586621679076391"><span class="annot"><span class="annottext">cons :: Q [Type]
+</span><a href="#local-6989586621679076391"><span class="hs-identifier hs-var hs-var">cons</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; TypeQ) -&gt; [String] -&gt; Q [Type]
 forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
 (Traversable t, Monad m) =&gt;
 (a -&gt; m b) -&gt; t a -&gt; m (t b)
@@ -152,10 +152,10 @@ forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Name
 </span><span class="hs-identifier hs-var">mkName</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[String]
-</span><a href="#local-6989586621679076402"><span class="hs-identifier hs-var">ts</span></a></span><span class="hs-cpp">
+</span><a href="#local-6989586621679076397"><span class="hs-identifier hs-var">ts</span></a></span><span class="hs-cpp">
 #if MIN_VERSION_template_haskell(2,8,0)
-</span><span>      </span><span id="local-6989586621679076395"><span class="annot"><span class="annottext">mkList :: [Type] -&gt; Type
-</span><a href="#local-6989586621679076395"><span class="hs-identifier hs-var hs-var">mkList</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Type -&gt; Type -&gt; Type) -&gt; Type -&gt; [Type] -&gt; Type
+</span><span>      </span><span id="local-6989586621679076390"><span class="annot"><span class="annottext">mkList :: [Type] -&gt; Type
+</span><a href="#local-6989586621679076390"><span class="hs-identifier hs-var hs-var">mkList</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Type -&gt; Type -&gt; Type) -&gt; Type -&gt; [Type] -&gt; Type
 forall (t :: * -&gt; *) a b.
 Foldable t =&gt;
 (a -&gt; b -&gt; b) -&gt; b -&gt; t a -&gt; b
@@ -184,88 +184,88 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 -&gt; QuasiQuoter
 </span><span class="hs-identifier hs-var">QuasiQuoter</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(TypeQ -&gt; ExpQ) -&gt; String -&gt; ExpQ
 forall r. (TypeQ -&gt; r) -&gt; String -&gt; r
-</span><a href="#local-6989586621679076386"><span class="hs-identifier hs-var">mkProxy</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; ExpQ
+</span><a href="#local-6989586621679076381"><span class="hs-identifier hs-var">mkProxy</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; ExpQ
 </span><a href="Data.Proxy.TH.html#proxyExpQ"><span class="hs-identifier hs-var">proxyExpQ</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(TypeQ -&gt; PatQ) -&gt; String -&gt; PatQ
 forall r. (TypeQ -&gt; r) -&gt; String -&gt; r
-</span><a href="#local-6989586621679076386"><span class="hs-identifier hs-var">mkProxy</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; PatQ
+</span><a href="#local-6989586621679076381"><span class="hs-identifier hs-var">mkProxy</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; PatQ
 </span><a href="Data.Proxy.TH.html#proxyPatQ"><span class="hs-identifier hs-var">proxyPatQ</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(TypeQ -&gt; TypeQ) -&gt; String -&gt; TypeQ
 forall r. (TypeQ -&gt; r) -&gt; String -&gt; r
-</span><a href="#local-6989586621679076386"><span class="hs-identifier hs-var">mkProxy</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ
+</span><a href="#local-6989586621679076381"><span class="hs-identifier hs-var">mkProxy</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ
 </span><a href="Data.Proxy.TH.html#proxyTypeQ"><span class="hs-identifier hs-var">proxyTypeQ</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">String -&gt; Q [Dec]
 forall a. HasCallStack =&gt; a
 </span><span class="hs-identifier hs-var">undefined</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-77"></span><span>  </span><span id="local-6989586621679076385"><span class="annot"><span class="annottext">sing :: Type -&gt; Type
-</span><a href="#local-6989586621679076385"><span class="hs-identifier hs-var hs-var">sing</span></a></span></span><span> </span><span id="local-6989586621679076384"><span class="annot"><span class="annottext">x :: Type
-</span><a href="#local-6989586621679076384"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Type -&gt; Type -&gt; Type
+</span><span id="line-77"></span><span>  </span><span id="local-6989586621679076380"><span class="annot"><span class="annottext">sing :: Type -&gt; Type
+</span><a href="#local-6989586621679076380"><span class="hs-identifier hs-var hs-var">sing</span></a></span></span><span> </span><span id="local-6989586621679076379"><span class="annot"><span class="annottext">x :: Type
+</span><a href="#local-6989586621679076379"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Type -&gt; Type -&gt; Type
 </span><span class="hs-identifier hs-var">AppT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Type -&gt; Type -&gt; Type
 </span><span class="hs-identifier hs-var">AppT</span></span><span> </span><span class="annot"><span class="annottext">Type
 </span><span class="hs-identifier hs-var">PromotedConsT</span></span><span> </span><span class="annot"><span class="annottext">Type
-</span><a href="#local-6989586621679076384"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679076379"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Type
 </span><span class="hs-identifier hs-var">PromotedNilT</span></span><span>
-</span><span id="line-78"></span><span>  </span><span id="local-6989586621679076386"><span class="annot"><span class="annottext">mkProxy :: (TypeQ -&gt; p) -&gt; String -&gt; p
-</span><a href="#local-6989586621679076386"><span class="hs-identifier hs-var hs-var">mkProxy</span></a></span></span><span> </span><span id="local-6989586621679076383"><span class="annot"><span class="annottext">p :: TypeQ -&gt; p
-</span><a href="#local-6989586621679076383"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679076382"><span class="annot"><span class="annottext">s :: String
-</span><a href="#local-6989586621679076382"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679076382"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-79"></span><span>    </span><span id="local-6989586621679076381"><span class="annot"><span class="annottext">t :: Char
-</span><a href="#local-6989586621679076381"><span class="hs-identifier hs-var">t</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span class="hs-identifier">_</span><span> </span><span>
+</span><span id="line-78"></span><span>  </span><span id="local-6989586621679076381"><span class="annot"><span class="annottext">mkProxy :: (TypeQ -&gt; p) -&gt; String -&gt; p
+</span><a href="#local-6989586621679076381"><span class="hs-identifier hs-var hs-var">mkProxy</span></a></span></span><span> </span><span id="local-6989586621679076378"><span class="annot"><span class="annottext">p :: TypeQ -&gt; p
+</span><a href="#local-6989586621679076378"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679076377"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679076377"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679076377"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-79"></span><span>    </span><span id="local-6989586621679076376"><span class="annot"><span class="annottext">t :: Char
+</span><a href="#local-6989586621679076376"><span class="hs-identifier hs-var">t</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span class="hs-identifier">_</span><span> </span><span>
 </span><span id="line-80"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Char -&gt; Bool
 </span><span class="hs-identifier hs-var">isUpper</span></span><span> </span><span class="annot"><span class="annottext">Char
-</span><a href="#local-6989586621679076381"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; p
-</span><a href="#local-6989586621679076383"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Type -&gt; Type) -&gt; TypeQ -&gt; TypeQ
+</span><a href="#local-6989586621679076376"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; p
+</span><a href="#local-6989586621679076378"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Type -&gt; Type) -&gt; TypeQ -&gt; TypeQ
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">Type -&gt; Type
-</span><a href="#local-6989586621679076385"><span class="hs-identifier hs-var">sing</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Name -&gt; TypeQ
+</span><a href="#local-6989586621679076380"><span class="hs-identifier hs-var">sing</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Name -&gt; TypeQ
 </span><span class="hs-identifier hs-var">conT</span></span><span> </span><span class="annot"><span class="annottext">(Name -&gt; TypeQ) -&gt; Name -&gt; TypeQ
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Name
 </span><span class="hs-identifier hs-var">mkName</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679076382"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679076377"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-81"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; p
-</span><a href="#local-6989586621679076383"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Type -&gt; Type) -&gt; TypeQ -&gt; TypeQ
+</span><a href="#local-6989586621679076378"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Type -&gt; Type) -&gt; TypeQ -&gt; TypeQ
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">Type -&gt; Type
-</span><a href="#local-6989586621679076385"><span class="hs-identifier hs-var">sing</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Name -&gt; TypeQ
+</span><a href="#local-6989586621679076380"><span class="hs-identifier hs-var">sing</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Name -&gt; TypeQ
 </span><span class="hs-identifier hs-var">varT</span></span><span> </span><span class="annot"><span class="annottext">(Name -&gt; TypeQ) -&gt; Name -&gt; TypeQ
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Name
 </span><span class="hs-identifier hs-var">mkName</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679076382"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679076377"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-82"></span><span>    </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; p
 forall a. HasCallStack =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Empty string passed to pr1&quot;</span></span><span class="hs-cpp">
 #endif
 </span><span>
 </span><span id="line-85"></span><span class="hs-comment">-- | Split on a delimiter.</span><span>
-</span><span id="line-86"></span><span id="local-6989586621679076439"><span class="annot"><a href="Data.Proxy.TH.html#splitOn"><span class="hs-identifier hs-type">splitOn</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Eq</span></span><span> </span><span class="annot"><a href="#local-6989586621679076439"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679076439"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679076439"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679076439"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span class="hs-special">]</span></span><span>
+</span><span id="line-86"></span><span id="local-6989586621679076434"><span class="annot"><a href="Data.Proxy.TH.html#splitOn"><span class="hs-identifier hs-type">splitOn</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Eq</span></span><span> </span><span class="annot"><a href="#local-6989586621679076434"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679076434"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679076434"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679076434"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span class="hs-special">]</span></span><span>
 </span><span id="line-87"></span><span id="splitOn"><span class="annot"><span class="annottext">splitOn :: a -&gt; [a] -&gt; [[a]]
-</span><a href="Data.Proxy.TH.html#splitOn"><span class="hs-identifier hs-var hs-var">splitOn</span></a></span></span><span> </span><span id="local-6989586621679076379"><span class="annot"><span class="annottext">d :: a
-</span><a href="#local-6989586621679076379"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [[a]]
-</span><a href="#local-6989586621679076378"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-88"></span><span>  </span><span id="local-6989586621679076378"><span class="annot"><span class="annottext">go :: [a] -&gt; [[a]]
-</span><a href="#local-6989586621679076378"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
-</span><span id="line-89"></span><span>  </span><span class="annot"><a href="#local-6989586621679076378"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679076377"><span class="annot"><span class="annottext">xs :: [a]
-</span><a href="#local-6989586621679076377"><span class="hs-identifier hs-var">xs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679076376"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="Data.Proxy.TH.html#splitOn"><span class="hs-identifier hs-var hs-var">splitOn</span></a></span></span><span> </span><span id="local-6989586621679076374"><span class="annot"><span class="annottext">d :: a
+</span><a href="#local-6989586621679076374"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [[a]]
+</span><a href="#local-6989586621679076373"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-88"></span><span>  </span><span id="local-6989586621679076373"><span class="annot"><span class="annottext">go :: [a] -&gt; [[a]]
+</span><a href="#local-6989586621679076373"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-89"></span><span>  </span><span class="annot"><a href="#local-6989586621679076373"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679076372"><span class="annot"><span class="annottext">xs :: [a]
+</span><a href="#local-6989586621679076372"><span class="hs-identifier hs-var">xs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679076371"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-90"></span><span>      </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679076375"><span class="hs-identifier hs-var">h</span></a></span><span class="hs-special">]</span><span>
-</span><span id="line-91"></span><span>      </span><span class="hs-special">(</span><span class="hs-identifier">_</span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679076374"><span class="annot"><span class="annottext">t' :: [a]
-</span><a href="#local-6989586621679076374"><span class="hs-identifier hs-var">t'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679076375"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [[a]] -&gt; [[a]]
+</span><a href="#local-6989586621679076370"><span class="hs-identifier hs-var">h</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-91"></span><span>      </span><span class="hs-special">(</span><span class="hs-identifier">_</span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679076369"><span class="annot"><span class="annottext">t' :: [a]
+</span><a href="#local-6989586621679076369"><span class="hs-identifier hs-var">t'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679076370"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [[a]] -&gt; [[a]]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [[a]]
-</span><a href="#local-6989586621679076378"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679076374"><span class="hs-identifier hs-var">t'</span></a></span><span> </span><span>
-</span><span id="line-92"></span><span>    </span><span class="hs-keyword">where</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679076375"><span class="annot"><span class="annottext">h :: [a]
-</span><a href="#local-6989586621679076375"><span class="hs-identifier hs-var">h</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679076376"><span class="annot"><span class="annottext">t :: [a]
-</span><a href="#local-6989586621679076376"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a -&gt; Bool) -&gt; [a] -&gt; ([a], [a])
+</span><a href="#local-6989586621679076373"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679076369"><span class="hs-identifier hs-var">t'</span></a></span><span> </span><span>
+</span><span id="line-92"></span><span>    </span><span class="hs-keyword">where</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679076370"><span class="annot"><span class="annottext">h :: [a]
+</span><a href="#local-6989586621679076370"><span class="hs-identifier hs-var">h</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679076371"><span class="annot"><span class="annottext">t :: [a]
+</span><a href="#local-6989586621679076371"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a -&gt; Bool) -&gt; [a] -&gt; ([a], [a])
 forall a. (a -&gt; Bool) -&gt; [a] -&gt; ([a], [a])
 </span><span class="hs-identifier hs-var">break</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679076379"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679076377"><span class="hs-identifier hs-var">xs</span></a></span><span>
+</span><a href="#local-6989586621679076374"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679076372"><span class="hs-identifier hs-var">xs</span></a></span><span>
 </span><span id="line-93"></span><span>
 </span><span id="line-94"></span><span class="hs-comment">-- | Remove white space from both ends of a 'String'.</span><span>
 </span><span id="line-95"></span><span class="annot"><a href="Data.Proxy.TH.html#strip"><span class="hs-identifier hs-type">strip</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>

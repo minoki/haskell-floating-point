@@ -54,65 +54,65 @@
 </span><span id="line-54"></span><span class="hs-comment">-- | The long double type on x86_64: 80bits of x87 FPU data in 128bits of space.</span><span>
 </span><span id="line-55"></span><span class="hs-keyword">data</span><span> </span><span id="LongDouble"><span class="annot"><a href="Numeric.LongDouble.X87_128.html#LongDouble"><span class="hs-identifier hs-var">LongDouble</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LD"><span class="annot"><a href="Numeric.LongDouble.X87_128.html#LD"><span class="hs-identifier hs-var">LD</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span>
 </span><span id="line-56"></span><span>
-</span><span id="line-57"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679048472"><span id="local-6989586621679048474"><span id="local-6989586621679048476"><span id="local-6989586621679048478"><span class="annot"><span class="hs-identifier hs-type">Storable</span></span><span> </span><span class="annot"><a href="Numeric.LongDouble.X87_128.html#LongDouble"><span class="hs-identifier hs-type">LongDouble</span></a></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-58"></span><span>  </span><span id="local-6989586621679048468"><span class="annot"><span class="annottext">sizeOf :: LongDouble -&gt; Int
+</span><span id="line-57"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679048469"><span id="local-6989586621679048471"><span id="local-6989586621679048473"><span id="local-6989586621679048475"><span class="annot"><span class="hs-identifier hs-type">Storable</span></span><span> </span><span class="annot"><a href="Numeric.LongDouble.X87_128.html#LongDouble"><span class="hs-identifier hs-type">LongDouble</span></a></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-58"></span><span>  </span><span id="local-6989586621679048465"><span class="annot"><span class="annottext">sizeOf :: LongDouble -&gt; Int
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">sizeOf</span></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">2</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Int
 forall a. Storable a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">sizeOf</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span class="hs-special">)</span><span>
-</span><span id="line-59"></span><span>  </span><span id="local-6989586621679048466"><span class="annot"><span class="annottext">alignment :: LongDouble -&gt; Int
+</span><span id="line-59"></span><span>  </span><span id="local-6989586621679048463"><span class="annot"><span class="annottext">alignment :: LongDouble -&gt; Int
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">alignment</span></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Int
 forall a. Storable a =&gt; a -&gt; Int
 </span><span class="hs-identifier hs-var">alignment</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span class="hs-special">)</span><span>
-</span><span id="line-60"></span><span>  </span><span id="local-6989586621679048464"><span class="annot"><span class="annottext">peek :: Ptr LongDouble -&gt; IO LongDouble
-</span><a href="#local-6989586621679048464"><span class="hs-identifier hs-var hs-var hs-var hs-var">peek</span></a></span></span><span> </span><span id="local-6989586621679048463"><span class="annot"><span class="annottext">p :: Ptr LongDouble
-</span><a href="#local-6989586621679048463"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-61"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="#local-6989586621679048462"><span class="hs-identifier hs-type">q</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ptr</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span>
-</span><span id="line-62"></span><span>        </span><span id="local-6989586621679048462"><span class="annot"><span class="annottext">q :: Ptr Word64
-</span><a href="#local-6989586621679048462"><span class="hs-identifier hs-var hs-var">q</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble -&gt; Ptr Word64
+</span><span id="line-60"></span><span>  </span><span id="local-6989586621679048461"><span class="annot"><span class="annottext">peek :: Ptr LongDouble -&gt; IO LongDouble
+</span><a href="#local-6989586621679048461"><span class="hs-identifier hs-var hs-var hs-var hs-var">peek</span></a></span></span><span> </span><span id="local-6989586621679048460"><span class="annot"><span class="annottext">p :: Ptr LongDouble
+</span><a href="#local-6989586621679048460"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-61"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="#local-6989586621679048459"><span class="hs-identifier hs-type">q</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ptr</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span>
+</span><span id="line-62"></span><span>        </span><span id="local-6989586621679048459"><span class="annot"><span class="annottext">q :: Ptr Word64
+</span><a href="#local-6989586621679048459"><span class="hs-identifier hs-var hs-var">q</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble -&gt; Ptr Word64
 forall a b. Ptr a -&gt; Ptr b
 </span><span class="hs-identifier hs-var">castPtr</span></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679048463"><span class="hs-identifier hs-var">p</span></a></span><span>
-</span><span id="line-63"></span><span>    </span><span id="local-6989586621679048461"><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679048461"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Ptr Word64 -&gt; Int -&gt; IO Word64
+</span><a href="#local-6989586621679048460"><span class="hs-identifier hs-var">p</span></a></span><span>
+</span><span id="line-63"></span><span>    </span><span id="local-6989586621679048458"><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679048458"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Ptr Word64 -&gt; Int -&gt; IO Word64
 forall a. Storable a =&gt; Ptr a -&gt; Int -&gt; IO a
 </span><span class="hs-identifier hs-var">peekElemOff</span></span><span> </span><span class="annot"><span class="annottext">Ptr Word64
-</span><a href="#local-6989586621679048462"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span>
-</span><span id="line-64"></span><span>    </span><span id="local-6989586621679048459"><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679048459"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Ptr Word64 -&gt; Int -&gt; IO Word64
+</span><a href="#local-6989586621679048459"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span>
+</span><span id="line-64"></span><span>    </span><span id="local-6989586621679048456"><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679048456"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Ptr Word64 -&gt; Int -&gt; IO Word64
 forall a. Storable a =&gt; Ptr a -&gt; Int -&gt; IO a
 </span><span class="hs-identifier hs-var">peekElemOff</span></span><span> </span><span class="annot"><span class="annottext">Ptr Word64
-</span><a href="#local-6989586621679048462"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span>
+</span><a href="#local-6989586621679048459"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span>
 </span><span id="line-65"></span><span>    </span><span class="annot"><span class="annottext">LongDouble -&gt; IO LongDouble
 forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
 </span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(LongDouble -&gt; IO LongDouble) -&gt; LongDouble -&gt; IO LongDouble
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; LongDouble
 </span><a href="Numeric.LongDouble.X87_128.html#LD"><span class="hs-identifier hs-var">LD</span></a></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679048461"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679048459"><span class="hs-identifier hs-var">b</span></a></span><span>
-</span><span id="line-66"></span><span>  </span><span id="local-6989586621679048458"><span class="annot"><span class="annottext">poke :: Ptr LongDouble -&gt; LongDouble -&gt; IO ()
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">poke</span></span></span><span> </span><span id="local-6989586621679048456"><span class="annot"><span class="annottext">p :: Ptr LongDouble
-</span><a href="#local-6989586621679048456"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.LongDouble.X87_128.html#LD"><span class="hs-identifier hs-type">LD</span></a></span><span> </span><span id="local-6989586621679048455"><span class="annot"><span class="annottext">a :: Word64
-</span><a href="#local-6989586621679048455"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679048454"><span class="annot"><span class="annottext">b :: Word64
-</span><a href="#local-6989586621679048454"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-67"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="#local-6989586621679048453"><span class="hs-identifier hs-type">q</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ptr</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span>
-</span><span id="line-68"></span><span>        </span><span id="local-6989586621679048453"><span class="annot"><span class="annottext">q :: Ptr Word64
-</span><a href="#local-6989586621679048453"><span class="hs-identifier hs-var hs-var">q</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble -&gt; Ptr Word64
+</span><a href="#local-6989586621679048458"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679048456"><span class="hs-identifier hs-var">b</span></a></span><span>
+</span><span id="line-66"></span><span>  </span><span id="local-6989586621679048455"><span class="annot"><span class="annottext">poke :: Ptr LongDouble -&gt; LongDouble -&gt; IO ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">poke</span></span></span><span> </span><span id="local-6989586621679048453"><span class="annot"><span class="annottext">p :: Ptr LongDouble
+</span><a href="#local-6989586621679048453"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Numeric.LongDouble.X87_128.html#LD"><span class="hs-identifier hs-type">LD</span></a></span><span> </span><span id="local-6989586621679048452"><span class="annot"><span class="annottext">a :: Word64
+</span><a href="#local-6989586621679048452"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679048451"><span class="annot"><span class="annottext">b :: Word64
+</span><a href="#local-6989586621679048451"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-67"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="#local-6989586621679048450"><span class="hs-identifier hs-type">q</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ptr</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span>
+</span><span id="line-68"></span><span>        </span><span id="local-6989586621679048450"><span class="annot"><span class="annottext">q :: Ptr Word64
+</span><a href="#local-6989586621679048450"><span class="hs-identifier hs-var hs-var">q</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble -&gt; Ptr Word64
 forall a b. Ptr a -&gt; Ptr b
 </span><span class="hs-identifier hs-var">castPtr</span></span><span> </span><span class="annot"><span class="annottext">Ptr LongDouble
-</span><a href="#local-6989586621679048456"><span class="hs-identifier hs-var">p</span></a></span><span>
+</span><a href="#local-6989586621679048453"><span class="hs-identifier hs-var">p</span></a></span><span>
 </span><span id="line-69"></span><span>    </span><span class="annot"><span class="annottext">Ptr Word64 -&gt; Int -&gt; Word64 -&gt; IO ()
 forall a. Storable a =&gt; Ptr a -&gt; Int -&gt; a -&gt; IO ()
 </span><span class="hs-identifier hs-var">pokeElemOff</span></span><span> </span><span class="annot"><span class="annottext">Ptr Word64
-</span><a href="#local-6989586621679048453"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679048455"><span class="hs-identifier hs-var">a</span></a></span><span>
+</span><a href="#local-6989586621679048450"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679048452"><span class="hs-identifier hs-var">a</span></a></span><span>
 </span><span id="line-70"></span><span>    </span><span class="annot"><span class="annottext">Ptr Word64 -&gt; Int -&gt; Word64 -&gt; IO ()
 forall a. Storable a =&gt; Ptr a -&gt; Int -&gt; a -&gt; IO ()
 </span><span class="hs-identifier hs-var">pokeElemOff</span></span><span> </span><span class="annot"><span class="annottext">Ptr Word64
-</span><a href="#local-6989586621679048453"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679048454"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-cpp">
+</span><a href="#local-6989586621679048450"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679048451"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-cpp">
 
 #include &quot;X87.hs&quot;
 </span></pre></body></html>
