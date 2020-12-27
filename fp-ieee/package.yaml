@@ -43,10 +43,10 @@ flags:
     manual: true
     default: false
 
-  x87-long-double:
-    description: "Support x87 \"long double\" via long-double package"
-    manual: true
-    default: true
+  # x87-long-double:
+  #   description: "Support x87 \"long double\" via long-double package"
+  #   manual: true
+  #   default: true
 
   float128:
     description: "Support Float128 via float128 package"
@@ -125,11 +125,11 @@ when:
   c-sources:
   - cbits/minmax.c
 
-# flag(x87-long-double): Support LongDouble on x86
-- condition: "flag(x87-long-double) && (arch(i386) || arch(x86_64))"
-  dependencies: long-double
-  cpp-options:
-  - -DUSE_X87_LONG_DOUBLE
+# # flag(x87-long-double): Support LongDouble on x86
+# - condition: "flag(x87-long-double) && (arch(i386) || arch(x86_64))"
+#   dependencies: long-double
+#   cpp-options:
+#   - -DUSE_X87_LONG_DOUBLE
 
 # flag(float128): Support Float128
 - condition: flag(float128)

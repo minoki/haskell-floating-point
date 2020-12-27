@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e0ec79bfa7474a57d4b78accbbeaad626b04773aac4d78c2e9eb2649f2273628
+-- hash: 094152e79612df52750a4e766280ef590ae03213298c81cc209ff48c0017b7db
 
 name:           fp-ieee
 version:        0.1.0.0
@@ -66,11 +66,6 @@ flag sse4_1
   manual: True
   default: False
 
-flag x87-long-double
-  description: Support x87 "long double" via long-double package
-  manual: True
-  default: True
-
 library
   exposed-modules:
       Numeric.Floating.IEEE
@@ -131,10 +126,6 @@ library
     cpp-options: -DHAS_FAST_MINMAX
     c-sources:
         cbits/minmax.c
-  if flag(x87-long-double) && (arch(i386) || arch(x86_64))
-    cpp-options: -DUSE_X87_LONG_DOUBLE
-    build-depends:
-        long-double
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
@@ -215,10 +206,6 @@ test-suite fp-ieee-decimal-test
     cpp-options: -DHAS_FAST_MINMAX
     c-sources:
         cbits/minmax.c
-  if flag(x87-long-double) && (arch(i386) || arch(x86_64))
-    cpp-options: -DUSE_X87_LONG_DOUBLE
-    build-depends:
-        long-double
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
@@ -279,10 +266,6 @@ test-suite fp-ieee-doctests
     cpp-options: -DHAS_FAST_MINMAX
     c-sources:
         cbits/minmax.c
-  if flag(x87-long-double) && (arch(i386) || arch(x86_64))
-    cpp-options: -DUSE_X87_LONG_DOUBLE
-    build-depends:
-        long-double
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
@@ -359,10 +342,6 @@ test-suite fp-ieee-test
     cpp-options: -DHAS_FAST_MINMAX
     c-sources:
         cbits/minmax.c
-  if flag(x87-long-double) && (arch(i386) || arch(x86_64))
-    cpp-options: -DUSE_X87_LONG_DOUBLE
-    build-depends:
-        long-double
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
@@ -432,10 +411,6 @@ benchmark fp-ieee-benchmark
     cpp-options: -DHAS_FAST_MINMAX
     c-sources:
         cbits/minmax.c
-  if flag(x87-long-double) && (arch(i386) || arch(x86_64))
-    cpp-options: -DUSE_X87_LONG_DOUBLE
-    build-depends:
-        long-double
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
