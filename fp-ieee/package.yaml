@@ -1,5 +1,5 @@
 name:                fp-ieee
-version:             0.1.0.0
+version:             0.1.0
 github:              "minoki/haskell-floating-point"
 license:             BSD3
 author:              "ARATA Mizuki"
@@ -133,14 +133,14 @@ when:
 
 # flag(float128): Support Float128
 - condition: flag(float128)
-  dependencies: float128
+  dependencies: float128 >=0.1 && <0.2
   cpp-options:
   - -DUSE_FLOAT128
 
 # flag(half): Support Half
 # Note that half-0.3's isInfinite is buggy (https://github.com/ekmett/half/issues/23)
 - condition: flag(half)
-  dependencies: half
+  dependencies: half >=0.3 && <0.4
   cpp-options:
   - -DUSE_HALF
 
@@ -191,7 +191,7 @@ library:
   - Numeric.Floating.IEEE.Internal.Rounding.Integral
   - Numeric.Floating.IEEE.Internal.Rounding.Rational
   dependencies:
-  - integer-logarithms
+  - integer-logarithms >=1 && <1.1
   ghc-options:
   - -Wall
   when:

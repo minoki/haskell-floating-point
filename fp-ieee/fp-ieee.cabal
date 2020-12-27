@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 094152e79612df52750a4e766280ef590ae03213298c81cc209ff48c0017b7db
+-- hash: f0bf89e9df957b5023d91e55d09165cecb06208750fddaf58af69fd7c2b7e35d
 
 name:           fp-ieee
-version:        0.1.0.0
+version:        0.1.0
 description:    Please see the README on GitHub at <https://github.com/minoki/haskell-floating-point/tree/master/fp-ieee#readme>
 category:       Numeric, Math
 homepage:       https://github.com/minoki/haskell-floating-point#readme
@@ -96,7 +96,7 @@ library
   ghc-options: -Wall
   build-depends:
       base >=4.12 && <5
-    , integer-logarithms
+    , integer-logarithms >=1 && <1.1
   if arch(i386)
     ghc-options: -msse2
     cc-options: -msse2 -mfpmath=sse
@@ -129,11 +129,11 @@ library
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
-        float128
+        float128 >=0.1 && <0.2
   if flag(half)
     cpp-options: -DUSE_HALF
     build-depends:
-        half
+        half >=0.3 && <0.4
   if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
     cc-options: -mf16c
@@ -209,11 +209,11 @@ test-suite fp-ieee-decimal-test
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
-        float128
+        float128 >=0.1 && <0.2
   if flag(half)
     cpp-options: -DUSE_HALF
     build-depends:
-        half
+        half >=0.3 && <0.4
   if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
     cc-options: -mf16c
@@ -269,11 +269,11 @@ test-suite fp-ieee-doctests
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
-        float128
+        float128 >=0.1 && <0.2
   if flag(half)
     cpp-options: -DUSE_HALF
     build-depends:
-        half
+        half >=0.3 && <0.4
   if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
     cc-options: -mf16c
@@ -345,11 +345,11 @@ test-suite fp-ieee-test
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
-        float128
+        float128 >=0.1 && <0.2
   if flag(half)
     cpp-options: -DUSE_HALF
     build-depends:
-        half
+        half >=0.3 && <0.4
   if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
     cc-options: -mf16c
@@ -414,11 +414,11 @@ benchmark fp-ieee-benchmark
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
-        float128
+        float128 >=0.1 && <0.2
   if flag(half)
     cpp-options: -DUSE_HALF
     build-depends:
-        half
+        half >=0.3 && <0.4
   if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
     cc-options: -mf16c
