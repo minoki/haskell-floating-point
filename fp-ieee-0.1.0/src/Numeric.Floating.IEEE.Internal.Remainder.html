@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE CPP #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE NoImplicitPrelude #-}</span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Numeric.Floating.IEEE.Internal.Remainder</span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Remainder.html#remainder"><span class="hs-identifier">remainder</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="MyPrelude.html"><span class="hs-identifier">MyPrelude</span></a></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Classify.html"><span class="hs-identifier">Numeric.Floating.IEEE.Internal.Classify</span></a></span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">default</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-12"></span><span class="hs-comment">-- @'remainder' x y@ returns \(r=x-yn\), where \(n\) is the integer nearest the exact number \(x/y\); i.e. \(n=\mathrm{round}(x/y)\).</span><span>
+</span><span id="line-13"></span><span class="hs-comment">--</span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- IEEE 754 @remainder@ operation.</span><span>
+</span><span id="line-15"></span><span id="local-6989586621679093387"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Remainder.html#remainder"><span class="hs-identifier hs-type">remainder</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RealFloat</span></span><span> </span><span class="annot"><a href="#local-6989586621679093387"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679093387"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679093387"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679093387"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-16"></span><span id="remainder"><span class="annot"><span class="annottext">remainder :: a -&gt; a -&gt; a
+</span><a href="Numeric.Floating.IEEE.Internal.Remainder.html#remainder"><span class="hs-identifier hs-var hs-var">remainder</span></a></span></span><span> </span><span id="local-6989586621679093386"><span class="annot"><span class="annottext">x :: a
+</span><a href="#local-6989586621679093386"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679093385"><span class="annot"><span class="annottext">y :: a
+</span><a href="#local-6989586621679093385"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFinite"><span class="hs-identifier hs-var">isFinite</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093386"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093385"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093386"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-17"></span><span>              </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093385"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isInfinite</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093385"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><span class="hs-identifier hs-var">isNaN</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093385"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool
+</span><span class="hs-identifier hs-var">not</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
+forall a. RealFloat a =&gt; a -&gt; Bool
+</span><a href="Numeric.Floating.IEEE.Internal.Classify.html#isFinite"><span class="hs-identifier hs-var">isFinite</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093386"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093386"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093386"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Fractional a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">/</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093385"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093385"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="hs-comment">-- return a NaN</span><span>
+</span><span id="line-18"></span><span>              </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679093376"><span class="annot"><span class="annottext">n :: Integer
+</span><a href="#local-6989586621679093376"><span class="hs-identifier hs-var hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Integer
+forall a b. (RealFrac a, Integral b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">round</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Rational
+forall a. Real a =&gt; a -&gt; Rational
+</span><span class="hs-identifier hs-var">toRational</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093386"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Rational -&gt; Rational
+forall a. Fractional a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">/</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Rational
+forall a. Real a =&gt; a -&gt; Rational
+</span><span class="hs-identifier hs-var">toRational</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093385"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span>                                </span><span id="local-6989586621679093374"><span class="annot"><span class="annottext">r :: a
+</span><a href="#local-6989586621679093374"><span class="hs-identifier hs-var hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Rational -&gt; a
+forall a. Fractional a =&gt; Rational -&gt; a
+</span><span class="hs-identifier hs-var">fromRational</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Rational
+forall a. Real a =&gt; a -&gt; Rational
+</span><span class="hs-identifier hs-var">toRational</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093386"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Rational -&gt; Rational
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Rational
+forall a. Real a =&gt; a -&gt; Rational
+</span><span class="hs-identifier hs-var">toRational</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093385"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Rational -&gt; Rational -&gt; Rational
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Rational
+forall a. Num a =&gt; Integer -&gt; a
+</span><span class="hs-identifier hs-var">fromInteger</span></span><span> </span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679093376"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>                            </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093374"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="hs-comment">-- if r == 0, the sign of r is the same as x</span><span>
+</span><span id="line-21"></span><span class="hs-pragma">{-# NOINLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Remainder.html#remainder"><span class="hs-pragma hs-type">remainder</span></a></span><span> </span><span class="hs-pragma">#-}</span><span class="hs-cpp">
+
+#if defined(USE_FFI)
+</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;remainderf&quot;</span></span><span>
+</span><span id="line-26"></span><span>  </span><span id="c_remainderFloat"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Remainder.html#c_remainderFloat"><span class="hs-identifier hs-var">c_remainderFloat</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Float</span></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">foreign</span><span> </span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-keyword">ccall</span></span><span> </span><span class="annot"><span class="hs-keyword">unsafe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;remainder&quot;</span></span><span>
+</span><span id="line-28"></span><span>  </span><span id="c_remainderDouble"><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Remainder.html#c_remainderDouble"><span class="hs-identifier hs-var">c_remainderDouble</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-pragma">{-# RULES</span><span>
+</span><span id="line-31"></span><span class="annot"><span class="hs-pragma">&quot;remainder/Float&quot;</span></span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Remainder.html#remainder"><span class="hs-pragma hs-type">remainder</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Remainder.html#c_remainderFloat"><span class="hs-pragma hs-type">c_remainderFloat</span></a></span><span>
+</span><span id="line-32"></span><span class="annot"><span class="hs-pragma">&quot;remainder/Double&quot;</span></span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Remainder.html#remainder"><span class="hs-pragma hs-type">remainder</span></a></span><span> </span><span class="hs-pragma">=</span><span> </span><span class="annot"><a href="Numeric.Floating.IEEE.Internal.Remainder.html#c_remainderDouble"><span class="hs-pragma hs-type">c_remainderDouble</span></a></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-pragma">#-}</span><span class="hs-cpp">
+
+#endif
+</span></pre></body></html>
