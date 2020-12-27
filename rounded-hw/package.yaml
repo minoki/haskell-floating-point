@@ -71,6 +71,18 @@ custom-setup:
 
 library:
   source-dirs: src
+  exposed-modules:
+  - Numeric.Rounded.Hardware
+  - Numeric.Rounded.Hardware.Backend
+  - Numeric.Rounded.Hardware.Backend.ViaRational
+  - Numeric.Rounded.Hardware.Class
+  - Numeric.Rounded.Hardware.Internal
+  - Numeric.Rounded.Hardware.Interval
+  - Numeric.Rounded.Hardware.Interval.Class
+  - Numeric.Rounded.Hardware.Interval.NonEmpty
+  - Numeric.Rounded.Hardware.Rounding
+  - Numeric.Rounded.Hardware.Vector.Storable
+  - Numeric.Rounded.Hardware.Vector.Unboxed
   other-modules:
   - Numeric.Rounded.Hardware.Internal.Rounding
   - Numeric.Rounded.Hardware.Internal.Class

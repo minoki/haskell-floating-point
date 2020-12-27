@@ -166,6 +166,10 @@ when:
 
 library:
   source-dirs: src
+  exposed-modules:
+  - Numeric.Floating.IEEE
+  - Numeric.Floating.IEEE.Internal
+  - Numeric.Floating.IEEE.NaN
   other-modules:
   - GHC.Float.Compat
   - MyPrelude
@@ -209,6 +213,16 @@ tests:
   fp-ieee-test:
     main:                Spec.hs
     source-dirs:         test
+    other-modules:
+    - AugmentedArithSpec
+    - ClassificationSpec
+    - FMASpec
+    - IntegerInternalsSpec
+    - MinMaxSpec
+    - NaNSpec
+    - RoundingSpec
+    - RoundToIntegralSpec
+    - TwoSumSpec
     ghc-options:
     - -threaded
     - -rtsopts
@@ -232,6 +246,8 @@ tests:
   fp-ieee-decimal-test:
     main:                Spec.hs
     source-dirs:         decimal-test
+    other-modules:
+    - NextFloatSpec
     ghc-options:
     - -threaded
     - -rtsopts
