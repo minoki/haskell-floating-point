@@ -1,5 +1,5 @@
 name:                rounded-hw
-version:             0.1.0.0
+version:             0.2.0
 github:              "minoki/haskell-floating-point"
 license:             BSD3
 author:              "ARATA Mizuki"
@@ -28,7 +28,7 @@ dependencies:
 - vector
 - primitive
 - array
-- fp-ieee
+- fp-ieee ==0.1.*
 # - rounded
 
 flags:
