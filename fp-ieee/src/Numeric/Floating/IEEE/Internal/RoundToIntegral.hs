@@ -21,6 +21,8 @@ default ()
 -- >>> import Numeric.Floating.IEEE.Internal.Classify (isFinite)
 
 -- |
+-- @'round'' x@ returns the nearest integral value to @x@; the even integer if @x@ is equidistant between two integers.
+--
 -- IEEE 754 @roundToIntegralTiesToEven@ operation.
 --
 -- prop> \(x :: Double) -> isFinite x ==> (round' x == fromInteger (round x))
@@ -35,6 +37,8 @@ round' x = case round x of
 {-# NOINLINE [1] round' #-}
 
 -- |
+-- @'roundAway'' x@ returns the nearest integral value to @x@; the one with larger magnitude is returned if @x@ is equidistant between two integers.
+--
 -- IEEE 754 @roundToIntegralTiesToAway@ operation.
 --
 -- prop> \(x :: Double) -> isFinite x ==> roundAway' x == fromInteger (roundAway x)
@@ -61,6 +65,8 @@ roundAway' x = case properFraction x of
 {-# NOINLINE [1] roundAway' #-}
 
 -- |
+-- @'truncate'' x@ returns the integral value nearest to @x@, and whose magnitude is not greater than that of @x@.
+--
 -- IEEE 754 @roundToIntegralTowardZero@ operation.
 --
 -- prop> \(x :: Double) -> isFinite x ==> truncate' x == fromInteger (truncate x)
@@ -75,6 +81,8 @@ truncate' x = case truncate x of
 {-# NOINLINE [1] truncate' #-}
 
 -- |
+-- @'ceiling'' x@ returns the least integral value that is not less than @x@.
+--
 -- IEEE 754 @roundToIntegralTowardPositive@ operation.
 --
 -- prop> \(x :: Double) -> isFinite x ==> ceiling' x == fromInteger (ceiling x)
@@ -91,6 +99,8 @@ ceiling' x = case ceiling x of
 {-# NOINLINE [1] ceiling' #-}
 
 -- |
+-- @'floor'' x@ returns the greatest integral value that is not greater than @x@.
+--
 -- IEEE 754 @roundToIntegralTowardNegative@ operation.
 --
 -- prop> \(x :: Double) -> isFinite x ==> floor' x == fromInteger (floor x)
@@ -104,6 +114,8 @@ floor' x | isInfinite x || isNaN x || isNegativeZero x = x + x
 {-# NOINLINE [1] floor' #-}
 
 -- |
+-- @'roundAway' x@ returns the nearest integer to @x@; the integer with larger magnitude is returned if @x@ is equidistant between two integers.
+--
 -- IEEE 754 @convertToIntegerTiesToAway@ operation.
 --
 -- >>> roundAway 4.5

@@ -12,7 +12,11 @@ import           MyPrelude
 default ()
 
 -- |
+-- Converts a floating-point value into another type.
+--
 -- Similar to 'realToFrac', but treats NaN, infinities, negative zero even if the rewrite rule is off.
+--
+-- IEEE 754 @convertFormat@ operation.
 realFloatToFrac :: (RealFloat a, Fractional b) => a -> b
 realFloatToFrac x | isNaN x = 0/0
                   | isInfinite x = if x > 0 then 1/0 else -1/0
@@ -31,6 +35,10 @@ one :: Num a => a
 one = 1
 {-# NOINLINE one #-}
 
+-- |
+-- A specialized version of 'realFloatToFrac'.
+--
+-- The resulting value will be canonical and non-signaling.
 canonicalize :: RealFloat a => a -> a
 canonicalize x = x * one
 {-# INLINE [1] canonicalize #-}

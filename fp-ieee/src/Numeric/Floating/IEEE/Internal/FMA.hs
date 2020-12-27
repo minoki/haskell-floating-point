@@ -186,9 +186,12 @@ twoProductDouble = twoProduct
 #endif
 
 -- |
--- IEEE 754 @fusedMultiplyAdd@ operation.
+-- @'fusedMultiplyAdd' a b c@ computes @a * b + c@ as a single, ternary operation.
+-- Rounding is done only once.
 --
 -- May make use of hardware FMA instructions if the target architecture has it; set @fma3@ package flag on x86 systems.
+--
+-- IEEE 754 @fusedMultiplyAdd@ operation.
 --
 -- prop> \(a :: Double) (b :: Double) (c :: Double) -> fusedMultiplyAdd a b c == fromRational (toRational a * toRational b + toRational c)
 fusedMultiplyAdd :: RealFloat a => a -> a -> a -> a

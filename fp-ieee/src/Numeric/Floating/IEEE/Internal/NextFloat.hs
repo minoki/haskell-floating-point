@@ -14,6 +14,8 @@ default ()
 -- >>> :set -XHexFloatLiterals -XNumericUnderscores
 
 -- |
+-- Returns the smallest value that is larger than the argument.
+--
 -- IEEE 754 @nextUp@ operation.
 --
 -- >>> nextUp 1 == (0x1.000002p0 :: Float)
@@ -28,7 +30,7 @@ default ()
 -- True
 -- >>> nextUp (-0) == (0x1p-1074 :: Double)
 -- True
--- >>> nextUp (-0x1p-1074) :: Double -- should be negative zero
+-- >>> nextUp (-0x1p-1074) :: Double -- returns negative zero
 -- -0.0
 nextUp :: RealFloat a => a -> a
 nextUp x | not (isIEEE x) = error "non-IEEE numbers are not supported"
@@ -38,6 +40,8 @@ nextUp x | not (isIEEE x) = error "non-IEEE numbers are not supported"
 {-# INLINE [1] nextUp #-}
 
 -- |
+-- Returns the largest value that is smaller than the argument.
+--
 -- IEEE 754 @nextDown@ operation.
 --
 -- >>> nextDown 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
@@ -52,9 +56,9 @@ nextUp x | not (isIEEE x) = error "non-IEEE numbers are not supported"
 -- True
 -- >>> nextDown (-0) == (-0x1p-1074 :: Double)
 -- True
--- >>> nextDown 0x1p-1074 -- should be positive zero
+-- >>> nextDown 0x1p-1074 -- returns positive zero
 -- 0.0
--- >>> nextDown 0x1p-1022 == (0x0.ffff_ffff_ffff_fp-1022 ::Double)
+-- >>> nextDown 0x1p-1022 == (0x0.ffff_ffff_ffff_fp-1022 :: Double)
 -- True
 nextDown :: RealFloat a => a -> a
 nextDown x | not (isIEEE x) = error "non-IEEE numbers are not supported"
@@ -64,6 +68,10 @@ nextDown x | not (isIEEE x) = error "non-IEEE numbers are not supported"
 {-# INLINE [1] nextDown #-}
 
 -- |
+-- Returns the value whose magnitude is smaller than that of the argument, and is closest to the argument.
+--
+-- This operation is not in IEEE, but may be useful to some.
+--
 -- >>> nextTowardZero 1 == (0x1.ffff_ffff_ffff_fp-1 :: Double)
 -- True
 -- >>> nextTowardZero 1 == (0x1.fffffep-1 :: Float)
@@ -72,9 +80,9 @@ nextDown x | not (isIEEE x) = error "non-IEEE numbers are not supported"
 -- True
 -- >>> nextTowardZero (-1/0) == (-maxFinite :: Double)
 -- True
--- >>> nextTowardZero 0 :: Double -- should be positive zero
+-- >>> nextTowardZero 0 :: Double -- returns positive zero
 -- 0.0
--- >>> nextTowardZero (-0 :: Double) -- should be negative zero
+-- >>> nextTowardZero (-0 :: Double) -- returns negative zero
 -- -0.0
 -- >>> nextTowardZero 0x1p-1074 :: Double
 -- 0.0

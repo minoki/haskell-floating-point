@@ -35,6 +35,9 @@ isDoubleBinary64 = isIEEE x
         x = undefined
 
 -- |
+-- The smallest positive value expressible in an IEEE floating-point format.
+-- This value is subnormal.
+--
 -- >>> (minPositive :: Float) == 0x1p-149
 -- True
 -- >>> (minPositive :: Double) == 0x1p-1074
@@ -52,6 +55,8 @@ minPositive = let d = floatDigits x
 {-# SPECIALIZE minPositive :: Float, Double #-}
 
 -- |
+-- The smallest positive normal value expressible in an IEEE floating-point format.
+--
 -- >>> (minPositiveNormal :: Float) == 0x1p-126
 -- True
 -- >>> (minPositiveNormal :: Double) == 0x1p-1022
@@ -72,6 +77,8 @@ minPositiveNormal = let (expMin,_expMax) = floatRange x
 {-# SPECIALIZE minPositiveNormal :: Float, Double #-}
 
 -- |
+-- The largest finite value expressible in an IEEE floating-point format.
+--
 -- >>> (maxFinite :: Float) == 0x1.fffffep+127
 -- True
 -- >>> (maxFinite :: Double) == 0x1.ffff_ffff_ffff_fp+1023

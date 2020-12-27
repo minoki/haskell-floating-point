@@ -208,7 +208,7 @@ instance RealFloatNaN Double where
                                   else
                                     compare x' y' -- positive
 
--- A newtype wrapper to compare by totalOrder predicate
+-- | A newtype wrapper to compare floating-point numbers by @totalOrder@ predicate.
 newtype TotallyOrdered a = TotallyOrdered a
   deriving (Show)
 

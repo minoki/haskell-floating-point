@@ -27,6 +27,8 @@ isDoubleNormal x = let w = castDoubleToWord64 x .&. 0x7ff0_0000_0000_0000
                    in w /= 0 && w /= 0x7ff0_0000_0000_0000
 
 -- |
+-- Returns @True@ if the argument is normal, subnormal, or zero.
+--
 -- IEEE 754 @isFinite@ operation.
 isFinite :: RealFloat a => a -> Bool
 isFinite x = not (isNaN x) && not (isInfinite x)
@@ -39,15 +41,20 @@ isFinite x = not (isNaN x) && not (isInfinite x)
   #-}
 
 -- |
+-- Returns @True@ if the argument is zero.
+--
 -- IEEE 754 @isZero@ operation.
 isZero :: RealFloat a => a -> Bool
 isZero x = x == 0
 
 -- |
--- IEEE 754 @isSignMinus@ operation.
+-- Returns @True@ if the argument is negative (including negative zero).
 --
 -- Since 'RealFloat' constraint is insufficient to query the sign of NaNs,
 -- this function treats all NaNs as positive.
+-- See also "Numeric.Floating.IEEE.NaN".
+--
+-- IEEE 754 @isSignMinus@ operation.
 isSignMinus :: RealFloat a => a -> Bool
 isSignMinus x = x < 0 || isNegativeZero x
 
@@ -55,7 +62,8 @@ isSignMinus x = x < 0 || isNegativeZero x
 -- Comparison with IEEE 754 @totalOrder@ predicate.
 --
 -- Since 'RealFloat' constraint is insufficient to query the sign and payload of NaNs,
--- this function treats all NaNs as positive.
+-- this function treats all NaNs as positive and does not make distinction between them.
+-- See also "Numeric.Floating.IEEE.NaN".
 --
 -- Floating-point numbers are ordered as,
 -- \(-\infty < \text{negative reals} < -0 < +0 < \text{positive reals} < +\infty < \mathrm{NaN}\).
@@ -72,6 +80,8 @@ compareByTotalOrder x y
 
 -- |
 -- Comparison with IEEE 754 @totalOrderMag@ predicate.
+--
+-- Equivalent to @'compareByTotalOrder' (abs x) (abs y)@.
 compareByTotalOrderMag :: RealFloat a => a -> a -> Ordering
 compareByTotalOrderMag x y = compareByTotalOrder (abs x) (abs y)
 
@@ -79,6 +89,8 @@ compareByTotalOrderMag x y = compareByTotalOrder (abs x) (abs y)
 
 -- data PartialOrdering = LT | EQ | GT | UNORD
 
+-- |
+-- The classification of floating-point values.
 data Class = SignalingNaN
            | QuietNaN
            | NegativeInfinity
@@ -91,7 +103,11 @@ data Class = SignalingNaN
            | PositiveInfinity
            deriving (Eq, Ord, Show, Read, Enum)
 
--- | Treats NaNs as quiet
+-- |
+-- Classifies a floating-point value.
+--
+-- Since 'RealFloat' constraint is insufficient to query signaling status of a NaN, this function treats all NaNs as quiet.
+-- See also "Numeric.Floating.IEEE.NaN".
 classify :: RealFloat a => a -> Class
 classify x | isNaN x                 = QuietNaN
            | x < 0, isInfinite x     = NegativeInfinity

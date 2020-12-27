@@ -13,6 +13,8 @@ import           Numeric.Floating.IEEE.Internal.Rounding.Common
 
 default ()
 
+-- |
+-- Conversion from a rational number to floating-point value, with each rounding attributes.
 fromRationalTiesToEven, fromRationalTiesToAway, fromRationalTowardPositive, fromRationalTowardNegative, fromRationalTowardZero :: RealFloat a => Rational -> a
 fromRationalTiesToEven = roundTiesToEven . fromRationalR
 fromRationalTiesToAway = roundTiesToAway . fromRationalR
