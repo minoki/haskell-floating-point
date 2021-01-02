@@ -6,7 +6,7 @@ author:              "ARATA Mizuki"
 maintainer:          "minorinoki@gmail.com"
 copyright:           "2020 ARATA Mizuki"
 category:            Numeric, Math
-# synopsis:            Short description of your package
+synopsis:            IEEE 754-2019 compliant operations
 
 extra-source-files:
 - README.md

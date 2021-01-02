@@ -4,10 +4,11 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f0bf89e9df957b5023d91e55d09165cecb06208750fddaf58af69fd7c2b7e35d
+-- hash: 6d63f48c04f3462df2029e02639f7bf4460b068a99e5b5fb3b83708ae095b427
 
 name:           fp-ieee
 version:        0.1.0
+synopsis:       IEEE 754-2019 compliant operations
 description:    Please see the README on GitHub at <https://github.com/minoki/haskell-floating-point/tree/master/fp-ieee#readme>
 category:       Numeric, Math
 homepage:       https://github.com/minoki/haskell-floating-point#readme
