@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6d63f48c04f3462df2029e02639f7bf4460b068a99e5b5fb3b83708ae095b427
+-- hash: 01c92f8bb1ed6e96e4433aee952e8ccd59177fa325d0343d2426e7eb586175ad
 
 name:           fp-ieee
 version:        0.1.0
@@ -167,6 +167,7 @@ test-suite fp-ieee-decimal-test
   main-is: Spec.hs
   other-modules:
       NextFloatSpec
+      Util
   hs-source-dirs:
       decimal-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -fno-ignore-asserts
@@ -300,9 +301,11 @@ test-suite fp-ieee-test
       IntegerInternalsSpec
       MinMaxSpec
       NaNSpec
+      NextFloatSpec
       RoundingSpec
       RoundToIntegralSpec
       TwoSumSpec
+      Util
   hs-source-dirs:
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -fno-ignore-asserts

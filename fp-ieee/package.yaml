@@ -220,9 +220,11 @@ tests:
     - IntegerInternalsSpec
     - MinMaxSpec
     - NaNSpec
+    - NextFloatSpec
     - RoundingSpec
     - RoundToIntegralSpec
     - TwoSumSpec
+    - Util
     ghc-options:
     - -threaded
     - -rtsopts
@@ -248,6 +250,7 @@ tests:
     source-dirs:         decimal-test
     other-modules:
     - NextFloatSpec
+    - Util
     ghc-options:
     - -threaded
     - -rtsopts
