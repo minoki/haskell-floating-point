@@ -3,8 +3,6 @@ cabal-version: 1.24
 -- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: c426d8eb97a03702d81082a0c313b885875c71a9ba7d5fbabce04c78af7e3f56
 
 name:           rounded-hw
 version:        0.2.0
@@ -18,9 +16,9 @@ maintainer:     minorinoki@gmail.com
 copyright:      2020 ARATA Mizuki
 license:        BSD3
 license-file:   LICENSE
+build-type:     Custom
 tested-with:
     GHC == 8.6.5, GHC == 8.8.4, GHC == 8.10.5
-build-type:     Custom
 extra-source-files:
     README.md
     ChangeLog.md
@@ -31,6 +29,7 @@ extra-source-files:
 source-repository head
   type: git
   location: https://github.com/minoki/haskell-floating-point
+  subdir: rounded-hw
 
 custom-setup
   setup-depends:
