@@ -88,9 +88,12 @@ reifyRounding TowardZero f   = f (Proxy :: Proxy 'TowardZero)
 newtype Rounded (r :: RoundingMode) a = Rounded { getRounded :: a }
   deriving (Eq, Ord, Generic, Functor, Storable)
 
-instance Show a => Show (Rounded r a) where
-  -- TODO: Take the rounding direction into account
-  showsPrec prec (Rounded x) = showParen (prec > 10) $ showString "Rounded " . showsPrec 11 x
+instance (Rounding r, Show a) => Show (Rounded r a) where
+  showsPrec prec rx@(Rounded x) = showParen (prec > 10) $ showString "Rounded @" . rs . showChar ' ' . showsPrec 11 x
+    where
+      toProxy :: Rounded r a -> Proxy r
+      toProxy _ = Proxy
+      rs = shows (rounding (toProxy rx))
 
 instance NFData a => NFData (Rounded r a)
 
