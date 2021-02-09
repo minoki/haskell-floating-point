@@ -3,6 +3,7 @@ resolver: lts-16.14
 packages:
 - fp-ieee/
 - rounded-hw/
+- ieee-decimal/
 
 extra-deps:
 - long-double-0.1.1
