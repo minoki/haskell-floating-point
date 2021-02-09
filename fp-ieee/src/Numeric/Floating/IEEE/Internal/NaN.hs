@@ -35,6 +35,8 @@ class RealFloat a => RealFloatNaN a where
   -- Returns @True@ if the operand is a signaling NaN.
   --
   -- IEEE 754 @isSignaling@ operation.
+  --
+  -- Warning: GHC's optimizer is not aware of signaling NaNs.
   isSignaling :: a -> Bool
   isSignaling x = classify x == SignalingNaN
 
@@ -73,6 +75,9 @@ class RealFloat a => RealFloatNaN a where
 
   -- |
   -- Comparison with IEEE 754 @totalOrder@ operation.
+  --
+  -- Floating-point numbers should be ordered as,
+  -- \(-\mathrm{qNaN} < -\mathrm{sNaN} < -\infty < \text{negative reals} < -0 < +0 < \text{positive reals} < +\infty < +\mathrm{sNaN} < +\mathrm{qNaN}\).
   compareByTotalOrder :: a -> a -> Ordering
   compareByTotalOrder = compareByTotalOrderDefault
 
@@ -98,7 +103,7 @@ compareByTotalOrderDefault x y
   | x == y = if x == 0 then
                compare (isNegativeZero y) (isNegativeZero x)
              else
-               EQ -- TODO: non-canonical?
+               EQ -- TODO: cohort?
   | otherwise = compare (isSignMinus y) (isSignMinus x)
                 <> let r = compare (isNaN x) (isNaN y) -- number < +NaN
                            <> compare (isSignaling y) (isSignaling x) -- +(signaling NaN) < +(quiet NaN)

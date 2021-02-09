@@ -61,12 +61,14 @@ isSignMinus x = x < 0 || isNegativeZero x
 -- |
 -- Comparison with IEEE 754 @totalOrder@ predicate.
 --
+-- Floating-point numbers are ordered as,
+-- \(-\infty < \text{negative reals} < -0 < +0 < \text{positive reals} < +\infty < \mathrm{NaN}\).
+--
 -- Since 'RealFloat' constraint is insufficient to query the sign and payload of NaNs,
 -- this function treats all NaNs as positive and does not make distinction between them.
 -- See also "Numeric.Floating.IEEE.NaN".
 --
--- Floating-point numbers are ordered as,
--- \(-\infty < \text{negative reals} < -0 < +0 < \text{positive reals} < +\infty < \mathrm{NaN}\).
+-- Also, for the same reason, this function cannot distinguish the members of a cohort.
 compareByTotalOrder :: RealFloat a => a -> a -> Ordering
 compareByTotalOrder x y
   | x < y = LT

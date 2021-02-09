@@ -51,10 +51,10 @@ instance Random Half where
 isInfiniteWorkaround :: (Half -> Property) -> (Half -> Property)
 isInfiniteIsKnownToBeBuggy :: Bool
 #if MIN_VERSION_half(0,3,1)
--- I hope https://github.com/ekmett/half/issues/23 is fixed before the next releaso
 isInfiniteWorkaround = id
 isInfiniteIsKnownToBeBuggy = False
 #else
+-- Workaround for https://github.com/ekmett/half/issues/23
 isInfiniteWorkaround f x = not (isNaN x) ==> f x
 isInfiniteIsKnownToBeBuggy = True
 #endif
