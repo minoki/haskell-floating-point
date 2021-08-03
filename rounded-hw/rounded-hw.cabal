@@ -1,10 +1,10 @@
 cabal-version: 1.24
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c52684ece684d2a3e1a2bde6e2919d961a59bd69724c32a8e7ab1ac0b9230685
+-- hash: c426d8eb97a03702d81082a0c313b885875c71a9ba7d5fbabce04c78af7e3f56
 
 name:           rounded-hw
 version:        0.2.0
@@ -18,7 +18,8 @@ maintainer:     minorinoki@gmail.com
 copyright:      2020 ARATA Mizuki
 license:        BSD3
 license-file:   LICENSE
-tested-with:    GHC == 8.6.5, GHC == 8.8.4, GHC == 8.10.2
+tested-with:
+    GHC == 8.6.5, GHC == 8.8.4, GHC == 8.10.5
 build-type:     Custom
 extra-source-files:
     README.md
