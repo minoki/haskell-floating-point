@@ -81,51 +81,6 @@ when:
   cpp-options:
   - -DUSE_FFI
 
-# Fast roundeven: needs SSE4.1 on x86
-- condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(sse4_1)"
-  cpp-options:
-  - -DHAS_FAST_ROUNDEVEN
-  cc-options:
-  - -msse4.1
-  c-sources:
-  - cbits/roundeven.c
-
-# Fast roundeven: available on AArch64
-- condition: "!flag(pure-hs) && arch(aarch64)"
-  cpp-options:
-  - -DHAS_FAST_ROUNDEVEN
-  c-sources:
-  - cbits/roundeven.c
-
-# Fast FMA: needs FMA3 on x86 (FMA4 is not supported by this package)
-- condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3)"
-  cpp-options:
-  - -DHAS_FAST_FMA
-  cc-options:
-  - -mfma
-  c-sources:
-  - cbits/fma.c
-
-# Fast FMA: available on AArch64
-- condition: "!flag(pure-hs) && arch(aarch64)"
-  cpp-options:
-  - -DHAS_FAST_FMA
-  c-sources:
-  - cbits/fma.c
-
-# Enable use of libm's fma unless "pure-hs" is set; but not on Windows
-# (mingw-w64's fma is not reliable)
-- condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && !os(windows)"
-  cpp-options:
-  - -DUSE_C99_FMA
-
-# Fast min/max: available on AArch64
-- condition: "!flag(pure-hs) && arch(aarch64)"
-  cpp-options:
-  - -DHAS_FAST_MINMAX
-  c-sources:
-  - cbits/minmax.c
-
 # # flag(x87-long-double): Support LongDouble on x86
 # - condition: "flag(x87-long-double) && (arch(i386) || arch(x86_64))"
 #   dependencies: long-double
@@ -144,26 +99,6 @@ when:
   dependencies: half >=0.3 && <0.4
   cpp-options:
   - -DUSE_HALF
-
-- condition: "!flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)"
-  cpp-options:
-  - -DHAS_FAST_HALF_CONVERSION
-  cc-options:
-  - -mf16c
-  c-sources:
-  - cbits/half.c
-
-- condition: "!flag(pure-hs) && flag(half) && arch(aarch64)"
-  cpp-options:
-  - -DHAS_FAST_HALF_CONVERSION
-  c-sources:
-  - cbits/half.c
-
-- condition: "!flag(pure-hs) && (arch(aarch64) || arch(x86_64))"
-  cpp-options:
-  - -DHAS_FAST_CANONICALIZE
-  c-sources:
-  - cbits/canonicalize.c
 
 library:
   source-dirs: src
@@ -209,6 +144,62 @@ library:
   - condition: "flag(ghc-bignum) && impl(ghc >= 9.0.0)"
     dependencies:
     - ghc-bignum >=1.0 && <1.1
+  # Fast roundeven: needs SSE4.1 on x86
+  - condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(sse4_1)"
+    cpp-options:
+    - -DHAS_FAST_ROUNDEVEN
+    cc-options:
+    - -msse4.1
+    c-sources:
+    - cbits/roundeven.c
+  # Fast roundeven: available on AArch64
+  - condition: "!flag(pure-hs) && arch(aarch64)"
+    cpp-options:
+    - -DHAS_FAST_ROUNDEVEN
+    c-sources:
+    - cbits/roundeven.c
+  # Fast FMA: needs FMA3 on x86 (FMA4 is not supported by this package)
+  - condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3)"
+    cpp-options:
+    - -DHAS_FAST_FMA
+    cc-options:
+    - -mfma
+    c-sources:
+    - cbits/fma.c
+  # Fast FMA: available on AArch64
+  - condition: "!flag(pure-hs) && arch(aarch64)"
+    cpp-options:
+    - -DHAS_FAST_FMA
+    c-sources:
+    - cbits/fma.c
+  # Enable use of libm's fma unless "pure-hs" is set; but not on Windows
+  # (mingw-w64's fma is not reliable)
+  - condition: "!flag(pure-hs) && (arch(i386) || arch(x86_64)) && !os(windows)"
+    cpp-options:
+    - -DUSE_C99_FMA
+  # Fast min/max: available on AArch64
+  - condition: "!flag(pure-hs) && arch(aarch64)"
+    cpp-options:
+    - -DHAS_FAST_MINMAX
+    c-sources:
+    - cbits/minmax.c
+  - condition: "!flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)"
+    cpp-options:
+    - -DHAS_FAST_HALF_CONVERSION
+    cc-options:
+    - -mf16c
+    c-sources:
+    - cbits/half.c
+  - condition: "!flag(pure-hs) && flag(half) && arch(aarch64)"
+    cpp-options:
+    - -DHAS_FAST_HALF_CONVERSION
+    c-sources:
+    - cbits/half.c
+  - condition: "!flag(pure-hs) && (arch(aarch64) || arch(x86_64))"
+    cpp-options:
+    - -DHAS_FAST_CANONICALIZE
+    c-sources:
+    - cbits/canonicalize.c
 
 tests:
   fp-ieee-test:

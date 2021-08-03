@@ -102,6 +102,26 @@ library
     cc-options: -msse2 -mfpmath=sse
   if !flag(pure-hs)
     cpp-options: -DUSE_FFI
+  if flag(float128)
+    cpp-options: -DUSE_FLOAT128
+    build-depends:
+        float128 ==0.1.*
+  if flag(half)
+    cpp-options: -DUSE_HALF
+    build-depends:
+        half ==0.3.*
+  if flag(half)
+    other-modules:
+        Numeric.Floating.IEEE.Internal.Half
+  if flag(float128)
+    other-modules:
+        Numeric.Floating.IEEE.Internal.Float128
+  if flag(integer-gmp) && impl(ghc < 9.0.0)
+    build-depends:
+        integer-gmp ==1.0.*
+  if flag(ghc-bignum) && impl(ghc >= 9.0.0)
+    build-depends:
+        ghc-bignum ==1.0.*
   if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(sse4_1)
     cpp-options: -DHAS_FAST_ROUNDEVEN
     cc-options: -msse4.1
@@ -126,14 +146,6 @@ library
     cpp-options: -DHAS_FAST_MINMAX
     c-sources:
         cbits/minmax.c
-  if flag(float128)
-    cpp-options: -DUSE_FLOAT128
-    build-depends:
-        float128 ==0.1.*
-  if flag(half)
-    cpp-options: -DUSE_HALF
-    build-depends:
-        half ==0.3.*
   if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
     cc-options: -mf16c
@@ -147,18 +159,6 @@ library
     cpp-options: -DHAS_FAST_CANONICALIZE
     c-sources:
         cbits/canonicalize.c
-  if flag(half)
-    other-modules:
-        Numeric.Floating.IEEE.Internal.Half
-  if flag(float128)
-    other-modules:
-        Numeric.Floating.IEEE.Internal.Float128
-  if flag(integer-gmp) && impl(ghc < 9.0.0)
-    build-depends:
-        integer-gmp ==1.0.*
-  if flag(ghc-bignum) && impl(ghc >= 9.0.0)
-    build-depends:
-        ghc-bignum ==1.0.*
   default-language: Haskell2010
 
 test-suite fp-ieee-doctests
@@ -174,30 +174,6 @@ test-suite fp-ieee-doctests
     cc-options: -msse2 -mfpmath=sse
   if !flag(pure-hs)
     cpp-options: -DUSE_FFI
-  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(sse4_1)
-    cpp-options: -DHAS_FAST_ROUNDEVEN
-    cc-options: -msse4.1
-    c-sources:
-        cbits/roundeven.c
-  if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_ROUNDEVEN
-    c-sources:
-        cbits/roundeven.c
-  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3)
-    cpp-options: -DHAS_FAST_FMA
-    cc-options: -mfma
-    c-sources:
-        cbits/fma.c
-  if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_FMA
-    c-sources:
-        cbits/fma.c
-  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && !os(windows)
-    cpp-options: -DUSE_C99_FMA
-  if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_MINMAX
-    c-sources:
-        cbits/minmax.c
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
@@ -206,19 +182,6 @@ test-suite fp-ieee-doctests
     cpp-options: -DUSE_HALF
     build-depends:
         half ==0.3.*
-  if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
-    cpp-options: -DHAS_FAST_HALF_CONVERSION
-    cc-options: -mf16c
-    c-sources:
-        cbits/half.c
-  if !flag(pure-hs) && flag(half) && arch(aarch64)
-    cpp-options: -DHAS_FAST_HALF_CONVERSION
-    c-sources:
-        cbits/half.c
-  if !flag(pure-hs) && (arch(aarch64) || arch(x86_64))
-    cpp-options: -DHAS_FAST_CANONICALIZE
-    c-sources:
-        cbits/canonicalize.c
   default-language: Haskell2010
 
 test-suite fp-ieee-test
@@ -252,30 +215,6 @@ test-suite fp-ieee-test
     cc-options: -msse2 -mfpmath=sse
   if !flag(pure-hs)
     cpp-options: -DUSE_FFI
-  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(sse4_1)
-    cpp-options: -DHAS_FAST_ROUNDEVEN
-    cc-options: -msse4.1
-    c-sources:
-        cbits/roundeven.c
-  if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_ROUNDEVEN
-    c-sources:
-        cbits/roundeven.c
-  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3)
-    cpp-options: -DHAS_FAST_FMA
-    cc-options: -mfma
-    c-sources:
-        cbits/fma.c
-  if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_FMA
-    c-sources:
-        cbits/fma.c
-  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && !os(windows)
-    cpp-options: -DUSE_C99_FMA
-  if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_MINMAX
-    c-sources:
-        cbits/minmax.c
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
@@ -284,19 +223,6 @@ test-suite fp-ieee-test
     cpp-options: -DUSE_HALF
     build-depends:
         half ==0.3.*
-  if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
-    cpp-options: -DHAS_FAST_HALF_CONVERSION
-    cc-options: -mf16c
-    c-sources:
-        cbits/half.c
-  if !flag(pure-hs) && flag(half) && arch(aarch64)
-    cpp-options: -DHAS_FAST_HALF_CONVERSION
-    c-sources:
-        cbits/half.c
-  if !flag(pure-hs) && (arch(aarch64) || arch(x86_64))
-    cpp-options: -DHAS_FAST_CANONICALIZE
-    c-sources:
-        cbits/canonicalize.c
   if flag(half)
     other-modules:
         HalfSpec
@@ -321,30 +247,6 @@ benchmark fp-ieee-benchmark
     cc-options: -msse2 -mfpmath=sse
   if !flag(pure-hs)
     cpp-options: -DUSE_FFI
-  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(sse4_1)
-    cpp-options: -DHAS_FAST_ROUNDEVEN
-    cc-options: -msse4.1
-    c-sources:
-        cbits/roundeven.c
-  if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_ROUNDEVEN
-    c-sources:
-        cbits/roundeven.c
-  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3)
-    cpp-options: -DHAS_FAST_FMA
-    cc-options: -mfma
-    c-sources:
-        cbits/fma.c
-  if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_FMA
-    c-sources:
-        cbits/fma.c
-  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && !os(windows)
-    cpp-options: -DUSE_C99_FMA
-  if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_MINMAX
-    c-sources:
-        cbits/minmax.c
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
@@ -353,17 +255,4 @@ benchmark fp-ieee-benchmark
     cpp-options: -DUSE_HALF
     build-depends:
         half ==0.3.*
-  if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
-    cpp-options: -DHAS_FAST_HALF_CONVERSION
-    cc-options: -mf16c
-    c-sources:
-        cbits/half.c
-  if !flag(pure-hs) && flag(half) && arch(aarch64)
-    cpp-options: -DHAS_FAST_HALF_CONVERSION
-    c-sources:
-        cbits/half.c
-  if !flag(pure-hs) && (arch(aarch64) || arch(x86_64))
-    cpp-options: -DHAS_FAST_CANONICALIZE
-    c-sources:
-        cbits/canonicalize.c
   default-language: Haskell2010
