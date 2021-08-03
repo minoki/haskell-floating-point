@@ -73,7 +73,7 @@ common deps
     , vector
 
 common options
-  ghc-options: -Wall -Wcompat
+  ghc-options: -Wcompat
 
 library
   import: deps, options
@@ -102,6 +102,7 @@ library
       src
   build-depends:
       tagged
+  ghc-options: -Wall
   -- Use FFI when flag(pure-hs) is off
   if !flag(pure-hs)
     exposed-modules:

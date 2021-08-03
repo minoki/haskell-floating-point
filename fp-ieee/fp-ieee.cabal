@@ -92,7 +92,7 @@ common deps
   --       long-double ==???
 
 common options
-  ghc-options: -Wall -Wcompat
+  ghc-options: -Wcompat
   if arch(i386)
     -- Always enable SSE2 on i386
     ghc-options: -msse2
@@ -128,6 +128,7 @@ library
       src
   build-depends:
       integer-logarithms >=1 && <1.1
+  ghc-options: -Wall
   if flag(half)
     other-modules:
         Numeric.Floating.IEEE.Internal.Half
