@@ -102,8 +102,8 @@ static const char backend_name[] = "SSE2";
 
 #elif defined(USE_AARCH64_FPCR)
 
-typedef unsigned int fp_reg;
-typedef unsigned int native_rounding_mode;
+typedef uint64_t fp_reg;
+typedef uint64_t native_rounding_mode;
 static const native_rounding_mode ROUND_TONEAREST  = 0 << 22;
 static const native_rounding_mode ROUND_DOWNWARD   = 2 << 22;
 static const native_rounding_mode ROUND_UPWARD     = 1 << 22;
@@ -121,21 +121,48 @@ native_rounding_mode hs_rounding_mode_to_native(HsInt mode)
     }
 }
 
+#if defined(__has_builtin)
+#define HAS_BUILTIN(f) __has_builtin(f)
+#else
+#define HAS_BUILTIN(f) 0
+#endif
 static inline ALWAYS_INLINE
 fp_reg get_fp_reg(void)
 {
-    return __builtin_aarch64_get_fpcr();
+#if HAS_BUILTIN(__builtin_aarch64_get_fpcr64)
+    return __builtin_aarch64_get_fpcr64();
+#elif HAS_BUILTIN(__builtin_aarch64_get_fpcr)
+    return (uint64_t)__builtin_aarch64_get_fpcr();
+#else
+    uint64_t fpcr;
+    asm volatile("mrs %0, fpcr" : "=r"(fpcr));
+    return fpcr;
+#endif
 }
 static inline ALWAYS_INLINE
 void set_rounding(fp_reg reg, native_rounding_mode mode)
 {
-    __builtin_aarch64_set_fpcr((reg & ~(3u << 22)) | mode);
+    uint64_t newreg = (reg & ~(3u << 22)) | mode;
+#if HAS_BUILTIN(__builtin_aarch64_set_fpcr64)
+    __builtin_aarch64_set_fpcr64(newreg);
+#elif HAS_BUILTIN(__builtin_aarch64_set_fpcr)
+    __builtin_aarch64_set_fpcr((unsigned int)newreg);
+#else
+    asm volatile("msr fpcr, %0" : : "r"(newreg));
+#endif
 }
 static inline ALWAYS_INLINE
 void restore_fp_reg(fp_reg reg)
 {
-    __builtin_aarch64_set_fpcr(reg);
+#if HAS_BUILTIN(__builtin_aarch64_set_fpcr64)
+    __builtin_aarch64_set_fpcr64(reg);
+#elif HAS_BUILTIN(__builtin_aarch64_set_fpcr)
+    __builtin_aarch64_set_fpcr((unsigned int)reg);
+#else
+    asm volatile("msr fpcr, %0" : : "r"(reg));
+#endif
 }
+#undef HAS_BUILTIN
 
 static const char backend_name[] = "AArch64 FPCR";
 
