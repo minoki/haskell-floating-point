@@ -24,7 +24,7 @@ SYMBOL(rounded_hw_interval_backend_name):
 	.globl SYMBOL(rounded_hw_interval_add)
 SYMBOL(rounded_hw_interval_add):
 	vaddsd {rd-sae}, %xmm3, %xmm1, %xmm1  # xmm1 = xmm1[0] + xmm3[0], xmm1[1] (downward)
-	vaddsd {ru-sae}, %xmm4, %xmm2, %xmm2  # xmm2 = xmm2[0] + xmm4[0], xmm2[1] (downward)
+	vaddsd {ru-sae}, %xmm4, %xmm2, %xmm2  # xmm2 = xmm2[0] + xmm4[0], xmm2[1] (upward)
 	jmp *(%rbp)
 
 	#
