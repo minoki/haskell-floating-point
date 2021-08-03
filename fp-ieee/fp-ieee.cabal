@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 62a346063dd10a9b7bb7de4d7624dd805ceef339ead48206730d6c47e94e17d2
+-- hash: 7e454ed3151b3eebfbef7f912a0e19c7c2d52450307c76e45e4cf4def9ad9dbc
 
 name:           fp-ieee
 version:        0.1.0.1
@@ -130,11 +130,11 @@ library
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
-        float128 >=0.1 && <0.2
+        float128 ==0.1.*
   if flag(half)
     cpp-options: -DUSE_HALF
     build-depends:
-        half >=0.3 && <0.4
+        half ==0.3.*
   if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
     cc-options: -mf16c
@@ -156,79 +156,10 @@ library
         Numeric.Floating.IEEE.Internal.Float128
   if flag(integer-gmp) && impl(ghc < 9.0.0)
     build-depends:
-        integer-gmp >=1.0 && <1.1
+        integer-gmp ==1.0.*
   if flag(ghc-bignum) && impl(ghc >= 9.0.0)
     build-depends:
-        ghc-bignum >=1.0 && <1.1
-  default-language: Haskell2010
-
-test-suite fp-ieee-decimal-test
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  other-modules:
-      NextFloatSpec
-      Util
-  hs-source-dirs:
-      decimal-test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -fno-ignore-asserts
-  build-depends:
-      QuickCheck
-    , base >=4.12 && <5
-    , decimal-arithmetic
-    , fp-ieee
-    , hspec
-    , hspec-core
-    , random
-  if arch(i386)
-    ghc-options: -msse2
-    cc-options: -msse2 -mfpmath=sse
-  if !flag(pure-hs)
-    cpp-options: -DUSE_FFI
-  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(sse4_1)
-    cpp-options: -DHAS_FAST_ROUNDEVEN
-    cc-options: -msse4.1
-    c-sources:
-        cbits/roundeven.c
-  if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_ROUNDEVEN
-    c-sources:
-        cbits/roundeven.c
-  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3)
-    cpp-options: -DHAS_FAST_FMA
-    cc-options: -mfma
-    c-sources:
-        cbits/fma.c
-  if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_FMA
-    c-sources:
-        cbits/fma.c
-  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && !os(windows)
-    cpp-options: -DUSE_C99_FMA
-  if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_MINMAX
-    c-sources:
-        cbits/minmax.c
-  if flag(float128)
-    cpp-options: -DUSE_FLOAT128
-    build-depends:
-        float128 >=0.1 && <0.2
-  if flag(half)
-    cpp-options: -DUSE_HALF
-    build-depends:
-        half >=0.3 && <0.4
-  if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
-    cpp-options: -DHAS_FAST_HALF_CONVERSION
-    cc-options: -mf16c
-    c-sources:
-        cbits/half.c
-  if !flag(pure-hs) && flag(half) && arch(aarch64)
-    cpp-options: -DHAS_FAST_HALF_CONVERSION
-    c-sources:
-        cbits/half.c
-  if !flag(pure-hs) && (arch(aarch64) || arch(x86_64))
-    cpp-options: -DHAS_FAST_CANONICALIZE
-    c-sources:
-        cbits/canonicalize.c
+        ghc-bignum ==1.0.*
   default-language: Haskell2010
 
 test-suite fp-ieee-doctests
@@ -271,11 +202,11 @@ test-suite fp-ieee-doctests
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
-        float128 >=0.1 && <0.2
+        float128 ==0.1.*
   if flag(half)
     cpp-options: -DUSE_HALF
     build-depends:
-        half >=0.3 && <0.4
+        half ==0.3.*
   if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
     cc-options: -mf16c
@@ -349,11 +280,11 @@ test-suite fp-ieee-test
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
-        float128 >=0.1 && <0.2
+        float128 ==0.1.*
   if flag(half)
     cpp-options: -DUSE_HALF
     build-depends:
-        half >=0.3 && <0.4
+        half ==0.3.*
   if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
     cc-options: -mf16c
@@ -418,11 +349,11 @@ benchmark fp-ieee-benchmark
   if flag(float128)
     cpp-options: -DUSE_FLOAT128
     build-depends:
-        float128 >=0.1 && <0.2
+        float128 ==0.1.*
   if flag(half)
     cpp-options: -DUSE_HALF
     build-depends:
-        half >=0.3 && <0.4
+        half ==0.3.*
   if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
     cc-options: -mf16c

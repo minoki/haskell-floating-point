@@ -245,24 +245,24 @@ tests:
       other-modules:
       - Float128Spec
 
-  fp-ieee-decimal-test:
-    main:                Spec.hs
-    source-dirs:         decimal-test
-    other-modules:
-    - NextFloatSpec
-    - Util
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    - -fno-ignore-asserts
-    dependencies:
-    - fp-ieee
-    - QuickCheck
-    - hspec
-    - hspec-core
-    - random
-    - decimal-arithmetic
+  #fp-ieee-decimal-test:
+  #  main:                Spec.hs
+  #  source-dirs:         decimal-test
+  #  other-modules:
+  #  - NextFloatSpec
+  #  - Util
+  #  ghc-options:
+  #  - -threaded
+  #  - -rtsopts
+  #  - -with-rtsopts=-N
+  #  - -fno-ignore-asserts
+  #  dependencies:
+  #  - fp-ieee
+  #  - QuickCheck
+  #  - hspec
+  #  - hspec-core
+  #  - random
+  #  - decimal-arithmetic
 
   fp-ieee-doctests:
     main: doctests.hs

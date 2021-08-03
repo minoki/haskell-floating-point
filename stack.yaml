@@ -8,12 +8,6 @@ extra-deps:
 - long-double-0.1.1
 - float128-0.1
 
-- decimal-arithmetic-0.5.1.0
-# binary-bits-0.5 doesn't support GHC 8.8 or later
-# Use https://github.com/kolmodin/binary-bits/pull/13
-- git: https://github.com/tfausak/binary-bits.git
-  commit: ac97db5fb88940ac4b05481d3d1b36005a715172
-
 # Enable support for "Half" during development
 flags:
   fp-ieee:
