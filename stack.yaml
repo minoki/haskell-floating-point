@@ -1,4 +1,4 @@
-resolver: lts-16.14
+resolver: lts-18.5
 
 packages:
 - fp-ieee/
