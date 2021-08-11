@@ -126,12 +126,17 @@ native_rounding_mode hs_rounding_mode_to_native(HsInt mode)
 #else
 #define HAS_BUILTIN(f) 0
 #endif
+/*
+ * __has_builtin: Clang / GCC 10 or later
+ * __builtin_aarch64_{get,set}_fpcr64: GCC 11 or later
+ * __builtin_aarch64_{get,set}_fpcr: GCC 5 or later
+ */
 static inline ALWAYS_INLINE
 fp_reg get_fp_reg(void)
 {
 #if HAS_BUILTIN(__builtin_aarch64_get_fpcr64)
     return __builtin_aarch64_get_fpcr64();
-#elif HAS_BUILTIN(__builtin_aarch64_get_fpcr)
+#elif HAS_BUILTIN(__builtin_aarch64_get_fpcr) || __GNUC__ >= 5
     return (uint64_t)__builtin_aarch64_get_fpcr();
 #else
     uint64_t fpcr;
@@ -145,7 +150,7 @@ void set_rounding(fp_reg reg, native_rounding_mode mode)
     uint64_t newreg = (reg & ~(3u << 22)) | mode;
 #if HAS_BUILTIN(__builtin_aarch64_set_fpcr64)
     __builtin_aarch64_set_fpcr64(newreg);
-#elif HAS_BUILTIN(__builtin_aarch64_set_fpcr)
+#elif HAS_BUILTIN(__builtin_aarch64_set_fpcr) || __GNUC__ >= 5
     __builtin_aarch64_set_fpcr((unsigned int)newreg);
 #else
     asm volatile("msr fpcr, %0" : : "r"(newreg));
@@ -156,7 +161,7 @@ void restore_fp_reg(fp_reg reg)
 {
 #if HAS_BUILTIN(__builtin_aarch64_set_fpcr64)
     __builtin_aarch64_set_fpcr64(reg);
-#elif HAS_BUILTIN(__builtin_aarch64_set_fpcr)
+#elif HAS_BUILTIN(__builtin_aarch64_set_fpcr) || __GNUC__ >= 5
     __builtin_aarch64_set_fpcr((unsigned int)reg);
 #else
     asm volatile("msr fpcr, %0" : : "r"(reg));
