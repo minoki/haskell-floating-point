@@ -211,7 +211,7 @@ import           Numeric.Floating.IEEE.Internal
 --     * '(+)', '(-)', and '(*)' should be correctly-rounding.
 --     * 'negate' should comply with IEEE semantics.
 --     * 'abs' should comply with IEEE semantics, but unfortunately it does not handle the sign bit of NaN for 'Float' and 'Double' on via-C backend and SPARC NCG backend.
---     * 'fromInteger' should be correctly-rounding, but unfortunately not for 'Float' and 'Double' on GHC < 9.2 (see GHC's [#17231](https://gitlab.haskell.org/ghc/ghc/-/issues/17231)).
+--     * 'fromInteger' should be correctly-rounding, but unfortunately not for 'Float' and 'Double' on GHC <= 9.0 (see GHC's [#17231](https://gitlab.haskell.org/ghc/ghc/-/issues/17231)).
 --       This module provides an always-correctly-rounding alternative: 'fromIntegerTiesToEven'.
 --
 -- == 'Fractional'
@@ -244,9 +244,17 @@ import           Numeric.Floating.IEEE.Internal
 --     * 'encodeFloat' should accept the significand in the range @[0, floatRadix x ^ floatDigits x]@. This library does not assume a particular rounding behavior when the result cannot be expressed in the target type.
 --     * @'exponent' x@: The exponent offset by 1: \(\mathrm{logB}(x)+1\). Returns an integer in \([\mathit{emin}+1,\mathit{emax}+1]\) if @x@ is normal, or in \([\mathit{emin}-p+2,\mathit{emin}]\) if @x@ is subnormal.
 --     * @'significand' x@: Returns the significand of @x@ as a value between \([1/b,1)\).
---     * 'scaleFloat': This library does not assume a particular rounding behavior when the result is subnormal.
+--     * 'scaleFloat': Rounding may occur when the result is subnormal. This library does not assume a particular rounding behavior when the result is subnormal.
 --     * 'isNaN'
 --     * 'isInfinite'
 --     * 'isDenormalized'
 --     * 'isNegativeZero'
 --     * 'isIEEE' should return @True@ if you are using the type with this library.
+--
+-- == Other functions
+--
+-- Here is a list of known issues with other floating-point functions on GHC 8.6 or later:
+--
+--     * @('^^')@ may cause undue underflow when constructing very small value like @2^^(-1074)@ (see [GHC's #4413](https://gitlab.haskell.org/ghc/ghc/-/issues/4413)).
+--     * 'realToFrac' may behave differently depending on optimization flags (see [GHC's #3676](https://gitlab.haskell.org/ghc/ghc/-/issues/3676)). Don't use 'realToFrac' on values that potentially contain signed zeroes, infinities or NaN, or use 'realFloatToFrac' instead.
+--     * On GHC <= 8.8, 'GHC.Float.castFloatToWord32' may produce exotic 'Word32' value on 64-bit systems (see [GHC's #16617](https://gitlab.haskell.org/ghc/ghc/-/issues/16617)).
