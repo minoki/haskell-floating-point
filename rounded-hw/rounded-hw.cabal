@@ -1,7 +1,7 @@
 cabal-version: 2.2
 
 name:           rounded-hw
-version:        0.2.0
+version:        0.3.0
 synopsis:       Directed rounding for built-in floating types
 description:    Please see the README on GitHub at <https://github.com/minoki/haskell-floating-point/tree/master/rounded-hw#readme>
 category:       Numeric, Math
