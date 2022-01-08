@@ -8,7 +8,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# OPTIONS_GHC -Wno-orphans #-}
+{-# OPTIONS_GHC -Wno-orphans -Wno-name-shadowing #-}
 module Numeric.Rounded.Hardware.Internal.Class
   ( module Numeric.Rounded.Hardware.Internal.Class
   , module Numeric.Rounded.Hardware.Internal.Rounding
