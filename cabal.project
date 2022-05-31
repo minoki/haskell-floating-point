@@ -1,0 +1,6 @@
+packages:
+  fp-ieee/fp-ieee.cabal
+  rounded-hw/rounded-hw.cabal
+
+-- https://github.com/sol/doctest/issues/245
+write-ghc-environment-files: always
