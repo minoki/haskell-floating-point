@@ -56,7 +56,7 @@ flag ghc-prim
 flag x87-long-double
   description: Support x87 "long double"
   manual: True
-  default: True
+  default: False
 
 flag float128
   description: Support Float128
