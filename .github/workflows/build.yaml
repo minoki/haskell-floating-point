@@ -6,60 +6,66 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.1']
+        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2']
         os: [ubuntu-latest]
-        flags: ['', '--flag fp-ieee:fma3 --flag fp-ieee:f16c', '--flag fp-ieee:float128']
+        flags: ['', '--flags "fma3 f16c"', '--flags float128']
+        # float128-0.1 doesn't support recent GHC (should we try --allow-newer?)
+        exclude:
+          - ghc: '9.0.2'
+            flags: '--flags float128'
+          - ghc: '9.2'
+            flags: '--flags float128'
     steps:
       - uses: actions/checkout@v2
 
-      - uses: haskell/actions/setup@v1
+      - uses: haskell/actions/setup@v2
         name: Setup Haskell
         with:
           ghc-version: ${{ matrix.ghc }}
-          enable-stack: true
-          stack-version: 'latest'
-          stack-no-global: true
-          stack-setup-ghc: true
 
-      - uses: actions/cache@v1
-        name: Cache ~/.stack
+      - uses: actions/cache@v3
         with:
-          path: ~/.stack
-          key: ${{ runner.os }}-${{ matrix.ghc }}-stack
+          path: |
+            ~/.cabal/packages
+            ~/.cabal/store
+          key: ${{ runner.os }}-${{ matrix.ghc }}
 
       - name: Build
-        run: stack build fp-ieee --ghc-options=-fno-ignore-asserts --test --no-run-tests --bench --no-run-benchmarks ${{ matrix.flags }}
+        run: cabal build fp-ieee --ghc-options=-fno-ignore-asserts --enable-tests --enable-benchmarks ${{ matrix.flags }}
 
       - name: Test
-        run: stack test fp-ieee ${{ matrix.flags }}
+        run: cabal test fp-ieee --ghc-options=-fno-ignore-asserts ${{ matrix.flags }}
 
   rounded-hw:
     name: rounded-hw
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.1']
+        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2']
         os: [ubuntu-latest]
+        flags: ['', '--flags x87-long-double']
+        exclude:
+          - ghc: '9.0.2'
+            flags: '--flags x87-long-double'
+          - ghc: '9.2'
+            flags: '--flags x87-long-double'
     steps:
       - uses: actions/checkout@v2
 
-      - uses: haskell/actions/setup@v1
+      - uses: haskell/actions/setup@v2
         name: Setup Haskell
         with:
           ghc-version: ${{ matrix.ghc }}
-          enable-stack: true
-          stack-version: 'latest'
-          stack-no-global: true
-          stack-setup-ghc: true
 
-      - uses: actions/cache@v1
-        name: Cache ~/.stack
+      - uses: actions/cache@v3
         with:
-          path: ~/.stack
-          key: ${{ runner.os }}-${{ matrix.ghc }}-stack
+          path: |
+            ~/.cabal/packages
+            ~/.cabal/store
+          key: ${{ runner.os }}-${{ matrix.ghc }}
 
       - name: Build
-        run: stack build rounded-hw --ghc-options=-fno-ignore-asserts --test --no-run-tests --bench --no-run-benchmarks
+        run: cabal build rounded-hw --ghc-options=-fno-ignore-asserts --enable-tests --enable-benchmarks ${{ matrix.flags }}
 
       - name: Test
-        run: stack test rounded-hw
+        run: cabal test rounded-hw --ghc-options=-fno-ignore-asserts ${{ matrix.flags }}
