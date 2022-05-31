@@ -46,7 +46,7 @@ import           Math.NumberTheory.Logarithms (integerLog2')
 #endif
 
 -- $setup
--- >>> :m + Data.Int Test.QuickCheck
+-- >>> :m + Data.Int Data.Bits Test.QuickCheck
 -- >>> :{
 --   -- Workaround for https://github.com/sol/doctest/issues/160:
 --   import Numeric.Floating.IEEE.Internal.IntegerInternals

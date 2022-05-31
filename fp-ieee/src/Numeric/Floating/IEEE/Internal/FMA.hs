@@ -30,6 +30,7 @@ default ()
 
 -- $setup
 -- >>> :set -XScopedTypeVariables
+-- >>> import Numeric.Floating.IEEE.Internal.FMA
 
 -- Assumption: input is finite
 isMantissaEven :: RealFloat a => a -> Bool

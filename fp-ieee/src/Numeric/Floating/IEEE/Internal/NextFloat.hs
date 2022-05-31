@@ -12,6 +12,7 @@ default ()
 
 -- $setup
 -- >>> :set -XHexFloatLiterals -XNumericUnderscores
+-- >>> import Numeric.Floating.IEEE.Internal.NextFloat
 
 -- |
 -- Returns the smallest value that is larger than the argument.

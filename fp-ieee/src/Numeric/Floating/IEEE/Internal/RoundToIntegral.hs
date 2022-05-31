@@ -19,6 +19,7 @@ default ()
 -- $setup
 -- >>> :set -XScopedTypeVariables
 -- >>> import Numeric.Floating.IEEE.Internal.Classify (isFinite)
+-- >>> import Numeric.Floating.IEEE.Internal.RoundToIntegral
 
 -- |
 -- @'round'' x@ returns the nearest integral value to @x@; the even integer if @x@ is equidistant between two integers.

@@ -8,6 +8,10 @@ import           Numeric.Floating.IEEE.Internal.FMA
 
 default ()
 
+-- $setup
+-- >>> :m + Data.Proxy
+-- >>> import Numeric.Floating.IEEE.Internal.GenericArith
+
 infixl 6 `genericAdd`, `genericSub`
 infixl 7 `genericMul`, `genericDiv`
 

@@ -2,6 +2,7 @@ import Test.DocTest
 
 main :: IO ()
 main = doctest [ "-isrc"
+               , "-fobject-code" -- for GHC 8.6
                , "src/Numeric/Floating/IEEE/Internal/Base.hs"
                , "src/Numeric/Floating/IEEE/Internal/Classify.hs"
                , "src/Numeric/Floating/IEEE/Internal/FMA.hs"
