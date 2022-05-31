@@ -4,3 +4,4 @@ dist-newstyle/
 *.o
 *.hi
 *.dump-*
+.ghc.environment*
