@@ -186,7 +186,7 @@ nextUpFloat x =
     w | testBit w 31 -> castWord32ToFloat (w - 1) -- negative
       | otherwise -> castWord32ToFloat (w + 1) -- positive
   where
-    !True = isFloatBinary32 || error "Numeric.Floating.Extra assumes Float is IEEE binary32"
+    !() = if isFloatBinary32 then () else error "Numeric.Floating.IEEE assumes Float is IEEE binary32"
 
 -- |
 -- prop> nextUpDouble 1 == 0x1.0000_0000_0000_1p0
@@ -204,7 +204,7 @@ nextUpDouble x =
     w | testBit w 63 -> castWord64ToDouble (w - 1) -- negative
       | otherwise -> castWord64ToDouble (w + 1) -- positive
   where
-     !True = isDoubleBinary64 || error "Numeric.Floating.Extra assumes Double is IEEE binary64"
+     !() = if isDoubleBinary64 then () else error "Numeric.Floating.IEEE assumes Double is IEEE binary64"
 
 -- |
 -- prop> nextDownFloat 1 == 0x1.fffffep-1
@@ -222,7 +222,7 @@ nextDownFloat x =
     w | testBit w 31 -> castWord32ToFloat (w + 1) -- negative
       | otherwise -> castWord32ToFloat (w - 1) -- positive
   where
-    !True = isFloatBinary32 || error "Numeric.Floating.Extra assumes Float is IEEE binary32"
+    !() = if isFloatBinary32 then () else error "Numeric.Floating.IEEE assumes Float is IEEE binary32"
 
 -- |
 -- prop> nextDownDouble 1 == 0x1.ffff_ffff_ffff_fp-1
@@ -240,7 +240,7 @@ nextDownDouble x =
     w | testBit w 63 -> castWord64ToDouble (w + 1) -- negative
       | otherwise -> castWord64ToDouble (w - 1) -- positive
   where
-     !True = isDoubleBinary64 || error "Numeric.Floating.Extra assumes Double is IEEE binary64"
+     !() = if isDoubleBinary64 then () else error "Numeric.Floating.IEEE assumes Double is IEEE binary64"
 
 -- |
 -- prop> nextTowardZeroFloat 1 == 0x1.fffffep-1
@@ -259,7 +259,7 @@ nextTowardZeroFloat x =
     0x0000_0000 -> x -- +0 -> itself
     w -> castWord32ToFloat (w - 1) -- positive / negative
   where
-    !True = isFloatBinary32 || error "Numeric.Floating.Extra assumes Float is IEEE binary32"
+    !() = if isFloatBinary32 then () else error "Numeric.Floating.IEEE assumes Float is IEEE binary32"
 
 -- |
 -- prop> nextTowardZeroDouble 1 == 0x1.ffff_ffff_ffff_fp-1
@@ -278,4 +278,4 @@ nextTowardZeroDouble x =
     0x0000_0000_0000_0000 -> x -- +0 -> itself
     w -> castWord64ToDouble (w - 1) -- positive / negative
   where
-    !True = isDoubleBinary64 || error "Numeric.Floating.Extra assumes Double is IEEE binary64"
+    !() = if isDoubleBinary64 then () else error "Numeric.Floating.IEEE assumes Double is IEEE binary64"

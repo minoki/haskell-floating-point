@@ -256,8 +256,8 @@ fusedMultiplyAddFloat_viaDouble a b c
   | isFinite a && isFinite b = c + c -- a * b is finite, but c is Infinity or NaN
   | otherwise = a * b + c
   where
-    !True = isFloatBinary32 || error "fusedMultiplyAdd/Float: Float must be IEEE binary32"
-    !True = isDoubleBinary64 || error "fusedMultiplyAdd/Float: Double must be IEEE binary64"
+    !() = if isFloatBinary32 then () else error "fusedMultiplyAdd/Float: Float must be IEEE binary32"
+    !() = if isDoubleBinary64 then () else error "fusedMultiplyAdd/Float: Double must be IEEE binary64"
 
 #if defined(HAS_FAST_FMA)
 
