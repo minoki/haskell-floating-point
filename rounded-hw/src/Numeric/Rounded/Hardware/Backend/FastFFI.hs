@@ -173,7 +173,7 @@ foreign import prim "rounded_hw_interval_sqrt"
                         , Double#  -- upper, %xmm2
                         #)
 
-#if WORD_SIZE_IN_BITS >= 64
+#if WORD_SIZE_IN_BITS >= 64 && !MIN_VERSION_base(4,17,0)
 type INT64# = Int#
 type WORD64# = Word#
 #else
