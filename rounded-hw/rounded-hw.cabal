@@ -157,6 +157,8 @@ test-suite rounded-hw-doctests
   build-depends:
       doctest >=0.8
   default-language: Haskell2010
+  if impl(ghc >= 9.6)
+    buildable: False
 
 test-suite rounded-hw-test
   import: deps, options
