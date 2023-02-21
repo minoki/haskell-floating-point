@@ -12,9 +12,9 @@ import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM
 import qualified Data.Vector.Unboxed as VU
 import qualified Data.Vector.Unboxed.Mutable as VUM
-import           Gauge.Benchmark
 import           Numeric.Rounded.Hardware.Interval
 import qualified Numeric.Rounded.Hardware.Interval.NonEmpty as NE
+import           Test.Tasty.Bench
 
 thawST :: (Ix i, IArray a e) => a i e -> ST s (STArray s i e)
 thawST = thaw

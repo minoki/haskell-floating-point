@@ -8,13 +8,13 @@ import           Data.Functor.Product
 import           Data.Int
 import           Data.Ratio
 import           Data.Word
-import           Gauge.Benchmark
 import           Numeric.Floating.IEEE
 import qualified Numeric.Floating.IEEE.Internal as IEEE.Internal
 import           Numeric.Rounded.Hardware
 import qualified Numeric.Rounded.Hardware.Backend.C as C
 import           Numeric.Rounded.Hardware.Class
 import           Numeric.Rounded.Hardware.Interval
+import           Test.Tasty.Bench
 
 word64ToDouble :: RoundingMode -> Word64 -> Double
 word64ToDouble ToNearest x

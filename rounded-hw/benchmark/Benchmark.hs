@@ -11,13 +11,13 @@ import           Data.Proxy
 import           Data.Ratio
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as VU
-import           Gauge.Main
 import           IGA
 import           Numeric.Rounded.Hardware.Internal
 import           Numeric.Rounded.Hardware.Interval
 import           Numeric.Rounded.Hardware.Interval.Class (makeInterval)
 import qualified Numeric.Rounded.Hardware.Interval.NonEmpty as NE
 import qualified Numeric.Rounded.Hardware.Vector.Unboxed as RVU
+import           Test.Tasty.Bench
 
 foreign import ccall unsafe "fma"
   c_fma_double :: Double -> Double -> Double -> Double

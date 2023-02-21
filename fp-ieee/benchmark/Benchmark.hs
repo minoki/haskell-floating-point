@@ -6,7 +6,6 @@ import           Data.Bits
 import           Data.Coerce
 import           Data.Functor.Identity
 import           Data.Word
-import           Gauge.Main
 import           GHC.Float (isDoubleFinite, isFloatFinite)
 import           Numeric
 import           Numeric.Floating.IEEE
@@ -18,6 +17,7 @@ import qualified Numeric.Half
 #if defined(USE_FLOAT128)
 import           Numeric.Float128 (Float128)
 #endif
+import           Test.Tasty.Bench
 
 foreign import ccall unsafe "nextafter"
   c_nextafter_double :: Double -> Double -> Double

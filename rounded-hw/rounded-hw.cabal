@@ -208,6 +208,4 @@ benchmark rounded-hw-benchmark
   build-depends:
       rounded-hw
     , tasty-bench
-  mixins:
-      tasty-bench (Test.Tasty.Bench as Gauge, Test.Tasty.Bench as Gauge.Main, Test.Tasty.Bench as Gauge.Benchmark)
   default-language: Haskell2010
