@@ -47,6 +47,7 @@ jobs:
             flags: '--flags x87-long-double'
           - ghc: '9.6'
             flags: '--flags x87-long-double'
+          - ghc: '9.4' # Disabled for now
     steps:
       - uses: actions/checkout@v3
 
