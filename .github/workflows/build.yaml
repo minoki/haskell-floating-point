@@ -6,16 +6,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2', '9.4']
+        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2', '9.4', '9.6']
         os: [ubuntu-latest]
         flags: ['', '--flags "fma3 f16c"', '--flags float128']
         # float128-0.1 doesn't support recent GHC (should we try --allow-newer?)
         exclude:
-          - ghc: '9.0.2'
-            flags: '--flags float128'
-          - ghc: '9.2'
-            flags: '--flags float128'
-          - ghc: '9.4'
+          - ghc: '9.6'
             flags: '--flags float128'
     steps:
       - uses: actions/checkout@v3
@@ -43,15 +39,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2', '9.4']
+        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2', '9.4', '9.6']
         os: [ubuntu-latest]
         flags: ['', '--flags x87-long-double']
         exclude:
-          - ghc: '9.0.2'
-            flags: '--flags x87-long-double'
-          - ghc: '9.2'
-            flags: '--flags x87-long-double'
           - ghc: '9.4'
+            flags: '--flags x87-long-double'
+          - ghc: '9.6'
             flags: '--flags x87-long-double'
     steps:
       - uses: actions/checkout@v3
