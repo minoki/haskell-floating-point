@@ -196,7 +196,7 @@ test-suite fp-ieee-doctests
       doctest >=0.8
     , QuickCheck
   default-language: Haskell2010
-  if impl(ghc >= 9.6)
+  if impl(ghc >= 9.8)
     buildable: False
 
 test-suite fp-ieee-test
