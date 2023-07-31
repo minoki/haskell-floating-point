@@ -54,7 +54,7 @@ instance (RealFloat a, Num a, RealFloatConstants a) => RoundedRing (ViaRational 
             TowardInf    ->  0
             TowardZero   ->  0
   roundedMul r (ViaRational x) (ViaRational y)
-    | isNaN x || isNaN y || isInfinite x || isInfinite y || isNegativeZero x || isNegativeZero y = ViaRational (x * y)
+    | isNaN x || isNaN y || isInfinite x || isInfinite y || x == 0 || y == 0 = ViaRational (x * y)
     | otherwise = roundedFromRational r (toRational x * toRational y)
   roundedFusedMultiplyAdd r (ViaRational x) (ViaRational y) (ViaRational z)
     | isFinite x && isFinite y && isFinite z = case toRational x * toRational y + toRational z of
