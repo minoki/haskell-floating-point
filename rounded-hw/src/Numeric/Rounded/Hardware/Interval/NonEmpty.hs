@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -355,9 +356,11 @@ instance (Prim a, Ord a, Fractional a) => A.IArray A.UArray (Interval a) where
     in pairToInterval (x, y)
   -- unsafeReplace, unsafeAccum, unsafeAccumArray: Use default
 
+#if !MIN_VERSION_base(4, 16, 0)
 {-# RULES
 "fromIntegral/a->Interval Float"
   fromIntegral = \x -> case intervalFromIntegral x of (l, u) -> I l u :: Interval Float
 "fromIntegral/a->Interval Double"
   fromIntegral = \x -> case intervalFromIntegral x of (l, u) -> I l u :: Interval Double
   #-}
+#endif

@@ -89,6 +89,7 @@ instance RoundedSqrt_Vector VS.Vector Double where
   map_roundedSqrt mode vec = unsafeCoerce (map_roundedSqrt mode (unsafeCoerce vec) :: VS.Vector DoubleImpl)
   {-# INLINE map_roundedSqrt #-}
 
+#if !MIN_VERSION_base(4, 16, 0)
 -- orphaned rules
 {-# RULES
 "fromIntegral/a->Rounded ToNearest Float"
@@ -108,3 +109,4 @@ instance RoundedSqrt_Vector VS.Vector Double where
 "fromIntegral/a->Rounded TowardZero Double"
   fromIntegral = \x -> (Rounded (fromIntegralTowardZero x) :: Rounded 'TowardZero Double)
   #-}
+#endif
