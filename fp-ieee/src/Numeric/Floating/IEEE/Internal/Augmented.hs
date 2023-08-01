@@ -68,7 +68,10 @@ augmentedMultiplication !x !y
                 in if exy + exponent u1 >= expMin then
                      -- The result is exact
                      let ulpTowardZero = u1 - nextTowardZero u1
-                         !_ = assert (2 * abs u2 <= abs ulpTowardZero) ()
+                         !_ = assert (case u1 of
+                                        0.5  -> - ulpTowardZero <= 2 * u2 && u2 <= ulpTowardZero
+                                        -0.5 -> ulpTowardZero <= u2 && 2 * u2 <= - ulpTowardZero
+                                        _    -> 2 * abs u2 <= abs ulpTowardZero) ()
                          (v1, v2) = if (-2) * u2 == ulpTowardZero then
                                       (u1 - ulpTowardZero, ulpTowardZero + u2)
                                     else
