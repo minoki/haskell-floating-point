@@ -208,7 +208,7 @@ roundingMode# (IP bn) t = case t `quotRemInt#` WORD_SIZE_IN_BITS# of
                                              <> loop s
   where
     loop 0# = EQ
-    loop i = case GHC.Num.BigNat.bigNatIndex# bn i of
+    loop i = case GHC.Num.BigNat.bigNatIndex# bn (i -# 1#) of
                0## -> loop (i -# 1#)
                _   -> GT
 
