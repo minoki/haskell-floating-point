@@ -6,6 +6,7 @@ import           Control.Monad
 import           Data.Bits
 import           Data.Coerce
 import           Data.Functor.Identity
+import           GHC.Exts (inline)
 import           Numeric
 import           Numeric.Floating.IEEE
 import           Numeric.Floating.IEEE.Internal
@@ -23,6 +24,14 @@ foreign import ccall unsafe "fmaf"
   c_fma_float :: Float -> Float -> Float -> Float
 
 #endif
+
+fusedMultiplyAddInlineFloat :: Float -> Float -> Float -> Float
+fusedMultiplyAddInlineFloat x y z = inline fusedMultiplyAdd x y z
+{-# NOINLINE fusedMultiplyAddInlineFloat #-}
+
+fusedMultiplyAddInlineDouble :: Double -> Double -> Double -> Double
+fusedMultiplyAddInlineDouble x y z = inline fusedMultiplyAdd x y z
+{-# NOINLINE fusedMultiplyAddInlineDouble #-}
 
 fusedMultiplyAdd_generic :: RealFloat a => a -> a -> a -> a
 fusedMultiplyAdd_generic x y z = runIdentity (fusedMultiplyAdd (Identity x) (Identity y) (Identity z))
@@ -88,11 +97,15 @@ spec :: Spec
 spec = modifyMaxSuccess (* 100) $ do
   describe "Double" $ do
     checkFMA "fusedMultiplyAdd (default)"      fusedMultiplyAdd             casesForDouble
+    checkFMA "fusedMultiplyAdd (monomorphic)"  fusedMultiplyAddDouble       casesForDouble
+    checkFMA "fusedMultiplyAdd (inline)"       fusedMultiplyAddInlineDouble casesForDouble
     checkFMA "fusedMultiplyAdd (generic)"      fusedMultiplyAdd_generic     casesForDouble
     checkFMA "fusedMultiplyAdd (via Rational)" fusedMultiplyAdd_viaRational casesForDouble
     checkFMA "fusedMultiplyAdd (via Integer)"  fusedMultiplyAdd_viaInteger  casesForDouble
   describe "Float" $ do
     checkFMA "fusedMultiplyAdd (default)"      fusedMultiplyAdd                casesForFloat
+    checkFMA "fusedMultiplyAdd (monomorphic)"  fusedMultiplyAddFloat           casesForFloat
+    checkFMA "fusedMultiplyAdd (inline)"       fusedMultiplyAddInlineFloat     casesForFloat
     checkFMA "fusedMultiplyAdd (generic)"      fusedMultiplyAdd_generic        casesForFloat
     checkFMA "fusedMultiplyAdd (via Rational)" fusedMultiplyAdd_viaRational    casesForFloat
     checkFMA "fusedMultiplyAdd (via Integer)"  fusedMultiplyAdd_viaInteger     casesForFloat

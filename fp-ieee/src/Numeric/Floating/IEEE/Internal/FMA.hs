@@ -1,6 +1,10 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+#if defined(HAS_FMA_PRIM)
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE UnboxedTuples #-}
+#endif
 module Numeric.Floating.IEEE.Internal.FMA
   ( isMantissaEven
   , twoSum
@@ -25,6 +29,9 @@ import           Numeric.Floating.IEEE.Internal.Base (isDoubleBinary64,
                                                       isFloatBinary32, (^!))
 import           Numeric.Floating.IEEE.Internal.Classify (isFinite)
 import           Numeric.Floating.IEEE.Internal.NextFloat (nextDown, nextUp)
+#if defined(HAS_FMA_PRIM)
+import           GHC.Exts
+#endif
 
 default ()
 
@@ -152,7 +159,44 @@ twoProduct_nonscaling a b =
 twoProductFloat :: Float -> Float -> (Float, Float)
 twoProductDouble :: Double -> Double -> (Double, Double)
 
-#if defined(HAS_FAST_FMA)
+#if defined(HAS_FMA_PRIM) && 0
+-- Disabled for now: https://gitlab.haskell.org/ghc/ghc/-/issues/24160
+
+twoProductFloat# :: Float# -> Float# -> (# Float#, Float# #)
+twoProductFloat# x y = let !r = x `timesFloat#` y
+                           !s = fmsubFloat# x y r
+                       in (# r, s #)
+
+twoProductDouble# :: Double# -> Double# -> (# Double#, Double# #)
+twoProductDouble# x y = let !r = x *## y
+                            !s = fmsubDouble# x y r
+                        in (# r, s #)
+
+#if defined(DONT_INLINE_FMA_PRIM)
+{-# NOINLINE twoProductFloat# #-}
+{-# NOINLINE twoProductDouble# #-}
+#else
+{-# INLINE twoProductFloat# #-}
+{-# INLINE twoProductDouble# #-}
+#endif
+
+twoProductFloat (F# x) (F# y) = case twoProductFloat# x y of
+                                  (# r, s #) -> (F# r, F# s)
+
+twoProductDouble (D# x) (D# y) = case twoProductDouble# x y of
+                                   (# r, s #) -> (D# r, D# s)
+
+{-# INLINE twoProductFloat #-}
+{-# INLINE twoProductDouble #-}
+
+{-# RULES
+"twoProduct/Float" twoProduct = twoProductFloat
+"twoProduct/Double" twoProduct = twoProductDouble
+"twoProduct_nonscaling/Float" twoProduct_nonscaling = twoProductFloat
+"twoProduct_nonscaling/Double" twoProduct_nonscaling = twoProductDouble
+  #-}
+
+#elif defined(HAS_FAST_FMA) || defined(HAS_FMA_PRIM)
 
 twoProductFloat x y = let !r = x * y
                           !s = fusedMultiplyAddFloat x y (-r)
@@ -259,7 +303,43 @@ fusedMultiplyAddFloat_viaDouble a b c
     !() = if isFloatBinary32 then () else error "fusedMultiplyAdd/Float: Float must be IEEE binary32"
     !() = if isDoubleBinary64 then () else error "fusedMultiplyAdd/Float: Double must be IEEE binary64"
 
-#if defined(HAS_FAST_FMA)
+#if defined(HAS_FMA_PRIM)
+
+#if defined(DONT_INLINE_FMA_PRIM)
+
+fusedMultiplyAddFloat# :: Float# -> Float# -> Float# -> Float#
+fusedMultiplyAddFloat# x y z = fmaddFloat# x y z
+{-# NOINLINE fusedMultiplyAddFloat# #-}
+
+fusedMultiplyAddDouble# :: Double# -> Double# -> Double# -> Double#
+fusedMultiplyAddDouble# x y z = fmaddDouble# x y z
+{-# NOINLINE fusedMultiplyAddDouble# #-}
+
+fusedMultiplyAddFloat :: Float -> Float -> Float -> Float
+fusedMultiplyAddFloat (F# x) (F# y) (F# z) = F# (fusedMultiplyAddFloat# x y z)
+
+fusedMultiplyAddDouble :: Double -> Double -> Double -> Double
+fusedMultiplyAddDouble (D# x) (D# y) (D# z) = D# (fusedMultiplyAddDouble# x y z)
+
+#else
+
+fusedMultiplyAddFloat :: Float -> Float -> Float -> Float
+fusedMultiplyAddFloat (F# x) (F# y) (F# z) = F# (fmaddFloat# x y z)
+
+fusedMultiplyAddDouble :: Double -> Double -> Double -> Double
+fusedMultiplyAddDouble (D# x) (D# y) (D# z) = D# (fmaddDouble# x y z)
+
+#endif
+
+{-# INLINE fusedMultiplyAddFloat #-}
+{-# INLINE fusedMultiplyAddDouble #-}
+
+{-# RULES
+"fusedMultiplyAdd/Float" fusedMultiplyAdd = fusedMultiplyAddFloat
+"fusedMultiplyAdd/Double" fusedMultiplyAdd = fusedMultiplyAddDouble
+  #-}
+
+#elif defined(HAS_FAST_FMA)
 
 foreign import ccall unsafe "hs_fusedMultiplyAddFloat"
   fusedMultiplyAddFloat :: Float -> Float -> Float -> Float

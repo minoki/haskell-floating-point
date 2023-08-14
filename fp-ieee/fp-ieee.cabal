@@ -33,7 +33,7 @@ flag sse4_1
   default: False
 
 flag fma3
-  description: Use FMA3 instructions on x86
+  description: Use FMA3 instructions on x86. On GHC 9.8 or later, this flag makes use of FMA primitives.
   manual: True
   default: False
 
@@ -154,20 +154,27 @@ library
     c-sources:
         cbits/roundeven.c
   -- Fast FMA: needs FMA3 on x86 (FMA4 is not supported by this package)
-  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3)
+  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3) && impl(ghc < 9.8)
     cpp-options: -DHAS_FAST_FMA
     cc-options: -mfma
     c-sources:
         cbits/fma.c
+  if (arch(i386) || arch(x86_64)) && flag(fma3) && impl(ghc >= 9.8)
+    cpp-options: -DHAS_FMA_PRIM
+    ghc-options: -mfma
   -- Fast FMA: always available on AArch64
-  if !flag(pure-hs) && arch(aarch64)
+  if !flag(pure-hs) && arch(aarch64) && impl(ghc < 9.8)
     cpp-options: -DHAS_FAST_FMA
     c-sources:
         cbits/fma.c
+  if !flag(pure-hs) && arch(aarch64) && impl(ghc >= 9.8)
+    cpp-options: -DHAS_FMA_PRIM
   -- Enable use of libm's fma unless "pure-hs" is set; but not on Windows
   -- (mingw-w64's fma is not reliable)
   if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && !os(windows)
     cpp-options: -DUSE_C99_FMA
+  if (arch(i386) || arch(x86_64)) && os(windows)
+    cpp-options: -DDONT_INLINE_FMA_PRIM
   -- Fast min/max: available on AArch64
   if !flag(pure-hs) && arch(aarch64)
     cpp-options: -DHAS_FAST_MINMAX
