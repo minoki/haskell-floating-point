@@ -1,4 +1,5 @@
-cabal-version: 2.2
+cabal-version: 3.0
+-- asm-sources is Cabal 3.0 feature
 
 name:           rounded-hw
 version:        0.3.0
@@ -31,7 +32,7 @@ source-repository head
 -- Custom setup is required to allow assembly sources to #include "ghcconfig.h"
 custom-setup
   setup-depends:
-      Cabal >=1.24
+      Cabal >=3.0
     , base >=4.7
 
 flag pure-hs
@@ -125,12 +126,20 @@ library
     exposed-modules:
         Numeric.Rounded.Hardware.Backend.FastFFI
     cpp-options: -DUSE_GHC_PRIM
-    if flag(avx512)
-      c-sources:
-          cbits/interval-prim-x86_64-avx512.S
+    if impl(ghc >= 9.2)
+      if flag(avx512)
+        asm-sources:
+            cbits/interval-prim-x86_64-avx512.S
+      else
+        asm-sources:
+            cbits/interval-prim-x86_64.S
     else
-      c-sources:
-          cbits/interval-prim-x86_64.S
+      if flag(avx512)
+        c-sources:
+            cbits/interval-prim-x86_64-avx512.S
+      else
+        c-sources:
+            cbits/interval-prim-x86_64.S
   -- flag(x87-long-double): Support LongDouble on x86
   if flag(x87-long-double) && (arch(i386) || arch(x86_64))
     other-modules:
