@@ -50,8 +50,6 @@ import           Foreign.C.String (CString, peekCString)
 import           Foreign.Storable (Storable)
 import           GHC.Exts
 import           GHC.Generics (Generic)
-import           GHC.Int (Int64 (I64#))
-import           GHC.Word (Word64 (W64#))
 import qualified Numeric.Rounded.Hardware.Backend.C as C
 import           Numeric.Rounded.Hardware.Internal.Class
 import           System.IO.Unsafe (unsafePerformIO)
@@ -166,28 +164,18 @@ foreign import prim "rounded_hw_interval_recip"
                          , Double#  -- upper, %xmm2
                          #)
 
-foreign import prim "rounded_hw_interval_sqrt"
-  fastIntervalSqrt# :: Double# -- lower 1, %xmm1
-                    -> Double# -- upper 1, %xmm2
-                    -> (# Double#  -- lower, %xmm1
-                        , Double#  -- upper, %xmm2
-                        #)
-
 #if WORD_SIZE_IN_BITS >= 64 && !MIN_VERSION_base(4,17,0)
 type INT64# = Int#
 type WORD64# = Word#
-#else
-type INT64# = Int64#
-type WORD64# = Word64#
 #endif
 
+{-
 foreign import prim "rounded_hw_interval_from_int64"
   fastIntervalFromInt64# :: INT64# -- value
                          -> (# Double# -- lower, %xmm1
                              , Double# -- upper, %xmm2
                              #)
 
-{-
 foreign import prim "rounded_hw_interval_from_word64"
   fastIntervalFromWord64# :: WORD64# -- value
                           -> (# Double# -- lower, %xmm1
@@ -210,15 +198,19 @@ fastIntervalRecip (D# l1) (D# h1) = case fastIntervalRecip# l1 h1 of
   (# l2, h2 #) -> (D# l2, D# h2)
 {-# INLINE fastIntervalRecip #-}
 
+{-
 fastIntervalSqrt :: Double -> Double -> (Double, Double)
 fastIntervalSqrt (D# l1) (D# h1) = case fastIntervalSqrt# l1 h1 of
   (# l2, h2 #) -> (D# l2, D# h2)
 {-# INLINE fastIntervalSqrt #-}
+-}
 
+{-
 fastIntervalFromInt64 :: Int64 -> (Double, Double)
 fastIntervalFromInt64 (I64# x) = case fastIntervalFromInt64# x of
   (# l, h #) -> (D# l, D# h)
 {-# INLINE fastIntervalFromInt64 #-}
+-}
 
 {-
 fastIntervalFromWord64 :: Word64 -> (Double, Double)
