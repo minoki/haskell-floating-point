@@ -59,7 +59,13 @@ static inline {{TYPE}} rounded_sqrt_impl_{{NAME}}(native_rounding_mode mode, {{T
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
+#if defined(__GNUC__) && defined(USE_SSE2)
+    // mingw-w64's {{sqrt}} may use x87 instead of SSE2
+    {{TYPE}} c;
+    __asm__ volatile("{{sqrt_sse}} %1, %0" : "=x"(c) : "x"(a));
+#else
     volatile {{TYPE}} c = {{sqrt}}(a);
+#endif
     restore_fp_reg(oldreg);
     return c;
 }
@@ -364,8 +370,24 @@ extern void rounded_hw_vector_sqrt_{{NAME}}(HsInt mode, HsInt length, HsInt offs
     native_rounding_mode nmode = hs_rounding_mode_to_native(mode);
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, nmode);
+#if defined(__GNUC__) && defined(USE_SSE2)
+    // mingw-w64's {{sqrt}} may use x87 instead of SSE2
+    HsInt i = 0;
+    for (; i + {{ELEM_PER_VECTOR}} <= length; i += {{ELEM_PER_VECTOR}}) {
+        {{VECTOR}} aa = {{_mm_loadu_px}}(&a[offsetA + i]);
+        {{VECTOR}} bb = {{_mm_sqrt_px}}(aa);
+        {{_mm_storeu_px}}(&result[offsetR + i], bb);
+    }
+    for (; i < length; ++i) {
+        {{TYPE}} aa = a[offsetA + i];
+        {{TYPE}} bb;
+        __asm__ volatile("{{sqrt_sse}} %1, %0" : "=x"(bb) : "x"(aa));
+        result[offsetR + i] = bb;
+    }
+#else
     for (HsInt i = 0; i < length; ++i) {
         result[offsetR + i] = {{sqrt}}(a[offsetA + i]);
     }
+#endif
     restore_fp_reg(oldreg);
 }

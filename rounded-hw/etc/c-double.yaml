@@ -3,11 +3,16 @@ NAME: double
 TYPE: double
 LIT_SUFFIX: ""
 sqrt: sqrt
+sqrt_sse: sqrtsd
 fma: fma
 fmax: fmax
 fmin: fmin
 FP_FAST_FMA: FP_FAST_FMA
 VECTOR: __m128d
+ELEM_PER_VECTOR: 2
+_mm_loadu_px: _mm_loadu_pd
+_mm_storeu_px: _mm_storeu_pd
+_mm_sqrt_px: _mm_sqrt_pd
 SIMD_SUFFIX: _sd
 each_static_rounding_mode:
 - MODE: ROUND_TONEAREST

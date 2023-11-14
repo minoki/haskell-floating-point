@@ -3,11 +3,16 @@ NAME: float
 TYPE: float
 LIT_SUFFIX: "f"
 sqrt: sqrtf
+sqrt_sse: sqrtss
 fma: fmaf
 fmax: fmaxf
 fmin: fminf
 FP_FAST_FMA: FP_FAST_FMAF
 VECTOR: __m128
+ELEM_PER_VECTOR: 4
+_mm_loadu_px: _mm_loadu_ps
+_mm_storeu_px: _mm_storeu_ps
+_mm_sqrt_px: _mm_sqrt_ps
 SIMD_SUFFIX: _ss
 each_static_rounding_mode:
 - MODE: ROUND_TONEAREST

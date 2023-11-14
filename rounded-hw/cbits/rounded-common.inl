@@ -76,7 +76,13 @@ static inline double rounded_sqrt_impl_double(native_rounding_mode mode, double 
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
+#if defined(__GNUC__) && defined(USE_SSE2)
+    // mingw-w64's sqrt may use x87 instead of SSE2
+    double c;
+    __asm__ volatile("sqrtsd %1, %0" : "=x"(c) : "x"(a));
+#else
     volatile double c = sqrt(a);
+#endif
     restore_fp_reg(oldreg);
     return c;
 }
@@ -401,9 +407,25 @@ extern void rounded_hw_vector_sqrt_double(HsInt mode, HsInt length, HsInt offset
     native_rounding_mode nmode = hs_rounding_mode_to_native(mode);
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, nmode);
+#if defined(__GNUC__) && defined(USE_SSE2)
+    // mingw-w64's sqrt may use x87 instead of SSE2
+    HsInt i = 0;
+    for (; i + 2 <= length; i += 2) {
+        __m128d aa = _mm_loadu_pd(&a[offsetA + i]);
+        __m128d bb = _mm_sqrt_pd(aa);
+        _mm_storeu_pd(&result[offsetR + i], bb);
+    }
+    for (; i < length; ++i) {
+        double aa = a[offsetA + i];
+        double bb;
+        __asm__ volatile("sqrtsd %1, %0" : "=x"(bb) : "x"(aa));
+        result[offsetR + i] = bb;
+    }
+#else
     for (HsInt i = 0; i < length; ++i) {
         result[offsetR + i] = sqrt(a[offsetA + i]);
     }
+#endif
     restore_fp_reg(oldreg);
 }
 
@@ -483,7 +505,13 @@ static inline float rounded_sqrt_impl_float(native_rounding_mode mode, float a)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
+#if defined(__GNUC__) && defined(USE_SSE2)
+    // mingw-w64's sqrtf may use x87 instead of SSE2
+    float c;
+    __asm__ volatile("sqrtss %1, %0" : "=x"(c) : "x"(a));
+#else
     volatile float c = sqrtf(a);
+#endif
     restore_fp_reg(oldreg);
     return c;
 }
@@ -808,8 +836,24 @@ extern void rounded_hw_vector_sqrt_float(HsInt mode, HsInt length, HsInt offsetR
     native_rounding_mode nmode = hs_rounding_mode_to_native(mode);
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, nmode);
+#if defined(__GNUC__) && defined(USE_SSE2)
+    // mingw-w64's sqrtf may use x87 instead of SSE2
+    HsInt i = 0;
+    for (; i + 4 <= length; i += 4) {
+        __m128 aa = _mm_loadu_ps(&a[offsetA + i]);
+        __m128 bb = _mm_sqrt_ps(aa);
+        _mm_storeu_ps(&result[offsetR + i], bb);
+    }
+    for (; i < length; ++i) {
+        float aa = a[offsetA + i];
+        float bb;
+        __asm__ volatile("sqrtss %1, %0" : "=x"(bb) : "x"(aa));
+        result[offsetR + i] = bb;
+    }
+#else
     for (HsInt i = 0; i < length; ++i) {
         result[offsetR + i] = sqrtf(a[offsetA + i]);
     }
+#endif
     restore_fp_reg(oldreg);
 }
