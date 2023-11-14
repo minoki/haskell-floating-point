@@ -13,6 +13,9 @@ module Numeric.Floating.IEEE.Internal.RoundToIntegral
   , floor
   ) where
 import           MyPrelude
+#if defined(USE_FFI) && defined(SOME_LIBC_FUNCTIONS_MIGHT_BE_BUGGY)
+import           Numeric.Floating.IEEE.Internal.Conversion
+#endif
 
 default ()
 
@@ -152,6 +155,26 @@ foreign import ccall unsafe "truncf"
 foreign import ccall unsafe "trunc"
   c_truncDouble :: Double -> Double
 
+#if defined(SOME_LIBC_FUNCTIONS_MIGHT_BE_BUGGY)
+{-# RULES
+"roundAway'/Float"
+  roundAway' = c_roundFloat . canonicalizeFloat
+"roundAway'/Double"
+  roundAway' = c_roundDouble . canonicalizeDouble
+"truncate'/Float"
+  truncate' = c_truncFloat
+"truncate'/Double"
+  truncate' = c_truncDouble
+"ceiling'/Float"
+  ceiling' = c_ceilFloat
+"ceiling'/Double"
+  ceiling' = c_ceilDouble
+"floor'/Float"
+  floor' = c_floorFloat
+"floor'/Double"
+  floor' = c_floorDouble
+  #-}
+#else
 {-# RULES
 "roundAway'/Float"
   roundAway' = c_roundFloat
@@ -170,6 +193,7 @@ foreign import ccall unsafe "trunc"
 "floor'/Double"
   floor' = c_floorDouble
   #-}
+#endif
 
 {- from base
 foreign import ccall unsafe "rintFloat"

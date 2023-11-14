@@ -75,6 +75,9 @@ common deps
       base >=4.12 && <5
   if !flag(pure-hs)
     cpp-options: -DUSE_FFI
+  if !flag(pure-hs) && os(windows)
+    -- mingw-w64 is not reliable
+    cpp-options: -DSOME_LIBC_FUNCTIONS_MIGHT_BE_BUGGY
   if flag(float128)
     -- Support Float128
     cpp-options: -DUSE_FLOAT128
