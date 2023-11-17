@@ -90,11 +90,6 @@ roundedFloatFromWord64 r x = staticIf
   (F.roundedFromWord64 r x)
 {-# INLINE roundedFloatFromWord64 #-}
 
-intervalFloatFromInteger :: Integer -> (Rounded 'TowardNegInf Float, Rounded 'TowardInf Float)
-intervalFloatFromInteger x
-  | -0x1000000 <= x && x <= 0x1000000 {- abs x <= 2^24 -} = (Rounded (fromInteger x), Rounded (fromInteger x))
-  | otherwise = intervalFromInteger_default x
-
 roundedFloatFromRealFloat :: RealFloat a => RoundingMode -> a -> Float
 roundedFloatFromRealFloat r x | isNaN x = 0/0
                               | isInfinite x = if x > 0 then 1/0 else -1/0
