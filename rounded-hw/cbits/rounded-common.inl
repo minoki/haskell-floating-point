@@ -4,11 +4,14 @@
 // double
 //
 
-static inline double rounded_add_impl_double(native_rounding_mode mode, double a, double b)
+static inline double rounded_add_impl_double(native_rounding_mode mode, VOLATILE double a, VOLATILE double b)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile double c = a + b;
+    MAY_MODIFY(a);
+    MAY_MODIFY(b);
+    VOLATILE double c = a + b;
+    FORCE_EVAL(c);
     restore_fp_reg(oldreg);
     return c;
 }
@@ -21,11 +24,14 @@ extern double rounded_hw_add_double_down(double a, double b)
 extern double rounded_hw_add_double_zero(double a, double b)
 { return rounded_add_impl_double(ROUND_TOWARDZERO, a, b); }
 
-static inline double rounded_sub_impl_double(native_rounding_mode mode, double a, double b)
+static inline double rounded_sub_impl_double(native_rounding_mode mode, VOLATILE double a, VOLATILE double b)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile double c = a - b;
+    MAY_MODIFY(a);
+    MAY_MODIFY(b);
+    VOLATILE double c = a - b;
+    FORCE_EVAL(c);
     restore_fp_reg(oldreg);
     return c;
 }
@@ -38,11 +44,14 @@ extern double rounded_hw_sub_double_down(double a, double b)
 extern double rounded_hw_sub_double_zero(double a, double b)
 { return rounded_sub_impl_double(ROUND_TOWARDZERO, a, b); }
 
-static inline double rounded_mul_impl_double(native_rounding_mode mode, double a, double b)
+static inline double rounded_mul_impl_double(native_rounding_mode mode, VOLATILE double a, VOLATILE double b)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile double c = a * b;
+    MAY_MODIFY(a);
+    MAY_MODIFY(b);
+    VOLATILE double c = a * b;
+    FORCE_EVAL(c);
     restore_fp_reg(oldreg);
     return c;
 }
@@ -55,11 +64,14 @@ extern double rounded_hw_mul_double_down(double a, double b)
 extern double rounded_hw_mul_double_zero(double a, double b)
 { return rounded_mul_impl_double(ROUND_TOWARDZERO, a, b); }
 
-static inline double rounded_div_impl_double(native_rounding_mode mode, double a, double b)
+static inline double rounded_div_impl_double(native_rounding_mode mode, VOLATILE double a, VOLATILE double b)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile double c = a / b;
+    MAY_MODIFY(a);
+    MAY_MODIFY(b);
+    VOLATILE double c = a / b;
+    FORCE_EVAL(c);
     restore_fp_reg(oldreg);
     return c;
 }
@@ -72,7 +84,7 @@ extern double rounded_hw_div_double_down(double a, double b)
 extern double rounded_hw_div_double_zero(double a, double b)
 { return rounded_div_impl_double(ROUND_TOWARDZERO, a, b); }
 
-static inline double rounded_sqrt_impl_double(native_rounding_mode mode, double a)
+static inline double rounded_sqrt_impl_double(native_rounding_mode mode, VOLATILE double a)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
@@ -81,7 +93,9 @@ static inline double rounded_sqrt_impl_double(native_rounding_mode mode, double 
     double c;
     __asm__ volatile("sqrtsd %1, %0" : "=x"(c) : "x"(a));
 #else
-    volatile double c = sqrt(a);
+    MAY_MODIFY(a);
+    VOLATILE double c = sqrt(a);
+    FORCE_EVAL(c);
 #endif
     restore_fp_reg(oldreg);
     return c;
@@ -95,11 +109,15 @@ extern double rounded_hw_sqrt_double_down(double a)
 extern double rounded_hw_sqrt_double_zero(double a)
 { return rounded_sqrt_impl_double(ROUND_TOWARDZERO, a); }
 
-static inline double rounded_fma_impl_double(native_rounding_mode mode, double a, double b, double c)
+static inline double rounded_fma_impl_double(native_rounding_mode mode, VOLATILE double a, VOLATILE double b, VOLATILE double c)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile double result = fma(a, b, c);
+    MAY_MODIFY(a);
+    MAY_MODIFY(b);
+    MAY_MODIFY(c);
+    VOLATILE double result = fma(a, b, c);
+    FORCE_EVAL(result);
     restore_fp_reg(oldreg);
     return result;
 }
@@ -112,15 +130,19 @@ extern double rounded_hw_fma_double_down(double a, double b, double c)
 extern double rounded_hw_fma_double_zero(double a, double b, double c)
 { return rounded_fma_impl_double(ROUND_TOWARDZERO, a, b, c); }
 
-static inline double rounded_fma_if_fast_impl_double(native_rounding_mode mode, double a, double b, double c)
+static inline double rounded_fma_if_fast_impl_double(native_rounding_mode mode, VOLATILE double a, VOLATILE double b, VOLATILE double c)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
+    MAY_MODIFY(a);
+    MAY_MODIFY(b);
+    MAY_MODIFY(c);
 #ifdef FP_FAST_FMA
-    volatile double result = fma(a, b, c);
+    VOLATILE double result = fma(a, b, c);
 #else
-    volatile double result = a * b + c;
+    VOLATILE double result = a * b + c;
 #endif
+    FORCE_EVAL(result);
     restore_fp_reg(oldreg);
     return result;
 }
@@ -141,7 +163,8 @@ static inline double rounded_int64_to_double_impl(native_rounding_mode mode, int
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile double result = (double)x;
+    VOLATILE double result = (double)x;
+    FORCE_EVAL(result);
     restore_fp_reg(oldreg);
     return result;
 }
@@ -158,7 +181,8 @@ static inline double rounded_word64_to_double_impl(native_rounding_mode mode, ui
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile double result = (double)x;
+    VOLATILE double result = (double)x;
+    FORCE_EVAL(result);
     restore_fp_reg(oldreg);
     return result;
 }
@@ -194,138 +218,182 @@ static inline double fast_fmin4_double(double x, double y, double z, double w)
     return fast_fmin_double(fast_fmin_double(x, y), fast_fmin_double(z, w));
 }
 
-extern double rounded_hw_interval_mul_double_up(double lo1, double hi1, double lo2, double hi2)
+extern double rounded_hw_interval_mul_double_up(VOLATILE double lo1, VOLATILE double hi1, VOLATILE double lo2, VOLATILE double hi2)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_UPWARD);
-    double x = (volatile double)(lo1 * lo2);
-    double y = (volatile double)(lo1 * hi2);
-    double z = (volatile double)(hi1 * lo2);
-    double w = (volatile double)(hi1 * hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    VOLATILE double x = lo1 * lo2;
+    VOLATILE double y = lo1 * hi2;
+    VOLATILE double z = hi1 * lo2;
+    VOLATILE double w = hi1 * hi2;
     if (isnan(x)) x = 0.0; /* 0 * inf -> 0 */
     if (isnan(y)) y = 0.0; /* 0 * inf -> 0 */
     if (isnan(z)) z = 0.0; /* 0 * inf -> 0 */
     if (isnan(w)) w = 0.0; /* 0 * inf -> 0 */
-    double hi = fast_fmax4_double(x, y, z, w);
+    VOLATILE double hi = fast_fmax4_double(x, y, z, w);
+    FORCE_EVAL(hi);
     restore_fp_reg(oldreg);
     return hi;
 }
 
-extern double rounded_hw_interval_mul_double_down(double lo1, double hi1, double lo2, double hi2)
+extern double rounded_hw_interval_mul_double_down(VOLATILE double lo1, VOLATILE double hi1, VOLATILE double lo2, VOLATILE double hi2)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_DOWNWARD);
-    double x = (volatile double)(lo1 * lo2);
-    double y = (volatile double)(lo1 * hi2);
-    double z = (volatile double)(hi1 * lo2);
-    double w = (volatile double)(hi1 * hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    VOLATILE double x = lo1 * lo2;
+    VOLATILE double y = lo1 * hi2;
+    VOLATILE double z = hi1 * lo2;
+    VOLATILE double w = hi1 * hi2;
     if (isnan(x)) x = 0.0; /* 0 * inf -> 0 */
     if (isnan(y)) y = 0.0; /* 0 * inf -> 0 */
     if (isnan(z)) z = 0.0; /* 0 * inf -> 0 */
     if (isnan(w)) w = 0.0; /* 0 * inf -> 0 */
-    double lo = fast_fmin4_double(x, y, z, w);
+    VOLATILE double lo = fast_fmin4_double(x, y, z, w);
+    FORCE_EVAL(lo);
     restore_fp_reg(oldreg);
     return lo;
 }
 
-extern double rounded_hw_interval_mul_add_double_up(double lo1, double hi1, double lo2, double hi2, double hi3)
+extern double rounded_hw_interval_mul_add_double_up(VOLATILE double lo1, VOLATILE double hi1, VOLATILE double lo2, VOLATILE double hi2, VOLATILE double hi3)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_UPWARD);
-    double x = (volatile double)(lo1 * lo2);
-    double y = (volatile double)(lo1 * hi2);
-    double z = (volatile double)(hi1 * lo2);
-    double w = (volatile double)(hi1 * hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    MAY_MODIFY(hi3);
+    double x = lo1 * lo2;
+    double y = lo1 * hi2;
+    double z = hi1 * lo2;
+    double w = hi1 * hi2;
     if (isnan(x)) x = 0.0; /* 0 * inf -> 0 */
     if (isnan(y)) y = 0.0; /* 0 * inf -> 0 */
     if (isnan(z)) z = 0.0; /* 0 * inf -> 0 */
     if (isnan(w)) w = 0.0; /* 0 * inf -> 0 */
-    volatile double hi = fast_fmax4_double(x, y, z, w) + hi3;
+    VOLATILE double hi = fast_fmax4_double(x, y, z, w) + hi3;
+    FORCE_EVAL(hi);
     restore_fp_reg(oldreg);
     return hi;
 }
 
-extern double rounded_hw_interval_mul_add_double_down(double lo1, double hi1, double lo2, double hi2, double lo3)
+extern double rounded_hw_interval_mul_add_double_down(VOLATILE double lo1, VOLATILE double hi1, VOLATILE double lo2, VOLATILE double hi2, VOLATILE double lo3)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_DOWNWARD);
-    double x = (volatile double)(lo1 * lo2);
-    double y = (volatile double)(lo1 * hi2);
-    double z = (volatile double)(hi1 * lo2);
-    double w = (volatile double)(hi1 * hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    MAY_MODIFY(lo3);
+    double x = lo1 * lo2;
+    double y = lo1 * hi2;
+    double z = hi1 * lo2;
+    double w = hi1 * hi2;
     if (isnan(x)) x = 0.0; /* 0 * inf -> 0 */
     if (isnan(y)) y = 0.0; /* 0 * inf -> 0 */
     if (isnan(z)) z = 0.0; /* 0 * inf -> 0 */
     if (isnan(w)) w = 0.0; /* 0 * inf -> 0 */
-    volatile double lo = fast_fmin4_double(x, y, z, w) + lo3;
+    VOLATILE double lo = fast_fmin4_double(x, y, z, w) + lo3;
+    FORCE_EVAL(lo);
     restore_fp_reg(oldreg);
     return lo;
 }
 
-extern double rounded_hw_interval_div_double_up(double lo1, double hi1, double lo2, double hi2)
+extern double rounded_hw_interval_div_double_up(VOLATILE double lo1, VOLATILE double hi1, VOLATILE double lo2, VOLATILE double hi2)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_UPWARD);
-    double x = (volatile double)(lo1 / lo2);
-    double y = (volatile double)(lo1 / hi2);
-    double z = (volatile double)(hi1 / lo2);
-    double w = (volatile double)(hi1 / hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    double x = lo1 / lo2;
+    double y = lo1 / hi2;
+    double z = hi1 / lo2;
+    double w = hi1 / hi2;
     if (isnan(x)) x = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(y)) y = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(z)) z = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(w)) w = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
-    double hi = fast_fmax4_double(x, y, z, w);
+    VOLATILE double hi = fast_fmax4_double(x, y, z, w);
+    FORCE_EVAL(hi);
     restore_fp_reg(oldreg);
     return hi;
 }
 
-extern double rounded_hw_interval_div_double_down(double lo1, double hi1, double lo2, double hi2)
+extern double rounded_hw_interval_div_double_down(VOLATILE double lo1, VOLATILE double hi1, VOLATILE double lo2, VOLATILE double hi2)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_DOWNWARD);
-    double x = (volatile double)(lo1 / lo2);
-    double y = (volatile double)(lo1 / hi2);
-    double z = (volatile double)(hi1 / lo2);
-    double w = (volatile double)(hi1 / hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    double x = lo1 / lo2;
+    double y = lo1 / hi2;
+    double z = hi1 / lo2;
+    double w = hi1 / hi2;
     if (isnan(x)) x = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(y)) y = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(z)) z = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(w)) w = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
-    double lo = fast_fmin4_double(x, y, z, w);
+    VOLATILE double lo = fast_fmin4_double(x, y, z, w);
+    FORCE_EVAL(lo);
     restore_fp_reg(oldreg);
     return lo;
 }
 
-extern double rounded_hw_interval_div_add_double_up(double lo1, double hi1, double lo2, double hi2, double hi3)
+extern double rounded_hw_interval_div_add_double_up(VOLATILE double lo1, VOLATILE double hi1, VOLATILE double lo2, VOLATILE double hi2, VOLATILE double hi3)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_UPWARD);
-    double x = (volatile double)(lo1 / lo2);
-    double y = (volatile double)(lo1 / hi2);
-    double z = (volatile double)(hi1 / lo2);
-    double w = (volatile double)(hi1 / hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    MAY_MODIFY(hi3);
+    double x = lo1 / lo2;
+    double y = lo1 / hi2;
+    double z = hi1 / lo2;
+    double w = hi1 / hi2;
     if (isnan(x)) x = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(y)) y = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(z)) z = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(w)) w = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
-    volatile double hi = fast_fmax4_double(x, y, z, w) + hi3;
+    VOLATILE double hi = fast_fmax4_double(x, y, z, w) + hi3;
+    FORCE_EVAL(hi);
     restore_fp_reg(oldreg);
     return hi;
 }
 
-extern double rounded_hw_interval_div_add_double_down(double lo1, double hi1, double lo2, double hi2, double lo3)
+extern double rounded_hw_interval_div_add_double_down(VOLATILE double lo1, VOLATILE double hi1, VOLATILE double lo2, VOLATILE double hi2, VOLATILE double lo3)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_DOWNWARD);
-    double x = (volatile double)(lo1 / lo2);
-    double y = (volatile double)(lo1 / hi2);
-    double z = (volatile double)(hi1 / lo2);
-    double w = (volatile double)(hi1 / hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    MAY_MODIFY(lo3);
+    double x = lo1 / lo2;
+    double y = lo1 / hi2;
+    double z = hi1 / lo2;
+    double w = hi1 / hi2;
     if (isnan(x)) x = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(y)) y = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(z)) z = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(w)) w = 0.0; /* 0 / 0, +-inf / +-inf -> 0 */
-    volatile double lo = fast_fmin4_double(x, y, z, w) + lo3;
+    VOLATILE double lo = fast_fmin4_double(x, y, z, w) + lo3;
+    FORCE_EVAL(lo);
     restore_fp_reg(oldreg);
     return lo;
 }
@@ -339,10 +407,12 @@ extern double rounded_hw_vector_sum_double(HsInt mode, HsInt length, HsInt offse
     native_rounding_mode nmode = hs_rounding_mode_to_native(mode);
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, nmode);
-    volatile double s = 0.0;
+    VOLATILE double s = 0.0;
+    MAY_MODIFY(s);
     for (HsInt i = 0; i < length; ++i) {
         s += a[offset + i];
     }
+    FORCE_EVAL(s);
     restore_fp_reg(oldreg);
     return s;
 }
@@ -433,11 +503,14 @@ extern void rounded_hw_vector_sqrt_double(HsInt mode, HsInt length, HsInt offset
 // float
 //
 
-static inline float rounded_add_impl_float(native_rounding_mode mode, float a, float b)
+static inline float rounded_add_impl_float(native_rounding_mode mode, VOLATILE float a, VOLATILE float b)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile float c = a + b;
+    MAY_MODIFY(a);
+    MAY_MODIFY(b);
+    VOLATILE float c = a + b;
+    FORCE_EVAL(c);
     restore_fp_reg(oldreg);
     return c;
 }
@@ -450,11 +523,14 @@ extern float rounded_hw_add_float_down(float a, float b)
 extern float rounded_hw_add_float_zero(float a, float b)
 { return rounded_add_impl_float(ROUND_TOWARDZERO, a, b); }
 
-static inline float rounded_sub_impl_float(native_rounding_mode mode, float a, float b)
+static inline float rounded_sub_impl_float(native_rounding_mode mode, VOLATILE float a, VOLATILE float b)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile float c = a - b;
+    MAY_MODIFY(a);
+    MAY_MODIFY(b);
+    VOLATILE float c = a - b;
+    FORCE_EVAL(c);
     restore_fp_reg(oldreg);
     return c;
 }
@@ -467,11 +543,14 @@ extern float rounded_hw_sub_float_down(float a, float b)
 extern float rounded_hw_sub_float_zero(float a, float b)
 { return rounded_sub_impl_float(ROUND_TOWARDZERO, a, b); }
 
-static inline float rounded_mul_impl_float(native_rounding_mode mode, float a, float b)
+static inline float rounded_mul_impl_float(native_rounding_mode mode, VOLATILE float a, VOLATILE float b)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile float c = a * b;
+    MAY_MODIFY(a);
+    MAY_MODIFY(b);
+    VOLATILE float c = a * b;
+    FORCE_EVAL(c);
     restore_fp_reg(oldreg);
     return c;
 }
@@ -484,11 +563,14 @@ extern float rounded_hw_mul_float_down(float a, float b)
 extern float rounded_hw_mul_float_zero(float a, float b)
 { return rounded_mul_impl_float(ROUND_TOWARDZERO, a, b); }
 
-static inline float rounded_div_impl_float(native_rounding_mode mode, float a, float b)
+static inline float rounded_div_impl_float(native_rounding_mode mode, VOLATILE float a, VOLATILE float b)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile float c = a / b;
+    MAY_MODIFY(a);
+    MAY_MODIFY(b);
+    VOLATILE float c = a / b;
+    FORCE_EVAL(c);
     restore_fp_reg(oldreg);
     return c;
 }
@@ -501,7 +583,7 @@ extern float rounded_hw_div_float_down(float a, float b)
 extern float rounded_hw_div_float_zero(float a, float b)
 { return rounded_div_impl_float(ROUND_TOWARDZERO, a, b); }
 
-static inline float rounded_sqrt_impl_float(native_rounding_mode mode, float a)
+static inline float rounded_sqrt_impl_float(native_rounding_mode mode, VOLATILE float a)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
@@ -510,7 +592,9 @@ static inline float rounded_sqrt_impl_float(native_rounding_mode mode, float a)
     float c;
     __asm__ volatile("sqrtss %1, %0" : "=x"(c) : "x"(a));
 #else
-    volatile float c = sqrtf(a);
+    MAY_MODIFY(a);
+    VOLATILE float c = sqrtf(a);
+    FORCE_EVAL(c);
 #endif
     restore_fp_reg(oldreg);
     return c;
@@ -524,11 +608,15 @@ extern float rounded_hw_sqrt_float_down(float a)
 extern float rounded_hw_sqrt_float_zero(float a)
 { return rounded_sqrt_impl_float(ROUND_TOWARDZERO, a); }
 
-static inline float rounded_fma_impl_float(native_rounding_mode mode, float a, float b, float c)
+static inline float rounded_fma_impl_float(native_rounding_mode mode, VOLATILE float a, VOLATILE float b, VOLATILE float c)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile float result = fmaf(a, b, c);
+    MAY_MODIFY(a);
+    MAY_MODIFY(b);
+    MAY_MODIFY(c);
+    VOLATILE float result = fmaf(a, b, c);
+    FORCE_EVAL(result);
     restore_fp_reg(oldreg);
     return result;
 }
@@ -541,15 +629,19 @@ extern float rounded_hw_fma_float_down(float a, float b, float c)
 extern float rounded_hw_fma_float_zero(float a, float b, float c)
 { return rounded_fma_impl_float(ROUND_TOWARDZERO, a, b, c); }
 
-static inline float rounded_fma_if_fast_impl_float(native_rounding_mode mode, float a, float b, float c)
+static inline float rounded_fma_if_fast_impl_float(native_rounding_mode mode, VOLATILE float a, VOLATILE float b, VOLATILE float c)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
+    MAY_MODIFY(a);
+    MAY_MODIFY(b);
+    MAY_MODIFY(c);
 #ifdef FP_FAST_FMAF
-    volatile float result = fmaf(a, b, c);
+    VOLATILE float result = fmaf(a, b, c);
 #else
-    volatile float result = a * b + c;
+    VOLATILE float result = a * b + c;
 #endif
+    FORCE_EVAL(result);
     restore_fp_reg(oldreg);
     return result;
 }
@@ -570,7 +662,8 @@ static inline float rounded_int64_to_float_impl(native_rounding_mode mode, int64
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile float result = (float)x;
+    VOLATILE float result = (float)x;
+    FORCE_EVAL(result);
     restore_fp_reg(oldreg);
     return result;
 }
@@ -587,7 +680,8 @@ static inline float rounded_word64_to_float_impl(native_rounding_mode mode, uint
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, mode);
-    volatile float result = (float)x;
+    VOLATILE float result = (float)x;
+    FORCE_EVAL(result);
     restore_fp_reg(oldreg);
     return result;
 }
@@ -623,138 +717,182 @@ static inline float fast_fmin4_float(float x, float y, float z, float w)
     return fast_fmin_float(fast_fmin_float(x, y), fast_fmin_float(z, w));
 }
 
-extern float rounded_hw_interval_mul_float_up(float lo1, float hi1, float lo2, float hi2)
+extern float rounded_hw_interval_mul_float_up(VOLATILE float lo1, VOLATILE float hi1, VOLATILE float lo2, VOLATILE float hi2)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_UPWARD);
-    float x = (volatile float)(lo1 * lo2);
-    float y = (volatile float)(lo1 * hi2);
-    float z = (volatile float)(hi1 * lo2);
-    float w = (volatile float)(hi1 * hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    VOLATILE float x = lo1 * lo2;
+    VOLATILE float y = lo1 * hi2;
+    VOLATILE float z = hi1 * lo2;
+    VOLATILE float w = hi1 * hi2;
     if (isnan(x)) x = 0.0f; /* 0 * inf -> 0 */
     if (isnan(y)) y = 0.0f; /* 0 * inf -> 0 */
     if (isnan(z)) z = 0.0f; /* 0 * inf -> 0 */
     if (isnan(w)) w = 0.0f; /* 0 * inf -> 0 */
-    float hi = fast_fmax4_float(x, y, z, w);
+    VOLATILE float hi = fast_fmax4_float(x, y, z, w);
+    FORCE_EVAL(hi);
     restore_fp_reg(oldreg);
     return hi;
 }
 
-extern float rounded_hw_interval_mul_float_down(float lo1, float hi1, float lo2, float hi2)
+extern float rounded_hw_interval_mul_float_down(VOLATILE float lo1, VOLATILE float hi1, VOLATILE float lo2, VOLATILE float hi2)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_DOWNWARD);
-    float x = (volatile float)(lo1 * lo2);
-    float y = (volatile float)(lo1 * hi2);
-    float z = (volatile float)(hi1 * lo2);
-    float w = (volatile float)(hi1 * hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    VOLATILE float x = lo1 * lo2;
+    VOLATILE float y = lo1 * hi2;
+    VOLATILE float z = hi1 * lo2;
+    VOLATILE float w = hi1 * hi2;
     if (isnan(x)) x = 0.0f; /* 0 * inf -> 0 */
     if (isnan(y)) y = 0.0f; /* 0 * inf -> 0 */
     if (isnan(z)) z = 0.0f; /* 0 * inf -> 0 */
     if (isnan(w)) w = 0.0f; /* 0 * inf -> 0 */
-    float lo = fast_fmin4_float(x, y, z, w);
+    VOLATILE float lo = fast_fmin4_float(x, y, z, w);
+    FORCE_EVAL(lo);
     restore_fp_reg(oldreg);
     return lo;
 }
 
-extern float rounded_hw_interval_mul_add_float_up(float lo1, float hi1, float lo2, float hi2, float hi3)
+extern float rounded_hw_interval_mul_add_float_up(VOLATILE float lo1, VOLATILE float hi1, VOLATILE float lo2, VOLATILE float hi2, VOLATILE float hi3)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_UPWARD);
-    float x = (volatile float)(lo1 * lo2);
-    float y = (volatile float)(lo1 * hi2);
-    float z = (volatile float)(hi1 * lo2);
-    float w = (volatile float)(hi1 * hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    MAY_MODIFY(hi3);
+    float x = lo1 * lo2;
+    float y = lo1 * hi2;
+    float z = hi1 * lo2;
+    float w = hi1 * hi2;
     if (isnan(x)) x = 0.0f; /* 0 * inf -> 0 */
     if (isnan(y)) y = 0.0f; /* 0 * inf -> 0 */
     if (isnan(z)) z = 0.0f; /* 0 * inf -> 0 */
     if (isnan(w)) w = 0.0f; /* 0 * inf -> 0 */
-    volatile float hi = fast_fmax4_float(x, y, z, w) + hi3;
+    VOLATILE float hi = fast_fmax4_float(x, y, z, w) + hi3;
+    FORCE_EVAL(hi);
     restore_fp_reg(oldreg);
     return hi;
 }
 
-extern float rounded_hw_interval_mul_add_float_down(float lo1, float hi1, float lo2, float hi2, float lo3)
+extern float rounded_hw_interval_mul_add_float_down(VOLATILE float lo1, VOLATILE float hi1, VOLATILE float lo2, VOLATILE float hi2, VOLATILE float lo3)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_DOWNWARD);
-    float x = (volatile float)(lo1 * lo2);
-    float y = (volatile float)(lo1 * hi2);
-    float z = (volatile float)(hi1 * lo2);
-    float w = (volatile float)(hi1 * hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    MAY_MODIFY(lo3);
+    float x = lo1 * lo2;
+    float y = lo1 * hi2;
+    float z = hi1 * lo2;
+    float w = hi1 * hi2;
     if (isnan(x)) x = 0.0f; /* 0 * inf -> 0 */
     if (isnan(y)) y = 0.0f; /* 0 * inf -> 0 */
     if (isnan(z)) z = 0.0f; /* 0 * inf -> 0 */
     if (isnan(w)) w = 0.0f; /* 0 * inf -> 0 */
-    volatile float lo = fast_fmin4_float(x, y, z, w) + lo3;
+    VOLATILE float lo = fast_fmin4_float(x, y, z, w) + lo3;
+    FORCE_EVAL(lo);
     restore_fp_reg(oldreg);
     return lo;
 }
 
-extern float rounded_hw_interval_div_float_up(float lo1, float hi1, float lo2, float hi2)
+extern float rounded_hw_interval_div_float_up(VOLATILE float lo1, VOLATILE float hi1, VOLATILE float lo2, VOLATILE float hi2)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_UPWARD);
-    float x = (volatile float)(lo1 / lo2);
-    float y = (volatile float)(lo1 / hi2);
-    float z = (volatile float)(hi1 / lo2);
-    float w = (volatile float)(hi1 / hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    float x = lo1 / lo2;
+    float y = lo1 / hi2;
+    float z = hi1 / lo2;
+    float w = hi1 / hi2;
     if (isnan(x)) x = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(y)) y = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(z)) z = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(w)) w = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
-    float hi = fast_fmax4_float(x, y, z, w);
+    VOLATILE float hi = fast_fmax4_float(x, y, z, w);
+    FORCE_EVAL(hi);
     restore_fp_reg(oldreg);
     return hi;
 }
 
-extern float rounded_hw_interval_div_float_down(float lo1, float hi1, float lo2, float hi2)
+extern float rounded_hw_interval_div_float_down(VOLATILE float lo1, VOLATILE float hi1, VOLATILE float lo2, VOLATILE float hi2)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_DOWNWARD);
-    float x = (volatile float)(lo1 / lo2);
-    float y = (volatile float)(lo1 / hi2);
-    float z = (volatile float)(hi1 / lo2);
-    float w = (volatile float)(hi1 / hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    float x = lo1 / lo2;
+    float y = lo1 / hi2;
+    float z = hi1 / lo2;
+    float w = hi1 / hi2;
     if (isnan(x)) x = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(y)) y = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(z)) z = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(w)) w = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
-    float lo = fast_fmin4_float(x, y, z, w);
+    VOLATILE float lo = fast_fmin4_float(x, y, z, w);
+    FORCE_EVAL(lo);
     restore_fp_reg(oldreg);
     return lo;
 }
 
-extern float rounded_hw_interval_div_add_float_up(float lo1, float hi1, float lo2, float hi2, float hi3)
+extern float rounded_hw_interval_div_add_float_up(VOLATILE float lo1, VOLATILE float hi1, VOLATILE float lo2, VOLATILE float hi2, VOLATILE float hi3)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_UPWARD);
-    float x = (volatile float)(lo1 / lo2);
-    float y = (volatile float)(lo1 / hi2);
-    float z = (volatile float)(hi1 / lo2);
-    float w = (volatile float)(hi1 / hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    MAY_MODIFY(hi3);
+    float x = lo1 / lo2;
+    float y = lo1 / hi2;
+    float z = hi1 / lo2;
+    float w = hi1 / hi2;
     if (isnan(x)) x = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(y)) y = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(z)) z = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(w)) w = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
-    volatile float hi = fast_fmax4_float(x, y, z, w) + hi3;
+    VOLATILE float hi = fast_fmax4_float(x, y, z, w) + hi3;
+    FORCE_EVAL(hi);
     restore_fp_reg(oldreg);
     return hi;
 }
 
-extern float rounded_hw_interval_div_add_float_down(float lo1, float hi1, float lo2, float hi2, float lo3)
+extern float rounded_hw_interval_div_add_float_down(VOLATILE float lo1, VOLATILE float hi1, VOLATILE float lo2, VOLATILE float hi2, VOLATILE float lo3)
 {
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, ROUND_DOWNWARD);
-    float x = (volatile float)(lo1 / lo2);
-    float y = (volatile float)(lo1 / hi2);
-    float z = (volatile float)(hi1 / lo2);
-    float w = (volatile float)(hi1 / hi2);
+    MAY_MODIFY(lo1);
+    MAY_MODIFY(hi1);
+    MAY_MODIFY(lo2);
+    MAY_MODIFY(hi2);
+    MAY_MODIFY(lo3);
+    float x = lo1 / lo2;
+    float y = lo1 / hi2;
+    float z = hi1 / lo2;
+    float w = hi1 / hi2;
     if (isnan(x)) x = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(y)) y = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(z)) z = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
     if (isnan(w)) w = 0.0f; /* 0 / 0, +-inf / +-inf -> 0 */
-    volatile float lo = fast_fmin4_float(x, y, z, w) + lo3;
+    VOLATILE float lo = fast_fmin4_float(x, y, z, w) + lo3;
+    FORCE_EVAL(lo);
     restore_fp_reg(oldreg);
     return lo;
 }
@@ -768,10 +906,12 @@ extern float rounded_hw_vector_sum_float(HsInt mode, HsInt length, HsInt offset,
     native_rounding_mode nmode = hs_rounding_mode_to_native(mode);
     fp_reg oldreg = get_fp_reg();
     set_rounding(oldreg, nmode);
-    volatile float s = 0.0f;
+    VOLATILE float s = 0.0f;
+    MAY_MODIFY(s);
     for (HsInt i = 0; i < length; ++i) {
         s += a[offset + i];
     }
+    FORCE_EVAL(s);
     restore_fp_reg(oldreg);
     return s;
 }

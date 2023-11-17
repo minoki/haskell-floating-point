@@ -43,6 +43,20 @@
 #error "Invalid configuration detected: USE_SSE2 and USE_AVX512 are mutually exclusive"
 #endif
 
+#if defined(__GNUC__) && defined(__SSE2__)
+#define MAY_MODIFY(x) __asm__ volatile("" : "+x"(x))
+#define FORCE_EVAL(x) __asm__ volatile("" : : "x"(x))
+#define VOLATILE
+#elif defined(__GNUC__) && defined(__aarch64__)
+#define MAY_MODIFY(x) __asm__ volatile("" : "+w"(x))
+#define FORCE_EVAL(x) __asm__ volatile("" : : "w"(x))
+#define VOLATILE
+#else
+#define MAY_MODIFY(x) (void)(x)
+#define FORCE_EVAL(x) (void)(x)
+#define VOLATILE volatile
+#endif
+
 #if defined(USE_AVX512)
 
 #include <x86intrin.h>
