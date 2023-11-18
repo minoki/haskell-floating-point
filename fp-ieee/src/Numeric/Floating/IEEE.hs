@@ -118,7 +118,7 @@ module Numeric.Floating.IEEE
   --
   -- |
   -- For IEEE-compliant floating-point types, 'negate' from "Prelude" should comply with IEEE semantics.
-  -- 'abs' should also comply with IEEE semantics, but unfortunately it does not handle the sign bit of NaN on via-C backend and SPARC NCG backend.
+  -- On GHC 9.6 or later, 'abs' should also comply with IEEE semantics (GHC <= 9.4 did not handle the sign bit of NaN on via-C backend and SPARC NCG backend).
   , negate
   , abs
   -- |
@@ -210,8 +210,9 @@ import           Numeric.Floating.IEEE.Internal
 --
 --     * '(+)', '(-)', and '(*)' should be correctly-rounding.
 --     * 'negate' should comply with IEEE semantics.
---     * 'abs' should comply with IEEE semantics, but unfortunately it does not handle the sign bit of NaN for 'Float' and 'Double' on via-C backend and SPARC NCG backend.
---     * 'fromInteger' should be correctly-rounding, but unfortunately not for 'Float' and 'Double' on GHC <= 9.0 (see GHC's [#17231](https://gitlab.haskell.org/ghc/ghc/-/issues/17231)).
+--     * 'abs' should comply with IEEE semantics (GHC <= 9.4 did not handle the sign bit of NaN for 'Float' and 'Double' on via-C backend and SPARC NCG backend. See GHC's [#21043](https://gitlab.haskell.org/ghc/ghc/-/issues/21043)).
+--     * 'fromInteger' should be correctly-rounding, but some third-party floating-point types may fail to do so
+--       (also, GHC <= 9.0 failed to do so for 'Float' and 'Double'. See GHC's [#17231](https://gitlab.haskell.org/ghc/ghc/-/issues/17231)).
 --       This module provides an always-correctly-rounding alternative: 'fromIntegerTiesToEven'.
 --
 -- == 'Fractional'
