@@ -2,7 +2,7 @@ cabal-version: 3.0
 -- asm-sources is Cabal 3.0 feature
 
 name:           rounded-hw
-version:        0.3.0
+version:        0.4.0
 synopsis:       Directed rounding for built-in floating types
 description:    Please see the README on GitHub at <https://github.com/minoki/haskell-floating-point/tree/master/rounded-hw#readme>
 category:       Numeric, Math
@@ -10,12 +10,12 @@ homepage:       https://github.com/minoki/haskell-floating-point#readme
 bug-reports:    https://github.com/minoki/haskell-floating-point/issues
 author:         ARATA Mizuki
 maintainer:     minorinoki@gmail.com
-copyright:      2020 ARATA Mizuki
+copyright:      2020-2023 ARATA Mizuki
 license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Custom
 tested-with:
-    GHC == 8.6.5, GHC == 8.8.4, GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.2
+    GHC == 8.6.5, GHC == 8.8.4, GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.8, GHC == 9.4.8, GHC == 9.6.3, GHC == 9.8.1
 extra-source-files:
     README.md
     ChangeLog.md
@@ -32,8 +32,8 @@ source-repository head
 -- Custom setup is required to allow assembly sources to #include "ghcconfig.h"
 custom-setup
   setup-depends:
-      Cabal >=3.0
-    , base >=4.7
+      Cabal >=3.0 && <3.11
+    , base >=4.12 && <4.20
 
 flag pure-hs
   description: Disable FFI
@@ -67,12 +67,12 @@ flag float128
 
 common deps
   build-depends:
-      array
-    , base >=4.12 && <5
-    , deepseq
+      array >=0.5.2.0 && <0.6
+    , base >=4.12 && <4.20
+    , deepseq >=1.4.4.0 && <1.6
     , fp-ieee ==0.1.*
-    , primitive
-    , vector
+    , primitive >=0.6.1.1 && <0.10
+    , vector >=0.12.0.1 && <0.14
 
 common options
   ghc-options: -Wcompat
@@ -103,7 +103,7 @@ library
   hs-source-dirs:
       src
   build-depends:
-      tagged
+      tagged >=0.8.6 && <0.9
   ghc-options: -Wall
   -- Use FFI when flag(pure-hs) is off
   if !flag(pure-hs)
@@ -148,7 +148,7 @@ library
     c-sources:
         cbits/rounded-x87longdouble.c
     build-depends:
-        long-double
+        long-double >=0.1 && <0.2
   -- flag(float128): Support Float128
   if flag(float128)
     other-modules:
@@ -157,7 +157,7 @@ library
     c-sources:
         cbits/rounded-float128.c
     build-depends:
-        float128
+        float128 >=0.1 && <0.2
   default-language: Haskell2010
 
 test-suite rounded-hw-doctests
@@ -165,7 +165,7 @@ test-suite rounded-hw-doctests
   type: exitcode-stdio-1.0
   main-is: doctests.hs
   build-depends:
-      doctest >=0.8
+      doctest ^>=0.22.2
   default-language: Haskell2010
   if impl(ghc >= 9.8)
     buildable: False
@@ -187,9 +187,9 @@ test-suite rounded-hw-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      QuickCheck
-    , hspec
-    , random
+      QuickCheck ^>=2.14.3
+    , hspec ^>=2.11.7
+    , random ^>=1.2.1.1
     , rounded-hw
   if flag(x87-long-double) && (arch(i386) || (arch(x86_64) && !os(windows)))
     -- Support for 80-bit long double is not good on Win64, so don't test
@@ -217,5 +217,5 @@ benchmark rounded-hw-benchmark
       benchmark
   build-depends:
       rounded-hw
-    , tasty-bench
+    , tasty-bench ^>=0.3.5
   default-language: Haskell2010
