@@ -12,6 +12,7 @@ default ()
 
 -- $setup
 -- >>> :set -XHexFloatLiterals -XNumericUnderscores
+-- >>> import Numeric.Floating.IEEE.Internal.Base
 -- >>> import Numeric.Floating.IEEE.Internal.NextFloat
 
 -- |

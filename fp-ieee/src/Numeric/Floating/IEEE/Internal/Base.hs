@@ -17,6 +17,7 @@ default ()
 -- $setup
 -- >>> :set -XHexFloatLiterals -XNumericUnderscores
 -- >>> import Numeric.Floating.IEEE.Internal.NextFloat (nextDown)
+-- >>> import Numeric.Floating.IEEE.Internal.Base
 
 isFloatBinary32 :: Bool
 isFloatBinary32 = isIEEE x

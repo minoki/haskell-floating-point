@@ -12,8 +12,33 @@ import           Numeric.Floating.IEEE.Internal.NextFloat (nextDown,
 
 default ()
 
+-- $setup
+-- >>> :set -XDeriveFunctor
+-- >>> import Numeric.Floating.IEEE.Internal.Augmented
+-- >>> import Numeric.Floating.IEEE.Internal.Rounding.Common
+-- >>> import Numeric.Floating.IEEE.Internal.Rounding.Rational
+-- >>> :{
+-- newtype RoundTiesTowardZero a = RoundTiesTowardZero { roundTiesTowardZero :: a }
+--   deriving (Functor)
+-- instance RoundingStrategy RoundTiesTowardZero where
+--   exact = RoundTiesTowardZero
+--   inexact o _neg _parity zero away = RoundTiesTowardZero $ case o of
+--                                                              LT -> zero
+--                                                              EQ -> zero
+--                                                              GT -> away
+--   doRound _exact o _neg _parity zero away = RoundTiesTowardZero $ case o of
+--     LT -> zero
+--     EQ -> zero
+--     GT -> away
+-- :}
+
 -- |
 -- IEEE 754 @augmentedAddition@ operation.
+--
+-- The first return value is the approximation of the sum, and the second return value is the error.
+--
+-- prop> fst (augmentedAddition x y) == roundTiesTowardZero (fromRationalR (toRational x + toRational y)) `const` (x :: Double)
+-- prop> let (u, v) = augmentedAddition x y in toRational u + toRational v == toRational x + toRational y `const` (x :: Double)
 augmentedAddition :: RealFloat a => a -> a -> (a, a)
 augmentedAddition !x !y
   | isNaN x || isInfinite x || isNaN y || isInfinite y = let !result = x + y in (result, result)
@@ -50,11 +75,21 @@ augmentedAddition !x !y
 
 -- |
 -- IEEE 754 @augmentedSubtraction@ operation.
+--
+-- The first return value is the approximation of the difference, and the second return value is the error.
+--
+-- prop> fst (augmentedSubtraction x y) == roundTiesTowardZero (fromRationalR (toRational x - toRational y)) `const` (x :: Double)
+-- prop> let (u, v) = augmentedSubtraction x y in toRational u + toRational v == toRational x - toRational y `const` (x :: Double)
 augmentedSubtraction :: RealFloat a => a -> a -> (a, a)
 augmentedSubtraction x y = augmentedAddition x (negate y)
 
 -- |
 -- IEEE 754 @augmentedMultiplication@ operation.
+--
+-- The first return value is the approximation of the product, and the second return value is the error.
+--
+-- prop> fst (augmentedMultiplication x y) == roundTiesTowardZero (fromRationalR (toRational x * toRational y)) `const` (x :: Double)
+-- prop> let (u, v) = augmentedMultiplication x y in toRational u + toRational v == toRational x * toRational y `const` (x :: Double)
 augmentedMultiplication :: RealFloat a => a -> a -> (a, a)
 augmentedMultiplication !x !y
   | isNaN x || isInfinite x || isNaN y || isInfinite y || x * y == 0 = let !result = x * y in (result, result)
