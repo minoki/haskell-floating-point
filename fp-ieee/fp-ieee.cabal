@@ -9,7 +9,7 @@ homepage:       https://github.com/minoki/haskell-floating-point#readme
 bug-reports:    https://github.com/minoki/haskell-floating-point/issues
 author:         ARATA Mizuki
 maintainer:     minorinoki@gmail.com
-copyright:      2020-2023 ARATA Mizuki
+copyright:      2020-2024 ARATA Mizuki
 license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Simple
