@@ -159,8 +159,10 @@ twoProduct_nonscaling a b =
 twoProductFloat :: Float -> Float -> (Float, Float)
 twoProductDouble :: Double -> Double -> (Double, Double)
 
-#if defined(HAS_FMA_PRIM) && 0
--- Disabled for now: https://gitlab.haskell.org/ghc/ghc/-/issues/24160
+#if defined(HAS_FMA_PRIM) && MIN_VERSION_GLASGOW_HASKELL(9, 10, 1, 0)
+-- GHC 9.8.1 is buggy: https://gitlab.haskell.org/ghc/ghc/-/issues/24160
+-- GHC 9.8.2 is also buggy: https://gitlab.haskell.org/ghc/ghc/-/issues/24496
+-- We might use `MIN_VERSION_GLASGOW_HASKELL(9, 8, 3, 0)` once GHC 9.8.3 is released.
 
 twoProductFloat# :: Float# -> Float# -> (# Float#, Float# #)
 twoProductFloat# x y = let !r = x `timesFloat#` y
