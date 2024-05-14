@@ -33,7 +33,7 @@ source-repository head
 custom-setup
   setup-depends:
       Cabal >=3.0 && <3.11
-    , base >=4.12 && <4.20
+    , base >=4.12 && <4.21
 
 flag pure-hs
   description: Disable FFI
@@ -68,7 +68,7 @@ flag float128
 common deps
   build-depends:
       array >=0.5.2.0 && <0.6
-    , base >=4.12 && <4.20
+    , base >=4.12 && <4.21
     , deepseq >=1.4.4.0 && <1.6
     , fp-ieee ==0.1.*
     , primitive >=0.6.1.1 && <0.10
