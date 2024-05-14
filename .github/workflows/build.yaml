@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.8', '9.4', '9.6', '9.8', '9.10']
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-13, macos-14, windows-latest]
         flags: ['', '--flags "fma3 f16c"', '--flags float128']
         exclude:
           # float128-0.1 doesn't support recent GHC (should we try --allow-newer?)
@@ -17,13 +17,27 @@ jobs:
             flags: '--flags float128'
           - ghc: '9.10'
             flags: '--flags float128'
-          - os: macos-latest
+          - os: macos-13
+            flags: '--flags float128'
+          - os: macos-14
             flags: '--flags float128'
           - os: windows-latest
             flags: '--flags float128'
           # Fragile
-          - os: macos-latest
+          - os: macos-13
             flags: '--flags "fma3 f16c"'
+          - os: macos-14
+            flags: '--flags "fma3 f16c"' # Makes no sense on Arm64
+          # macos-14 (Arm64) doesn't support older GHC
+          # 8.10.7 and 9.0.2 are excluded because haskell-actions/setup doesn't install LLVM
+          - os: macos-14
+            ghc: '8.6.5'
+          - os: macos-14
+            ghc: '8.8.4'
+          - os: macos-14
+            ghc: '8.10.7'
+          - os: macos-14
+            ghc: '9.0.2'
     steps:
       - uses: actions/checkout@v4
 
@@ -57,7 +71,7 @@ jobs:
     strategy:
       matrix:
         ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.8', '9.4', '9.6', '9.8', '9.10']
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-13, macos-14, windows-latest]
         flags: ['', '--flags x87-long-double']
         exclude:
           - ghc: '9.4'
@@ -67,6 +81,19 @@ jobs:
           - ghc: '9.8'
             flags: '--flags x87-long-double'
           - ghc: '9.10'
+            flags: '--flags x87-long-double'
+          # macos-14 (Arm64) doesn't support older GHC
+          # 8.10.7 and 9.0.2 are excluded because haskell-actions/setup doesn't install LLVM
+          - os: macos-14
+            ghc: '8.6.5'
+          - os: macos-14
+            ghc: '8.8.4'
+          - os: macos-14
+            ghc: '8.10.7'
+          - os: macos-14
+            ghc: '9.0.2'
+          # macos-14 (Arm64) doesn't support x87-long-double
+          - os: macos-14
             flags: '--flags x87-long-double'
     steps:
       - uses: actions/checkout@v4
