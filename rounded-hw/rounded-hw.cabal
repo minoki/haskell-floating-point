@@ -32,7 +32,7 @@ source-repository head
 -- Custom setup is required to allow assembly sources to #include "ghcconfig.h"
 custom-setup
   setup-depends:
-      Cabal >=3.0 && <3.11
+      Cabal >=3.0 && <3.15
     , base >=4.12 && <4.21
 
 flag pure-hs
