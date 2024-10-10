@@ -29,17 +29,23 @@ jobs:
           - os: macos-14
             flags: '--flags "fma3 f16c"' # Makes no sense on Arm64
           # macos-14 (Arm64) doesn't support older GHC
-          # 8.10.7 and 9.0.2 are excluded because haskell-actions/setup doesn't install LLVM
           - os: macos-14
             ghc: '8.6.5'
           - os: macos-14
             ghc: '8.8.4'
-          - os: macos-14
-            ghc: '8.10.7'
-          - os: macos-14
-            ghc: '9.0.2'
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install LLVM
+        run: |
+          brew install llvm@12
+          echo "OPT=$(brew --prefix llvm@12)/bin/opt" >> "${GITHUB_ENV}"
+          echo "LLC=$(brew --prefix llvm@12)/bin/llc" >> "${GITHUB_ENV}"
+        if: ${{ matrix.os == 'macos-14' && (matrix.ghc == '8.10.7' || matrix.ghc == '9.0.2') }}
+
+      - name: Workaround for a problem with GHC 9.0.2 on Arm Mac
+        run: echo "C_INCLUDE_PATH=`xcrun --show-sdk-path`/usr/include/ffi" >> "${GITHUB_ENV}"
+        if: ${{ matrix.os == 'macos-14' && matrix.ghc == '9.0.2' }}
 
       - uses: haskell-actions/setup@v2
         name: Setup Haskell
@@ -83,20 +89,26 @@ jobs:
           - ghc: '9.10'
             flags: '--flags x87-long-double'
           # macos-14 (Arm64) doesn't support older GHC
-          # 8.10.7 and 9.0.2 are excluded because haskell-actions/setup doesn't install LLVM
           - os: macos-14
             ghc: '8.6.5'
           - os: macos-14
             ghc: '8.8.4'
-          - os: macos-14
-            ghc: '8.10.7'
-          - os: macos-14
-            ghc: '9.0.2'
           # macos-14 (Arm64) doesn't support x87-long-double
           - os: macos-14
             flags: '--flags x87-long-double'
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install LLVM
+        run: |
+          brew install llvm@12
+          echo "OPT=$(brew --prefix llvm@12)/bin/opt" >> "${GITHUB_ENV}"
+          echo "LLC=$(brew --prefix llvm@12)/bin/llc" >> "${GITHUB_ENV}"
+        if: ${{ matrix.os == 'macos-14' && (matrix.ghc == '8.10.7' || matrix.ghc == '9.0.2') }}
+
+      - name: Workaround for a problem with GHC 9.0.2 on Arm Mac
+        run: echo "C_INCLUDE_PATH=`xcrun --show-sdk-path`/usr/include/ffi" >> "${GITHUB_ENV}"
+        if: ${{ matrix.os == 'macos-14' && matrix.ghc == '9.0.2' }}
 
       - uses: haskell-actions/setup@v2
         name: Setup Haskell
