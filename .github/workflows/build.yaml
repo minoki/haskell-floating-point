@@ -57,12 +57,12 @@ jobs:
         run: cabal build fp-ieee --ghc-options=-fno-ignore-asserts --enable-tests --enable-benchmarks ${{ matrix.flags }}
 
       - name: Test
-        run: cabal test fp-ieee --ghc-options=-fno-ignore-asserts ${{ matrix.flags }}
+        run: cabal test fp-ieee --ghc-options=-fno-ignore-asserts --enable-tests ${{ matrix.flags }}
         if: ${{ runner.os != 'macOS' && runner.os != 'Windows' }}
 
       # doctest on macOS/Windows is broken
       - name: Test (without doctest)
-        run: cabal test fp-ieee:fp-ieee-test --ghc-options=-fno-ignore-asserts ${{ matrix.flags }}
+        run: cabal test fp-ieee:fp-ieee-test --ghc-options=-fno-ignore-asserts --enable-tests ${{ matrix.flags }}
         if: ${{ runner.os == 'macOS' || runner.os == 'Windows' }}
 
   rounded-hw:
@@ -114,4 +114,4 @@ jobs:
         run: cabal build rounded-hw --ghc-options=-fno-ignore-asserts --enable-tests --enable-benchmarks ${{ matrix.flags }}
 
       - name: Test
-        run: cabal test rounded-hw --ghc-options=-fno-ignore-asserts ${{ matrix.flags }}
+        run: cabal test rounded-hw --ghc-options=-fno-ignore-asserts --enable-tests ${{ matrix.flags }}
