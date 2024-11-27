@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 import           Distribution.Simple
 import           Distribution.Simple.Configure (configure)
 import           Distribution.Simple.PackageIndex (allPackages)
@@ -6,6 +7,9 @@ import qualified Distribution.Types.InstalledPackageInfo as InstalledPackageInfo
 import           Distribution.Types.Library (Library (libBuildInfo))
 import           Distribution.Types.LocalBuildInfo (LocalBuildInfo (installedPkgs, localPkgDescr))
 import           Distribution.Types.PackageDescription (PackageDescription (library))
+#if MIN_VERSION_Cabal(3, 14, 0)
+import           Distribution.Utils.Path (makeSymbolicPath)
+#endif
 
 {-
 We want to access "ghcconfig.h" from assembly source file (.S),
@@ -21,7 +25,11 @@ main = defaultMainWithHooks simpleUserHooks { confHook = myConfHook }
       let extraIncludeDirs :: [String]
           extraIncludeDirs = concatMap InstalledPackageInfo.includeDirs (allPackages $ installedPkgs localBuildInfo)
           updateBuildInfo :: BuildInfo -> BuildInfo
+#if MIN_VERSION_Cabal(3, 14, 0)
+          updateBuildInfo bi = bi { includeDirs = includeDirs bi ++ map makeSymbolicPath extraIncludeDirs }
+#else
           updateBuildInfo bi = bi { includeDirs = includeDirs bi ++ extraIncludeDirs }
+#endif
           updateLibrary :: Library -> Library
           updateLibrary lib = lib { libBuildInfo = updateBuildInfo (libBuildInfo lib) }
           updatePkgDescr :: PackageDescription -> PackageDescription
