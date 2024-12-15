@@ -1,5 +1,9 @@
 # Changelog for fp-ieee
 
+## Version 0.1.0.5 (2024-12-15)
+
+* Support GHC 9.10/9.12.
+
 ## Version 0.1.0.4 (2024-02-18)
 
 * Documentation chanegs.
