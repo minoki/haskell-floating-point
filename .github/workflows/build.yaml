@@ -6,7 +6,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.8', '9.4', '9.6', '9.8', '9.10']
+        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.8', '9.4', '9.6', '9.8', '9.10', '9.12']
         os: [ubuntu-latest, macos-13, macos-14, windows-latest]
         flags: ['', '--flags "fma3 f16c"', '--flags float128']
         exclude:
@@ -16,6 +16,8 @@ jobs:
           - ghc: '9.8'
             flags: '--flags float128'
           - ghc: '9.10'
+            flags: '--flags float128'
+          - ghc: '9.12'
             flags: '--flags float128'
           - os: macos-13
             flags: '--flags float128'
@@ -70,7 +72,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.8', '9.4', '9.6', '9.8', '9.10']
+        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.8', '9.4', '9.6', '9.8', '9.10', '9.12']
         os: [ubuntu-latest, macos-13, macos-14, windows-latest]
         flags: ['', '--flags x87-long-double']
         exclude:
@@ -81,6 +83,8 @@ jobs:
           - ghc: '9.8'
             flags: '--flags x87-long-double'
           - ghc: '9.10'
+            flags: '--flags x87-long-double'
+          - ghc: '9.12'
             flags: '--flags x87-long-double'
           # macos-14 (Arm64) doesn't support older GHC
           # 8.10.7 and 9.0.2 are excluded because haskell-actions/setup doesn't install LLVM
