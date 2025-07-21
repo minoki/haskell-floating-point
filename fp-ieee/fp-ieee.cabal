@@ -203,10 +203,10 @@ test-suite fp-ieee-doctests
   type: exitcode-stdio-1.0
   main-is: doctests.hs
   build-depends:
-      doctest ^>=0.22.2
+      doctest >=0.22.2 && <0.25
     , QuickCheck >=2.14.3 && <2.16
   default-language: Haskell2010
-  if impl(ghc >= 9.12)
+  if impl(ghc >= 9.14)
     buildable: False
 
 test-suite fp-ieee-test
