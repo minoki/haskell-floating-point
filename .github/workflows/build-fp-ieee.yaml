@@ -1,5 +1,13 @@
-on: [push, pull_request]
-name: build
+on:
+  push:
+    paths:
+      - '**'
+      - '!rounded-hw/**'
+  pull_request:
+    paths:
+      - '**'
+      - '!rounded-hw/**'
+name: Build fp-ieee
 jobs:
   fp-ieee:
     name: fp-ieee
@@ -66,56 +74,3 @@ jobs:
       - name: Test (without doctest)
         run: cabal test fp-ieee:fp-ieee-test --ghc-options=-fno-ignore-asserts --enable-tests ${{ matrix.flags }}
         if: ${{ runner.os == 'macOS' || runner.os == 'Windows' }}
-
-  rounded-hw:
-    name: rounded-hw
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.8', '9.4', '9.6', '9.8', '9.10', '9.12']
-        os: [ubuntu-latest, macos-13, macos-14, windows-latest]
-        flags: ['', '--flags x87-long-double']
-        exclude:
-          - ghc: '9.4'
-            flags: '--flags x87-long-double'
-          - ghc: '9.6'
-            flags: '--flags x87-long-double'
-          - ghc: '9.8'
-            flags: '--flags x87-long-double'
-          - ghc: '9.10'
-            flags: '--flags x87-long-double'
-          - ghc: '9.12'
-            flags: '--flags x87-long-double'
-          # macos-14 (Arm64) doesn't support older GHC
-          # 8.10.7 and 9.0.2 are excluded because haskell-actions/setup doesn't install LLVM
-          - os: macos-14
-            ghc: '8.6.5'
-          - os: macos-14
-            ghc: '8.8.4'
-          - os: macos-14
-            ghc: '8.10.7'
-          - os: macos-14
-            ghc: '9.0.2'
-          # macos-14 (Arm64) doesn't support x87-long-double
-          - os: macos-14
-            flags: '--flags x87-long-double'
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: haskell-actions/setup@v2
-        name: Setup Haskell
-        with:
-          ghc-version: ${{ matrix.ghc }}
-
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cabal/packages
-            ~/.cabal/store
-          key: ${{ runner.os }}-${{ matrix.ghc }}
-
-      - name: Build
-        run: cabal build rounded-hw --ghc-options=-fno-ignore-asserts --enable-tests --enable-benchmarks ${{ matrix.flags }}
-
-      - name: Test
-        run: cabal test rounded-hw --ghc-options=-fno-ignore-asserts --enable-tests ${{ matrix.flags }}
