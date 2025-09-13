@@ -53,7 +53,8 @@ minPositive = let d = floatDigits x
                   x = encodeFloat 1 (expMin - d)
               in x
 {-# INLINABLE minPositive #-}
-{-# SPECIALIZE minPositive :: Float, Double #-}
+{-# SPECIALIZE minPositive :: Float #-}
+{-# SPECIALIZE minPositive :: Double #-}
 
 -- |
 -- The smallest positive normal value expressible in an IEEE floating-point format.
@@ -75,7 +76,8 @@ minPositiveNormal = let (expMin,_expMax) = floatRange x
                         x = encodeFloat 1 (expMin - 1)
                     in x
 {-# INLINABLE minPositiveNormal #-}
-{-# SPECIALIZE minPositiveNormal :: Float, Double #-}
+{-# SPECIALIZE minPositiveNormal :: Float #-}
+{-# SPECIALIZE minPositiveNormal :: Double #-}
 
 -- |
 -- The largest finite value expressible in an IEEE floating-point format.
@@ -91,7 +93,8 @@ maxFinite = let d = floatDigits x
                 x = encodeFloat (r ^! d - 1) (expMax - d)
             in x
 {-# INLINABLE maxFinite #-}
-{-# SPECIALIZE maxFinite :: Float, Double #-}
+{-# SPECIALIZE maxFinite :: Float #-}
+{-# SPECIALIZE maxFinite :: Double #-}
 
 -- A variant of (^) that allows constant folding
 infixr 8 ^!

@@ -198,35 +198,30 @@ instance RealFloatNaN Float128 where
 {-# SPECIALIZE maxFinite :: Float128 #-}
 
 -- We shouldn't need specializations of positiveWordToBinaryFloatR# as long as WORD_SIZE_IN_BITS <= 113
-{-# SPECIALIZE
-  fromPositiveIntegerR :: RoundingStrategy f => Bool -> Integer -> f Float128
-                        , Bool -> Integer -> RoundTiesToEven Float128
-                        , Bool -> Integer -> RoundTiesToAway Float128
-                        , Bool -> Integer -> RoundTowardPositive Float128
-                        , Bool -> Integer -> RoundTowardNegative Float128
-                        , Bool -> Integer -> RoundTowardZero Float128
-  #-}
-{-# SPECIALIZE
-  fromPositiveRatioR :: RoundingStrategy f => Bool -> Integer -> Integer -> f Float128
-                      , Bool -> Integer -> Integer -> RoundTiesToEven Float128
-                      , Bool -> Integer -> Integer -> RoundTiesToAway Float128
-                      , Bool -> Integer -> Integer -> RoundTowardPositive Float128
-                      , Bool -> Integer -> Integer -> RoundTowardNegative Float128
-                      , Bool -> Integer -> Integer -> RoundTowardZero Float128
-  #-}
-{-# SPECIALIZE
-  encodePositiveFloatR# :: RoundingStrategy f => Bool -> Integer -> Int# -> f Float128
-                         , Bool -> Integer -> Int# -> RoundTiesToEven Float128
-                         , Bool -> Integer -> Int# -> RoundTiesToAway Float128
-                         , Bool -> Integer -> Int# -> RoundTowardPositive Float128
-                         , Bool -> Integer -> Int# -> RoundTowardNegative Float128
-                         , Bool -> Integer -> Int# -> RoundTowardZero Float128
-  #-}
-{-# SPECIALIZE
-  scaleFloatR# :: RoundingStrategy f => Int# -> Float128 -> f Float128
-                , Int# -> Float128 -> RoundTiesToEven Float128
-                , Int# -> Float128 -> RoundTiesToAway Float128
-                , Int# -> Float128 -> RoundTowardPositive Float128
-                , Int# -> Float128 -> RoundTowardNegative Float128
-                , Int# -> Float128 -> RoundTowardZero Float128
-  #-}
+{-# SPECIALIZE fromPositiveIntegerR :: RoundingStrategy f => Bool -> Integer -> f Float128 #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTiesToEven Float128 #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTiesToAway Float128 #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardPositive Float128 #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardNegative Float128 #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardZero Float128 #-}
+
+{-# SPECIALIZE fromPositiveRatioR :: RoundingStrategy f => Bool -> Integer -> Integer -> f Float128 #-}
+{-# SPECIALIZE fromPositiveRatioR :: Bool -> Integer -> Integer -> RoundTiesToEven Float128 #-}
+{-# SPECIALIZE fromPositiveRatioR :: Bool -> Integer -> Integer -> RoundTiesToAway Float128 #-}
+{-# SPECIALIZE fromPositiveRatioR :: Bool -> Integer -> Integer -> RoundTowardPositive Float128 #-}
+{-# SPECIALIZE fromPositiveRatioR :: Bool -> Integer -> Integer -> RoundTowardNegative Float128 #-}
+{-# SPECIALIZE fromPositiveRatioR :: Bool -> Integer -> Integer -> RoundTowardZero Float128 #-}
+
+{-# SPECIALIZE encodePositiveFloatR# :: RoundingStrategy f => Bool -> Integer -> Int# -> f Float128 #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTiesToEven Float128 #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTiesToAway Float128 #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTowardPositive Float128 #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTowardNegative Float128 #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTowardZero Float128 #-}
+
+{-# SPECIALIZE scaleFloatR# :: RoundingStrategy f => Int# -> Float128 -> f Float128 #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Float128 -> RoundTiesToEven Float128 #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Float128 -> RoundTiesToAway Float128 #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Float128 -> RoundTowardPositive Float128 #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Float128 -> RoundTowardNegative Float128 #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Float128 -> RoundTowardZero Float128 #-}

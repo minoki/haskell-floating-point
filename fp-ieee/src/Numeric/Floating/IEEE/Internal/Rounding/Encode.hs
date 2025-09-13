@@ -105,25 +105,23 @@ encodePositiveFloatR# !neg !m n# = assert (m > 0) result
     !fDigits = floatDigits (undefined :: a) -- 53 for Double
     (!expMin, !expMax) = floatRange (undefined :: a) -- (-1021, 1024) for Double
 {-# INLINABLE [0] encodePositiveFloatR# #-}
-{-# SPECIALIZE
-  encodePositiveFloatR# :: RealFloat a => Bool -> Integer -> Int# -> RoundTiesToEven a
-                         , RealFloat a => Bool -> Integer -> Int# -> RoundTiesToAway a
-                         , RealFloat a => Bool -> Integer -> Int# -> RoundTowardPositive a
-                         , RealFloat a => Bool -> Integer -> Int# -> RoundTowardZero a
-                         , RealFloat a => Bool -> Integer -> Int# -> Product RoundTowardNegative RoundTowardPositive a
-                         , RoundingStrategy f => Bool -> Integer -> Int# -> f Double
-                         , RoundingStrategy f => Bool -> Integer -> Int# -> f Float
-                         , Bool -> Integer -> Int# -> RoundTiesToEven Double
-                         , Bool -> Integer -> Int# -> RoundTiesToAway Double
-                         , Bool -> Integer -> Int# -> RoundTowardPositive Double
-                         , Bool -> Integer -> Int# -> RoundTowardZero Double
-                         , Bool -> Integer -> Int# -> RoundTiesToEven Float
-                         , Bool -> Integer -> Int# -> RoundTiesToAway Float
-                         , Bool -> Integer -> Int# -> RoundTowardPositive Float
-                         , Bool -> Integer -> Int# -> RoundTowardZero Float
-                         , Bool -> Integer -> Int# -> Product RoundTowardNegative RoundTowardPositive Double
-                         , Bool -> Integer -> Int# -> Product RoundTowardNegative RoundTowardPositive Float
-  #-}
+{-# SPECIALIZE encodePositiveFloatR# :: RealFloat a => Bool -> Integer -> Int# -> RoundTiesToEven a #-}
+{-# SPECIALIZE encodePositiveFloatR# :: RealFloat a => Bool -> Integer -> Int# -> RoundTiesToAway a #-}
+{-# SPECIALIZE encodePositiveFloatR# :: RealFloat a => Bool -> Integer -> Int# -> RoundTowardPositive a #-}
+{-# SPECIALIZE encodePositiveFloatR# :: RealFloat a => Bool -> Integer -> Int# -> RoundTowardZero a #-}
+{-# SPECIALIZE encodePositiveFloatR# :: RealFloat a => Bool -> Integer -> Int# -> Product RoundTowardNegative RoundTowardPositive a #-}
+{-# SPECIALIZE encodePositiveFloatR# :: RoundingStrategy f => Bool -> Integer -> Int# -> f Double #-}
+{-# SPECIALIZE encodePositiveFloatR# :: RoundingStrategy f => Bool -> Integer -> Int# -> f Float #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTiesToEven Double #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTiesToAway Double #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTowardPositive Double #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTowardZero Double #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTiesToEven Float #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTiesToAway Float #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTowardPositive Float #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTowardZero Float #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> Product RoundTowardNegative RoundTowardPositive Double #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> Product RoundTowardNegative RoundTowardPositive Float #-}
 {-# RULES
 "encodePositiveFloatR#/RoundTowardNegative"
   encodePositiveFloatR# = \neg x y -> RoundTowardNegative (roundTowardPositive (encodePositiveFloatR# (not neg) x y))
@@ -183,22 +181,20 @@ scaleFloatR# e# x
     (expMin,expMax) = floatRange x
     fDigits = floatDigits x
 {-# INLINABLE [0] scaleFloatR# #-}
-{-# SPECIALIZE
-  scaleFloatR# :: RealFloat a => Int# -> a -> RoundTiesToEven a
-                , RealFloat a => Int# -> a -> RoundTiesToAway a
-                , RealFloat a => Int# -> a -> RoundTowardPositive a
-                , RealFloat a => Int# -> a -> RoundTowardNegative a
-                , RealFloat a => Int# -> a -> RoundTowardZero a
-                , RoundingStrategy f => Int# -> Double -> f Double
-                , RoundingStrategy f => Int# -> Float -> f Float
-                , Int# -> Double -> RoundTiesToEven Double
-                , Int# -> Double -> RoundTiesToAway Double
-                , Int# -> Double -> RoundTowardPositive Double
-                , Int# -> Double -> RoundTowardNegative Double
-                , Int# -> Double -> RoundTowardZero Double
-                , Int# -> Float -> RoundTiesToEven Float
-                , Int# -> Float -> RoundTiesToAway Float
-                , Int# -> Float -> RoundTowardPositive Float
-                , Int# -> Float -> RoundTowardNegative Float
-                , Int# -> Float -> RoundTowardZero Float
-  #-}
+{-# SPECIALIZE scaleFloatR# :: RealFloat a => Int# -> a -> RoundTiesToEven a #-}
+{-# SPECIALIZE scaleFloatR# :: RealFloat a => Int# -> a -> RoundTiesToAway a #-}
+{-# SPECIALIZE scaleFloatR# :: RealFloat a => Int# -> a -> RoundTowardPositive a #-}
+{-# SPECIALIZE scaleFloatR# :: RealFloat a => Int# -> a -> RoundTowardNegative a #-}
+{-# SPECIALIZE scaleFloatR# :: RealFloat a => Int# -> a -> RoundTowardZero a #-}
+{-# SPECIALIZE scaleFloatR# :: RoundingStrategy f => Int# -> Double -> f Double #-}
+{-# SPECIALIZE scaleFloatR# :: RoundingStrategy f => Int# -> Float -> f Float #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Double -> RoundTiesToEven Double #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Double -> RoundTiesToAway Double #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Double -> RoundTowardPositive Double #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Double -> RoundTowardNegative Double #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Double -> RoundTowardZero Double #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Float -> RoundTiesToEven Float #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Float -> RoundTiesToAway Float #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Float -> RoundTowardPositive Float #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Float -> RoundTowardNegative Float #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Float -> RoundTowardZero Float #-}

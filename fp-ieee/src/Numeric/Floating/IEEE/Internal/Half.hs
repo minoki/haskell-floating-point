@@ -154,46 +154,41 @@ instance RealFloatNaN Half where
 {-# SPECIALIZE minPositive :: Half #-}
 {-# SPECIALIZE minPositiveNormal :: Half #-}
 {-# SPECIALIZE maxFinite :: Half #-}
-{-# SPECIALIZE
-  positiveWordToBinaryFloatR# :: RoundingStrategy f => Bool -> Word# -> f Half
-                               , Bool -> Word# -> RoundTiesToEven Half
-                               , Bool -> Word# -> RoundTiesToAway Half
-                               , Bool -> Word# -> RoundTowardPositive Half
-                               , Bool -> Word# -> RoundTowardNegative Half
-                               , Bool -> Word# -> RoundTowardZero Half
-  #-}
-{-# SPECIALIZE
-  fromPositiveIntegerR :: RoundingStrategy f => Bool -> Integer -> f Half
-                        , Bool -> Integer -> RoundTiesToEven Half
-                        , Bool -> Integer -> RoundTiesToAway Half
-                        , Bool -> Integer -> RoundTowardPositive Half
-                        , Bool -> Integer -> RoundTowardNegative Half
-                        , Bool -> Integer -> RoundTowardZero Half
-  #-}
-{-# SPECIALIZE
-  fromPositiveRatioR :: RoundingStrategy f => Bool -> Integer -> Integer -> f Half
-                      , Bool -> Integer -> Integer -> RoundTiesToEven Half
-                      , Bool -> Integer -> Integer -> RoundTiesToAway Half
-                      , Bool -> Integer -> Integer -> RoundTowardPositive Half
-                      , Bool -> Integer -> Integer -> RoundTowardNegative Half
-                      , Bool -> Integer -> Integer -> RoundTowardZero Half
-  #-}
-{-# SPECIALIZE
-  encodePositiveFloatR# :: RoundingStrategy f => Bool -> Integer -> Int# -> f Half
-                         , Bool -> Integer -> Int# -> RoundTiesToEven Half
-                         , Bool -> Integer -> Int# -> RoundTiesToAway Half
-                         , Bool -> Integer -> Int# -> RoundTowardPositive Half
-                         , Bool -> Integer -> Int# -> RoundTowardNegative Half
-                         , Bool -> Integer -> Int# -> RoundTowardZero Half
-  #-}
-{-# SPECIALIZE
-  scaleFloatR# :: RoundingStrategy f => Int# -> Half -> f Half
-                , Int# -> Half -> RoundTiesToEven Half
-                , Int# -> Half -> RoundTiesToAway Half
-                , Int# -> Half -> RoundTowardPositive Half
-                , Int# -> Half -> RoundTowardNegative Half
-                , Int# -> Half -> RoundTowardZero Half
-  #-}
+
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: RoundingStrategy f => Bool -> Word# -> f Half #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> RoundTiesToEven Half #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> RoundTiesToAway Half #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> RoundTowardPositive Half #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> RoundTowardNegative Half #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> RoundTowardZero Half #-}
+
+{-# SPECIALIZE fromPositiveIntegerR :: RoundingStrategy f => Bool -> Integer -> f Half #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTiesToEven Half #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTiesToAway Half #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardPositive Half　#-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardNegative Half #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardZero Half #-}
+
+{-# SPECIALIZE fromPositiveRatioR :: RoundingStrategy f => Bool -> Integer -> Integer -> f Half #-}
+{-# SPECIALIZE fromPositiveRatioR :: Bool -> Integer -> Integer -> RoundTiesToEven Half #-}
+{-# SPECIALIZE fromPositiveRatioR :: Bool -> Integer -> Integer -> RoundTiesToAway Half #-}
+{-# SPECIALIZE fromPositiveRatioR :: Bool -> Integer -> Integer -> RoundTowardPositive Half #-}
+{-# SPECIALIZE fromPositiveRatioR :: Bool -> Integer -> Integer -> RoundTowardNegative Half #-}
+{-# SPECIALIZE fromPositiveRatioR :: Bool -> Integer -> Integer -> RoundTowardZero Half #-}
+
+{-# SPECIALIZE encodePositiveFloatR# :: RoundingStrategy f => Bool -> Integer -> Int# -> f Half #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTiesToEven Half #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTiesToAway Half #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTowardPositive Half #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTowardNegative Half #-}
+{-# SPECIALIZE encodePositiveFloatR# :: Bool -> Integer -> Int# -> RoundTowardZero Half #-}
+
+{-# SPECIALIZE scaleFloatR# :: RoundingStrategy f => Int# -> Half -> f Half #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Half -> RoundTiesToEven Half #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Half -> RoundTiesToAway Half #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Half -> RoundTowardPositive Half #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Half -> RoundTowardNegative Half #-}
+{-# SPECIALIZE scaleFloatR# :: Int# -> Half -> RoundTowardZero Half #-}
 
 -- Monomorphic conversion functions
 halfToFloat :: Half -> Float

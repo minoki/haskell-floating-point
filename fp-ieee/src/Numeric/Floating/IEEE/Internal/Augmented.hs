@@ -71,7 +71,8 @@ augmentedAddition !x !y
            (r1, r1) -- unavoidable overflow
          else
            assert (r2 /= 0) (r1, r2)
-{-# SPECIALIZE augmentedAddition :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
+{-# SPECIALIZE augmentedAddition :: Float -> Float -> (Float, Float) #-}
+{-# SPECIALIZE augmentedAddition :: Double -> Double -> (Double, Double) #-}
 
 -- |
 -- IEEE 754 @augmentedSubtraction@ operation.
@@ -162,4 +163,5 @@ augmentedMultiplication !x !y
            z'
          else
            w'
-{-# SPECIALIZE augmentedMultiplication :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
+{-# SPECIALIZE augmentedMultiplication :: Float -> Float -> (Float, Float) #-}
+{-# SPECIALIZE augmentedMultiplication :: Double -> Double -> (Double, Double) #-}

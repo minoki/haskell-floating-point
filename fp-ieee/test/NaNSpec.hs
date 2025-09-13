@@ -64,7 +64,8 @@ prop_classify _ x = conjoin
   -- , counterexample "class method" $ classify x === classifyDefault x
   ]
   where c = classify x
-{-# SPECIALIZE prop_classify :: Proxy Float -> Float -> Property, Proxy Double -> Double -> Property #-}
+{-# SPECIALIZE prop_classify :: Proxy Float -> Float -> Property #-}
+{-# SPECIALIZE prop_classify :: Proxy Double -> Double -> Property #-}
 
 isQuietNaN :: (RealFloatNaN a) => a -> Bool
 isQuietNaN x = isNaN x && not (isSignaling x)

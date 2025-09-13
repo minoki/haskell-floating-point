@@ -228,25 +228,23 @@ positiveWordToBinaryFloatR# !neg n# = result
     !fDigits = floatDigits (undefined :: a) -- 53 for Double
     (_expMin, !expMax) = floatRange (undefined :: a) -- (-1021, 1024) for Double
 {-# INLINABLE [0] positiveWordToBinaryFloatR# #-}
-{-# SPECIALIZE
-  positiveWordToBinaryFloatR# :: RoundingStrategy f => Bool -> Word# -> f Float
-                               , RoundingStrategy f => Bool -> Word# -> f Double
-                               , RealFloat a => Bool -> Word# -> RoundTiesToEven a
-                               , RealFloat a => Bool -> Word# -> RoundTiesToAway a
-                               , RealFloat a => Bool -> Word# -> RoundTowardPositive a
-                               , RealFloat a => Bool -> Word# -> RoundTowardZero a
-                               , RealFloat a => Bool -> Word# -> Product RoundTowardNegative RoundTowardPositive a
-                               , Bool -> Word# -> RoundTiesToEven Float
-                               , Bool -> Word# -> RoundTiesToAway Float
-                               , Bool -> Word# -> RoundTowardPositive Float
-                               , Bool -> Word# -> RoundTowardZero Float
-                               , Bool -> Word# -> RoundTiesToEven Double
-                               , Bool -> Word# -> RoundTiesToAway Double
-                               , Bool -> Word# -> RoundTowardPositive Double
-                               , Bool -> Word# -> RoundTowardZero Double
-                               , Bool -> Word# -> Product RoundTowardNegative RoundTowardPositive Float
-                               , Bool -> Word# -> Product RoundTowardNegative RoundTowardPositive Double
-  #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: RoundingStrategy f => Bool -> Word# -> f Float #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: RoundingStrategy f => Bool -> Word# -> f Double #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: RealFloat a => Bool -> Word# -> RoundTiesToEven a #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: RealFloat a => Bool -> Word# -> RoundTiesToAway a #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: RealFloat a => Bool -> Word# -> RoundTowardPositive a #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: RealFloat a => Bool -> Word# -> RoundTowardZero a #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: RealFloat a => Bool -> Word# -> Product RoundTowardNegative RoundTowardPositive a #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> RoundTiesToEven Float #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> RoundTiesToAway Float #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> RoundTowardPositive Float #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> RoundTowardZero Float #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> RoundTiesToEven Double #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> RoundTiesToAway Double #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> RoundTowardPositive Double #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> RoundTowardZero Double #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> Product RoundTowardNegative RoundTowardPositive Float #-}
+{-# SPECIALIZE positiveWordToBinaryFloatR# :: Bool -> Word# -> Product RoundTowardNegative RoundTowardPositive Double #-}
 {-# RULES
 "positiveWordToBinaryFloatR#/RoundTowardNegative"
   positiveWordToBinaryFloatR# = \neg x -> RoundTowardNegative (roundTowardPositive (positiveWordToBinaryFloatR# (not neg) x))
@@ -291,25 +289,23 @@ fromPositiveIntegerR !neg !n = assert (n > 0) result
     !fDigits = floatDigits (undefined :: a) -- 53 for Double
     (_expMin, !expMax) = floatRange (undefined :: a) -- (-1021, 1024) for Double
 {-# INLINABLE [0] fromPositiveIntegerR #-}
-{-# SPECIALIZE
-  fromPositiveIntegerR :: RealFloat a => Bool -> Integer -> RoundTiesToEven a
-                        , RealFloat a => Bool -> Integer -> RoundTiesToAway a
-                        , RealFloat a => Bool -> Integer -> RoundTowardPositive a
-                        , RealFloat a => Bool -> Integer -> RoundTowardZero a
-                        , RealFloat a => Bool -> Integer -> Product RoundTowardNegative RoundTowardPositive a
-                        , RoundingStrategy f => Bool -> Integer -> f Double
-                        , RoundingStrategy f => Bool -> Integer -> f Float
-                        , Bool -> Integer -> RoundTiesToEven Double
-                        , Bool -> Integer -> RoundTiesToAway Double
-                        , Bool -> Integer -> RoundTowardPositive Double
-                        , Bool -> Integer -> RoundTowardZero Double
-                        , Bool -> Integer -> RoundTiesToEven Float
-                        , Bool -> Integer -> RoundTiesToAway Float
-                        , Bool -> Integer -> RoundTowardPositive Float
-                        , Bool -> Integer -> RoundTowardZero Float
-                        , Bool -> Integer -> Product RoundTowardNegative RoundTowardPositive Double
-                        , Bool -> Integer -> Product RoundTowardNegative RoundTowardPositive Float
-  #-}
+{-# SPECIALIZE fromPositiveIntegerR :: RealFloat a => Bool -> Integer -> RoundTiesToEven a #-}
+{-# SPECIALIZE fromPositiveIntegerR :: RealFloat a => Bool -> Integer -> RoundTiesToAway a #-}
+{-# SPECIALIZE fromPositiveIntegerR :: RealFloat a => Bool -> Integer -> RoundTowardPositive a #-}
+{-# SPECIALIZE fromPositiveIntegerR :: RealFloat a => Bool -> Integer -> RoundTowardZero a #-}
+{-# SPECIALIZE fromPositiveIntegerR :: RealFloat a => Bool -> Integer -> Product RoundTowardNegative RoundTowardPositive a #-}
+{-# SPECIALIZE fromPositiveIntegerR :: RoundingStrategy f => Bool -> Integer -> f Double #-}
+{-# SPECIALIZE fromPositiveIntegerR :: RoundingStrategy f => Bool -> Integer -> f Float #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTiesToEven Double #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTiesToAway Double #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardPositive Double #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardZero Double #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTiesToEven Float #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTiesToAway Float #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardPositive Float #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardZero Float #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> Product RoundTowardNegative RoundTowardPositive Double #-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> Product RoundTowardNegative RoundTowardPositive Float #-}
 {-# RULES
 "fromPositiveIntegerR/RoundTowardNegative"
   fromPositiveIntegerR = \neg x -> RoundTowardNegative (roundTowardPositive (fromPositiveIntegerR (not neg) x))

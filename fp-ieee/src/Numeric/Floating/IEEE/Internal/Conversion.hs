@@ -57,7 +57,8 @@ foreign import ccall unsafe "hs_canonicalizeDouble"
 
 #else
 
-{-# SPECIALIZE canonicalize :: Float -> Float, Double -> Double #-}
+{-# SPECIALIZE canonicalize :: Float -> Float #-}
+{-# SPECIALIZE canonicalize :: Double -> Double #-}
 
 canonicalizeFloat :: Float -> Float
 canonicalizeFloat = canonicalize

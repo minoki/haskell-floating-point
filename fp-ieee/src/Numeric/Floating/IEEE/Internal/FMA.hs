@@ -83,7 +83,8 @@ twoSum a b =
                a - (x - b)
       -}
   in (x, y)
-{-# SPECIALIZE twoSum :: Float -> Float -> (Float, Float), Double -> Double -> (Double, Double) #-}
+{-# SPECIALIZE twoSum :: Float -> Float -> (Float, Float) #-}
+{-# SPECIALIZE twoSum :: Double -> Double -> (Double, Double) #-}
 
 -- |
 -- Addition, with round to nearest odd floating-point number.
@@ -106,7 +107,8 @@ addToOdd x y = let (u, v) = twoSum x y
                           | otherwise = u
                    !_ = assert (isInfinite u || toRational u == toRational x + toRational y || not (isMantissaEven result)) ()
                in result
-{-# SPECIALIZE addToOdd :: Float -> Float -> Float, Double -> Double -> Double #-}
+{-# SPECIALIZE addToOdd :: Float -> Float -> Float #-}
+{-# SPECIALIZE addToOdd :: Double -> Double -> Double #-}
 
 -- This function doesn't handle overflow or underflow
 split :: RealFloat a => a -> (a, a)
@@ -117,7 +119,8 @@ split a =
   in (x, y)
   where factor = fromInteger $ 1 + floatRadix a ^! ((floatDigits a + 1) `quot` 2)
   -- factor == 134217729 for Double, 4097 for Float
-{-# SPECIALIZE split :: Float -> (Float, Float), Double -> (Double, Double) #-}
+{-# SPECIALIZE split :: Float -> (Float, Float) #-}
+{-# SPECIALIZE split :: Double -> (Double, Double) #-}
 
 -- This function will be rewritten into fastTwoProduct{Float,Double} if fast FMA is available; the rewriting may change behavior regarding overflow.
 -- TODO: subnormal behavior?

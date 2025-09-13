@@ -56,10 +56,9 @@ intervalGaussianElimination a b
             x <- VM.read vec i
             VM.write vec i $! f x
 
-{-# SPECIALIZE
-  intervalGaussianEliminationU :: UArray (Int,Int) Double -> VU.Vector Double -> VU.Vector Double, UArray (Int,Int) (Interval Double) -> VU.Vector (Interval Double) -> VU.Vector (Interval Double)
-                                , UArray (Int,Int) (NE.Interval Double) -> VU.Vector (NE.Interval Double) -> VU.Vector (NE.Interval Double)
-  #-}
+{-# SPECIALIZE intervalGaussianEliminationU :: UArray (Int,Int) Double -> VU.Vector Double -> VU.Vector Double #-}
+{-# SPECIALIZE intervalGaussianEliminationU :: UArray (Int,Int) (Interval Double) -> VU.Vector (Interval Double) -> VU.Vector (Interval Double) #-}
+{-# SPECIALIZE intervalGaussianEliminationU :: UArray (Int,Int) (NE.Interval Double) -> VU.Vector (NE.Interval Double) -> VU.Vector (NE.Interval Double) #-}
 intervalGaussianEliminationU :: (Fractional a, IArray UArray a, forall s. MArray (STUArray s) a (ST s), VU.Unbox a) => UArray (Int,Int) a -> VU.Vector a -> VU.Vector a
 intervalGaussianEliminationU a b
   | not (i0 == 0 && j0 == 0 && iN == n - 1 && jN == n - 1) = error "invalid size"
