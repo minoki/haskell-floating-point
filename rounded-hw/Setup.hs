@@ -13,7 +13,7 @@ import           Distribution.Utils.Path (makeSymbolicPath)
 
 {-
 We want to access "ghcconfig.h" from assembly source file (.S),
-but GHC does not pass the include directory to the assembler.
+but GHC < 9.12 does not pass the include directory to the assembler.
 So we need to set include-dirs to include the path to "ghcconfig.h"
 -}
 

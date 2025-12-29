@@ -15,7 +15,7 @@ license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Custom
 tested-with:
-    GHC == 8.6.5, GHC == 8.8.4, GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.8, GHC == 9.4.8, GHC == 9.6.3, GHC == 9.8.1
+    GHC == 8.6.5, GHC == 8.8.4, GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.8, GHC == 9.4.8, GHC == 9.6.7, GHC == 9.8.4, GHC == 9.10.3, GHC == 9.12.2
 extra-source-files:
     README.md
     ChangeLog.md
@@ -29,7 +29,7 @@ source-repository head
   location: https://github.com/minoki/haskell-floating-point
   subdir: rounded-hw
 
--- Custom setup is required to allow assembly sources to #include "ghcconfig.h"
+-- Custom setup is required to allow assembly sources to #include "ghcconfig.h" on GHC < 9.12
 custom-setup
   setup-depends:
       Cabal >=3.0 && <3.17
@@ -115,6 +115,8 @@ library
     cpp-options: -DUSE_FFI
     c-sources:
         cbits/rounded.c
+    other-extensions:
+        UnliftedFFITypes
   -- flag(c99): Disable platform-dependent techniques and only use C99 fesetround
   if flag(c99)
     cc-options: -DUSE_C99
@@ -140,6 +142,10 @@ library
       else
         c-sources:
             cbits/interval-prim-x86_64.S
+    other-extensions:
+        GHCForeignImportPrim
+        UnboxedTuples
+        UnliftedFFITypes
   -- flag(x87-long-double): Support LongDouble on x86
   if flag(x87-long-double) && (arch(i386) || arch(x86_64))
     other-modules:
@@ -158,6 +164,27 @@ library
         cbits/rounded-float128.c
     build-depends:
         float128 >=0.1 && <0.2
+  other-extensions:
+      BangPatterns
+      ConstrainedClassMethods
+      CPP
+      DataKinds
+      DefaultSignatures
+      DeriveFunctor
+      DeriveGeneric
+      DerivingStrategies
+      DerivingVia
+      FlexibleContexts
+      GeneralizedNewtypeDeriving
+      HexFloatLiterals
+      KindSignatures
+      MagicHash
+      MultiParamTypeClasses
+      NumericUnderscores
+      RankNTypes
+      ScopedTypeVariables
+      StandaloneDeriving
+      TypeFamilies
   default-language: Haskell2010
 
 test-suite rounded-hw-doctests
@@ -187,9 +214,9 @@ test-suite rounded-hw-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      QuickCheck >=2.14.3 && <2.16
+      QuickCheck >=2.14.3 && <2.18
     , hspec ^>=2.11.7
-    , random ^>=1.2.1.1
+    , random >=1.2.1.1 && <1.4
     , rounded-hw
   if flag(x87-long-double) && (arch(i386) || (arch(x86_64) && !os(windows)))
     -- Support for 80-bit long double is not good on Win64, so don't test
@@ -204,6 +231,11 @@ test-suite rounded-hw-test
     cpp-options: -DTEST_FLOAT128
     build-depends:
         float128
+  other-extensions:
+      CPP
+      DataKinds
+      FlexibleContexts
+      ScopedTypeVariables
   default-language: Haskell2010
 
 benchmark rounded-hw-benchmark
@@ -217,5 +249,13 @@ benchmark rounded-hw-benchmark
       benchmark
   build-depends:
       rounded-hw
-    , tasty-bench ^>=0.3.5
+    , tasty-bench >=0.3.5 && <0.6
+  other-extensions:
+      DataKinds
+      HexFloatLiterals
+      NumericUnderscores
+      ScopedTypeVariables
+      BangPatterns
+      FlexibleContexts
+      QuantifiedConstraints
   default-language: Haskell2010
