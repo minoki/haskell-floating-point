@@ -1,7 +1,7 @@
 cabal-version: 2.2
 
 name:           fp-ieee
-version:        0.1.0.5
+version:        0.1.0.6
 synopsis:       IEEE 754-2019 compliant operations
 description:    Please see the README on GitHub at <https://github.com/minoki/haskell-floating-point/tree/master/fp-ieee#readme>
 category:       Numeric, Math
@@ -9,7 +9,7 @@ homepage:       https://github.com/minoki/haskell-floating-point#readme
 bug-reports:    https://github.com/minoki/haskell-floating-point/issues
 author:         ARATA Mizuki
 maintainer:     minorinoki@gmail.com
-copyright:      2020-2024 ARATA Mizuki
+copyright:      2020-2025 ARATA Mizuki
 license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Simple
@@ -132,6 +132,17 @@ library
   build-depends:
       integer-logarithms >=1 && <1.1
   ghc-options: -Wall
+  other-extensions:
+      BangPatterns
+      CPP
+      DeriveFunctor
+      MagicHash
+      NoImplicitPrelude
+      NumericUnderscores
+      ScopedTypeVariables
+      TypeApplications
+      UnboxedSums
+      UnboxedTuples
   if flag(half)
     other-modules:
         Numeric.Floating.IEEE.Internal.Half
@@ -204,7 +215,7 @@ test-suite fp-ieee-doctests
   main-is: doctests.hs
   build-depends:
       doctest >=0.22.2 && <0.25
-    , QuickCheck >=2.14.3 && <2.16
+    , QuickCheck >=2.14.3 && <2.18
   default-language: Haskell2010
   if impl(ghc >= 9.14)
     buildable: False
@@ -229,12 +240,21 @@ test-suite fp-ieee-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -fno-ignore-asserts
   build-depends:
-      QuickCheck >=2.14.3 && <2.16
+      QuickCheck >=2.14.3 && <2.18
     , fp-ieee
     , hspec ^>=2.11.7
     , hspec-core ^>=2.11.7
     , integer-logarithms
-    , random ^>=1.2.1.1
+    , random >=1.2.1.1 && <1.4
+  other-extensions:
+      BangPatterns
+      CPP
+      DeriveFunctor
+      GeneralizedNewtypeDeriving
+      HexFloatLiterals
+      NumericUnderscores
+      RankNTypes
+      ScopedTypeVariables
   if flag(half)
     other-modules:
         HalfSpec
@@ -251,5 +271,10 @@ benchmark fp-ieee-benchmark
       benchmark
   build-depends:
       fp-ieee
-    , tasty-bench ^>=0.3.5
+    , tasty-bench >=0.3.5 && <0.6
+  other-extensions:
+      BangPatterns
+      CPP
+      HexFloatLiterals
+      NumericUnderscores
   default-language: Haskell2010
