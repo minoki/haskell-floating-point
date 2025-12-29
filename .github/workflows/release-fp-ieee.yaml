@@ -1,0 +1,50 @@
+name: Prepare release (fp-ieee)
+
+on:
+  push:
+    tags:
+      - 'fp-ieee-*'
+
+jobs:
+  release:
+    name: Prepare release (fp-ieee)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Make a release
+        run: |
+          gh release create "${{ github.ref_name }}" --draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+
+      - uses: haskell-actions/setup@v2
+        name: Setup Haskell
+
+      - name: Configure
+        run: cabal configure --ghc-options="-dcore-lint -dstg-lint -dcmm-lint -dasm-lint -fllvm-fill-undef-with-garbage -debug -fcheck-prim-bounds -fno-ignore-asserts" --enable-test --enable-benchmarks
+        # -dlint requires GHC 9.4 or later
+
+      - name: Build
+        run: cabal build
+
+      - name: Test
+        run: cabal test
+
+      - name: Archive
+        run: cabal sdist
+
+      - name: Upload
+        uses: actions/upload-artifact@v6
+        with:
+          name: archive
+          path: |
+            dist-newstyle/sdist/fp-ieee-*.tar.gz
+
+      - name: Attach the tarball to the release
+        run: |
+          gh release upload "${{ github.ref_name }}" dist-newstyle/sdist/fp-ieee-*.tar.gz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}

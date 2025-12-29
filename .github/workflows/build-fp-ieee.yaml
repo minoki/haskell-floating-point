@@ -14,31 +14,33 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.8', '9.4', '9.6', '9.8', '9.10', '9.12']
-        os: [ubuntu-latest, macos-13, macos-14, windows-latest]
+        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.8', '9.4.8', '9.6.7', '9.8.4', '9.10', '9.12']
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-15-intel, macos-14, windows-latest]
         flags: ['', '--flags "fma3 f16c"', '--flags float128']
         exclude:
           # float128-0.1 doesn't support recent GHC (should we try --allow-newer?)
-          - ghc: '9.6'
+          - ghc: '9.6.7'
             flags: '--flags float128'
-          - ghc: '9.8'
+          - ghc: '9.8.4'
             flags: '--flags float128'
           - ghc: '9.10'
             flags: '--flags float128'
           - ghc: '9.12'
             flags: '--flags float128'
-          - os: macos-13
+          - os: macos-15-intel
             flags: '--flags float128'
           - os: macos-14
             flags: '--flags float128'
           - os: windows-latest
             flags: '--flags float128'
           # Fragile
-          - os: macos-13
+          - os: macos-15-intel
             flags: '--flags "fma3 f16c"'
           - os: macos-14
             flags: '--flags "fma3 f16c"' # Makes no sense on Arm64
-          # macos-14 (Arm64) doesn't support older GHC
+          - os: ubuntu-24.04-arm
+            flags: '--flags "fma3 f16c"' # Makes no sense on Arm64
+          # macos-14/ubuntu-24.04-arm (Arm64) doesn't support older GHC
           # 8.10.7 and 9.0.2 are excluded because haskell-actions/setup doesn't install LLVM
           - os: macos-14
             ghc: '8.6.5'
@@ -48,15 +50,23 @@ jobs:
             ghc: '8.10.7'
           - os: macos-14
             ghc: '9.0.2'
+          - os: ubuntu-24.04-arm
+            ghc: '8.6.5'
+          - os: ubuntu-24.04-arm
+            ghc: '8.8.4'
+          - os: ubuntu-24.04-arm
+            ghc: '8.10.7'
+          - os: ubuntu-24.04-arm
+            ghc: '9.0.2'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: haskell-actions/setup@v2
         name: Setup Haskell
         with:
           ghc-version: ${{ matrix.ghc }}
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.cabal/packages
