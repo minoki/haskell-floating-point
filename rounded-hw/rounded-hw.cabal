@@ -2,7 +2,7 @@ cabal-version: 3.0
 -- asm-sources is Cabal 3.0 feature
 
 name:           rounded-hw
-version:        0.4.0.1
+version:        0.4.0.2
 synopsis:       Directed rounding for built-in floating types
 description:    Please see the README on GitHub at <https://github.com/minoki/haskell-floating-point/tree/master/rounded-hw#readme>
 category:       Numeric, Math

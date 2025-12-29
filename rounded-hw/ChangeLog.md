@@ -1,5 +1,9 @@
 # Changelog for rounded-hw
 
+## 0.4.0.2 (2025-12-29)
+
+* Support GHC 9.14.
+
 ## 0.4.0.1 (2024-12-15)
 
 * Support GHC 9.10/9.12 and Cabal 3.14.0.
