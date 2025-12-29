@@ -27,13 +27,13 @@ jobs:
         # -dlint requires GHC 9.4 or later
 
       - name: Build
-        run: cabal build
+        run: cabal build rounded-hw
 
       - name: Test
-        run: cabal test
+        run: cabal test rounded-hw
 
       - name: Archive
-        run: cabal sdist
+        run: cabal sdist rounded-hw
 
       - name: Upload
         uses: actions/upload-artifact@v6

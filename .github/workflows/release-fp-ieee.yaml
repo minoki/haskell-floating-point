@@ -27,13 +27,13 @@ jobs:
         # -dlint requires GHC 9.4 or later
 
       - name: Build
-        run: cabal build
+        run: cabal build fp-ieee
 
       - name: Test
-        run: cabal test
+        run: cabal test fp-ieee
 
       - name: Archive
-        run: cabal sdist
+        run: cabal sdist fp-ieee
 
       - name: Upload
         uses: actions/upload-artifact@v6
