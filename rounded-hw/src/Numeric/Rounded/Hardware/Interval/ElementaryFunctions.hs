@@ -165,7 +165,7 @@ sinI t = flip withEndPoints t $ \(Rounded x) (Rounded y) ->
       else -- -pi <= x' <= pi, x' <= y' <= 3 * pi
         let include_minus_1 = minus_half_pi_iv `subset` t' || three_pi_2_iv `subset` t'
             include_plus_1 = pi_iv / 2 `subset` t' || five_pi_2_iv `subset` t'
-            u = hull (sinP $ singleton x') $ sinP (if y <= getRounded pi_down then singleton y' else singleton y' - 2 * pi_iv)
+            u = hull (sinP $ singleton x') $ sinP (if y' <= getRounded pi_down then singleton y' else singleton y' - 2 * pi_iv)
             v | include_minus_1 = hull (-1) u
               | otherwise = u
             w | include_plus_1 = hull 1 v
@@ -197,7 +197,7 @@ cosI t = flip withEndPoints t $ \(Rounded x) (Rounded y) ->
       else -- -pi <= x' <= pi, x' <= y' <= 3 * pi
         let include_minus_1 = -pi_iv `subset` t' || pi_iv `subset` t' || three_pi_iv `subset` t'
             include_plus_1 = 0 `subset` t' || 2 * pi_iv `subset` t'
-            u = hull (cosP $ singleton x') $ cosP (if y <= getRounded pi_down then singleton y' else singleton y' - 2 * pi_iv)
+            u = hull (cosP $ singleton x') $ cosP (if y' <= getRounded pi_down then singleton y' else singleton y' - 2 * pi_iv)
             v | include_minus_1 = hull (-1) u
               | otherwise = u
             w | include_plus_1 = hull 1 v
