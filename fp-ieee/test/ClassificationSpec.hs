@@ -29,6 +29,7 @@ prop_classify _ x = conjoin
   , counterexample "isSignMinus" $ isSignMinus x === (c `elem` [NegativeInfinity, NegativeNormal, NegativeSubnormal, NegativeZero]) -- isSignMinus doesn't handle negative NaNs
   ]
   where c = classify x
+{-# INLINABLE prop_classify #-}
 {-# SPECIALIZE prop_classify :: Proxy Float -> Float -> Property #-}
 {-# SPECIALIZE prop_classify :: Proxy Double -> Double -> Property #-}
 

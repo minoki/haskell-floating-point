@@ -227,11 +227,13 @@ test-suite fp-ieee-test
   other-modules:
       AugmentedArithSpec
       ClassificationSpec
+      ConversionSpec
       FMASpec
       IntegerInternalsSpec
       MinMaxSpec
       NaNSpec
       NextFloatSpec
+      RemainderSpec
       RoundingSpec
       RoundToIntegralSpec
       TwoSumSpec

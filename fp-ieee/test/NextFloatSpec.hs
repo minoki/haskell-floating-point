@@ -47,11 +47,20 @@ prop_nextUp_nextDown :: (RealFloat a, Show a) => Proxy a -> a -> Property
 prop_nextUp_nextDown _ x = x /= (-1/0) ==>
   let x' = nextUp (nextDown x)
   in x' `sameFloatP` x .||. (isPositiveZero x .&&. isNegativeZero x')
+{-# INLINABLE prop_nextUp_nextDown #-}
 
 prop_nextDown_nextUp :: (RealFloat a, Show a) => Proxy a -> a -> Property
 prop_nextDown_nextUp _ x = x /= (1/0) ==>
   let x' = nextDown (nextUp x)
   in x' `sameFloatP` x .||. (isNegativeZero x .&&. isPositiveZero x')
+{-# INLINABLE prop_nextDown_nextUp #-}
+
+prop_nextTowardZero :: (RealFloat a, Show a) => Proxy a -> a -> Property
+prop_nextTowardZero _ x
+  | x == 0.0 = nextTowardZero x `sameFloatP` x
+  | isSignMinus x = nextTowardZero x `sameFloatP` nextUp x
+  | otherwise = nextTowardZero x `sameFloatP` nextDown x
+{-# INLINABLE prop_nextTowardZero #-}
 
 {-# NOINLINE spec #-}
 spec :: Spec
@@ -66,6 +75,7 @@ spec = do
 #endif
     prop "nextUp . nextDown == id (unless -inf)" $ forAllFloats $ prop_nextUp_nextDown proxy
     prop "nextDown . nextUp == id (unless inf)" $ forAllFloats $ prop_nextDown_nextUp proxy
+    prop "nextTowardZero == (nextUp or nextDown, unless 0.0)" $ forAllFloats $ prop_nextTowardZero proxy
 
   describe "Float" $ do
     let proxy :: Proxy Float
@@ -77,3 +87,4 @@ spec = do
 #endif
     prop "nextUp . nextDown == id (unless -inf)" $ forAllFloats $ prop_nextUp_nextDown proxy
     prop "nextDown . nextUp == id (unless inf)" $ forAllFloats $ prop_nextDown_nextUp proxy
+    prop "nextTowardZero == (nextUp or nextDown, unless 0.0)" $ forAllFloats $ prop_nextTowardZero proxy

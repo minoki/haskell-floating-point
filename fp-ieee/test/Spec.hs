@@ -1,11 +1,13 @@
 {-# LANGUAGE CPP #-}
 import qualified AugmentedArithSpec
 import qualified ClassificationSpec
+import qualified ConversionSpec
 import qualified FMASpec
 import qualified IntegerInternalsSpec
 import qualified MinMaxSpec
 import qualified NaNSpec
 import qualified NextFloatSpec
+import qualified RemainderSpec
 import qualified RoundingSpec
 import qualified RoundToIntegralSpec
 import           System.Environment (getArgs, withArgs)
@@ -37,11 +39,13 @@ hspec spec =
 main :: IO ()
 main = hspec $ do
   describe "Classification" ClassificationSpec.spec
+  describe "Conversion" ConversionSpec.spec
   describe "TwoSum" TwoSumSpec.spec
   describe "FMA" FMASpec.spec
   describe "IntegerInternals" IntegerInternalsSpec.spec
   describe "NextFloat" NextFloatSpec.spec
   describe "AugmentedArith" AugmentedArithSpec.spec
+  describe "Remainder" RemainderSpec.spec
   describe "Rounding" RoundingSpec.spec
   describe "RoundToIntegral" RoundToIntegralSpec.spec
   describe "NaN" NaNSpec.spec

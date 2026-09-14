@@ -7,6 +7,7 @@ import           AugmentedArithSpec (augmentedAddition_viaRational,
                                      augmentedMultiplication_viaRational)
 import qualified AugmentedArithSpec
 import qualified ClassificationSpec
+import qualified ConversionSpec
 import           Control.Monad
 import           Data.Function (on)
 import           Data.Functor.Identity
@@ -18,10 +19,12 @@ import           FMASpec (fusedMultiplyAdd_generic,
 import qualified FMASpec
 import qualified NaNSpec
 import qualified NextFloatSpec
+import           Numeric
 import           Numeric.Floating.IEEE
 import           Numeric.Floating.IEEE.Internal
 import           Numeric.Floating.IEEE.NaN (setPayloadSignaling)
 import           Numeric.Half
+import qualified RemainderSpec
 import qualified RoundingSpec
 import qualified RoundToIntegralSpec
 import           System.Random
@@ -59,8 +62,16 @@ isInfiniteWorkaround f x = not (isNaN x) ==> f x
 isInfiniteIsKnownToBeBuggy = True
 #endif
 
+-- https://github.com/ekmett/half/issues/41
+fromRationalIsBuggy :: Spec -> Spec
+fromRationalIsBuggy = mapSpecItem_ (allowFailure "Half's fromRational may be incorrect")
+
+-- https://github.com/ekmett/half/issues/43
+decodeFloatIsBuggy :: Spec -> Spec
+decodeFloatIsBuggy = mapSpecItem_ (allowFailure "Half's decodeFloat may be incorrect")
+
 spec :: Spec
-spec = mapSpecItem_ (allowFailure "Half's fromRational may be incorrect") $ do
+spec = do
   let proxy :: Proxy Half
       proxy = Proxy
   prop "classify" $ forAllFloats $ isInfiniteWorkaround $ ClassificationSpec.prop_classify proxy
@@ -73,21 +84,24 @@ spec = mapSpecItem_ (allowFailure "Half's fromRational may be incorrect") $ do
   let casesForHalf :: [(Half, Half, Half, Half)]
       casesForHalf = [ (-0, 0, -0, -0)
                      , (-0, -0, -0, 0)
+                     , (0x1.ff4p-7, 0x1.004p-8, 0, 0x1.ff8p-15)
                        -- TODO: Add more
                      ]
-  FMASpec.checkFMA "fusedMultiplyAdd (default)"      fusedMultiplyAdd             casesForHalf
-  FMASpec.checkFMA "fusedMultiplyAdd (generic)"      fusedMultiplyAdd_generic     casesForHalf
-  FMASpec.checkFMA "fusedMultiplyAdd (via Rational)" fusedMultiplyAdd_viaRational casesForHalf
+  decodeFloatIsBuggy $ FMASpec.checkFMA "fusedMultiplyAdd (default)"      fusedMultiplyAdd             casesForHalf
+  decodeFloatIsBuggy $ FMASpec.checkFMA "fusedMultiplyAdd (generic)"      fusedMultiplyAdd_generic     casesForHalf
+  decodeFloatIsBuggy $ FMASpec.checkFMA "fusedMultiplyAdd (via Rational)" fusedMultiplyAdd_viaRational casesForHalf
   prop "nextUp . nextDown == id (unless -inf)" $ forAllFloats $ NextFloatSpec.prop_nextUp_nextDown proxy
   prop "nextDown . nextUp == id (unless inf)" $ forAllFloats $ NextFloatSpec.prop_nextDown_nextUp proxy
+  prop "nextTowardZero == (nextUp or nextDown, unless 0.0)" $ forAllFloats $ NextFloatSpec.prop_nextTowardZero proxy
   prop "augmentedAddition/equality" $ forAllFloats2 $ \(x :: Half) y ->
     isFinite x && isFinite y ==>
     let (s,t) = augmentedAddition x y
     in isFinite s ==> isFinite t .&&. toRational s + toRational t === toRational x + toRational y
   prop "augmentedAddition" $ forAllFloats2 $ \(x :: Half) y ->
     augmentedAddition x y `sameFloatPairP` augmentedAddition_viaRational x y
-  prop "augmentedMultiplication" $ forAllFloats2 $ \(x :: Half) y ->
+  decodeFloatIsBuggy $ prop "augmentedMultiplication" $ forAllFloats2 $ \(x :: Half) y ->
     augmentedMultiplication x y `sameFloatPairP` augmentedMultiplication_viaRational x y
+  prop "remainder" $ forAllFloats2 $ RemainderSpec.prop_remainder proxy
 
   prop "fromIntegerR vs fromRationalR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_fromIntegerR_vs_fromRationalR proxy)
   prop "fromIntegerR vs encodeFloatR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_fromIntegerR_vs_encodeFloatR proxy)
@@ -97,11 +111,26 @@ spec = mapSpecItem_ (allowFailure "Half's fromRational may be incorrect") $ do
   prop "scaleFloatR vs encodeFloatR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_scaleFloatR_vs_encodeFloatR proxy)
   prop "result of fromIntegerR" $ \x -> RoundingSpec.prop_order proxy (fromIntegerR x)
   prop "result of fromRationalR" $ \x -> RoundingSpec.prop_order proxy (fromRationalR x)
-  prop "result of encodeFloatR" $ \m k -> RoundingSpec.prop_order proxy (encodeFloatR m k)
-  prop "addToOdd" $ forAllFloats2 $ RoundingSpec.prop_addToOdd proxy
+  decodeFloatIsBuggy $ prop "result of encodeFloatR" $ \m k -> RoundingSpec.prop_order proxy (encodeFloatR m k)
+  decodeFloatIsBuggy $ prop "addToOdd" $ forAllFloats2 $ RoundingSpec.prop_addToOdd proxy
 
   prop "roundToIntegral" $ RoundToIntegralSpec.prop_roundToIntegral proxy
   RoundToIntegralSpec.checkCases proxy
+
+  modifyMaxSuccess (* 1000) $ do
+    prop "Half->Float" $ forAllFloats $ ConversionSpec.prop_conversion proxy (Proxy :: Proxy Float)
+    prop "Half->Double" $ forAllFloats $ ConversionSpec.prop_conversion proxy (Proxy :: Proxy Double)
+    prop "Float->Half" $ forAllFloats $ ConversionSpec.prop_conversion (Proxy :: Proxy Float) proxy
+    fromRationalIsBuggy $ prop "Double->Half" $ forAllFloats $ ConversionSpec.prop_conversion (Proxy :: Proxy Double) proxy
+  let casesFromDouble :: [Double]
+      casesFromDouble = [ 0x1.001ffffcp+0
+                        , 0x1.8p-25
+                        , 0x1.0000000000001p-25
+                        , -0x1.fffffffffffffp-25
+                        ]
+  forM_ casesFromDouble $ \x -> do
+    let label = showString "Double->Half (" . showHFloat x $ ")"
+    fromRationalIsBuggy $ it label $ ConversionSpec.prop_conversion (Proxy :: Proxy Double) proxy x
 
   prop "copySign" $ forAllFloats2 $ NaNSpec.prop_copySign proxy
   prop "isSignMinus" $ forAllFloats $ NaNSpec.prop_isSignMinus proxy

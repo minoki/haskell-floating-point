@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE HexFloatLiterals #-}
+{-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 module Float128Spec where
@@ -7,6 +8,7 @@ import           AugmentedArithSpec (augmentedAddition_viaRational,
                                      augmentedMultiplication_viaRational)
 import qualified AugmentedArithSpec
 import qualified ClassificationSpec
+import qualified ConversionSpec
 import           Control.Monad
 import           Data.Function (on)
 import           Data.Functor.Identity
@@ -22,6 +24,7 @@ import           Numeric.Float128
 import           Numeric.Floating.IEEE
 import           Numeric.Floating.IEEE.Internal
 import           Numeric.Floating.IEEE.NaN (setPayloadSignaling)
+import qualified RemainderSpec
 import qualified RoundingSpec
 import qualified RoundToIntegralSpec
 import           System.Random
@@ -48,8 +51,14 @@ instance Random Float128 where
                  (x,g') = random g
              in (fromRational (toInteger x % 2^(16 :: Int)), g') -- TODO
 
+fromRationalIsBuggy :: Spec -> Spec
+fromRationalIsBuggy = mapSpecItem_ (allowFailure "Float128's fromRational may be incorrect")
+
+roundIsBuggy :: Spec -> Spec
+roundIsBuggy = mapSpecItem_ (allowFailure "Float128's round may be incorrect")
+
 spec :: Spec
-spec = mapSpecItem_ (allowFailure "Float128's fromRational and round may be incorrect") $ do
+spec = do
   let proxy :: Proxy Float128
       proxy = Proxy
   prop "classify" $ forAllFloats $ ClassificationSpec.prop_classify proxy
@@ -57,19 +66,21 @@ spec = mapSpecItem_ (allowFailure "Float128's fromRational and round may be inco
   prop "totalOrder" $ forAllFloats2 $ ClassificationSpec.prop_totalOrder proxy
   prop "totalOrder (generic)" $ forAllFloats2 (ClassificationSpec.prop_totalOrder (Proxy :: Proxy (Identity Float128)) `on` Identity)
   prop "twoSum" $ forAllFloats2 $ TwoSumSpec.prop_twoSum proxy
-  prop "twoProduct" $ forAllFloats2 $ TwoSumSpec.prop_twoProduct proxy twoProduct
-  prop "twoProduct_generic" $ forAllFloats2 $ TwoSumSpec.prop_twoProduct proxy twoProduct_generic
+  fromRationalIsBuggy $ prop "twoProduct" $ forAllFloats2 $ TwoSumSpec.prop_twoProduct proxy twoProduct
+  fromRationalIsBuggy $ prop "twoProduct_generic" $ forAllFloats2 $ TwoSumSpec.prop_twoProduct proxy twoProduct_generic
   let casesForFloat128 :: [(Float128, Float128, Float128, Float128)]
       casesForFloat128 = [ (-0, 0, -0, -0)
                          , (-0, -0, -0, 0)
+                         , (0x1.ffff_ffff_ffff_ffff_ffff_ffff_fffdp-8191, 0x1.0000_0000_0000_0000_0000_0000_0001p-8192, 0.0, 0x1.ffff_ffff_ffff_ffff_ffff_ffff_ffffp-16383)
                          -- TODO: Add more
                          ]
-  FMASpec.checkFMA "fusedMultiplyAdd (default)"      fusedMultiplyAdd             casesForFloat128
-  FMASpec.checkFMA "fusedMultiplyAdd (generic)"      fusedMultiplyAdd_generic     casesForFloat128
-  FMASpec.checkFMA "fusedMultiplyAdd (via Rational)" fusedMultiplyAdd_viaRational casesForFloat128
+  fromRationalIsBuggy $ FMASpec.checkFMA "fusedMultiplyAdd (default)"      fusedMultiplyAdd             casesForFloat128
+  fromRationalIsBuggy $ FMASpec.checkFMA "fusedMultiplyAdd (generic)"      fusedMultiplyAdd_generic     casesForFloat128
+  fromRationalIsBuggy $ FMASpec.checkFMA "fusedMultiplyAdd (via Rational)" fusedMultiplyAdd_viaRational casesForFloat128
   prop "nextUp . nextDown == id (unless -inf)" $ forAllFloats $ NextFloatSpec.prop_nextUp_nextDown proxy
   prop "nextDown . nextUp == id (unless inf)" $ forAllFloats $ NextFloatSpec.prop_nextDown_nextUp proxy
-  prop "augmentedAddition/equality" $ forAllFloats2 $ \(x :: Float128) y ->
+  prop "nextTowardZero == (nextUp or nextDown, unless 0.0)" $ forAllFloats $ NextFloatSpec.prop_nextTowardZero proxy
+  fromRationalIsBuggy $ prop "augmentedAddition/equality" $ forAllFloats2 $ \(x :: Float128) y ->
     isFinite x && isFinite y ==>
     let (s,t) = augmentedAddition x y
     in isFinite s ==> isFinite t .&&. toRational s + toRational t === toRational x + toRational y
@@ -77,11 +88,12 @@ spec = mapSpecItem_ (allowFailure "Float128's fromRational and round may be inco
     augmentedAddition x y `sameFloatPairP` augmentedAddition_viaRational x y
   prop "augmentedMultiplication" $ forAllFloats2 $ \(x :: Float128) y ->
     augmentedMultiplication x y `sameFloatPairP` augmentedMultiplication_viaRational x y
+  fromRationalIsBuggy $ prop "remainder" $ forAllFloats2 $ RemainderSpec.prop_remainder proxy
 
   prop "fromIntegerR vs fromRationalR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_fromIntegerR_vs_fromRationalR proxy)
   prop "fromIntegerR vs encodeFloatR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_fromIntegerR_vs_encodeFloatR proxy)
   prop "fromRationalR vs encodeFloatR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_fromRationalR_vs_encodeFloatR proxy)
-  prop "fromRationalR vs fromRational" $ RoundingSpec.prop_fromRationalR_vs_fromRational proxy
+  fromRationalIsBuggy $ prop "fromRationalR vs fromRational" $ RoundingSpec.prop_fromRationalR_vs_fromRational proxy
   prop "scaleFloatR vs fromRationalR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_scaleFloatR_vs_fromRationalR proxy)
   prop "scaleFloatR vs encodeFloatR" $ RoundingSpec.eachStrategy (RoundingSpec.prop_scaleFloatR_vs_encodeFloatR proxy)
   prop "result of fromIntegerR" $ \x -> RoundingSpec.prop_order proxy (fromIntegerR x)
@@ -89,8 +101,14 @@ spec = mapSpecItem_ (allowFailure "Float128's fromRational and round may be inco
   prop "result of encodeFloatR" $ \m k -> RoundingSpec.prop_order proxy (encodeFloatR m k)
   prop "addToOdd" $ forAllFloats2 $ RoundingSpec.prop_addToOdd proxy
 
-  prop "roundToIntegral" $ RoundToIntegralSpec.prop_roundToIntegral proxy
-  RoundToIntegralSpec.checkCases proxy
+  roundIsBuggy $ prop "roundToIntegral" $ RoundToIntegralSpec.prop_roundToIntegral proxy
+  roundIsBuggy $ RoundToIntegralSpec.checkCases proxy
+
+  modifyMaxSuccess (* 1000) $ do
+    prop "Float->Float128" $ forAllFloats $ ConversionSpec.prop_conversion (Proxy :: Proxy Float) proxy
+    prop "Double->Float128" $ forAllFloats $ ConversionSpec.prop_conversion (Proxy :: Proxy Double) proxy
+    prop "Float128->Float" $ forAllFloats $ ConversionSpec.prop_conversion proxy (Proxy :: Proxy Float)
+    prop "Float128->Double" $ forAllFloats $ ConversionSpec.prop_conversion proxy (Proxy :: Proxy Double)
 
   prop "copySign" $ forAllFloats2 $ NaNSpec.prop_copySign proxy
   prop "isSignMinus" $ forAllFloats $ NaNSpec.prop_isSignMinus proxy
