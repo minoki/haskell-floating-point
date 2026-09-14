@@ -55,7 +55,7 @@ predWord64Pair hi lo | lo == 0 = (hi - 1, fromInteger (-1))
 nextUpF128 :: Float128 -> Float128
 nextUpF128 x =
   case float128ToWord64Pair x of
-    (hi, lo) | hi .&. 0x7fff_0000_0000_0000 == 0x7fff_0000_0000_000
+    (hi, lo) | hi .&. 0x7fff_0000_0000_0000 == 0x7fff_0000_0000_0000
              , (hi, lo) /= (0xffff_0000_0000_0000, 0) -> x + x -- NaN or positive infinity -> itself
     (0x8000_0000_0000_0000, 0x0000_0000_0000_0000) -> minPositive -- -0 -> min positive
     (hi, lo) | testBit hi 63 -> -- negative
@@ -68,7 +68,7 @@ nextUpF128 x =
 nextDownF128 :: Float128 -> Float128
 nextDownF128 x =
   case float128ToWord64Pair x of
-    (hi, lo) | hi .&. 0x7fff_0000_0000_0000 == 0x7fff_0000_0000_000
+    (hi, lo) | hi .&. 0x7fff_0000_0000_0000 == 0x7fff_0000_0000_0000
              , (hi, lo) /= (0x7fff_0000_0000_0000, 0) -> x + x -- NaN or negative infinity -> itself
     (0x0000_0000_0000_0000, 0x0000_0000_0000_0000) -> - minPositive -- +0 -> max negative
     (hi, lo) | testBit hi 63 -> -- negative
@@ -81,7 +81,7 @@ nextDownF128 x =
 nextTowardZeroF128 :: Float128 -> Float128
 nextTowardZeroF128 x =
   case float128ToWord64Pair x of
-    (hi, lo) | hi .&. 0x7fff_0000_0000_0000 == 0x7fff_0000_0000_000
+    (hi, lo) | hi .&. 0x7fff_0000_0000_0000 == 0x7fff_0000_0000_0000
              , (lo, hi .&. 0x0000_ffff_ffff_ffff) /= (0, 0) -> x + x -- NaN -> itself
     (0x8000_0000_0000_0000, 0x0000_0000_0000_0000) -> x -- -0 -> itself
     (0x0000_0000_0000_0000, 0x0000_0000_0000_0000) -> x -- +0 -> itself
@@ -97,7 +97,7 @@ isNormalF128 x = case float128ToWord64Pair x of
 isFiniteF128 :: Float128 -> Bool
 isFiniteF128 x = case float128ToWord64Pair x of
                    (hi, _) -> let hi' = hi .&. 0x7fff_0000_0000_0000
-                              in hi' /= 0 && hi' /= 0x7fff_0000_0000_0000
+                              in hi' /= 0x7fff_0000_0000_0000
 
 classifyF128DiscardingSignalingNaNs :: Float128 -> Class
 classifyF128DiscardingSignalingNaNs x =
