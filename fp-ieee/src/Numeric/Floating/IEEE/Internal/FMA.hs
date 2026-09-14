@@ -269,7 +269,9 @@ fusedMultiplyAdd a b c
         result0 = v1 + w
         !_ = assert (result0 == fromRational (toRational x + toRational y + toRational c'')) ()
         result = scaleFloat e result0
-        !_ = assert (result == fromRational (toRational a * toRational b + toRational c) || isDenormalized result) ()
+        -- result is normal: fst (floatRange _) <= exponent result <= snd (floatRange _)
+        resultMaybeInexact = exponent result0 + e < fst (floatRange result0)
+        !_ = assert (result == fromRational (toRational a * toRational b + toRational c) || resultMaybeInexact) ()
     in if result0 == 0 then
          -- We need to handle the sign of zero
          if c == 0 && a /= 0 && b /= 0 then
@@ -277,7 +279,7 @@ fusedMultiplyAdd a b c
          else
            a * b + c -- -0 if both a * b and c are -0
        else
-         if isDenormalized result then
+         if resultMaybeInexact then
            -- The rounding in 'scaleFloat e result0' may yield an incorrect result.
            -- Take the slow path.
            case toRational a * toRational b + toRational c of
