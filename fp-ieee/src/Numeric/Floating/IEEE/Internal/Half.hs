@@ -53,7 +53,7 @@ nextTowardZeroHalf :: Half -> Half
 nextTowardZeroHalf x =
   case castHalfToWord16 x of
     w | w .&. 0x7c00 == 0x7c00
-      , w /= 0x7fff -> x + x -- NaN -> itself
+      , w .&. 0x03ff /= 0 -> x + x -- NaN -> itself
     0x8000 -> x -- -0 -> itself
     0x0000 -> x -- +0 -> itself
     w -> castWord16ToHalf (w - 1) -- positive / negative
@@ -165,7 +165,7 @@ instance RealFloatNaN Half where
 {-# SPECIALIZE fromPositiveIntegerR :: RoundingStrategy f => Bool -> Integer -> f Half #-}
 {-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTiesToEven Half #-}
 {-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTiesToAway Half #-}
-{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardPositive Half　#-}
+{-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardPositive Half #-}
 {-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardNegative Half #-}
 {-# SPECIALIZE fromPositiveIntegerR :: Bool -> Integer -> RoundTowardZero Half #-}
 
