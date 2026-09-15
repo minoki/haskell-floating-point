@@ -14,20 +14,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.8', '9.4.8', '9.6.7', '9.8.4', '9.10', '9.12']
+        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.8', '9.4.8', '9.6.7', '9.8.4', '9.10', '9.12', '9.14']
         os: [ubuntu-latest, ubuntu-24.04-arm, macos-15-intel, macos-14, windows-latest]
-        flags: ['', '--flags x87-long-double']
+        flags: ['', '--flags x87-long-double', '--flags pure-hs']
         exclude:
-          - ghc: '9.4.8'
-            flags: '--flags x87-long-double'
-          - ghc: '9.6.7'
-            flags: '--flags x87-long-double'
-          - ghc: '9.8.4'
-            flags: '--flags x87-long-double'
-          - ghc: '9.10'
-            flags: '--flags x87-long-double'
-          - ghc: '9.12'
-            flags: '--flags x87-long-double'
+          # - ghc: '<some future version>'
+          #   flags: '--flags x87-long-double'
           # macos-14/ubuntu-24.04-arm (Arm64) doesn't support older GHC
           # 8.10.7 and 9.0.2 are excluded because haskell-actions/setup doesn't install LLVM
           - os: macos-14
