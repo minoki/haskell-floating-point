@@ -96,7 +96,7 @@ instance (RealFloat a, Num a, RealFloatConstants a) => RoundedFractional (ViaRat
 
 instance (RealFloat a, RealFloatConstants a) => RoundedSqrt (ViaRational a) where
   roundedSqrt r (ViaRational x)
-    | r /= ToNearest && x >= 0 = ViaRational $
+    | r /= ToNearest && x >= 0 && not (isInfinite x) = ViaRational $
       case compare ((toRational y) ^ (2 :: Int)) (toRational x) of
         LT | r == TowardInf -> let z = nextUp y
                                in assert (toRational x < (toRational z) ^ (2 :: Int)) z
