@@ -1,8 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-module IntervalArithmeticSpec where
+module IntervalArithmeticNESpec where
 import           Data.Proxy
 import           Numeric.Rounded.Hardware.Internal
-import           Numeric.Rounded.Hardware.Interval
+import           Numeric.Rounded.Hardware.Interval.NonEmpty
 import           Numeric.Rounded.Hardware.Interval.Class (makeInterval, equalAsSet, subset)
 import           Test.Hspec
 import           Test.Hspec.QuickCheck (prop)

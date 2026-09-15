@@ -2,6 +2,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -137,10 +138,22 @@ minI :: Ord a => Interval a -> Interval a -> Interval a
 minI (I a a') (I b b') = I (min a b) (min a' b')
 {-# INLINE minI #-}
 
+negP :: Num a => Rounded 'TowardInf a -> Rounded 'TowardNegInf a
+negP (Rounded x) = Rounded (negate x)
+{-# INLINE negP #-}
+
+negN :: Num a => Rounded 'TowardNegInf a -> Rounded 'TowardInf a
+negN (Rounded x) = Rounded (negate x)
+{-# INLINE negN #-}
+
 powInt :: (Ord a, Num a, RoundedRing a) => Interval a -> Int -> Interval a
-powInt (I a a') n | odd n || 0 <= a = I (a^n) (a'^n)
-                  | a' <= 0 = I ((coerce (abs a'))^n) ((coerce (abs a))^n)
-                  | otherwise = I 0 (max ((coerce (abs a))^n) (a'^n))
+powInt (I a a') n
+  | odd n = if | 0 <= a -> I (a^n) (a'^n)
+               | a' <= 0 -> I (negP $ (negN a)^n) (negN $ (negP a')^n)
+               | otherwise -> I (negP $ (negN a)^n) (a'^n) -- a < 0 < a'
+  | otherwise = if | 0 <= a -> I (a^n) (a'^n)
+                   | a' <= 0 -> I ((coerce (abs a'))^n) ((coerce (abs a))^n)
+                   | otherwise -> I 0 (max ((coerce (abs a))^n) (a'^n)) -- a < 0 < a'
 {-# SPECIALIZE powInt :: Interval Float -> Int -> Interval Float #-}
 {-# SPECIALIZE powInt :: Interval Double -> Int -> Interval Double #-}
 

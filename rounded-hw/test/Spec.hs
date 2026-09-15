@@ -6,6 +6,7 @@ import           Data.Proxy
 import qualified FromIntegerSpec
 import qualified FromRationalSpec
 import qualified IntervalArithmeticSpec
+import qualified IntervalArithmeticNESpec
 import           Numeric.Rounded.Hardware.Backend (backendName)
 import qualified RoundedArithmeticSpec
 import qualified ShowFloatSpec
@@ -40,6 +41,7 @@ main = do
     describe "showFloat" ShowFloatSpec.spec
     describe "rounded arithmetic" RoundedArithmeticSpec.spec
     describe "interval arithmetic" IntervalArithmeticSpec.spec
+    describe "interval arithmetic (non-empty)" IntervalArithmeticNESpec.spec
     describe "Vector" VectorSpec.spec
     describe "Constants" ConstantsSpec.spec
 #ifdef TEST_X87_LONG_DOUBLE
