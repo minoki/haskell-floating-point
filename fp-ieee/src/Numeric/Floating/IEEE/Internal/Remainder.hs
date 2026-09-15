@@ -17,7 +17,7 @@ remainder x y | isFinite x && isInfinite y = x
               | y == 0 || isInfinite y || isNaN y || not (isFinite x) = (x - x) / y * y -- return a NaN
               | otherwise = let n = round (toRational x / toRational y)
                                 r = fromRational (toRational x - toRational y * fromInteger n)
-                            in r -- if r == 0, the sign of r is the same as x
+                            in if r == 0 then 0 * x else r -- if r == 0, return the signed zero
 {-# NOINLINE [1] remainder #-}
 
 #if defined(USE_FFI)
