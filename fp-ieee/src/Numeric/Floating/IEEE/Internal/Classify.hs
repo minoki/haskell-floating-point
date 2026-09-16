@@ -46,6 +46,9 @@ isFinite x = not (isNaN x) && not (isInfinite x)
 -- IEEE 754 @isZero@ operation.
 isZero :: RealFloat a => a -> Bool
 isZero x = x == 0
+{-# NOINLINE [1] isZero #-}
+{-# SPECIALIZE isZero :: Float -> Bool #-}
+{-# SPECIALIZE isZero :: Double -> Bool #-}
 
 -- |
 -- Returns @True@ if the argument is negative (including negative zero).
@@ -57,6 +60,9 @@ isZero x = x == 0
 -- IEEE 754 @isSignMinus@ operation.
 isSignMinus :: RealFloat a => a -> Bool
 isSignMinus x = x < 0 || isNegativeZero x
+{-# NOINLINE [1] isSignMinus #-}
+{-# SPECIALIZE isSignMinus :: Float -> Bool #-}
+{-# SPECIALIZE isSignMinus :: Double -> Bool #-}
 
 -- |
 -- Comparison with IEEE 754 @totalOrder@ predicate.
