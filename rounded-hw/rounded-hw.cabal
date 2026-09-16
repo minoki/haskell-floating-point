@@ -193,9 +193,9 @@ test-suite rounded-hw-doctests
   type: exitcode-stdio-1.0
   main-is: doctests.hs
   build-depends:
-      doctest >=0.22.2 && <0.25
+      doctest >=0.22.2 && <0.26
   default-language: Haskell2010
-  if impl(ghc >= 9.14)
+  if impl(ghc >= 10.0)
     buildable: False
 
 test-suite rounded-hw-test
@@ -216,7 +216,7 @@ test-suite rounded-hw-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      QuickCheck >=2.14.3 && <2.18
+      QuickCheck >=2.14.3 && <2.19
     , hspec ^>=2.11.7
     , random >=1.2.1.1 && <1.4
     , rounded-hw
