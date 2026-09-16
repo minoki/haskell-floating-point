@@ -1,10 +1,13 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module RoundedArithmeticSpec where
 import           Data.Coerce
 import           Data.Proxy
+#if defined(USE_FFI)
 import qualified Numeric.Rounded.Hardware.Backend.C as Backend.C
+#endif
 import           Numeric.Rounded.Hardware.Backend.ViaRational
 import           Numeric.Rounded.Hardware.Internal
 import           Test.Hspec
@@ -89,6 +92,7 @@ spec = do
   describe "Double default" $ verifyImplementation (Proxy :: Proxy Double) (Proxy :: Proxy Double)
   describe "Float default" $ verifyImplementation (Proxy :: Proxy Float) (Proxy :: Proxy Float)
 
-  -- TODO: Disable when `pure-hs` is on
+#if defined(USE_FFI)
   describe "Double C" $ verifyImplementation (Proxy :: Proxy Double) (Proxy :: Proxy Backend.C.CDouble)
   describe "Float C" $ verifyImplementation (Proxy :: Proxy Float) (Proxy :: Proxy Backend.C.CFloat)
+#endif

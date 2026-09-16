@@ -220,6 +220,8 @@ test-suite rounded-hw-test
     , hspec ^>=2.11.7
     , random >=1.2.1.1 && <1.4
     , rounded-hw
+  if !flag(pure-hs)
+    cpp-options: -DUSE_FFI
   if flag(x87-long-double) && (arch(i386) || (arch(x86_64) && !os(windows)))
     -- Support for 80-bit long double is not good on Win64, so don't test
     other-modules:
@@ -261,3 +263,5 @@ benchmark rounded-hw-benchmark
       FlexibleContexts
       QuantifiedConstraints
   default-language: Haskell2010
+  if !flag(pure-hs)
+    cpp-options: -DUSE_FFI

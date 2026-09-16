@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE HexFloatLiterals #-}
 {-# LANGUAGE NumericUnderscores #-}
@@ -11,7 +12,9 @@ import           Data.Word
 import           Numeric.Floating.IEEE
 import qualified Numeric.Floating.IEEE.Internal as IEEE.Internal
 import           Numeric.Rounded.Hardware
+#if defined(USE_FFI)
 import qualified Numeric.Rounded.Hardware.Backend.C as C
+#endif
 import           Numeric.Rounded.Hardware.Class
 import           Numeric.Rounded.Hardware.Interval
 import           Test.Tasty.Bench
@@ -78,7 +81,9 @@ benchmark = bgroup "Conversion"
       , bench "Interval/fromIntegralR" . nf (\n -> case IEEE.Internal.fromIntegralR n of
                                                 Pair (IEEE.Internal.RoundTowardNegative x) (IEEE.Internal.RoundTowardPositive y) -> (x, y) :: (Double, Double)
                                             )
+#if defined(USE_FFI)
       , bench "Interval/individual/C" . nf (\n -> (C.roundedDoubleFromInt64 TowardNegInf n, C.roundedDoubleFromInt64 TowardInf n))
+#endif
       ]
     | (name, value) <- [ ("small", -2^50 + 2^13 + 127)
                        , ("medium", -2^60 + 42 * 2^53 - 137 * 2^24 + 3)
@@ -100,7 +105,9 @@ benchmark = bgroup "Conversion"
       , bench "Interval/fromIntegralR" . nf (\n -> case IEEE.Internal.fromIntegralR n of
                                                 Pair (IEEE.Internal.RoundTowardNegative x) (IEEE.Internal.RoundTowardPositive y) -> (x, y) :: (Double, Double)
                                             )
+#if defined(USE_FFI)
       , bench "Interval/individual/C" . nf (\n -> (C.roundedDoubleFromWord64 TowardNegInf n, C.roundedDoubleFromWord64 TowardInf n))
+#endif
       ]
     | (name, value) <- [ ("small", 2^50 + 2^13 + 127)
                        , ("medium", 2^63 + 42 * 2^53 - 137 * 2^24 + 3)
