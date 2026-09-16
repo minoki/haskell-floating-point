@@ -198,13 +198,13 @@ doubleToHalf :: Double -> Half
 
 #if defined(HAS_FAST_HALF_CONVERSION)
 
-foreign import ccall unsafe "hs_fastHalfToFloat"
+foreign import ccall unsafe "hs_fp_ieee_halfToFloat"
   c_fastHalfToFloat :: Word16 -> Float
-foreign import ccall unsafe "hs_fastHalfToDouble"
+foreign import ccall unsafe "hs_fp_ieee_halfToDouble"
   c_fastHalfToDouble :: Word16 -> Double
-foreign import ccall unsafe "hs_fastFloatToHalf"
+foreign import ccall unsafe "hs_fp_ieee_floatToHalf"
   c_fastFloatToHalf :: Float -> Word16
-foreign import ccall unsafe "hs_fastDoubleToHalf"
+foreign import ccall unsafe "hs_fp_ieee_doubleToHalf"
   c_fastDoubleToHalf :: Double -> Word16
 
 halfToFloat = coerce c_fastHalfToFloat
