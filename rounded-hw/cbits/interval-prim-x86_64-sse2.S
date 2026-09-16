@@ -11,6 +11,9 @@
 SYMBOL(rounded_hw_interval_backend_name):
 	.string "SSE2"
 
+#define PREV_MXCSR 8(%rsp)
+#define TMP_MXCSR 12(%rsp)
+
 	#
 	# rounded_hw_interval_add
 	#   :: Double# -- lower 1 (%xmm1)
@@ -23,18 +26,18 @@ SYMBOL(rounded_hw_interval_backend_name):
 	#
 	.globl SYMBOL(rounded_hw_interval_add)
 SYMBOL(rounded_hw_interval_add):
-	stmxcsr -8(%rbp)     # *(int32*)(rbp-8) = MXCSR
-	movl -8(%rbp), %ecx  # ecx = *(int32*)(rbp-8)
-	andl $0x9FFF, %ecx   # ecx = ecx & 0x9FFF; clear Rounding Control field
-	orl $0x2000, %ecx    # ecx = ecx | 0x2000; set RC = downward
-	movl %ecx, -4(%rbp)  # *(int32*)(rbp-4) = ecx
-	ldmxcsr -4(%rbp)     # MXCSR = *(int32*)(rbp-4)
-	addsd %xmm3, %xmm1   # xmm1 = xmm1[0] + xmm3[0], xmm1[1]
-	xorl $0x6000, %ecx   # ecx = ecx ^ 0x6000; downward -> upward
-	movl %ecx, -4(%rbp)  # *(int32*)(rbp-4) = ecx
-	ldmxcsr -4(%rbp)     # MXCSR = *(int32*)(rbp-4)
-	addsd %xmm4, %xmm2   # xmm2 = xmm2[0] + xmm4[0], xmm2[1]
-	ldmxcsr -8(%rbp)     # MXCSR = *(int32*)(rbp-8)
+	stmxcsr PREV_MXCSR     # PREV_MXCSR = MXCSR
+	movl PREV_MXCSR, %ecx  # ecx = PREV_MXCSR
+	andl $0x9FFF, %ecx     # ecx = ecx & 0x9FFF; clear Rounding Control field
+	orl $0x2000, %ecx      # ecx = ecx | 0x2000; set RC = downward
+	movl %ecx, TMP_MXCSR   # TMP_MXCSR = ecx
+	ldmxcsr TMP_MXCSR      # MXCSR = TMP_MXCSR
+	addsd %xmm3, %xmm1     # xmm1 = xmm1[0] + xmm3[0], xmm1[1]
+	xorl $0x6000, %ecx     # ecx = ecx ^ 0x6000; downward -> upward
+	movl %ecx, TMP_MXCSR   # TMP_MXCSR = ecx
+	ldmxcsr TMP_MXCSR      # MXCSR = TMP_MXCSR
+	addsd %xmm4, %xmm2     # xmm2 = xmm2[0] + xmm4[0], xmm2[1]
+	ldmxcsr PREV_MXCSR     # MXCSR = PREV_MXCSR
 	jmp *(%rbp)
 
 	#
@@ -49,18 +52,18 @@ SYMBOL(rounded_hw_interval_add):
 	#
 	.globl SYMBOL(rounded_hw_interval_sub)
 SYMBOL(rounded_hw_interval_sub):
-	stmxcsr -8(%rbp)     # *(int32*)(rbp-8) = MXCSR
-	movl -8(%rbp), %ecx  # ecx = *(int32*)(rbp-8)
-	andl $0x9FFF, %ecx   # ecx = ecx & 0x9FFF; clear Rounding Control field
-	orl $0x2000, %ecx    # ecx = ecx | 0x2000; set RC = downward
-	movl %ecx, -4(%rbp)  # *(int32*)(rbp-4) = ecx
-	ldmxcsr -4(%rbp)     # MXCSR = *(int32*)(rbp-4)
-	subsd %xmm4, %xmm1   # xmm1 = xmm1[0] - xmm4[0], xmm1[1]
-	xorl $0x6000, %ecx   # ecx = ecx ^ 0x6000; downward -> upward
-	movl %ecx, -4(%rbp)  # *(int32*)(rbp-4) = ecx
-	ldmxcsr -4(%rbp)     # MXCSR = *(int32*)(rbp-4)
-	subsd %xmm3, %xmm2   # xmm2 = xmm2[0] - xmm3[0], xmm2[1]
-	ldmxcsr -8(%rbp)     # MXCSR = *(int32*)(rbp-4)
+	stmxcsr PREV_MXCSR     # PREV_MXCSR = MXCSR
+	movl PREV_MXCSR, %ecx  # ecx = PREV_MXCSR
+	andl $0x9FFF, %ecx     # ecx = ecx & 0x9FFF; clear Rounding Control field
+	orl $0x2000, %ecx      # ecx = ecx | 0x2000; set RC = downward
+	movl %ecx, TMP_MXCSR   # TMP_MXCSR = ecx
+	ldmxcsr TMP_MXCSR      # MXCSR = TMP_MXCSR
+	subsd %xmm4, %xmm1     # xmm1 = xmm1[0] - xmm4[0], xmm1[1]
+	xorl $0x6000, %ecx     # ecx = ecx ^ 0x6000; downward -> upward
+	movl %ecx, TMP_MXCSR   # TMP_MXCSR = ecx
+	ldmxcsr TMP_MXCSR      # MXCSR = TMP_MXCSR
+	subsd %xmm3, %xmm2     # xmm2 = xmm2[0] - xmm3[0], xmm2[1]
+	ldmxcsr PREV_MXCSR     # MXCSR = PREV_MXCSR
 	jmp *(%rbp)
 
 	#
@@ -73,22 +76,22 @@ SYMBOL(rounded_hw_interval_sub):
 	#
 	.globl SYMBOL(rounded_hw_interval_recip)
 SYMBOL(rounded_hw_interval_recip):
-	stmxcsr -8(%rbp)       # *(int32*)(rbp-8) = MXCSR
-	movl -8(%rbp), %ecx    # ecx = *(int32*)(rbp-8)
-	andl $0x9FFF, %ecx     # ecx = ecx & 0x9FFF; clear Rounding Control field
-	orl $0x2000, %ecx      # ecx = ecx | 0x2000; set RC = downward
-	movl %ecx, -4(%rbp)    # *(int32*)(rbp-4) = ecx
-	ldmxcsr -4(%rbp)       # MXCSR = *(int32*)(rbp-4); set downward
-	movsd LC0(%rip), %xmm3 # xmm3 = (double)1.0,zero
-	movapd %xmm3, %xmm4    # xmm4 = xmm3
-	divsd %xmm2, %xmm3     # xmm3 = xmm3[0] / xmm2[0], xmm3[1]
-	xorl $0x6000, %ecx     # ecx = ecx ^ 0x6000; downward -> upward
-	movl %ecx, -4(%rbp)    # *(int32*)(rbp-4) = ecx
-	ldmxcsr -4(%rbp)       # MXCSR = *(int32*)(rbp-4); set upward
-	divsd %xmm1, %xmm4     # xmm4 = xmm4[0] / xmm1[0], xmm4[1]
-	ldmxcsr -8(%rbp)       # MXCSR = *(int32*)(rbp-8); restore
-	movapd %xmm3, %xmm1    # xmm1 = xmm3
-	movapd %xmm4, %xmm2    # xmm2 = xmm4
+	stmxcsr PREV_MXCSR      # PREV_MXCSR = MXCSR
+	movl PREV_MXCSR, %ecx   # ecx = PREV_MXCSR
+	andl $0x9FFF, %ecx      # ecx = ecx & 0x9FFF; clear Rounding Control field
+	orl $0x2000, %ecx       # ecx = ecx | 0x2000; set RC = downward
+	movl %ecx, TMP_MXCSR    # TMP_MXCSR = ecx
+	ldmxcsr TMP_MXCSR       # MXCSR = TMP_MXCSR; set downward
+	movsd LC0(%rip), %xmm3  # xmm3 = (double)1.0,zero
+	movapd %xmm3, %xmm4     # xmm4 = xmm3
+	divsd %xmm2, %xmm3      # xmm3 = xmm3[0] / xmm2[0], xmm3[1]
+	xorl $0x6000, %ecx      # ecx = ecx ^ 0x6000; downward -> upward
+	movl %ecx, TMP_MXCSR    # TMP_MXCSR = ecx
+	ldmxcsr TMP_MXCSR       # MXCSR = TMP_MXCSR; set upward
+	divsd %xmm1, %xmm4      # xmm4 = xmm4[0] / xmm1[0], xmm4[1]
+	ldmxcsr PREV_MXCSR      # MXCSR = PREV_MXCSR; restore
+	movapd %xmm3, %xmm1     # xmm1 = xmm3
+	movapd %xmm4, %xmm2     # xmm2 = xmm4
 	jmp *(%rbp)
 LC0:
 	.quad 0x3FF0000000000000   # 1.0 in binary64
@@ -108,18 +111,18 @@ LC0:
 	#
 	.globl SYMBOL(rounded_hw_interval_sqrt)
 SYMBOL(rounded_hw_interval_sqrt):
-	stmxcsr -8(%rbp)     # *(int32*)(rbp-8) = MXCSR
-	movl -8(%rbp), %ecx  # ecx = *(int32*)(rbp-8)
-	andl $0x9FFF, %ecx   # ecx = ecx & 0x9FFF; clear Rounding Control field
-	orl $0x2000, %ecx    # ecx = ecx | 0x2000; set RC = downward
-	movl %ecx, -4(%rbp)  # *(int32*)(rbp-4) = ecx
-	ldmxcsr -4(%rbp)     # MXCSR = *(int32*)(rbp-4); set downward
-	sqrtsd %xmm1, %xmm1  # xmm1 = sqrt(xmm1[0]), xmm1[1]
-	xorl $0x6000, %ecx   # ecx = ecx ^ 0x6000; downward -> upward
-	movl %ecx, -4(%rbp)  # *(int32*)(rbp-4) = ecx
-	ldmxcsr -4(%rbp)     # MXCSR = *(int32*)(rbp-4); set upward
-	sqrtsd %xmm2, %xmm2  # xmm2 = sqrt(xmm2[0]), xmm2[1]
-	ldmxcsr -8(%rbp)     # MXCSR = *(int32*)(rbp-8); restore
+	stmxcsr PREV_MXCSR     # PREV_MXCSR = MXCSR
+	movl PREV_MXCSR, %ecx  # ecx = PREV_MXCSR
+	andl $0x9FFF, %ecx     # ecx = ecx & 0x9FFF; clear Rounding Control field
+	orl $0x2000, %ecx      # ecx = ecx | 0x2000; set RC = downward
+	movl %ecx, TMP_MXCSR   # TMP_MXCSR = ecx
+	ldmxcsr TMP_MXCSR      # MXCSR = TMP_MXCSR; set downward
+	sqrtsd %xmm1, %xmm1    # xmm1 = sqrt(xmm1[0]), xmm1[1]
+	xorl $0x6000, %ecx     # ecx = ecx ^ 0x6000; downward -> upward
+	movl %ecx, TMP_MXCSR   # TMP_MXCSR = ecx
+	ldmxcsr TMP_MXCSR      # MXCSR = TMP_MXCSR; set upward
+	sqrtsd %xmm2, %xmm2    # xmm2 = sqrt(xmm2[0]), xmm2[1]
+	ldmxcsr PREV_MXCSR     # MXCSR = PREV_MXCSR; restore
 	jmp *(%rbp)
 
 	#
@@ -131,18 +134,18 @@ SYMBOL(rounded_hw_interval_sqrt):
 	#
 	.globl SYMBOL(rounded_hw_interval_from_int64)
 SYMBOL(rounded_hw_interval_from_int64):
-	stmxcsr -8(%rbp)      # *(int32*)(rbp-8) = MXCSR
-	movl -8(%rbp), %ecx   # ecx = *(int32*)(rbp-8)
-	andl $0x9FFF, %ecx    # ecx = ecx & 0x9FFF; clear Rounding Control field
-	orl $0x2000, %ecx     # ecx = ecx | 0x2000; set RC = downward
-	movl %ecx, -4(%rbp)   # *(int32*)(rbp-4) = ecx
-	ldmxcsr -4(%rbp)      # MXCSR = *(int32*)(rbp-4); set downward
-	pxor %xmm1, %xmm1     # xmm1 = zero
-	cvtsi2sdq %rbx, %xmm1 # xmm1 = (double)(int64)rbx, xmm1[1]
-	xorl $0x6000, %ecx    # ecx = ecx ^ 0x6000; downward -> upward
-	movl %ecx, -4(%rbp)   # *(int32*)(rbp-4) = ecx
-	ldmxcsr -4(%rbp)      # MXCSR = *(int32*)(rbp-4); set upward
-	pxor %xmm2, %xmm2     # xmm2 = zero
-	cvtsi2sdq %rbx, %xmm2 # xmm2 = (double)(int64)rbx, xmm2[1]
-	ldmxcsr -8(%rbp)      # MXCSR = *(int32*)(rbp-8); restore
+	stmxcsr PREV_MXCSR     # PREV_MXCSR = MXCSR
+	movl PREV_MXCSR, %ecx  # ecx = PREV_MXCSR
+	andl $0x9FFF, %ecx     # ecx = ecx & 0x9FFF; clear Rounding Control field
+	orl $0x2000, %ecx      # ecx = ecx | 0x2000; set RC = downward
+	movl %ecx, TMP_MXCSR   # TMP_MXCSR = ecx
+	ldmxcsr TMP_MXCSR      # MXCSR = TMP_MXCSR; set downward
+	pxor %xmm1, %xmm1      # xmm1 = zero
+	cvtsi2sdq %rbx, %xmm1  # xmm1 = (double)(int64)rbx, xmm1[1]
+	xorl $0x6000, %ecx     # ecx = ecx ^ 0x6000; downward -> upward
+	movl %ecx, TMP_MXCSR   # TMP_MXCSR = ecx
+	ldmxcsr TMP_MXCSR      # MXCSR = TMP_MXCSR; set upward
+	pxor %xmm2, %xmm2      # xmm2 = zero
+	cvtsi2sdq %rbx, %xmm2  # xmm2 = (double)(int64)rbx, xmm2[1]
+	ldmxcsr PREV_MXCSR     # MXCSR = PREV_MXCSR; restore
 	jmp *(%rbp)
