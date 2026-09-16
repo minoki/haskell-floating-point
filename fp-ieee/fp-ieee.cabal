@@ -279,4 +279,29 @@ benchmark fp-ieee-benchmark
       CPP
       HexFloatLiterals
       NumericUnderscores
+  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(sse4_1)
+    cpp-options: -DHAS_FAST_ROUNDEVEN
+  if !flag(pure-hs) && arch(aarch64)
+    cpp-options: -DHAS_FAST_ROUNDEVEN
+  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3) && impl(ghc < 9.8)
+    cpp-options: -DHAS_FAST_FMA
+  if (arch(i386) || arch(x86_64)) && flag(fma3) && impl(ghc >= 9.8)
+    cpp-options: -DHAS_FMA_PRIM
+    ghc-options: -mfma
+  if !flag(pure-hs) && arch(aarch64) && impl(ghc < 9.8)
+    cpp-options: -DHAS_FAST_FMA
+  if !flag(pure-hs) && arch(aarch64) && impl(ghc >= 9.8)
+    cpp-options: -DHAS_FMA_PRIM
+  if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && !os(windows)
+    cpp-options: -DUSE_C99_FMA
+  if (arch(i386) || arch(x86_64)) && os(windows)
+    cpp-options: -DDONT_INLINE_FMA_PRIM
+  if !flag(pure-hs) && arch(aarch64)
+    cpp-options: -DHAS_FAST_MINMAX
+  if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
+    cpp-options: -DHAS_FAST_HALF_CONVERSION
+  if !flag(pure-hs) && flag(half) && arch(aarch64)
+    cpp-options: -DHAS_FAST_HALF_CONVERSION
+  if !flag(pure-hs) && (arch(aarch64) || arch(x86_64))
+    cpp-options: -DHAS_FAST_CANONICALIZE
   default-language: Haskell2010
