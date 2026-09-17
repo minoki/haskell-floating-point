@@ -67,14 +67,24 @@ jobs:
             ~/.cabal/store
           key: ${{ runner.os }}-${{ matrix.ghc }}
 
+      - name: Configure (with UBSan)
+        run: |
+          cabal configure fp-ieee --ghc-options="-fno-ignore-asserts -optc-fsanitize=undefined -optl-fsanitize=undefined" --enable-tests --enable-benchmarks ${{ matrix.flags }}
+          echo "UBSAN_OPTIONS=halt_on_error=1" >> "$GITHUB_ENV"
+        if: ${{ runner.os != 'Windows' }}
+
+      - name: Configure (without UBSan)
+        run: cabal configure fp-ieee --ghc-options=-fno-ignore-asserts --enable-tests --enable-benchmarks ${{ matrix.flags }}
+        if: ${{ runner.os == 'Windows' }}
+
       - name: Build
-        run: cabal build fp-ieee --ghc-options=-fno-ignore-asserts --enable-tests --enable-benchmarks ${{ matrix.flags }}
+        run: cabal build fp-ieee
 
       - name: Test
-        run: cabal test fp-ieee --ghc-options=-fno-ignore-asserts --enable-tests ${{ matrix.flags }}
+        run: cabal test fp-ieee
         if: ${{ runner.os != 'macOS' && runner.os != 'Windows' }}
 
       # doctest on macOS/Windows is broken
       - name: Test (without doctest)
-        run: cabal test fp-ieee:fp-ieee-test --ghc-options=-fno-ignore-asserts --enable-tests ${{ matrix.flags }}
+        run: cabal test fp-ieee:fp-ieee-test
         if: ${{ runner.os == 'macOS' || runner.os == 'Windows' }}
