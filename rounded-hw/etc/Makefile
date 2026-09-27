@@ -1,6 +1,7 @@
 all: \
   ../cbits/rounded-common.inl \
   ../cbits/rounded-avx512.inl \
+  ../cbits/rounded-riscv.inl \
   ../src/FFIWrapper/Double.hs \
   ../src/FFIWrapper/Float.hs
 
@@ -9,6 +10,9 @@ all: \
 
 ../cbits/rounded-avx512.inl: gen-rounded-avx512.sh rounded-avx512.mustache c-double.yaml c-float.yaml
 	./gen-rounded-avx512.sh
+
+../cbits/rounded-riscv.inl: gen-rounded-riscv.sh rounded-riscv.mustache c-double.yaml c-float.yaml
+	./gen-rounded-riscv.sh
 
 ../src/FFIWrapper/Double.hs ../src/FFIWrapper/Float.hs: gen-ffi-wrapper.sh FFIWrapper.mustache FFIWrapper-Double.yaml FFIWrapper-Float.yaml
 	./gen-ffi-wrapper.sh
