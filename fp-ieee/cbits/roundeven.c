@@ -29,7 +29,7 @@ float hs_roundevenFloat(float x)
 {
     float result;
     // a floating-exception can be generated
-    asm("frintn %s0, %s1" : "=w"(result) : "w"(x));
+    __asm__("frintn %s0, %s1" : "=w"(result) : "w"(x));
     return result;
 }
 
@@ -37,7 +37,25 @@ double hs_roundevenDouble(double x)
 {
     double result;
     // a floating-exception can be generated
-    asm("frintn %d0, %d1" : "=w"(result) : "w"(x));
+    __asm__("frintn %d0, %d1" : "=w"(result) : "w"(x));
+    return result;
+}
+
+#elif defined(__riscv_zfa)
+
+float hs_roundevenFloat(float x)
+{
+    float result;
+    // a floating-exception can be generated for sNaN
+    __asm__("fround.s %0, %1, rne" : "=f"(result) : "f"(x));
+    return result;
+}
+
+double hs_roundevenDouble(double x)
+{
+    double result;
+    // a floating-exception can be generated for sNaN
+    __asm__("fround.d %0, %1, rne" : "=f"(result) : "f"(x));
     return result;
 }
 

@@ -8,7 +8,7 @@
 
 float hs_canonicalizeFloat(float x)
 {
-    asm volatile("mulss %1, %0" : "+x"(x) : "x"(1.0f));
+    __asm__ __volatile__("mulss %1, %0" : "+x"(x) : "x"(1.0f));
     return x;
     /*
     Clang optimizes away this:
@@ -22,7 +22,7 @@ float hs_canonicalizeFloat(float x)
 }
 double hs_canonicalizeDouble(double x)
 {
-    asm volatile("mulsd %1, %0" : "+x"(x) : "x"(1.0));
+    __asm__ __volatile__("mulsd %1, %0" : "+x"(x) : "x"(1.0));
     return x;
     /*
     Clang optimizes away this:
@@ -39,12 +39,25 @@ double hs_canonicalizeDouble(double x)
 
 float hs_canonicalizeFloat(float x)
 {
-    asm volatile("fmul %s0, %s0, %s1" : "+w"(x) : "w"(1.0f));
+    __asm__ __volatile__("fmul %s0, %s0, %s1" : "+w"(x) : "w"(1.0f));
     return x;
 }
 double hs_canonicalizeDouble(double x)
 {
-    asm volatile("fmul %d0, %d0, %d1" : "+w"(x) : "w"(1.0));
+    __asm__ __volatile__("fmul %d0, %d0, %d1" : "+w"(x) : "w"(1.0));
+    return x;
+}
+
+#elif defined(__riscv)
+
+float hs_canonicalizeFloat(float x)
+{
+    __asm__ __volatile__("fmul.s %0, %0, %1" : "+f"(x) : "f"(1.0f));
+    return x;
+}
+double hs_canonicalizeDouble(double x)
+{
+    __asm__ __volatile__("fmul.d %0, %0, %1" : "+f"(x) : "f"(1.0));
     return x;
 }
 

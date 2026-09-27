@@ -42,6 +42,16 @@ flag f16c
   manual: True
   default: False
 
+flag riscv-zfa
+  description: Use Zfa instructions on RISC-V
+  manual: True
+  default: False
+
+flag riscv-zfhmin
+  description: Use Zfhmin instructions on RISC-V
+  manual: True
+  default: False
+
 -- flag x87-long-double
 --   description: Support x87 "long double" via long-double package
 --   manual: True
@@ -167,6 +177,10 @@ library
     cpp-options: -DHAS_FAST_ROUNDEVEN
     c-sources:
         cbits/roundeven.c
+  if !flag(pure-hs) && arch(riscv64) && flag(riscv-zfa)
+    cpp-options: -DHAS_FAST_ROUNDEVEN
+    c-sources:
+        cbits/roundeven.c
   -- Fast FMA: needs FMA3 on x86 (FMA4 is not supported by this package)
   if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3) && impl(ghc < 9.8)
     cpp-options: -DHAS_FAST_FMA
@@ -176,12 +190,12 @@ library
   if (arch(i386) || arch(x86_64)) && flag(fma3) && impl(ghc >= 9.8)
     cpp-options: -DHAS_FMA_PRIM
     ghc-options: -mfma
-  -- Fast FMA: always available on AArch64
-  if !flag(pure-hs) && arch(aarch64) && impl(ghc < 9.8)
+  -- Fast FMA: always available on AArch64 and RISC-V
+  if !flag(pure-hs) && (arch(aarch64) || arch(riscv64)) && impl(ghc < 9.8)
     cpp-options: -DHAS_FAST_FMA
     c-sources:
         cbits/fma.c
-  if !flag(pure-hs) && arch(aarch64) && impl(ghc >= 9.8)
+  if !flag(pure-hs) && (arch(aarch64) || arch(riscv64)) && impl(ghc >= 9.8)
     cpp-options: -DHAS_FMA_PRIM
   -- Enable use of libm's fma unless "pure-hs" is set; but not on Windows
   -- (mingw-w64's fma is not reliable)
@@ -191,7 +205,13 @@ library
     cpp-options: -DDONT_INLINE_FMA_PRIM
   -- Fast min/max: available on AArch64
   if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_MINMAX
+    cpp-options: -DHAS_FAST_MINMAX -DHAS_FAST_MINMAXNUM
+    c-sources:
+        cbits/minmax.c
+  if !flag(pure-hs) && arch(riscv64)
+    cpp-options: -DHAS_FAST_MINMAXNUM
+    if flag(riscv-zfa)
+        cpp-options: -DHAS_FAST_MINMAX
     c-sources:
         cbits/minmax.c
   if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
@@ -203,10 +223,21 @@ library
     cpp-options: -DHAS_FAST_HALF_CONVERSION
     c-sources:
         cbits/half.c
-  if !flag(pure-hs) && (arch(aarch64) || arch(x86_64))
+  if !flag(pure-hs) && flag(half) && arch(riscv64) && flag(riscv-zfhmin)
+    cpp-options: -DHAS_FAST_HALF_CONVERSION
+    c-sources:
+        cbits/half.c
+  if !flag(pure-hs) && (arch(aarch64) || arch(x86_64) || arch(riscv64))
     cpp-options: -DHAS_FAST_CANONICALIZE
     c-sources:
         cbits/canonicalize.c
+  if arch(riscv64)
+    if flag(riscv-zfa) && flag(riscv-zfhmin)
+      cc-options: -march=rv64g_zfa_zfhmin
+    elif flag(riscv-zfa)
+      cc-options: -march=rv64g_zfa
+    elif flag(riscv-zfhmin)
+      cc-options: -march=rv64g_zfhmin
   default-language: Haskell2010
 
 test-suite fp-ieee-doctests
@@ -283,25 +314,33 @@ benchmark fp-ieee-benchmark
     cpp-options: -DHAS_FAST_ROUNDEVEN
   if !flag(pure-hs) && arch(aarch64)
     cpp-options: -DHAS_FAST_ROUNDEVEN
+  if !flag(pure-hs) && arch(riscv64) && flag(riscv-zfa)
+    cpp-options: -DHAS_FAST_ROUNDEVEN
   if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3) && impl(ghc < 9.8)
     cpp-options: -DHAS_FAST_FMA
   if (arch(i386) || arch(x86_64)) && flag(fma3) && impl(ghc >= 9.8)
     cpp-options: -DHAS_FMA_PRIM
     ghc-options: -mfma
-  if !flag(pure-hs) && arch(aarch64) && impl(ghc < 9.8)
+  if !flag(pure-hs) && (arch(aarch64) || arch(riscv64)) && impl(ghc < 9.8)
     cpp-options: -DHAS_FAST_FMA
-  if !flag(pure-hs) && arch(aarch64) && impl(ghc >= 9.8)
+  if !flag(pure-hs) && (arch(aarch64) || arch(riscv64)) && impl(ghc >= 9.8)
     cpp-options: -DHAS_FMA_PRIM
   if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && !os(windows)
     cpp-options: -DUSE_C99_FMA
   if (arch(i386) || arch(x86_64)) && os(windows)
     cpp-options: -DDONT_INLINE_FMA_PRIM
   if !flag(pure-hs) && arch(aarch64)
-    cpp-options: -DHAS_FAST_MINMAX
+    cpp-options: -DHAS_FAST_MINMAX -DHAS_FAST_MINMAXNUM
+  if !flag(pure-hs) && arch(riscv64)
+    cpp-options: -DHAS_FAST_MINMAXNUM
+    if flag(riscv-zfa)
+        cpp-options: -DHAS_FAST_MINMAX
   if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
   if !flag(pure-hs) && flag(half) && arch(aarch64)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
-  if !flag(pure-hs) && (arch(aarch64) || arch(x86_64))
+  if !flag(pure-hs) && flag(half) && arch(riscv64) && flag(riscv-zfhmin)
+    cpp-options: -DHAS_FAST_HALF_CONVERSION
+  if !flag(pure-hs) && (arch(aarch64) || arch(x86_64) || arch(riscv64))
     cpp-options: -DHAS_FAST_CANONICALIZE
   default-language: Haskell2010

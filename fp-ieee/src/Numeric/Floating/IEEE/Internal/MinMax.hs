@@ -81,47 +81,59 @@ foreign import ccall unsafe "hs_minimumFloat"
   minimumFloat :: Float -> Float -> Float
 foreign import ccall unsafe "hs_maximumFloat"
   maximumFloat :: Float -> Float -> Float
-foreign import ccall unsafe "hs_minimumNumberFloat"
-  minimumNumberFloat :: Float -> Float -> Float
-foreign import ccall unsafe "hs_maximumNumberFloat"
-  maximumNumberFloat :: Float -> Float -> Float
 foreign import ccall unsafe "hs_minimumDouble"
   minimumDouble :: Double -> Double -> Double
 foreign import ccall unsafe "hs_maximumDouble"
   maximumDouble :: Double -> Double -> Double
-foreign import ccall unsafe "hs_minimumNumberDouble"
-  minimumNumberDouble :: Double -> Double -> Double
-foreign import ccall unsafe "hs_maximumNumberDouble"
-  maximumNumberDouble :: Double -> Double -> Double
 
 {-# RULES
 "minimum'/Float" minimum' = minimumFloat
 "maximum'/Float" maximum' = maximumFloat
-"minimumNumber/Float" minimumNumber = minimumNumberFloat
-"maximumNumber/Float" maximumNumber = maximumNumberFloat
 "minimum'/Double" minimum' = minimumDouble
 "maximum'/Double" maximum' = maximumDouble
-"minimumNumber/Double" minimumNumber = minimumNumberDouble
-"maximumNumber/Double" maximumNumber = maximumNumberDouble
   #-}
 
 #else
 
 minimumFloat :: Float -> Float -> Float
 maximumFloat :: Float -> Float -> Float
-minimumNumberFloat :: Float -> Float -> Float
-maximumNumberFloat :: Float -> Float -> Float
 minimumDouble :: Double -> Double -> Double
 maximumDouble :: Double -> Double -> Double
-minimumNumberDouble :: Double -> Double -> Double
-maximumNumberDouble :: Double -> Double -> Double
 
 minimumFloat = minimum'
 minimumDouble = minimum'
-minimumNumberFloat = minimumNumber
-minimumNumberDouble = minimumNumber
 maximumFloat = maximum'
 maximumDouble = maximum'
+
+#endif
+
+#if defined(HAS_FAST_MINMAXNUM)
+
+foreign import ccall unsafe "hs_minimumNumberFloat"
+  minimumNumberFloat :: Float -> Float -> Float
+foreign import ccall unsafe "hs_maximumNumberFloat"
+  maximumNumberFloat :: Float -> Float -> Float
+foreign import ccall unsafe "hs_minimumNumberDouble"
+  minimumNumberDouble :: Double -> Double -> Double
+foreign import ccall unsafe "hs_maximumNumberDouble"
+  maximumNumberDouble :: Double -> Double -> Double
+
+{-# RULES
+"minimumNumber/Float" minimumNumber = minimumNumberFloat
+"maximumNumber/Float" maximumNumber = maximumNumberFloat
+"minimumNumber/Double" minimumNumber = minimumNumberDouble
+"maximumNumber/Double" maximumNumber = maximumNumberDouble
+  #-}
+
+#else
+
+minimumNumberFloat :: Float -> Float -> Float
+maximumNumberFloat :: Float -> Float -> Float
+minimumNumberDouble :: Double -> Double -> Double
+maximumNumberDouble :: Double -> Double -> Double
+
+minimumNumberFloat = minimumNumber
+minimumNumberDouble = minimumNumber
 maximumNumberFloat = maximumNumber
 maximumNumberDouble = maximumNumber
 

@@ -13,28 +13,28 @@
 float hs_minimumFloat(float x, float y)
 {
     float result;
-    asm("fmin %s0, %s1, %s2" : "=w"(result) : "w"(x), "w"(y));
+    __asm__("fmin %s0, %s1, %s2" : "=w"(result) : "w"(x), "w"(y));
     return result;
 }
 
 float hs_maximumFloat(float x, float y)
 {
     float result;
-    asm("fmax %s0, %s1, %s2" : "=w"(result) : "w"(x), "w"(y));
+    __asm__("fmax %s0, %s1, %s2" : "=w"(result) : "w"(x), "w"(y));
     return result;
 }
 
 double hs_minimumDouble(double x, double y)
 {
     double result;
-    asm("fmin %d0, %d1, %d2" : "=w"(result) : "w"(x), "w"(y));
+    __asm__("fmin %d0, %d1, %d2" : "=w"(result) : "w"(x), "w"(y));
     return result;
 }
 
 double hs_maximumDouble(double x, double y)
 {
     double result;
-    asm("fmax %d0, %d1, %d2" : "=w"(result) : "w"(x), "w"(y));
+    __asm__("fmax %d0, %d1, %d2" : "=w"(result) : "w"(x), "w"(y));
     return result;
 }
 
@@ -50,9 +50,9 @@ float hs_minimumNumberFloat(float x, float y)
     // Therefore, we convert signaling NaNs to quiet ones before applying FMINNM.
     // x *= 1.0f;
     // y *= 1.0f;
-    asm("fmul %s0, %s0, %s1" : "+w"(x) : "w"(1.0f));
-    asm("fmul %s0, %s0, %s1" : "+w"(y) : "w"(1.0f));
-    asm("fminnm %s0, %s1, %s2" : "=w"(result) : "w"(x), "w"(y));
+    __asm__("fmul %s0, %s0, %s1" : "+w"(x) : "w"(1.0f));
+    __asm__("fmul %s0, %s0, %s1" : "+w"(y) : "w"(1.0f));
+    __asm__("fminnm %s0, %s1, %s2" : "=w"(result) : "w"(x), "w"(y));
     return result;
 }
 
@@ -63,9 +63,9 @@ float hs_maximumNumberFloat(float x, float y)
     // Therefore, we convert signaling NaNs to quiet ones before applying FMAXNM.
     // x *= 1.0f;
     // y *= 1.0f;
-    asm("fmul %s0, %s0, %s1" : "+w"(x) : "w"(1.0f));
-    asm("fmul %s0, %s0, %s1" : "+w"(y) : "w"(1.0f));
-    asm("fmaxnm %s0, %s1, %s2" : "=w"(result) : "w"(x), "w"(y));
+    __asm__("fmul %s0, %s0, %s1" : "+w"(x) : "w"(1.0f));
+    __asm__("fmul %s0, %s0, %s1" : "+w"(y) : "w"(1.0f));
+    __asm__("fmaxnm %s0, %s1, %s2" : "=w"(result) : "w"(x), "w"(y));
     return result;
 }
 
@@ -76,9 +76,9 @@ double hs_minimumNumberDouble(double x, double y)
     // Therefore, we convert signaling NaNs to quiet ones before applying FMINNM.
     // x *= 1.0;
     // y *= 1.0;
-    asm("fmul %d0, %d0, %d1" : "+w"(x) : "w"(1.0));
-    asm("fmul %d0, %d0, %d1" : "+w"(y) : "w"(1.0));
-    asm("fminnm %d0, %d1, %d2" : "=w"(result) : "w"(x), "w"(y));
+    __asm__("fmul %d0, %d0, %d1" : "+w"(x) : "w"(1.0));
+    __asm__("fmul %d0, %d0, %d1" : "+w"(y) : "w"(1.0));
+    __asm__("fminnm %d0, %d1, %d2" : "=w"(result) : "w"(x), "w"(y));
     return result;
 }
 
@@ -89,9 +89,69 @@ double hs_maximumNumberDouble(double x, double y)
     // Therefore, we convert signaling NaNs to quiet ones before applying FMAXNM.
     // x *= 1.0;
     // y *= 1.0;
-    asm("fmul %d0, %d0, %d1" : "+w"(x) : "w"(1.0));
-    asm("fmul %d0, %d0, %d1" : "+w"(y) : "w"(1.0));
-    asm("fmaxnm %d0, %d1, %d2" : "=w"(result) : "w"(x), "w"(y));
+    __asm__("fmul %d0, %d0, %d1" : "+w"(x) : "w"(1.0));
+    __asm__("fmul %d0, %d0, %d1" : "+w"(y) : "w"(1.0));
+    __asm__("fmaxnm %d0, %d1, %d2" : "=w"(result) : "w"(x), "w"(y));
+    return result;
+}
+
+#elif defined(__riscv)
+
+#if defined(__riscv_zfa)
+float hs_minimumFloat(float x, float y)
+{
+    float result;
+    __asm__("fminm.s %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
+    return result;
+}
+
+float hs_maximumFloat(float x, float y)
+{
+    float result;
+    __asm__("fmaxm.s %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
+    return result;
+}
+
+double hs_minimumDouble(double x, double y)
+{
+    double result;
+    __asm__("fminm.d %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
+    return result;
+}
+
+double hs_maximumDouble(double x, double y)
+{
+    double result;
+    __asm__("fmaxm.d %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
+    return result;
+}
+#endif
+
+float hs_minimumNumberFloat(float x, float y)
+{
+    float result;
+    __asm__("fmin.s %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
+    return result;
+}
+
+float hs_maximumNumberFloat(float x, float y)
+{
+    float result;
+    __asm__("fmax.s %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
+    return result;
+}
+
+double hs_minimumNumberDouble(double x, double y)
+{
+    double result;
+    __asm__("fmin.d %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
+    return result;
+}
+
+double hs_maximumNumberDouble(double x, double y)
+{
+    double result;
+    __asm__("fmax.d %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
     return result;
 }
 
