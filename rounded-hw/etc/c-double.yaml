@@ -14,15 +14,20 @@ _mm_loadu_px: _mm_loadu_pd
 _mm_storeu_px: _mm_storeu_pd
 _mm_sqrt_px: _mm_sqrt_pd
 SIMD_SUFFIX: _sd
+RISCV_SUFFIX: d
 each_static_rounding_mode:
 - MODE: ROUND_TONEAREST
   _MM_FROUND_MODE: _MM_FROUND_TO_NEAREST_INT
+  RISCV_MODE: rne
 - MODE: ROUND_DOWNWARD
   _MM_FROUND_MODE: _MM_FROUND_TO_NEG_INF
+  RISCV_MODE: rdn
 - MODE: ROUND_UPWARD
   _MM_FROUND_MODE: _MM_FROUND_TO_POS_INF
+  RISCV_MODE: rup
 - MODE: ROUND_TOWARDZERO
   _MM_FROUND_MODE: _MM_FROUND_TO_ZERO
+  RISCV_MODE: rtz
 each_rounding_mode:
 - MODE_PARAM: "HsInt mode, "
   MODE_ARG: "hs_rounding_mode_to_native(mode)"

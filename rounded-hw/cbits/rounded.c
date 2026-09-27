@@ -30,6 +30,9 @@
 #elif defined(__aarch64__)
 // If we are on AArch64, use the control register.
 #define USE_AARCH64_FPCR
+#elif defined(__riscv)
+// If we are on RISC-V, use the static rounding mode.
+#define USE_RISCV
 #else
 // Otherwise, use C99's fesetround.
 #define USE_C99
@@ -185,6 +188,32 @@ void restore_fp_reg(fp_reg reg)
 
 static const char backend_name[] = "AArch64 FPCR";
 
+#elif defined(USE_RISCV)
+
+/*
+ * RISC-V dynamic rounding mode:
+ *   ROUND_TONEAREST  = 0
+ *   ROUND_DOWNWARD   = 2
+ *   ROUND_UPWARD     = 3
+ *   ROUND_TOWARDZERO = 1
+ *   ROUND_TIESTOAWAY = 4
+ * We don't use the dynamic rounding mode on RISC-V.
+ */
+
+typedef enum {
+  /* The order is same as RoundingMode in Numeric.Rounded.Hardware.Internal.Rounding */
+  ROUND_TONEAREST = 0,
+  ROUND_DOWNWARD,
+  ROUND_UPWARD,
+  ROUND_TOWARDZERO
+} native_rounding_mode;
+
+static inline ALWAYS_INLINE
+native_rounding_mode hs_rounding_mode_to_native(HsInt mode)
+{ return (native_rounding_mode)mode; }
+
+static const char backend_name[] = "RISC-V";
+
 #elif defined(USE_C99)
 
 #include <fenv.h>
@@ -232,6 +261,8 @@ static const char backend_name[] = "C99";
 
 #if defined(USE_AVX512)
 #include "rounded-avx512.inl"
+#elif defined(USE_RISCV)
+#include "rounded-riscv.inl"
 #else
 #include "rounded-common.inl"
 #endif
