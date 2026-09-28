@@ -98,6 +98,7 @@ negN (Rounded x) = Rounded (negate x)
 
 powInt :: (Ord a, Num a, RoundedRing a) => Interval a -> Int -> Interval a
 powInt (I a a') n
+  | n == 0 = I 1 1
   | odd n = if | 0 <= a -> I (a^n) (a'^n)
                | a' <= 0 -> I (negP $ (negN a)^n) (negN $ (negP a')^n)
                | otherwise -> I (negP $ (negN a)^n) (a'^n) -- a < 0 < a'
