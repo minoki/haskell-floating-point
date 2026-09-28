@@ -1,5 +1,18 @@
 # Changelog for rounded-hw
 
+## 0.4.0.3 (2026-09-28)
+
+* Fix range reduction of `cosI`/`sinI` (#9, by @sheaf).
+* Fix `roundedSqrt Infinity` of `ViaRational`.
+* Fix Interval `powInt` (correctness issue).
+* Fix `distanceUlp` on `[-maxFinite, maxFinite]`.
+* `powInt i 0` now return `I 1 1`.
+* Make use of static rounding modes on RISC-V (#6).
+* SSE2 backend now uses a fixed MXCSR value, ignoring ambient floating-point environment.
+* Support GHC 10.0.
+* Support no-TNTC GHC (#8).
+* Support unregisterised GHC (#8).
+
 ## 0.4.0.2 (2025-12-29)
 
 * Support GHC 9.14.

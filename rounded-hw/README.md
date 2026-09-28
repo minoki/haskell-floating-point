@@ -62,6 +62,7 @@ There are several options to control the rounding direction.
         * AVX512 EVEX encoding (`_mm_*_round_*`)
         * x87 Control Word (for x87 long double)
         * AArch64 FPCR
+        * RISC-V static rounding mode
     * On x86_64, `foreign import prim` is used to provide faster interval addition/subtraction.
 
 By default, C FFI is used and an appropriate technology is detected.
