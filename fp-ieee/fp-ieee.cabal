@@ -42,13 +42,15 @@ flag f16c
   manual: True
   default: False
 
-flag riscv-zfa
-  description: Use Zfa instructions on RISC-V
+-- Zfhmin
+flag rva22u64
+  description: Enable RVA22U64 profile on RISC-V
   manual: True
   default: False
 
-flag riscv-zfhmin
-  description: Use Zfhmin instructions on RISC-V
+-- Zfhmin, Zfa
+flag rva23u64
+  description: Enable RVA23U64 profile on RISC-V
   manual: True
   default: False
 
@@ -177,7 +179,8 @@ library
     cpp-options: -DHAS_FAST_ROUNDEVEN
     c-sources:
         cbits/roundeven.c
-  if !flag(pure-hs) && arch(riscv64) && flag(riscv-zfa)
+  if !flag(pure-hs) && arch(riscv64) && flag(rva23u64)
+    -- RISC-V Zfa
     cpp-options: -DHAS_FAST_ROUNDEVEN
     c-sources:
         cbits/roundeven.c
@@ -210,7 +213,8 @@ library
         cbits/minmax.c
   if !flag(pure-hs) && arch(riscv64)
     cpp-options: -DHAS_FAST_MINMAXNUM
-    if flag(riscv-zfa)
+    if flag(rva23u64)
+        -- Zfa
         cpp-options: -DHAS_FAST_MINMAX
     c-sources:
         cbits/minmax.c
@@ -223,7 +227,8 @@ library
     cpp-options: -DHAS_FAST_HALF_CONVERSION
     c-sources:
         cbits/half.c
-  if !flag(pure-hs) && flag(half) && arch(riscv64) && flag(riscv-zfhmin)
+  if !flag(pure-hs) && flag(half) && arch(riscv64) && (flag(rva22u64) || flag(rva23u64))
+    -- Zfhmin
     cpp-options: -DHAS_FAST_HALF_CONVERSION
     c-sources:
         cbits/half.c
@@ -232,12 +237,12 @@ library
     c-sources:
         cbits/canonicalize.c
   if arch(riscv64)
-    if flag(riscv-zfa) && flag(riscv-zfhmin)
-      cc-options: -march=rv64g_zfa_zfhmin
-    elif flag(riscv-zfa)
-      cc-options: -march=rv64g_zfa
-    elif flag(riscv-zfhmin)
-      cc-options: -march=rv64g_zfhmin
+    if flag(rva23u64)
+      -- Zfhmin, Zfa
+      cc-options: -march=rva23u64
+    elif flag(rva22u64)
+      -- Zfhmin
+      cc-options: -march=rva22u64
   default-language: Haskell2010
 
 test-suite fp-ieee-doctests
@@ -314,7 +319,7 @@ benchmark fp-ieee-benchmark
     cpp-options: -DHAS_FAST_ROUNDEVEN
   if !flag(pure-hs) && arch(aarch64)
     cpp-options: -DHAS_FAST_ROUNDEVEN
-  if !flag(pure-hs) && arch(riscv64) && flag(riscv-zfa)
+  if !flag(pure-hs) && arch(riscv64) && flag(rva23u64)
     cpp-options: -DHAS_FAST_ROUNDEVEN
   if !flag(pure-hs) && (arch(i386) || arch(x86_64)) && flag(fma3) && impl(ghc < 9.8)
     cpp-options: -DHAS_FAST_FMA
@@ -333,13 +338,13 @@ benchmark fp-ieee-benchmark
     cpp-options: -DHAS_FAST_MINMAX -DHAS_FAST_MINMAXNUM
   if !flag(pure-hs) && arch(riscv64)
     cpp-options: -DHAS_FAST_MINMAXNUM
-    if flag(riscv-zfa)
+    if flag(rva23u64)
         cpp-options: -DHAS_FAST_MINMAX
   if !flag(pure-hs) && flag(half) && arch(x86_64) && flag(f16c)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
   if !flag(pure-hs) && flag(half) && arch(aarch64)
     cpp-options: -DHAS_FAST_HALF_CONVERSION
-  if !flag(pure-hs) && flag(half) && arch(riscv64) && flag(riscv-zfhmin)
+  if !flag(pure-hs) && flag(half) && arch(riscv64) && (flag(rva22u64) || flag(rva23u64))
     cpp-options: -DHAS_FAST_HALF_CONVERSION
   if !flag(pure-hs) && (arch(aarch64) || arch(x86_64) || arch(riscv64))
     cpp-options: -DHAS_FAST_CANONICALIZE
