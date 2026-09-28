@@ -4,19 +4,22 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# OPTIONS_GHC -Wno-orphans -Wno-unused-imports #-}
+
+#include "ghcconfig.h"
+
 module Numeric.Rounded.Hardware.Backend.Default
   () where
 import qualified Numeric.Rounded.Hardware.Backend.ViaRational as VR
 import           Numeric.Rounded.Hardware.Internal.Class
-#ifdef USE_FFI
+#if defined(USE_FFI)
 import qualified Numeric.Rounded.Hardware.Backend.C as C
-#ifdef USE_GHC_PRIM
+#if defined(USE_GHC_PRIM) && !defined(UnregisterisedCompiler)
 import qualified Numeric.Rounded.Hardware.Backend.FastFFI as FastFFI
 #endif
-#ifdef USE_X87_LONG_DOUBLE
+#if defined(USE_X87_LONG_DOUBLE)
 import           Numeric.Rounded.Hardware.Backend.X87LongDouble ()
 #endif
-#ifdef USE_FLOAT128
+#if defined(USE_FLOAT128)
 import           Numeric.Rounded.Hardware.Backend.Float128 ()
 #endif
 #endif
@@ -26,8 +29,8 @@ import qualified Data.Vector.Unboxed as VU
 import           Numeric.Floating.IEEE
 import           Unsafe.Coerce
 
-#ifdef USE_FFI
-#ifdef USE_GHC_PRIM
+#if defined(USE_FFI)
+#if defined(USE_GHC_PRIM) && !defined(UnregisterisedCompiler)
 type FloatImpl = C.CFloat -- TODO: Provide FastFFI.CFloat
 type DoubleImpl = FastFFI.CDouble
 #else

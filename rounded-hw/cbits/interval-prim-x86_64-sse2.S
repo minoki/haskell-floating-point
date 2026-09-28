@@ -38,7 +38,12 @@ SYMBOL(rounded_hw_interval_add):
 	ldmxcsr TMP_MXCSR      # MXCSR = TMP_MXCSR
 	addsd %xmm4, %xmm2     # xmm2 = xmm2[0] + xmm4[0], xmm2[1]
 	ldmxcsr PREV_MXCSR     # MXCSR = PREV_MXCSR
+#if defined(TABLES_NEXT_TO_CODE)
 	jmp *(%rbp)
+#else
+	movq (%rbp), %rax
+	jmp *(%rax)
+#endif
 
 	#
 	# rounded_hw_interval_sub
@@ -64,7 +69,12 @@ SYMBOL(rounded_hw_interval_sub):
 	ldmxcsr TMP_MXCSR      # MXCSR = TMP_MXCSR
 	subsd %xmm3, %xmm2     # xmm2 = xmm2[0] - xmm3[0], xmm2[1]
 	ldmxcsr PREV_MXCSR     # MXCSR = PREV_MXCSR
+#if defined(TABLES_NEXT_TO_CODE)
 	jmp *(%rbp)
+#else
+	movq (%rbp), %rax
+	jmp *(%rax)
+#endif
 
 	#
 	# rounded_hw_interval_recip
@@ -92,7 +102,12 @@ SYMBOL(rounded_hw_interval_recip):
 	ldmxcsr PREV_MXCSR      # MXCSR = PREV_MXCSR; restore
 	movapd %xmm3, %xmm1     # xmm1 = xmm3
 	movapd %xmm4, %xmm2     # xmm2 = xmm4
+#if defined(TABLES_NEXT_TO_CODE)
 	jmp *(%rbp)
+#else
+	movq (%rbp), %rax
+	jmp *(%rax)
+#endif
 LC0:
 	.quad 0x3FF0000000000000   # 1.0 in binary64
 	# 0b0011_1111_1111_0000_..._0000
@@ -123,7 +138,12 @@ SYMBOL(rounded_hw_interval_sqrt):
 	ldmxcsr TMP_MXCSR      # MXCSR = TMP_MXCSR; set upward
 	sqrtsd %xmm2, %xmm2    # xmm2 = sqrt(xmm2[0]), xmm2[1]
 	ldmxcsr PREV_MXCSR     # MXCSR = PREV_MXCSR; restore
+#if defined(TABLES_NEXT_TO_CODE)
 	jmp *(%rbp)
+#else
+	movq (%rbp), %rax
+	jmp *(%rax)
+#endif
 
 	#
 	# rounded_hw_interval_from_int64
@@ -148,4 +168,9 @@ SYMBOL(rounded_hw_interval_from_int64):
 	pxor %xmm2, %xmm2      # xmm2 = zero
 	cvtsi2sdq %rbx, %xmm2  # xmm2 = (double)(int64)rbx, xmm2[1]
 	ldmxcsr PREV_MXCSR     # MXCSR = PREV_MXCSR; restore
+#if defined(TABLES_NEXT_TO_CODE)
 	jmp *(%rbp)
+#else
+	movq (%rbp), %rax
+	jmp *(%rax)
+#endif
