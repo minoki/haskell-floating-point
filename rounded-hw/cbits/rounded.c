@@ -83,11 +83,26 @@ static const char backend_name[] = "AVX512";
 #include <x86intrin.h>
 
 typedef unsigned int fp_reg;
+static inline ALWAYS_INLINE
+fp_reg get_fp_reg(void)
+{
+    return _mm_getcsr();
+}
+static inline ALWAYS_INLINE
+void restore_fp_reg(fp_reg reg)
+{
+    _mm_setcsr(reg);
+}
+
+#if 1
+// Use raw MXCSR values.
+// Unlike `fesetround`, we don't need to respect other FP flags (like FTZ),
+// so we don't need to do something like `_mm_setcsr((reg & ~(3u << 13)) | (mode << 13))`.
 typedef unsigned int native_rounding_mode;
-static const native_rounding_mode ROUND_TONEAREST  = 0;
-static const native_rounding_mode ROUND_DOWNWARD   = 1;
-static const native_rounding_mode ROUND_UPWARD     = 2;
-static const native_rounding_mode ROUND_TOWARDZERO = 3;
+static const native_rounding_mode ROUND_TONEAREST  = 0x1f80 | (0 << 13);
+static const native_rounding_mode ROUND_DOWNWARD   = 0x1f80 | (1 << 13);
+static const native_rounding_mode ROUND_UPWARD     = 0x1f80 | (2 << 13);
+static const native_rounding_mode ROUND_TOWARDZERO = 0x1f80 | (3 << 13);
 
 static inline ALWAYS_INLINE
 native_rounding_mode hs_rounding_mode_to_native(HsInt mode)
@@ -96,24 +111,54 @@ native_rounding_mode hs_rounding_mode_to_native(HsInt mode)
      * The order of RoundingMode in Numeric.Rounded.Hardware.Internal.Rounding is
      * chosen so that the conversion here becomes trivial.
      */
-    return (native_rounding_mode)mode;
+    return 0x1f80 | (mode << 13);
 }
 
 static inline ALWAYS_INLINE
-fp_reg get_fp_reg(void)
+void set_rounding(fp_reg reg, native_rounding_mode mode)
 {
-    return _mm_getcsr();
+    (void)reg;
+    _mm_setcsr(mode);
 }
+
+#else
+// Idea: Theoretically, `_mm_setcsr(*mode)` can be compiled to one instruction (LDMXCSR).
+// Unfortunately, GCC/Clang do not do so (produce additional MOV instructions).
+// Disabling for now.
+
+typedef const volatile uint32_t *native_rounding_mode;
+static const volatile uint32_t MXCSR_VALUES[4] = {
+    0x1f80 | (0 << 13),
+    0x1f80 | (1 << 13),
+    0x1f80 | (2 << 13),
+    0x1f80 | (3 << 13),
+};
+
+static const native_rounding_mode ROUND_TONEAREST  = &MXCSR_VALUES[0];
+static const native_rounding_mode ROUND_DOWNWARD   = &MXCSR_VALUES[1];
+static const native_rounding_mode ROUND_UPWARD     = &MXCSR_VALUES[2];
+static const native_rounding_mode ROUND_TOWARDZERO = &MXCSR_VALUES[3];
+
+static inline ALWAYS_INLINE
+native_rounding_mode hs_rounding_mode_to_native(HsInt mode)
+{
+    switch (mode) {
+    case /* ToNearest    */ 0: return ROUND_TONEAREST;
+    case /* TowardNegInf */ 1: return ROUND_DOWNWARD;
+    case /* TowardInf    */ 2: return ROUND_UPWARD;
+    case /* TowardZero   */ 3: return ROUND_TOWARDZERO;
+    default: UNREACHABLE(); return ROUND_TONEAREST;
+    }
+}
+
 static inline ALWAYS_INLINE
 void set_rounding(fp_reg reg, native_rounding_mode mode)
 {
-    _mm_setcsr((reg & ~(3u << 13)) | (mode << 13));
+    (void)reg;
+    _mm_setcsr(*mode);
 }
-static inline ALWAYS_INLINE
-void restore_fp_reg(fp_reg reg)
-{
-    _mm_setcsr(reg);
-}
+
+#endif
 
 static const char backend_name[] = "SSE2";
 

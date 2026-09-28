@@ -21,6 +21,7 @@ SYMBOL(rounded_hw_interval_backend_name):
 	#       , Double#  -- upper (%xmm2)
 	#       #)
 	#
+	.p2align 3
 	.globl SYMBOL(rounded_hw_interval_add)
 SYMBOL(rounded_hw_interval_add):
 	vaddsd {rd-sae}, %xmm3, %xmm1, %xmm1  # xmm1 = xmm1[0] + xmm3[0], xmm1[1] (downward)
@@ -42,6 +43,7 @@ SYMBOL(rounded_hw_interval_add):
 	#       , Double#  -- upper (%xmm2)
 	#       #)
 	#
+	.p2align 3
 	.globl SYMBOL(rounded_hw_interval_sub)
 SYMBOL(rounded_hw_interval_sub):
 	vsubsd {rd-sae}, %xmm4, %xmm1, %xmm1  # xmm1 = xmm1[0] - xmm4[0], xmm1[1] (downward)
@@ -61,6 +63,7 @@ SYMBOL(rounded_hw_interval_sub):
 	#       , Double#  -- upper (%xmm2)
 	#       #)
 	#
+	.p2align 3
 	.globl SYMBOL(rounded_hw_interval_recip)
 SYMBOL(rounded_hw_interval_recip):
 	vmovsd LC0(%rip), %xmm4               # xmm4 = 1.0, zero
@@ -73,6 +76,7 @@ SYMBOL(rounded_hw_interval_recip):
 	movq (%rbp), %rax
 	jmp *(%rax)
 #endif
+	.p2align 2
 LC0:
 	.quad 0x3FF0000000000000   # 1.0 in binary64
 	# 0b0011_1111_1111_0000_..._0000
@@ -89,6 +93,7 @@ LC0:
 	#       , Double#  -- upper (%xmm2)
 	#       #)
 	#
+	.p2align 3
 	.globl SYMBOL(rounded_hw_interval_sqrt)
 SYMBOL(rounded_hw_interval_sqrt):
 	vmovq %xmm1, %xmm1                     # xmm1 = xmm1[0], zero
@@ -109,6 +114,7 @@ SYMBOL(rounded_hw_interval_sqrt):
 	#       , Double# -- upper (%xmm2)
 	#       #)
 	#
+	.p2align 3
 	.globl SYMBOL(rounded_hw_interval_from_int64)
 SYMBOL(rounded_hw_interval_from_int64):
 	vxorps %xmm2, %xmm2, %xmm2               # xmm2 = zero
@@ -128,6 +134,7 @@ SYMBOL(rounded_hw_interval_from_int64):
 	#       , Double# -- upper (%xmm2)
 	#       #)
 	#
+	.p2align 3
 	.globl SYMBOL(rounded_hw_interval_from_word64)
 SYMBOL(rounded_hw_interval_from_word64):
 	vxorps %xmm2, %xmm2, %xmm2               # xmm2 = zero
