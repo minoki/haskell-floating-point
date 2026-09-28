@@ -1,5 +1,15 @@
 # Changelog for fp-ieee
 
+## Version 0.1.0.7 (2026-09-28)
+
+* Fix bugs with `Float128`.
+* Fix `nextTowardZeroHalf`.
+* Fix correctness issue with the generic FMA.
+* Fix `remainder` when the result is zero.
+* Fix `doubleToHalf` on the F16C configuration.
+* Make use of RISC-V instructions. Some features need `rva22u64` or `rva23u64` package flags.
+* Support GHC 10.0.
+
 ## Version 0.1.0.6 (2025-12-29)
 
 * Support GHC 9.14.
