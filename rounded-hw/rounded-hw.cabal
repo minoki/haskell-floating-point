@@ -18,12 +18,13 @@ tested-with:
     GHC == 8.6.5, GHC == 8.8.4, GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.8, GHC == 9.4.8, GHC == 9.6.7, GHC == 9.8.4, GHC == 9.10.3, GHC == 9.12.4, GHC == 9.14.1
 extra-source-files:
     README.md
-    ChangeLog.md
     cbits/rounded-common.inl
     cbits/rounded-avx512.inl
     cbits/rounded-riscv.inl
     cbits/interval-prim-x86_64-sse2.S
     cbits/interval-prim-x86_64-avx512.S
+extra-doc-files:
+    ChangeLog.md
 
 source-repository head
   type: git
