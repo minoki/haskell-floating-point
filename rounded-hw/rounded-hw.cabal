@@ -104,7 +104,7 @@ library
   hs-source-dirs:
       src
   build-depends:
-      tagged >=0.8.6 && <0.9
+      tagged >=0.8.6 && <0.10
   ghc-options: -Wall
   -- Use FFI when flag(pure-hs) is off
   if !flag(pure-hs)
