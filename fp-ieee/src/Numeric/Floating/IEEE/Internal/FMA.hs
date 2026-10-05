@@ -347,9 +347,9 @@ fusedMultiplyAddDouble (D# x) (D# y) (D# z) = D# (fmaddDouble# x y z)
 
 #elif defined(HAS_FAST_FMA)
 
-foreign import ccall unsafe "hs_fusedMultiplyAddFloat"
+foreign import ccall unsafe "hs_fp_ieee_fusedMultiplyAddFloat"
   fusedMultiplyAddFloat :: Float -> Float -> Float -> Float
-foreign import ccall unsafe "hs_fusedMultiplyAddDouble"
+foreign import ccall unsafe "hs_fp_ieee_fusedMultiplyAddDouble"
   fusedMultiplyAddDouble :: Double -> Double -> Double -> Double
 
 {-# RULES

@@ -77,13 +77,13 @@ maximumMagnitudeNumber x y | abs x > abs y = x
 
 #if defined(HAS_FAST_MINMAX)
 
-foreign import ccall unsafe "hs_minimumFloat"
+foreign import ccall unsafe "hs_fp_ieee_minimumFloat"
   minimumFloat :: Float -> Float -> Float
-foreign import ccall unsafe "hs_maximumFloat"
+foreign import ccall unsafe "hs_fp_ieee_maximumFloat"
   maximumFloat :: Float -> Float -> Float
-foreign import ccall unsafe "hs_minimumDouble"
+foreign import ccall unsafe "hs_fp_ieee_minimumDouble"
   minimumDouble :: Double -> Double -> Double
-foreign import ccall unsafe "hs_maximumDouble"
+foreign import ccall unsafe "hs_fp_ieee_maximumDouble"
   maximumDouble :: Double -> Double -> Double
 
 {-# RULES
@@ -109,13 +109,13 @@ maximumDouble = maximum'
 
 #if defined(HAS_FAST_MINMAXNUM)
 
-foreign import ccall unsafe "hs_minimumNumberFloat"
+foreign import ccall unsafe "hs_fp_ieee_minimumNumberFloat"
   minimumNumberFloat :: Float -> Float -> Float
-foreign import ccall unsafe "hs_maximumNumberFloat"
+foreign import ccall unsafe "hs_fp_ieee_maximumNumberFloat"
   maximumNumberFloat :: Float -> Float -> Float
-foreign import ccall unsafe "hs_minimumNumberDouble"
+foreign import ccall unsafe "hs_fp_ieee_minimumNumberDouble"
   minimumNumberDouble :: Double -> Double -> Double
-foreign import ccall unsafe "hs_maximumNumberDouble"
+foreign import ccall unsafe "hs_fp_ieee_maximumNumberDouble"
   maximumNumberDouble :: Double -> Double -> Double
 
 {-# RULES

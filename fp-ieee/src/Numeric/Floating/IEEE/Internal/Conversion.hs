@@ -45,9 +45,9 @@ canonicalize x = x * one
 
 #if defined(HAS_FAST_CANONICALIZE)
 
-foreign import ccall unsafe "hs_canonicalizeFloat"
+foreign import ccall unsafe "hs_fp_ieee_canonicalizeFloat"
   canonicalizeFloat :: Float -> Float
-foreign import ccall unsafe "hs_canonicalizeDouble"
+foreign import ccall unsafe "hs_fp_ieee_canonicalizeDouble"
   canonicalizeDouble :: Double -> Double
 
 {-# RULES

@@ -10,28 +10,28 @@
 // * -0 < +0
 // * If either of inputs is NaN, returns a quiet NaN.
 
-float hs_minimumFloat(float x, float y)
+float hs_fp_ieee_minimumFloat(float x, float y)
 {
     float result;
     __asm__("fmin %s0, %s1, %s2" : "=w"(result) : "w"(x), "w"(y));
     return result;
 }
 
-float hs_maximumFloat(float x, float y)
+float hs_fp_ieee_maximumFloat(float x, float y)
 {
     float result;
     __asm__("fmax %s0, %s1, %s2" : "=w"(result) : "w"(x), "w"(y));
     return result;
 }
 
-double hs_minimumDouble(double x, double y)
+double hs_fp_ieee_minimumDouble(double x, double y)
 {
     double result;
     __asm__("fmin %d0, %d1, %d2" : "=w"(result) : "w"(x), "w"(y));
     return result;
 }
 
-double hs_maximumDouble(double x, double y)
+double hs_fp_ieee_maximumDouble(double x, double y)
 {
     double result;
     __asm__("fmax %d0, %d1, %d2" : "=w"(result) : "w"(x), "w"(y));
@@ -43,7 +43,7 @@ double hs_maximumDouble(double x, double y)
 // * Treat a NaN as "lack of input".
 //   If both of inputs are NaNs, returns a quiet NaN.
 
-float hs_minimumNumberFloat(float x, float y)
+float hs_fp_ieee_minimumNumberFloat(float x, float y)
 {
     float result;
     // FMINNM always returns a NaN if either of inputs is signaling NaN.
@@ -56,7 +56,7 @@ float hs_minimumNumberFloat(float x, float y)
     return result;
 }
 
-float hs_maximumNumberFloat(float x, float y)
+float hs_fp_ieee_maximumNumberFloat(float x, float y)
 {
     float result;
     // FMAXNM always returns a NaN if either of inputs is signaling NaN.
@@ -69,7 +69,7 @@ float hs_maximumNumberFloat(float x, float y)
     return result;
 }
 
-double hs_minimumNumberDouble(double x, double y)
+double hs_fp_ieee_minimumNumberDouble(double x, double y)
 {
     double result;
     // FMINNM always returns a NaN if either of inputs is signaling NaN.
@@ -82,7 +82,7 @@ double hs_minimumNumberDouble(double x, double y)
     return result;
 }
 
-double hs_maximumNumberDouble(double x, double y)
+double hs_fp_ieee_maximumNumberDouble(double x, double y)
 {
     double result;
     // FMAXNM always returns a NaN if either of inputs is signaling NaN.
@@ -98,28 +98,28 @@ double hs_maximumNumberDouble(double x, double y)
 #elif defined(__riscv)
 
 #if defined(__riscv_zfa)
-float hs_minimumFloat(float x, float y)
+float hs_fp_ieee_minimumFloat(float x, float y)
 {
     float result;
     __asm__("fminm.s %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
     return result;
 }
 
-float hs_maximumFloat(float x, float y)
+float hs_fp_ieee_maximumFloat(float x, float y)
 {
     float result;
     __asm__("fmaxm.s %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
     return result;
 }
 
-double hs_minimumDouble(double x, double y)
+double hs_fp_ieee_minimumDouble(double x, double y)
 {
     double result;
     __asm__("fminm.d %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
     return result;
 }
 
-double hs_maximumDouble(double x, double y)
+double hs_fp_ieee_maximumDouble(double x, double y)
 {
     double result;
     __asm__("fmaxm.d %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
@@ -127,28 +127,28 @@ double hs_maximumDouble(double x, double y)
 }
 #endif
 
-float hs_minimumNumberFloat(float x, float y)
+float hs_fp_ieee_minimumNumberFloat(float x, float y)
 {
     float result;
     __asm__("fmin.s %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
     return result;
 }
 
-float hs_maximumNumberFloat(float x, float y)
+float hs_fp_ieee_maximumNumberFloat(float x, float y)
 {
     float result;
     __asm__("fmax.s %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
     return result;
 }
 
-double hs_minimumNumberDouble(double x, double y)
+double hs_fp_ieee_minimumNumberDouble(double x, double y)
 {
     double result;
     __asm__("fmin.d %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));
     return result;
 }
 
-double hs_maximumNumberDouble(double x, double y)
+double hs_fp_ieee_maximumNumberDouble(double x, double y)
 {
     double result;
     __asm__("fmax.d %0, %1, %2" : "=f"(result) : "f"(x), "f"(y));

@@ -202,9 +202,9 @@ foreign import ccall unsafe "rintDouble"
   c_rintDouble :: Double -> Double
 -}
 #if defined(HAS_FAST_ROUNDEVEN)
-foreign import ccall unsafe "hs_roundevenFloat"
+foreign import ccall unsafe "hs_fp_ieee_roundevenFloat"
   c_roundevenFloat :: Float -> Float
-foreign import ccall unsafe "hs_roundevenDouble"
+foreign import ccall unsafe "hs_fp_ieee_roundevenDouble"
   c_roundevenDouble :: Double -> Double
 
 {-# RULES

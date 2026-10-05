@@ -6,7 +6,7 @@
 
 #include <x86intrin.h>
 
-float hs_canonicalizeFloat(float x)
+float hs_fp_ieee_canonicalizeFloat(float x)
 {
     __asm__ __volatile__("mulss %1, %0" : "+x"(x) : "x"(1.0f));
     return x;
@@ -20,7 +20,7 @@ float hs_canonicalizeFloat(float x)
     return result;
     */
 }
-double hs_canonicalizeDouble(double x)
+double hs_fp_ieee_canonicalizeDouble(double x)
 {
     __asm__ __volatile__("mulsd %1, %0" : "+x"(x) : "x"(1.0));
     return x;
@@ -37,12 +37,12 @@ double hs_canonicalizeDouble(double x)
 
 #elif defined(__aarch64__)
 
-float hs_canonicalizeFloat(float x)
+float hs_fp_ieee_canonicalizeFloat(float x)
 {
     __asm__ __volatile__("fmul %s0, %s0, %s1" : "+w"(x) : "w"(1.0f));
     return x;
 }
-double hs_canonicalizeDouble(double x)
+double hs_fp_ieee_canonicalizeDouble(double x)
 {
     __asm__ __volatile__("fmul %d0, %d0, %d1" : "+w"(x) : "w"(1.0));
     return x;
@@ -50,12 +50,12 @@ double hs_canonicalizeDouble(double x)
 
 #elif defined(__riscv)
 
-float hs_canonicalizeFloat(float x)
+float hs_fp_ieee_canonicalizeFloat(float x)
 {
     __asm__ __volatile__("fmul.s %0, %0, %1" : "+f"(x) : "f"(1.0f));
     return x;
 }
-double hs_canonicalizeDouble(double x)
+double hs_fp_ieee_canonicalizeDouble(double x)
 {
     __asm__ __volatile__("fmul.d %0, %0, %1" : "+f"(x) : "f"(1.0));
     return x;
@@ -63,12 +63,12 @@ double hs_canonicalizeDouble(double x)
 
 #else
 
-float hs_canonicalizeFloat(float x)
+float hs_fp_ieee_canonicalizeFloat(float x)
 {
     volatile float one = 1.0f;
     return x * one;
 }
-double hs_canonicalizeDouble(double x)
+double hs_fp_ieee_canonicalizeDouble(double x)
 {
     volatile double one = 1.0;
     return x * one;
