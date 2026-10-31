@@ -44,6 +44,7 @@ SYMBOL(rounded_hw_interval_backend_name):
 	.p2align 4
 	.globl SYMBOL(rounded_hw_interval_add)
 SYMBOL(rounded_hw_interval_add):
+	endbr64
 	stmxcsr PREV_MXCSR     # PREV_MXCSR = MXCSR
 #if defined(USE_STATIC_MXCSR)
 	ldmxcsr L_MXCSR_DOWNWARD(%rip)
@@ -84,6 +85,7 @@ SYMBOL(rounded_hw_interval_add):
 	.p2align 4
 	.globl SYMBOL(rounded_hw_interval_sub)
 SYMBOL(rounded_hw_interval_sub):
+	endbr64
 	stmxcsr PREV_MXCSR     # PREV_MXCSR = MXCSR
 #if defined(USE_STATIC_MXCSR)
 	ldmxcsr L_MXCSR_DOWNWARD(%rip)
@@ -122,6 +124,7 @@ SYMBOL(rounded_hw_interval_sub):
 	.p2align 4
 	.globl SYMBOL(rounded_hw_interval_recip)
 SYMBOL(rounded_hw_interval_recip):
+	endbr64
 	stmxcsr PREV_MXCSR      # PREV_MXCSR = MXCSR
 #if defined(USE_STATIC_MXCSR)
 	ldmxcsr L_MXCSR_DOWNWARD(%rip)
@@ -171,6 +174,7 @@ LC0:
 	.p2align 4
 	.globl SYMBOL(rounded_hw_interval_sqrt)
 SYMBOL(rounded_hw_interval_sqrt):
+	endbr64
 	stmxcsr PREV_MXCSR     # PREV_MXCSR = MXCSR
 #if defined(USE_STATIC_MXCSR)
 	ldmxcsr L_MXCSR_DOWNWARD(%rip)
@@ -208,6 +212,7 @@ SYMBOL(rounded_hw_interval_sqrt):
 	.p2align 4
 	.globl SYMBOL(rounded_hw_interval_from_int64)
 SYMBOL(rounded_hw_interval_from_int64):
+	endbr64
 	stmxcsr PREV_MXCSR     # PREV_MXCSR = MXCSR
 #if defined(USE_STATIC_MXCSR)
 	ldmxcsr L_MXCSR_DOWNWARD(%rip)
@@ -235,4 +240,16 @@ SYMBOL(rounded_hw_interval_from_int64):
 #else
 	movq (%rbp), %rax
 	jmp *(%rax)
+#endif
+
+#if defined(__ELF__)
+	.section .note.GNU-stack,"",%progbits
+	.section .note.gnu.property,"a"
+	.p2align 3
+	.long 4, 16, 5  # namesz, descsz, NT_GNU_PROPERTY_TYPE_0
+	.asciz "GNU"
+	.long 0xc0000002  # GNU_PROPERTY_X86_FEATURE_1_AND
+	.long 4
+	.long 3  # IBT | SHSTK
+	.p2align 3
 #endif

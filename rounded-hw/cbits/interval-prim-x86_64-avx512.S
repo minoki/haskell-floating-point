@@ -24,6 +24,7 @@ SYMBOL(rounded_hw_interval_backend_name):
 	.p2align 3
 	.globl SYMBOL(rounded_hw_interval_add)
 SYMBOL(rounded_hw_interval_add):
+	endbr64
 	vaddsd {rd-sae}, %xmm3, %xmm1, %xmm1  # xmm1 = xmm1[0] + xmm3[0], xmm1[1] (downward)
 	vaddsd {ru-sae}, %xmm4, %xmm2, %xmm2  # xmm2 = xmm2[0] + xmm4[0], xmm2[1] (upward)
 #if defined(TABLES_NEXT_TO_CODE)
@@ -46,6 +47,7 @@ SYMBOL(rounded_hw_interval_add):
 	.p2align 3
 	.globl SYMBOL(rounded_hw_interval_sub)
 SYMBOL(rounded_hw_interval_sub):
+	endbr64
 	vsubsd {rd-sae}, %xmm4, %xmm1, %xmm1  # xmm1 = xmm1[0] - xmm4[0], xmm1[1] (downward)
 	vsubsd {ru-sae}, %xmm3, %xmm2, %xmm2  # xmm2 = xmm2[0] - xmm3[0], xmm2[1] (upward)
 #if defined(TABLES_NEXT_TO_CODE)
@@ -66,6 +68,7 @@ SYMBOL(rounded_hw_interval_sub):
 	.p2align 3
 	.globl SYMBOL(rounded_hw_interval_recip)
 SYMBOL(rounded_hw_interval_recip):
+	endbr64
 	vmovsd LC0(%rip), %xmm4               # xmm4 = 1.0, zero
 	vdivsd {rd-sae}, %xmm2, %xmm4, %xmm3  # xmm3 = xmm4[0] / xmm2[0], xmm4[1] (downward)
 	vdivsd {ru-sae}, %xmm1, %xmm4, %xmm2  # xmm2 = xmm4[0] / xmm1[0], xmm4[1] (upward)
@@ -96,6 +99,7 @@ LC0:
 	.p2align 3
 	.globl SYMBOL(rounded_hw_interval_sqrt)
 SYMBOL(rounded_hw_interval_sqrt):
+	endbr64
 	vmovq %xmm1, %xmm1                     # xmm1 = xmm1[0], zero
 	vsqrtsd {rd-sae}, %xmm1, %xmm1, %xmm1  # xmm1 = sqrt(xmm1[0]), xmm1[1] (downward)
 	vmovq %xmm2, %xmm2                     # xmm2 = xmm2[0], zero
@@ -117,6 +121,7 @@ SYMBOL(rounded_hw_interval_sqrt):
 	.p2align 3
 	.globl SYMBOL(rounded_hw_interval_from_int64)
 SYMBOL(rounded_hw_interval_from_int64):
+	endbr64
 	vxorps %xmm2, %xmm2, %xmm2               # xmm2 = zero
 	vcvtsi2sdq %rbx, {rd-sae}, %xmm2, %xmm1  # xmm1 = (double)(int64)rbx, xmm2[1] (downward)
 	vcvtsi2sdq %rbx, {ru-sae}, %xmm2, %xmm2  # xmm2 = (double)(int64)rbx, xmm2[1] (upward)
@@ -137,6 +142,7 @@ SYMBOL(rounded_hw_interval_from_int64):
 	.p2align 3
 	.globl SYMBOL(rounded_hw_interval_from_word64)
 SYMBOL(rounded_hw_interval_from_word64):
+	endbr64
 	vxorps %xmm2, %xmm2, %xmm2               # xmm2 = zero
 	vcvtusi2sdq %rbx, {rd-sae}, %xmm2, %xmm1  # xmm1 = (double)(uint64)rbx, xmm2[1] (downward)
 	vcvtusi2sdq %rbx, {ru-sae}, %xmm2, %xmm2  # xmm2 = (double)(uint64)rbx, xmm2[1] (upward)
@@ -145,4 +151,16 @@ SYMBOL(rounded_hw_interval_from_word64):
 #else
 	movq (%rbp), %rax
 	jmp *(%rax)
+#endif
+
+#if defined(__ELF__)
+	.section .note.GNU-stack,"",%progbits
+	.section .note.gnu.property,"a"
+	.p2align 3
+	.long 4, 16, 5  # namesz, descsz, NT_GNU_PROPERTY_TYPE_0
+	.asciz "GNU"
+	.long 0xc0000002  # GNU_PROPERTY_X86_FEATURE_1_AND
+	.long 4
+	.long 3  # IBT | SHSTK
+	.p2align 3
 #endif
